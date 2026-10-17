@@ -1,0 +1,78 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/mine/hello_rock.gd" id="1_hello_rock"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/rock_idle.svg" id="2_rock_idle"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholder/rock_cracked.svg" id="3_rock_cracked"]
+[ext_resource type="AudioStream" path="res://assets/sfx/placeholder/rock_crack.ogg" id="4_rock_crack"]
+
+[node name="HelloRock" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hello_rock")
+rock_idle = ExtResource("2_rock_idle")
+rock_cracked = ExtResource("3_rock_cracked")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.16, 0.27, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Rock" type="TextureButton" parent="Center"]
+unique_name_in_owner = true
+layout_mode = 2
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Sparkle" type="CPUParticles2D" parent="Center/Rock"]
+unique_name_in_owner = true
+emitting = false
+amount = 24
+lifetime = 0.7
+one_shot = true
+explosiveness = 1.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 600)
+initial_velocity_min = 220.0
+initial_velocity_max = 420.0
+scale_amount_min = 4.0
+scale_amount_max = 9.0
+color = Color(0.61, 0.91, 1, 1)
+
+[node name="CrackSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_rock_crack")
+bus = &"SFX"
+
+[node name="DebugOverlay" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 160.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 26
+text = "hello rock"

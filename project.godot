@@ -13,9 +13,13 @@ config_version=5
 config/name="Gem Mines of Number Mountain"
 config/description="A mining-and-crafting adventure that teaches number theory, from counting and place value to modular arithmetic, ciphers and proof."
 config/version="0.1.0"
-run/main_scene="res://scenes/shell/title.tscn"
+run/main_scene="res://scenes/mine/hello_rock.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+UI="*res://autoload/ui.gd"
 
 [debug]
 

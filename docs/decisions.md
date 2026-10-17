@@ -55,3 +55,14 @@ One entry per decision: date, decision, why, alternatives considered. Newest at 
 
 - **Decision:** the plan was moved from `project_plan/` to the path CLAUDE.md names. Phase breakdowns live in `docs/phases/`.
 - **Why:** CLAUDE.md, the README and the phase documents all link to `docs/development-plan.md`.
+
+## 2026-10-17: `UI` autoload lands in Sprint 1 with only `min_target_px()` and `scale_factor()`
+
+- **Decision:** the hello rock needs a touch-target size, and rule 7 forbids hard-coded pixel sizes, so the `UI` autoload is registered in Sprint 1 with just the sizing functions. The theme and posture handling planned for Sprint 3 are added to the same script later.
+- **Why:** 64 dp has to be converted with the screen DPI and divided by the canvas stretch scale to measure correctly on both the 1920x1080 design canvas and the devices; putting that in one place from the first scene avoids a Sprint 3 retrofit. The function never returns less than 64 px so headless and desktop runs stay safe.
+- **Alternatives:** a constant on the hello rock script (breaks rule 7 and would be copied).
+
+## 2026-10-17: Hello rock is the main scene until Sprint 3
+
+- **Decision:** `run/main_scene` points at `scenes/mine/hello_rock.tscn` so the Sprint 1 APK opens straight into the device test. Sprint 3's shell replaces it, and Sprint 4 deletes the hello rock scene, script, test and placeholder assets.
+- **Why:** the Sprint 1 goal is confirming touch, stylus, trackpad, window and orientation behaviour on the real devices, and the overlay on this scene is where those findings are read. Record them under a new entry here (pen as mouse-with-pressure vs touch, DPI values, orientation codes).
