@@ -19,7 +19,48 @@ export_credentials.cfg
 data_*/
 mono_crash.*.json
 
+# GdUnit4 test reports
+reports/
+
 # Export outputs
 *.exe
 # Uncomment if your project does not version PCK files as runtime dependencies.
 # *.pck
+
+# ---- Project-specific (see CLAUDE.md "Repository layout") ----
+# Build outputs (APK/AAB, web export)
+build/
+*.aab
+*.apk
+
+# Godot's generated Android Gradle build template (installed per machine)
+android/build/
+android/.build_version
+
+# Kotlin plugin build outputs (the built AAR is copied into addons/digit_ink/bin/ by tools/ci/copy_plugin.py)
+android/plugins/digit_ink/build/
+android/plugins/digit_ink/.gradle/
+android/plugins/digit_ink/local.properties
+
+# Charlie's exported logs and handwriting samples. Never commit or upload.
+private/
+
+# Signing keys and secrets (keys live in environment variables)
+*.keystore
+*.jks
+*.pem
+.env
+.env.*
+
+# Python tools
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

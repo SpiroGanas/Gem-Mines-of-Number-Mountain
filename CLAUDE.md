@@ -139,7 +139,7 @@ Set `GODOT` to the pinned Godot 4.7 executable (e.g., `export GODOT="/c/Tools/Go
 # Import assets (needed after a fresh clone or a new asset, before headless tests)
 "$GODOT" --headless --path . --import
 
-# Run all Godot tests (GdUnit4)
+# Run all Godot tests (GdUnit4). CI and other headless runs add: --headless --ignoreHeadlessMode
 GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh -a res://tests        # Git Bash
 # Windows cmd alternative: set GODOT_BIN=... && addons\gdUnit4\runtest.cmd -a res://tests
 
@@ -163,7 +163,7 @@ python tools/ci/copy_plugin.py
 
 # Debug APK for local install / release AAB for Play (release needs keystore env vars)
 "$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
-"$GODOT" --headless --path . --export-release "Android" build/gem-mines.aab
+"$GODOT" --headless --path . --export-release "Android AAB" build/gem-mines.aab
 adb install -r build/gem-mines-debug.apk
 ```
 

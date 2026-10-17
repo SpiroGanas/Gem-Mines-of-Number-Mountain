@@ -1,0 +1,33 @@
+# Normalize line endings (the dev machine is Windows; the engine and CI are LF-friendly).
+* text=auto eol=lf
+
+# Godot text formats
+*.gd      text eol=lf
+*.tscn    text eol=lf
+*.tres    text eol=lf
+*.godot   text eol=lf
+*.cfg     text eol=lf
+*.import  text eol=lf
+*.uid     text eol=lf
+*.csv     text eol=lf
+
+# Windows scripts
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+
+# Binary assets
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.webp    binary
+*.ogg     binary
+*.wav     binary
+*.mp3     binary
+*.ttf     binary
+*.otf     binary
+*.woff2   binary
+*.tflite  binary
+*.aar     binary
+*.jar     binary
+*.keystore binary
+*.jks     binary
