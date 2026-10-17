@@ -312,3 +312,54 @@ z3.hint.example_array_shape,The array has {rows} rows and {cols} columns.,Worked
 z3.hint.example_groups_total,{groups} groups of {size} make {total}.,Worked example: the total of equal groups,0
 z3.hint.example_commutative,{rows} × {cols} and {cols} × {rows} both make {total}.,Worked example: turning an array keeps the total,0
 z3.hint.example_fact,{a} × {b} = {product}.,Worked example: a times fact,0
+z4.mult.prompt_fact,What is {a} × {b}?,"Zone 4: multiplication facts (array, hop line or equation)",0
+z4.div.prompt_share,Share {n} gems into {b} equal carts. How many in each cart?,Zone 4: division as fair sharing,0
+z4.div.prompt_fact,What is {n} ÷ {b}?,"Zone 4: division facts, equation form",0
+z4.fac.prompt_list,Find all {k} factors of {n}. Put them in the slots.,"Zone 4: list every factor (tile board, order does not matter)",0
+z4.fac.prompt_rectangle,Build a rectangle with {rows} rows. Use {n} gems in all.,Zone 4: factor pairs as rectangles (array builder),0
+z4.fac.prompt_check,Is {d} a factor of {n}?,Zone 4: is it a factor (Yes or No),0
+z4.mul.prompt_first_k,Load the cart with the first {k} multiples of {b}.,"Zone 4: list the first multiples (tile board, in order)",0
+z4.mul.prompt_check,Is {n} a multiple of {b}?,Zone 4: is it a multiple (Yes or No),0
+z4.mul.prompt_common,What is the first multiple that {a} and {b} share?,Zone 4: first common multiple,0
+z4.prime.prompt_single,Is {n} unbreakable?,Zone 4: prime or composite (a prime rock is unbreakable),0
+z4.prime.prompt_set,Find the {k} unbreakable rocks. Put them in the slots.,"Zone 4: sort primes from composites (tile board, order does not matter)",0
+z4.prime.prompt_pairs_count,How many factor pairs does {n} have?,Zone 4: count the factor pairs of a number,0
+z4.prime.prompt_pairs_prime,Look at the factor pairs of {n}. Is {n} a prime?,Zone 4: prime from factor pairs (1 is included here),0
+z4.hint.example_div,{n} ÷ {b} = {q}.,Worked example: a division fact,0
+z4.hint.example_factors,{a} × {b} = {n}. So {a} and {b} are factors of {n}.,Worked example: a factor pair of a number,0
+z4.hint.example_rectangle,{rows} rows of {cols} make {n} gems.,Worked example: a rectangle with its gem count,0
+z4.hint.example_factor_yes,{d} × {k} = {n}. So {d} is a factor of {n}.,Worked example: a number that is a factor,0
+z4.hint.example_factor_no,Groups of {d} do not make {n} exactly. So it is not a factor.,Worked example: a number that is not a factor,0
+z4.hint.example_multiples,"The multiples of {b} are {b}, {m2}, {m3}, and so on.",Worked example: the first multiples of a number,0
+z4.hint.example_multiple_yes,{b} × {m} = {n}. So {n} is a multiple of {b}.,Worked example: a number that is a multiple,0
+z4.hint.example_multiple_no,Counting by {b} skips over {n}. So {n} is not a multiple of {b}.,Worked example: a number that is not a multiple,0
+z4.hint.example_common,"Counting by {a} and by {b}, the first match is {m}.",Worked example: the first common multiple,0
+z4.hint.example_prime_yes,{n} has just one pair: one times {n}. It will not break.,Worked example: an unbreakable rock,0
+z4.hint.example_prime_no,{a} × {b} = {n}. So {n} can break.,Worked example: a rock that breaks,0
+z4.prime.one_not_prime,One is not a prime. A prime has two different factors.,Teaching line and worked example: 1 is not a prime,0
+z4.hint.example_pairs,Count the pairs for {n}. There are {c}.,Worked example: how many factor pairs,0
+z4.hint.example_isprime_yes,{n} has just one pair: one times {n}. So {n} is a prime.,Worked example: a prime from its factor pairs,0
+z4.hint.example_isprime_no,{a} × {b} = {n}. So {n} is not a prime.,"Worked example: not a prime, from its factor pairs",0
+z4.prime.name_it,Unbreakable rocks have a real name: prime.,Teaching line: the word prime for an unbreakable rock,0
+vocab.factor.term,factor,Word Gem term,0
+vocab.factor.definition,A factor fits into a number with none left over. Factors come in pairs.,Word Gem kid-sized definition,0
+vocab.multiple.term,multiple,Word Gem term,0
+vocab.multiple.definition,A multiple is what we get when we count by a number. It is in the times table of that number.,Word Gem kid-sized definition,0
+vocab.prime.term,prime,Word Gem term,0
+vocab.prime.definition,A prime has exactly two factors: one and itself. Primes are the unbreakable rocks. One is not a prime.,Word Gem kid-sized definition,0
+vocab.composite.term,composite,Word Gem term,0
+vocab.composite.definition,A composite has more than two factors. It can break into smaller factors.,Word Gem kid-sized definition,0
+bolt.misconception.added_factors,Multiplying means equal groups. Do not add the two numbers.,Targeted hint after the added_factors mistake,0
+bolt.misconception.counted_factors_not_pairs,"A pair uses two factors. Count the pairs, not the factors.",Targeted hint after the counted_factors_not_pairs mistake,0
+bolt.misconception.factor_not_multiple,A factor goes into the number. A multiple comes from counting up.,Targeted hint after the factor_not_multiple mistake,0
+bolt.misconception.missing_one_and_n,Do not forget one. The number is its own factor too.,Targeted hint after the missing_one_and_n mistake,0
+bolt.misconception.multiple_not_factor,Factors fit inside the number. They are never bigger.,Targeted hint after the multiple_not_factor mistake,0
+bolt.misconception.multiplied_instead,Dividing shares into equal groups. The answer gets smaller.,Targeted hint after the multiplied_instead mistake,0
+bolt.misconception.no_check_made,Make equal groups. Is anything left over?,Targeted hint after the no_check_made mistake,0
+bolt.misconception.odd_means_prime,Some odd numbers break. Look for equal groups.,Targeted hint after the odd_means_prime mistake,0
+bolt.misconception.off_by_b,Start with one group. Then count up by the number.,Targeted hint after the off_by_b mistake,0
+bolt.misconception.one_is_prime,One has just one factor. A prime needs two.,Targeted hint after the one_is_prime mistake,0
+bolt.misconception.skip_middle_pair,Try each small number in turn. Did you miss a pair?,Targeted hint after the skip_middle_pair mistake,0
+bolt.misconception.square_is_prime,Squares break into equal rows and columns.,Targeted hint after the square_is_prime mistake,0
+bolt.misconception.two_is_not_prime,Two only has the factors one and two. It will not break.,Targeted hint after the two_is_not_prime mistake,0
+bolt.misconception.used_the_product,Count up by both numbers. Where do they meet first?,Targeted hint after the used_the_product mistake,0
