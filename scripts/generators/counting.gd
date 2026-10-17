@@ -140,6 +140,7 @@ static func _strip(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 	var jumped: Array[int] = blanks.duplicate()
 	jumped[0] += 10
 	GeneratorKit.add_distractor(problem, skill, jumped, &"decade_skip")
+	problem.meta = {"tile_board": {"tiles": GeneratorKit.tile_pool(problem), "slots": blanks.size(), "ordered": true}}
 	# Hint model: the same strip with the first blank filled in (kept hidden if it is the only one).
 	var still_hidden: Array[int] = blanks.slice(1) if blanks.size() > 1 else blanks
 	return GeneratorKit.number_line(start, start + length - 1, 1, [], still_hidden)

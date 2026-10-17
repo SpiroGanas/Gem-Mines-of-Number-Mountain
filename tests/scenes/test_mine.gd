@@ -416,3 +416,37 @@ func test_a_dig_with_no_skill_limit_starts_where_the_engine_says() -> void:
 	_mine = mine
 	await _open(0)
 	assert_str(mine.current_problem().skill_id).is_equal("count.to_20.objects") # a new miner starts at the root
+
+
+func test_a_problem_shows_its_word_gems_and_a_tap_opens_the_card() -> void:
+	await _open(0)
+	var chips: Array[Button] = _mine.bolt().term_chips()
+	assert_int(chips.size()).is_equal(_mine.current_problem().skill_id.length() * 0 + Adaptive.catalog().skill(&"pv.tens_ones.build").terms.size())
+	chips[0].pressed.emit()
+	assert_bool(_mine.word_gem_card().visible).is_true()
+	assert_bool(_sounds.has(&"select")).is_true()
+	_mine.word_gem_card().ok_button().pressed.emit()
+	assert_int(_mine.flow.state).is_equal(DigFlow.State.AWAIT_ANSWER) # nothing about the rock changed
+
+
+func test_a_named_mistake_gets_bolts_targeted_hint() -> void:
+	await _open(0)
+	var problem: Problem = _mine.current_problem()
+	var swapped: Dictionary = {}
+	for entry: Dictionary in problem.distractors:
+		if entry["misconception"] == &"digit_swap":
+			swapped = entry["value"]
+	assert_dict(swapped).override_failure_message("seed 12345's first rock should have a digit swap").is_not_empty()
+	_build(swapped["tens"], swapped["ones"])
+	_mine.board().done_button().pressed.emit()
+	await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.\nCheck the order of your digits.\nHere it is again. Look at these words.")
+
+
+func test_misconception_of_finds_the_distractor_that_was_given() -> void:
+	var problem: Problem = Problem.new()
+	problem.answer = 34
+	problem.distractors = [{"value": 43, "misconception": &"digit_swap"}, {"value": 35, "misconception": &"off_by_one"}]
+	assert_str(MineScreen.misconception_of(problem, 43)).is_equal("digit_swap")
+	assert_str(MineScreen.misconception_of(problem, 99)).is_empty()
+	assert_str(MineScreen.misconception_of(problem, true)).is_empty() # a different kind of value is never a match

@@ -49,11 +49,11 @@ func test_each_zone_1_skill_gets_the_input_the_plan_describes() -> void:
 		&"count.to_120.read": AnswerPanel.InputKind.CHOICES,
 		&"count.to_120.next": AnswerPanel.InputKind.CHOICES,
 		&"count.to_120.between": AnswerPanel.InputKind.CHOICES,
-		&"count.to_120.fill_strip": AnswerPanel.InputKind.CHOICES,
+		&"count.to_120.fill_strip": AnswerPanel.InputKind.TILES,
 		&"count.write.numeral": AnswerPanel.InputKind.NUMBER_PAD,
 		&"cmp.to_20.more_less": AnswerPanel.InputKind.TAP_PILE,
 		&"cmp.to_100.symbols": AnswerPanel.InputKind.CHOICES,
-		&"cmp.to_100.order3": AnswerPanel.InputKind.CHOICES,
+		&"cmp.to_100.order3": AnswerPanel.InputKind.TILES,
 		&"pv.tens_ones.build": AnswerPanel.InputKind.BOARD,
 		&"pv.tens_ones.read": AnswerPanel.InputKind.CHOICES,
 		&"pv.tens_ones.expanded": AnswerPanel.InputKind.CHOICES,
@@ -238,3 +238,28 @@ func test_tappable_piles_stay_tappable_when_the_model_appears() -> void:
 	assert_bool(model != _panel.visual_model()).is_true()
 	assert_int(_panel.visual_model().pile_buttons().size()).is_equal(2)
 	assert_bool(model.compact).is_true()
+
+
+func test_a_number_strip_is_answered_on_a_tile_board_with_the_strip_around_the_slots() -> void:
+	var problem: Problem = _problem(&"count.to_120.fill_strip", 8)
+	_panel.setup(problem, _rng())
+	_panel.set_enabled(true)
+	var board: TileBoard = _panel.tile_board()
+	assert_object(board).is_not_null()
+	assert_int(AnswerPanel.strip_sequence(problem).count(null)).is_equal(problem.answer.size())
+	var given: Array = []
+	_panel.answered.connect(func(value: Variant) -> void: given.append(value))
+	_give(problem, problem.answer)
+	assert_bool(problem.is_correct(given[0])).is_true()
+
+
+func test_ordering_three_numbers_uses_the_tiles_in_the_order_the_piles_show() -> void:
+	var problem: Problem = _problem(&"cmp.to_100.order3", 2)
+	assert_array(problem.meta["tile_board"]["tiles"]).is_equal(problem.meta["numbers"])
+	assert_array(AnswerPanel.strip_sequence(problem)).is_empty() # bare slots, no strip
+	assert_float(AnswerPanel.chance_for(problem)).is_equal_approx(1.0 / 6.0, 0.0001) # 3! orders
+
+
+func test_tile_chance_counts_orders_or_sets() -> void:
+	assert_float(AnswerPanel.tile_chance({"tiles": [1, 2, 3, 4, 5], "slots": 2, "ordered": true})).is_equal_approx(1.0 / 20.0, 0.0001)
+	assert_float(AnswerPanel.tile_chance({"tiles": [1, 2, 3, 4, 5, 6], "slots": 4, "ordered": false})).is_equal_approx(1.0 / 15.0, 0.0001)

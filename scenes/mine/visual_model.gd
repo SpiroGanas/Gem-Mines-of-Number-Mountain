@@ -1,5 +1,8 @@
 ## Draws a problem's visual: piles of hundred-blocks, ten-bars and one-gems (`gem_piles`),
-## ten-frames (`ten_frame`) and number lines (`number_line`). Gray-box shapes in code.
+## ten-frames (`ten_frame`, with an optional second set of dots for the second addend), number
+## lines (`number_line`, with optional jump arcs), a balance scale (`balance`), arrays (`array`),
+## equal groups (`groups`) and gems lined up in pairs (`pairs`). Gray-box shapes in code; the
+## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
 ## line_x...), so tests can prove nothing spills outside its box; _draw() only paints them.
@@ -24,6 +27,18 @@ const LABEL_SIZE: int = 30
 const HEIGHT_MULTIPLE_PILES: float = 6.0
 const HEIGHT_MULTIPLE_LINE: float = 3.2
 const HEIGHT_MULTIPLE_FRAME: float = 3.6
+const HEIGHT_MULTIPLE_BALANCE: float = 4.2
+const HEIGHT_MULTIPLE_ARRAY: float = 4.6
+const HEIGHT_MULTIPLE_GROUPS: float = 4.0
+const HEIGHT_MULTIPLE_PAIRS: float = 3.4
+## The second addend's dots on a ten-frame are squares in another color, so color is never the
+## only difference (accessibility rule).
+const SECOND_COLOR: Color = Color("#7FC8F8")
+const JUMP_COLOR: Color = Color("#7BD88F")
+const BEAM_COLOR: Color = Color("#C9D1E8")
+const RING_COLOR: Color = Color("#F5F7FF")
+## How far the beam leans when one pan is heavier (radians).
+const TILT_ANGLE: float = 0.22
 const COMPACT_SCALE: float = 0.6
 
 var visual: Dictionary = {}
@@ -49,6 +64,14 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_PILES
 		&"ten_frame":
 			height = HEIGHT_MULTIPLE_FRAME
+		&"balance":
+			height = HEIGHT_MULTIPLE_BALANCE
+		&"array":
+			height = HEIGHT_MULTIPLE_ARRAY
+		&"groups":
+			height = HEIGHT_MULTIPLE_GROUPS
+		&"pairs":
+			height = HEIGHT_MULTIPLE_PAIRS
 	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
@@ -158,6 +181,56 @@ static func minor_tick_step(low: int, high: int) -> int:
 	return 5 if span <= 100 else 10
 
 
+## The cells of a rows x cols array inside `area`: square cells, centred, in reading order.
+static func array_cells(rows: int, cols: int, area: Rect2) -> Array[Rect2]:
+	var cells: Array[Rect2] = []
+	var side: float = minf(area.size.x / float(maxi(cols, 1)), area.size.y / float(maxi(rows, 1)))
+	var origin: Vector2 = area.get_center() - Vector2(side * cols, side * rows) * 0.5
+	for row: int in rows:
+		for col: int in cols:
+			cells.append(Rect2(origin + Vector2(col, row) * side, Vector2(side, side)))
+	return cells
+
+
+## The rings of `groups` equal groups inside `area`: up to 5 to a row, square, centred.
+static func group_boxes(groups: int, area: Rect2) -> Array[Rect2]:
+	var boxes: Array[Rect2] = []
+	var per_row: int = mini(groups, 5)
+	var rows: int = ceili(float(groups) / 5.0)
+	var gap: float = 16.0
+	var side: float = minf((area.size.x - gap * (per_row - 1)) / float(per_row), (area.size.y - gap * (rows - 1)) / float(rows))
+	for index: int in groups:
+		var row: int = floori(index / 5.0)
+		var in_row: int = mini(groups - row * 5, 5)
+		var left: float = area.get_center().x - (side * in_row + gap * (in_row - 1)) * 0.5
+		var top: float = area.get_center().y - (side * rows + gap * (rows - 1)) * 0.5
+		boxes.append(Rect2(left + (index % 5) * (side + gap), top + row * (side + gap), side, side))
+	return boxes
+
+
+## Where `count` gems sit when lined up in pairs: column i holds gems 2i (top) and 2i + 1 (bottom),
+## so an odd count leaves the last gem alone on top.
+static func pair_cells(count: int, area: Rect2) -> Array[Rect2]:
+	var cells: Array[Rect2] = []
+	var columns: int = maxi(ceili(count / 2.0), 1)
+	var side: float = minf(area.size.x / float(columns), area.size.y / 2.0)
+	var origin: Vector2 = area.get_center() - Vector2(side * columns, side * 2.0) * 0.5
+	for index: int in count:
+		cells.append(Rect2(origin + Vector2(floori(index / 2.0), index % 2) * side, Vector2(side, side)))
+	return cells
+
+
+## How far the beam turns: 0 when level or not yet known, negative (left end down) when the left
+## pan is heavier.
+static func beam_angle(tilt: String) -> float:
+	match tilt:
+		"left":
+			return -TILT_ANGLE
+		"right":
+			return TILT_ANGLE
+	return 0.0
+
+
 # --- Drawing ---------------------------------------------------------------------------------
 
 
@@ -169,6 +242,14 @@ func _draw() -> void:
 			_draw_ten_frames()
 		&"number_line":
 			_draw_number_line()
+		&"balance":
+			_draw_balance()
+		&"array":
+			_draw_array()
+		&"groups":
+			_draw_groups()
+		&"pairs":
+			_draw_pairs()
 
 
 func _draw_piles() -> void:
@@ -234,10 +315,13 @@ func _draw_group_outline(pieces: Array[Dictionary], offset: Vector2) -> void:
 func _draw_ten_frames() -> void:
 	var cells: Array[Rect2] = frame_cells(int(visual["frames"]), Rect2(Vector2.ZERO, size).grow(-8.0))
 	var count: int = int(visual["count"])
+	var second: int = int(visual.get("second", 0))
 	for index: int in cells.size():
 		draw_rect(cells[index], FRAME_COLOR, false, 3.0)
 		if index < count:
 			draw_circle(cells[index].get_center(), cells[index].size.x * 0.34, DOT_COLOR)
+		elif index < count + second:
+			draw_rect(cells[index].grow(-cells[index].size.x * 0.2), SECOND_COLOR)
 
 
 func _draw_number_line() -> void:
@@ -268,6 +352,98 @@ func _draw_number_line() -> void:
 	for marker: int in visual["markers"]:
 		var mx: float = line_x(marker, low, high, size.x, margin)
 		draw_colored_polygon(PackedVector2Array([Vector2(mx, y - 8.0), Vector2(mx - 16.0, y - 44.0), Vector2(mx + 16.0, y - 44.0)]), MARKER_COLOR)
+	for jump: Dictionary in visual.get("jumps", []):
+		_draw_jump(line_x(jump["from"], low, high, size.x, margin), line_x(jump["to"], low, high, size.x, margin), y)
+
+
+## An arc above the line from one value to another, with an arrowhead where it lands.
+func _draw_jump(from_x: float, to_x: float, y: float) -> void:
+	var points: PackedVector2Array = PackedVector2Array()
+	var rise: float = clampf(absf(to_x - from_x) * 0.35, 24.0, size.y * 0.45)
+	for step: int in 17:
+		var t: float = float(step) / 16.0
+		points.append(Vector2(lerpf(from_x, to_x, t), y - 14.0 - sin(t * PI) * rise))
+	draw_polyline(points, JUMP_COLOR, 4.0, true)
+	var tip: Vector2 = points[points.size() - 1]
+	var back: float = -12.0 if to_x > from_x else 12.0
+	draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(back, -14.0), tip + Vector2(back * 1.3, 2.0)]), JUMP_COLOR)
+
+
+func _draw_balance() -> void:
+	var font: Font = get_theme_default_font()
+	var pivot: Vector2 = Vector2(size.x * 0.5, size.y * 0.42)
+	var half: float = size.x * 0.36
+	var angle: float = beam_angle(str(visual.get("tilt", "unknown")))
+	var left_end: Vector2 = pivot + Vector2(-half, 0).rotated(angle)
+	var right_end: Vector2 = pivot + Vector2(half, 0).rotated(angle)
+	# Stand and pivot.
+	draw_colored_polygon(PackedVector2Array([pivot, pivot + Vector2(-40, size.y * 0.5), pivot + Vector2(40, size.y * 0.5)]), BEAM_COLOR.darkened(0.3))
+	draw_line(left_end, right_end, BEAM_COLOR, 10.0)
+	draw_circle(pivot, 12.0, MARKER_COLOR)
+	if str(visual.get("tilt", "unknown")) == "unknown":
+		var mark: String = "?"
+		draw_string(font, pivot + Vector2(-12, -24), mark, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE + 8, MARKER_COLOR)
+	for side: Array in [[left_end, visual.get("left", [])], [right_end, visual.get("right", [])]]:
+		var end: Vector2 = side[0]
+		var pan: Rect2 = Rect2(end + Vector2(-size.x * 0.13, size.y * 0.16), Vector2(size.x * 0.26, size.y * 0.2))
+		draw_line(end, pan.position, BEAM_COLOR, 3.0)
+		draw_line(end, Vector2(pan.end.x, pan.position.y), BEAM_COLOR, 3.0)
+		draw_style_box(_panel_style(), pan)
+		var parts: PackedStringArray = PackedStringArray()
+		for term: Variant in side[1]:
+			parts.append(str(term))
+		var label: String = " + ".join(parts)
+		var width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+		draw_string(font, Vector2(pan.get_center().x - width * 0.5, pan.get_center().y + LABEL_SIZE * 0.35), label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, LINE_COLOR)
+
+
+func _draw_gem(rect: Rect2) -> void:
+	var points: PackedVector2Array = GemArt.shape_points(GemArt.PYRITE)
+	var scaled: PackedVector2Array = PackedVector2Array()
+	for point: Vector2 in points:
+		scaled.append(rect.position + point * rect.size)
+	draw_colored_polygon(scaled, GemArt.color_for(GemArt.PYRITE))
+	scaled.append(scaled[0])
+	draw_polyline(scaled, EDGE_COLOR, 2.0, true)
+
+
+func _draw_array() -> void:
+	var rows: int = int(visual["rows"])
+	var cols: int = int(visual["cols"])
+	var cells: Array[Rect2] = array_cells(rows, cols, Rect2(Vector2.ZERO, size).grow(-12.0))
+	for cell: Rect2 in cells:
+		_draw_gem(cell.grow(-cell.size.x * 0.14))
+	if visual.get("outline_rows", false):
+		for row: int in rows:
+			var first: Rect2 = cells[row * cols]
+			var band: Rect2 = first.merge(cells[row * cols + cols - 1]).grow(-2.0)
+			draw_rect(band, GROUP_COLOR, false, 3.0)
+
+
+func _draw_groups() -> void:
+	var boxes: Array[Rect2] = group_boxes(int(visual["groups"]), Rect2(Vector2.ZERO, size).grow(-8.0))
+	var per_group: int = int(visual["size"])
+	var columns: int = ceili(sqrt(float(per_group)))
+	var rows: int = ceili(float(per_group) / float(columns))
+	for box: Rect2 in boxes:
+		draw_circle(box.get_center(), box.size.x * 0.5, RING_COLOR, false, 3.0, true)
+		var inner: Rect2 = Rect2(box.get_center() - box.size * 0.33, box.size * 0.66)
+		var cells: Array[Rect2] = array_cells(rows, columns, inner)
+		for index: int in per_group:
+			_draw_gem(cells[index].grow(-cells[index].size.x * 0.12))
+
+
+func _draw_pairs() -> void:
+	var count: int = int(visual["count"])
+	var cells: Array[Rect2] = pair_cells(count, Rect2(Vector2.ZERO, size).grow(-10.0))
+	for cell: Rect2 in cells:
+		_draw_gem(cell.grow(-cell.size.x * 0.16))
+	if not visual.get("show_pairs", false):
+		return
+	for pair: int in floori(count / 2.0):
+		draw_rect(cells[pair * 2].merge(cells[pair * 2 + 1]).grow(-3.0), GROUP_COLOR, false, 3.0)
+	if count % 2 == 1:
+		draw_circle(cells[count - 1].get_center(), cells[count - 1].size.x * 0.5, MARKER_COLOR, false, 4.0, true) # the one left over
 
 
 func _panel_style() -> StyleBoxFlat:

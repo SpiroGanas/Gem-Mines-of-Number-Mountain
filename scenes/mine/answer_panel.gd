@@ -6,6 +6,7 @@
 ##   BOARD       build with ten-bars and one-gems on the BuildBoard (build, regroup)
 ##   CHOICES     big answer buttons: the answer plus named wrong answers, shuffled
 ##   NUMBER_PAD  the on-screen number pad (write the numeral, sums and differences)
+##   TILES       drag tiles into slots on the TileBoard (number strips, ordering, fact families)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model (show_hint).
 class_name AnswerPanel
@@ -14,11 +15,12 @@ extends VBoxContainer
 ## The child gave an answer. `given` is in the problem's canonical answer shape.
 signal answered(given: Variant)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
 const PAD_SCENE: PackedScene = preload("res://scenes/input/number_pad.tscn")
+const TILES_SCENE: PackedScene = preload("res://scenes/input/tile_board.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
 ## few options (a random number on the pad, a random pile on the board). Used by the adaptive
@@ -36,6 +38,7 @@ var _board: BuildBoard
 var _choices: ChoiceButtons
 var _pad: NumberPad
 var _pad_row: HBoxContainer
+var _tiles: TileBoard
 var _enabled: bool = false
 
 
@@ -58,6 +61,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem) -> InputKind
 		&"drag":
 			if for_problem.meta.has("tools"):
 				return InputKind.BOARD
+			if for_problem.meta.has("tile_board"):
+				return InputKind.TILES
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				return InputKind.NUMBER_PAD
@@ -74,9 +79,25 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			options = for_problem.visual.get("piles", []).size()
 		InputKind.CHOICES:
 			options = mini(for_problem.distractors.size(), MAX_CHOICE_DISTRACTORS) + 1
+		InputKind.TILES:
+			return tile_chance(for_problem.meta["tile_board"])
 		_:
 			return FREE_RESPONSE_CHANCE
 	return 1.0 / float(maxi(options - eliminated, 1))
+
+
+## The chance that tiles dropped into the slots at random are right: one arrangement out of all the
+## ordered (or, when order does not matter, unordered) ways to fill the slots from the pool.
+static func tile_chance(board: Dictionary) -> float:
+	var pool: int = board.get("tiles", []).size()
+	var slots: int = int(board.get("slots", 1))
+	var ways: float = 1.0
+	for index: int in slots:
+		ways *= float(pool - index)
+	if not board.get("ordered", true):
+		for index: int in range(2, slots + 1):
+			ways /= float(index)
+	return 1.0 / maxf(ways, 1.0)
 
 
 ## The attempt log's answer_mode for the input a problem gets: tap, drag or number_pad.
@@ -120,6 +141,9 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_choices(rng)
 		InputKind.NUMBER_PAD:
 			_add_pad_with_visual()
+		InputKind.TILES:
+			_add_visual(false)
+			_add_tiles()
 	set_enabled(_enabled)
 
 
@@ -131,6 +155,8 @@ func set_enabled(enabled: bool) -> void:
 		_choices.set_enabled(enabled)
 	if _pad != null:
 		_pad.set_enabled(enabled)
+	if _tiles != null:
+		_tiles.set_enabled(enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
 		for button: Button in _visual.pile_buttons():
 			button.disabled = not enabled
@@ -187,6 +213,10 @@ func number_pad() -> NumberPad:
 	return _pad
 
 
+func tile_board() -> TileBoard:
+	return _tiles
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -197,6 +227,7 @@ func _clear() -> void:
 	_choices = null
 	_pad = null
 	_pad_row = null
+	_tiles = null
 
 
 func _add_visual(tappable: bool) -> void:
@@ -252,6 +283,32 @@ func _add_pad_with_visual() -> void:
 	_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_pad)
 	_pad.submitted.connect(_on_value_given)
+
+
+func _add_tiles() -> void:
+	var spec: Dictionary = problem.meta["tile_board"]
+	_tiles = TILES_SCENE.instantiate()
+	_tiles.tiles = spec["tiles"].duplicate()
+	_tiles.slot_count = int(spec["slots"])
+	_tiles.ordered = bool(spec.get("ordered", true))
+	_tiles.sequence = strip_sequence(problem)
+	_tiles.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_tiles)
+	_tiles.submitted.connect(_on_value_given)
+
+
+## For a number strip (a number line whose blanks are the answer), the strip in reading order with
+## null where each blank goes, so the slots sit between the numbers around them. Otherwise empty.
+static func strip_sequence(for_problem: Problem) -> Array:
+	var line: Dictionary = for_problem.visual
+	var slots: int = int(for_problem.meta.get("tile_board", {}).get("slots", 0))
+	if line.get("type") != "number_line" or line.get("blanks", []).size() != slots:
+		return []
+	var step: int = maxi(int(line["labeled_every"]), 1)
+	var sequence: Array = []
+	for value: int in range(int(line["min"]), int(line["max"]) + 1, step):
+		sequence.append(null if line["blanks"].has(value) else value)
+	return sequence if sequence.count(null) == slots and sequence.size() <= 8 else []
 
 
 func _on_value_given(given: Variant) -> void:

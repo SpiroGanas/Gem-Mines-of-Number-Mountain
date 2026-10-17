@@ -131,6 +131,20 @@ static func shuffled_ints(values: Array[int], rng: RandomNumberGenerator) -> Arr
 	return items
 
 
+## The tile pool for a tile-board answer: every number in the answer and the distractors, once each,
+## in a fixed scrambled order (so the pool never spells out the answer and no rng draw is needed).
+static func tile_pool(problem: Problem) -> Array[int]:
+	var values: Array[int] = []
+	var answers: Array = [problem.answer]
+	answers.append_array(problem.distractor_values())
+	for answer: Variant in answers:
+		for item: Variant in answer:
+			if not values.has(int(item)):
+				values.append(int(item))
+	values.sort_custom(func(x: int, y: int) -> bool: return [(x * 7919) % 101, x] < [(y * 7919) % 101, y])
+	return values
+
+
 # --- Hints -----------------------------------------------------------------------------------
 
 

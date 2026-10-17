@@ -112,3 +112,44 @@ z1.hint.example_pile_right,The pile on the right is the one.,Worked example: tap
 z1.build.source_hundred,Hundred-block,Label on the pile of hundred-blocks,0
 bolt.placement.intro,Let's explore the mountain! Crack rocks so I can see what you know.,Placement quest: Bolt's line while picking rocks,0
 bolt.placement.done,All done exploring! Now I know where to dig.,Placement quest finished,0
+bolt.misconception.added_as_ones,"Those are tens, not ones. Count them by tens.",Targeted hint after the added_as_ones mistake,0
+bolt.misconception.added_both,"We want the missing part, not a bigger total.",Targeted hint after the added_both mistake,0
+bolt.misconception.added_instead,Look at the sign. This one takes away.,Targeted hint after the added_instead mistake,0
+bolt.misconception.added_tens_to_ones,"Line up the places. Add tens to tens, ones to ones.",Targeted hint after the added_tens_to_ones mistake,0
+bolt.misconception.carried_twice,"Trade a ten only once, when the ones make ten.",Targeted hint after the carried_twice mistake,0
+bolt.misconception.changed_ones,Ten more or less changes the tens. The ones stay.,Targeted hint after the changed_ones mistake,0
+bolt.misconception.compared_ones_first,Look at the tens first. They tell us more.,Targeted hint after the compared_ones_first mistake,0
+bolt.misconception.counted_bars_as_ones,Each bar is ten gems. Count the bars by tens.,Targeted hint after the counted_bars_as_ones mistake,0
+bolt.misconception.counted_from_one,"Start at the first number, then count on.",Targeted hint after the counted_from_one mistake,0
+bolt.misconception.counted_groups,That is how many groups. How many gems in all?,Targeted hint after the counted_groups mistake,0
+bolt.misconception.counted_tens_as_ones,"A ten-bar is worth ten, not one.",Targeted hint after the counted_tens_as_ones mistake,0
+bolt.misconception.decade_skip,Check the tens. Did we jump one ten too far?,Targeted hint after the decade_skip mistake,0
+bolt.misconception.digit_swap,Check the order of your digits.,Targeted hint after the digit_swap mistake,0
+bolt.misconception.digit_value_as_digit,Think about the place. A tens digit is worth tens.,Targeted hint after the digit_value_as_digit mistake,0
+bolt.misconception.double_counted,Touch each gem just once as you count.,Targeted hint after the double_counted mistake,0
+bolt.misconception.dropped_addend,Check that you added every number.,Targeted hint after the dropped_addend mistake,0
+bolt.misconception.forgot_regroup,Ten ones make a ten. Trade them in.,Targeted hint after the forgot_regroup mistake,0
+bolt.misconception.forgot_untrade,"Break a ten into ones first, then take away.",Targeted hint after the forgot_untrade mistake,0
+bolt.misconception.left_side_only,Look at both sides of the equals sign.,Targeted hint after the left_side_only mistake,0
+bolt.misconception.leftover_miscounted,Make the pairs again. Is one gem left over?,Targeted hint after the leftover_miscounted mistake,0
+bolt.misconception.off_by_group,Count the groups again. Is one extra or missing?,Targeted hint after the off_by_group mistake,0
+bolt.misconception.off_by_one,So close! Count again carefully.,Targeted hint after the off_by_one mistake,0
+bolt.misconception.off_by_row,"Count the rows again, one at a time.",Targeted hint after the off_by_row mistake,0
+bolt.misconception.off_by_two,Close! Check the double again.,Targeted hint after the off_by_two mistake,0
+bolt.misconception.picked_smaller,Read the question again. More or fewer?,Targeted hint after the picked_smaller mistake,0
+bolt.misconception.reversed_order,Check where to start: least or greatest?,Targeted hint after the reversed_order mistake,0
+bolt.misconception.reversed_symbol,The pointy end faces the smaller number.,Targeted hint after the reversed_symbol mistake,0
+bolt.misconception.rows_cols_swapped,Rows go across. Columns go up and down.,Targeted hint after the rows_cols_swapped mistake,0
+bolt.misconception.rows_cols_swapped_wrong,Turn the array around. Do the numbers stay the same?,Targeted hint after the rows_cols_swapped_wrong mistake,0
+bolt.misconception.rows_plus_cols,"Count every gem, not just the rows and columns.",Targeted hint after the rows_plus_cols mistake,0
+bolt.misconception.smaller_from_larger,Look at the top ones. Do we need to trade a ten?,Targeted hint after the smaller_from_larger mistake,0
+bolt.misconception.subtracted_as_ones,Those are tens. Take tens away from tens.,Targeted hint after the subtracted_as_ones mistake,0
+bolt.misconception.swapped_minuend,Start from the biggest number when you take away.,Targeted hint after the swapped_minuend mistake,0
+bolt.misconception.thought_equal,Are both amounts really the same?,Targeted hint after the thought_equal mistake,0
+bolt.misconception.thought_unequal,Count both sides again. They might match!,Targeted hint after the thought_unequal mistake,0
+bolt.misconception.traded_wrong_count,A trade is always exactly ten.,Targeted hint after the traded_wrong_count mistake,0
+bolt.misconception.used_tens_digit,Look at the ones digit. It tells even or odd.,Targeted hint after the used_tens_digit mistake,0
+bolt.misconception.wrong_operation,Check the sign. Do we add or take away?,Targeted hint after the wrong_operation mistake,0
+bolt.misconception.wrong_place,Look at which digit the question asks about.,Targeted hint after the wrong_place mistake,0
+bolt.misconception.wrong_step,Check the jump size between the numbers.,Targeted hint after the wrong_step mistake,0
+bolt.misconception.wrong_table,Check which number we are counting by.,Targeted hint after the wrong_table mistake,0

@@ -20,6 +20,7 @@ signal wall_cleared
 
 const ZONE: int = 1
 const PANEL_SCENE: PackedScene = preload("res://scenes/mine/answer_panel.tscn")
+const CARD_SCRIPT: GDScript = preload("res://scenes/mine/word_gem_card.gd")
 
 ## 1.0 is normal speed. Tests raise it so animations finish quickly.
 @export var animation_speed: float = 1.0
@@ -41,6 +42,9 @@ var _panel: AnswerPanel
 var _answer_opened_ms: int = 0
 ## Not-quite answers on the problem now on screen (the chance of a lucky guess rises as options go).
 var _misses_on_problem: int = 0
+## The misconception the last not-quite answer matched (empty when it matched none).
+var _last_misconception: StringName = &""
+var _word_gem_card: WordGemCard
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -75,6 +79,9 @@ func _ready() -> void:
 	_cart.gem_landed.connect(_on_gem_landed)
 	flow.state_changed.connect(_on_state_changed)
 	Adaptive.placement_finished.connect(_on_placement_finished)
+	_word_gem_card = CARD_SCRIPT.new()
+	add_child(_word_gem_card) # last child: drawn over everything
+	_bolt.term_tapped.connect(_on_term_tapped)
 	_start_wall()
 
 
@@ -97,6 +104,10 @@ func bolt() -> Bolt:
 ## The answer panel for the open problem, or null when no rock is open.
 func answer_panel() -> AnswerPanel:
 	return _panel
+
+
+func word_gem_card() -> WordGemCard:
+	return _word_gem_card
 
 
 ## The build board, if the open problem is answered by building (otherwise null).
@@ -140,6 +151,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_remove_panel()
 			_wall.clear_selection()
 			_wall.set_interactive(true)
+			_bolt.set_terms([])
 			# After a rock, the praise stays until the child opens the next one.
 			var pick_line: StringName = &"bolt.placement.intro" if Adaptive.placement_active() and skill_ids.is_empty() else &"bolt.mine.pick_rock"
 			_bolt.say(pick_line, {}, previous == DigFlow.State.GEM_DROP)
@@ -147,6 +159,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_wall.set_interactive(false)
 			_wall.mark_selected(flow.current_rock())
 			var problem: Problem = current_problem()
+			_bolt.set_terms(Adaptive.catalog().skill(problem.skill_id).terms)
 			_bolt.say(problem.prompt_line_id, problem.prompt_params)
 			_show_panel(problem)
 			flow.problem_shown.call_deferred()
@@ -210,7 +223,17 @@ func _on_answered(given: Variant) -> void:
 	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))
 	if not correct:
 		_misses_on_problem += 1
+		_last_misconception = misconception_of(problem, given)
 	flow.submit_answer(correct)
+
+
+## The named misconception whose distractor equals `given`, or &"" (GDD section 5: the targeted
+## hint is keyed to the distractor the child picked or typed).
+static func misconception_of(problem: Problem, given: Variant) -> StringName:
+	for entry: Dictionary in problem.distractors:
+		if Problem.same(entry["value"], given):
+			return StringName(entry["misconception"])
+	return &""
 
 
 ## Hint rung `rung` for the open rock: Bolt says the problem again with its numbers highlighted,
@@ -219,6 +242,9 @@ func _show_hint(rung: HintLadder.Rung) -> void:
 	var problem: Problem = current_problem()
 	_bolt.say(problem.prompt_line_id, problem.prompt_params, false, problem.prompt_params.keys())
 	_bolt.note(&"bolt.feedback.not_quite")
+	var targeted: StringName = StringName("bolt.misconception.%s" % _last_misconception)
+	if _last_misconception != &"" and Text.has_line(targeted):
+		_bolt.add_note(targeted)
 	_bolt.add_note(HintLadder.line_for(rung))
 	_panel.show_hint(rung)
 
@@ -242,6 +268,11 @@ func _remove_panel() -> void:
 		_panel.queue_free()
 		_answer_host.remove_child(_panel)
 		_panel = null
+
+
+func _on_term_tapped(term_id: StringName) -> void:
+	_sfx.play(&"select")
+	_word_gem_card.show_term(term_id)
 
 
 func _on_placement_finished(_passed: Array[StringName]) -> void:

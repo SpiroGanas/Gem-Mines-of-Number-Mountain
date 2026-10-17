@@ -33,6 +33,11 @@ const GREEN: Color = Color("#7BD88F")
 const GREEN_HOVER: Color = Color("#99E3A9")
 const GREEN_PRESSED: Color = Color("#55B96C")
 const GREY_DISABLED: Color = Color("#A9B0C6")
+## Word Gem chips: light amethyst (the mastery gem's color), navy text.
+const LAVENDER: Color = Color("#C9B3F0")
+const LAVENDER_HOVER: Color = Color("#D9C8F5")
+const LAVENDER_PRESSED: Color = Color("#B39AE6")
+const WORD_GEM_SIZE: int = 40
 const FOCUS_OUTLINE: Color = Color("#FFFFFF")
 
 
@@ -58,6 +63,10 @@ static func build(target_px: int) -> Theme:
 	# "Go" and other confirm buttons: green fill; the label still says what they do.
 	theme.set_type_variation(&"GoButton", &"Button")
 	_style_button(theme, &"GoButton", target_px, GREEN, GREEN_HOVER, GREEN_PRESSED)
+
+	theme.set_type_variation(&"WordGemButton", &"Button")
+	_style_button(theme, &"WordGemButton", target_px, LAVENDER, LAVENDER_HOVER, LAVENDER_PRESSED)
+	theme.set_font_size(&"font_size", &"WordGemButton", WORD_GEM_SIZE)
 
 	var panel: StyleBoxFlat = _box(NAVY_LIGHT, OFF_WHITE, CORNER_RADIUS, int(target_px * 0.33))
 	theme.set_stylebox(&"panel", &"PanelContainer", panel)

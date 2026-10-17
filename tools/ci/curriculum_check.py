@@ -34,6 +34,8 @@ KNOWN_GENERATORS = frozenset({
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
+# Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
+WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs"})
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
 ZONE_STATUSES = frozenset({"detailed", "outline"})
@@ -158,6 +160,9 @@ def check_vocabulary(vocabulary: dict[str, dict], line_ids: set[str]) -> list[st
                 errors.append(f"vocabulary: '{term_id}'.{key} '{line_id}' is not in text/lines.csv")
         if term.get("picture") is not None and not isinstance(term["picture"], str):
             errors.append(f"vocabulary: '{term_id}'.picture must be null or a resource path")
+        visual = term.get("visual")
+        if visual is not None and (not isinstance(visual, dict) or visual.get("type") not in WORD_GEM_VISUALS):
+            errors.append(f"vocabulary: '{term_id}'.visual must be a picture of one of the types {sorted(WORD_GEM_VISUALS)}")
     return errors
 
 

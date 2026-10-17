@@ -23,6 +23,15 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 				panel.number_pad().press_digit(int(digit))
 			panel.number_pad().submit()
 			return true
+		AnswerPanel.InputKind.TILES:
+			var board: TileBoard = panel.tile_board()
+			board.clear()
+			for index: int in target.size():
+				if board.tile_face(target[index]) == null:
+					return false
+				board.put(target[index], index)
+			board.submit()
+			return true
 		AnswerPanel.InputKind.BOARD:
 			var tray: DragTarget = panel.board().tray()
 			tray.clear()
