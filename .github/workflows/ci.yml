@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+
+jobs:
+  godot-import:
+    name: Godot project loads (headless)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check pinned Godot version matches .godot-version
+        run: |
+          test "$(cat .godot-version)" = "$GODOT_VERSION"
+
+      - name: Download Godot (headless-capable Linux build)
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}_linux.x86_64"
+          echo "GODOT=$PWD/Godot_v${GODOT_VERSION}_linux.x86_64" >> "$GITHUB_ENV"
+
+      - name: Import project
+        run: '"$GODOT" --headless --path . --import'
+
+      - name: Run main scene for a few frames
+        run: '"$GODOT" --headless --path . --quit-after 3'
+
+      # Phase 1, Sprint 3 adds: GdUnit4 suites, pytest for tools/, tools/ci/lint_content.py.
+      # Phase 1, Sprint 11 adds: Friday Android build to the internal testing track.
