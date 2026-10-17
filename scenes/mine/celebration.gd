@@ -69,7 +69,8 @@ func _ready() -> void:
 
 
 ## Shows the card. `items` is a list of {line_id: StringName, gem: StringName} or
-## {line_id, lantern: true}: one line and one picture each. An item may add `params` for its line.
+## {line_id, lantern: true} or {line_id, badge: emblem}: one line and one picture each. An item may add
+## `params` for its line.
 func celebrate(items: Array[Dictionary]) -> void:
 	for child: Node in _lines.get_children() + _art_row.get_children():
 		child.queue_free()
@@ -86,6 +87,10 @@ func celebrate(items: Array[Dictionary]) -> void:
 		if item.get("lantern", false):
 			var lantern: LanternArt = LanternArt.new()
 			art = lantern
+		elif item.has("badge"):
+			var medal: BadgeArt = BadgeArt.new()
+			medal.emblem = item["badge"]
+			art = medal
 		else:
 			var gem: GemArt = GemArt.new()
 			gem.gem_type = item.get("gem", GemArt.AMETHYST)

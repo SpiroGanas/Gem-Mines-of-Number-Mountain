@@ -51,6 +51,14 @@ func _ready() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_child(title)
+	# Sprint 19: the badge case and the Word Gems glossary open from the museum.
+	for pair: Array in [["BadgesButton", &"ui.museum.badges", &"badges"], ["GlossaryButton", &"ui.museum.glossary", &"glossary"]]:
+		var door: Button = Button.new()
+		door.name = pair[0]
+		door.text = Text.get_line(pair[1])
+		UI.make_touch_target(door, 3.0, 1.2)
+		door.pressed.connect(request_screen.emit.bind(pair[2], {}))
+		header.add_child(door)
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)

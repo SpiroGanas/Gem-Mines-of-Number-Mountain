@@ -115,6 +115,9 @@ func refresh() -> void:
 		var capture: Button = _button(&"parent.dash.capture", func() -> void: request_screen.emit(&"capture", {}))
 		capture.name = "CaptureButton"
 		_content.add_child(capture)
+	var family: Button = _button(&"parent.dash.family", func() -> void: request_screen.emit(&"family_rewards", {}))
+	family.name = "FamilyButton"
+	_content.add_child(family)
 	var rerun: Button = _button(&"parent.dash.rerun", rerun_placement)
 	rerun.name = "RerunButton"
 	_content.add_child(rerun)

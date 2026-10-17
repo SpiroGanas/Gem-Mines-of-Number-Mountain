@@ -20,15 +20,22 @@ signal headlamp_changed(color: String)
 signal crafted(recipe_id: StringName)
 ## A build step was finished; `done` when it finished the whole build.
 signal build_step_finished(build_id: StringName, step: int, done: bool)
+## Sprint 19: a mathematician badge, a Word Gem, family points.
+signal badge_earned(badge_id: StringName)
+signal word_gem_collected(term_id: StringName)
+signal family_points_changed(total: int)
 
 var _session: Dictionary = {}
 var _recipes: Array[Recipe] = []
 var _builds: Array[BuildProject] = []
+var _badges: Array[Dictionary] = []
 
 
 func _ready() -> void:
 	_recipes = Recipe.load_all()
 	_builds = BuildProject.load_all()
+	_badges = MotivationRules.load_badges()
+	SaveSystem.profile_loaded.connect(sync_word_gems)
 	Adaptive.skill_mastered.connect(_on_skill_mastered)
 	Adaptive.session_started.connect(func(_id: String) -> void: reset_session())
 	SaveSystem.profile_loaded.connect(reset_session)
@@ -164,6 +171,7 @@ func craft(id: StringName) -> bool:
 	crafted.emit(id)
 	if entry.output_type == "headlamp":
 		headlamp_changed.emit(headlamp())
+	_collect_terms(_workshop_terms())
 	return true
 
 
@@ -218,9 +226,115 @@ func _count_session_gem(gem: StringName) -> void:
 	_session["gem_total"] += 1
 
 
-func _on_skill_mastered(skill_id: StringName, first_time: bool) -> void:
-	if not first_time:
+# --- Long-term motivation (Sprint 19) ---------------------------------------------------------------
+
+
+func badges() -> Array[Dictionary]:
+	return _badges
+
+
+func has_badge(badge_id: StringName) -> bool:
+	return MotivationRules.has_badge(SaveSystem.data(), badge_id)
+
+
+func has_word_gem(term_id: StringName) -> bool:
+	return MotivationRules.has_word_gem(SaveSystem.data(), term_id)
+
+
+func word_gems() -> Array:
+	return MotivationRules.motivation(SaveSystem.data())["word_gems"].duplicate()
+
+
+## Collects the Word Gems of every mastered skill (and the workshop's, once it was used). Runs on
+## every load, so a save from before Sprint 19 gets the Word Gems its mastered skills already earned.
+func sync_word_gems() -> void:
+	var terms: Array[StringName] = []
+	for skill_id: StringName in Adaptive.mastered():
+		terms.append_array(Adaptive.catalog().skill(skill_id).terms)
+	if not WorkshopRules.workshop(SaveSystem.data())["crafted"].is_empty():
+		terms.append_array(_workshop_terms())
+	MotivationRules.collect_word_gems(SaveSystem.data(), terms)
+
+
+func family_points() -> int:
+	return MotivationRules.points(SaveSystem.data())
+
+
+## A play session ended properly (the wind-down, or heading up after real digging): family points,
+## once per session.
+func session_completed(session_id: String) -> void:
+	if session_id == "":
 		return
+	if MotivationRules.award_points(SaveSystem.data(), "session:" + session_id, MotivationRules.POINTS_FOR_SESSION):
+		SaveSystem.save_now()
+		family_points_changed.emit(family_points())
+
+
+func deep_dig_available() -> bool:
+	return Adaptive.deep_dig_available()
+
+
+## The Deep Dig's last rock: the special gem, once per week. False when no Deep Dig was due.
+func finish_deep_dig() -> bool:
+	if not MotivationRules.finish_deep_dig(SaveSystem.data(), Adaptive.clock.today(), Adaptive.mastered().size()):
+		return false
+	_count_session_gem(MotivationRules.DEEP_DIG_GEM)
+	gem_awarded.emit(MotivationRules.DEEP_DIG_GEM, gem_count(MotivationRules.DEEP_DIG_GEM))
+	SaveSystem.save_now()
+	return true
+
+
+## Parent-area family goals (the parent area is behind the gate; these never appear to the child).
+func family_goals() -> Array:
+	return MotivationRules.family(SaveSystem.data())["goals"].duplicate(true)
+
+
+func add_family_goal(text: String, points_needed: int) -> bool:
+	if not MotivationRules.add_goal(SaveSystem.data(), text, points_needed):
+		return false
+	SaveSystem.save_now()
+	return true
+
+
+func claim_family_goal(index: int) -> bool:
+	if not MotivationRules.claim_goal(SaveSystem.data(), index):
+		return false
+	SaveSystem.save_now()
+	family_points_changed.emit(family_points())
+	return true
+
+
+func remove_family_goal(index: int) -> bool:
+	if not MotivationRules.remove_goal(SaveSystem.data(), index):
+		return false
+	SaveSystem.save_now()
+	return true
+
+
+## Word Gems the workshop teaches (vocabulary entries with "taught_by": "workshop").
+func _workshop_terms() -> Array[StringName]:
+	var terms: Array[StringName] = []
+	for term: StringName in Text.term_ids():
+		if str(Text.term_definition(term).get("taught_by", "")) == "workshop":
+			terms.append(term)
+	return terms
+
+
+func _collect_terms(terms: Array[StringName]) -> void:
+	for term: StringName in MotivationRules.collect_word_gems(SaveSystem.data(), terms):
+		word_gem_collected.emit(term)
+
+
+func _on_skill_mastered(skill_id: StringName, first_time: bool) -> void:
+	_collect_terms(Adaptive.catalog().skill(skill_id).terms)
+	# A badge is checked on every mastery: its last skill may be one won back after a lapse.
+	for badge_id: StringName in MotivationRules.earn_badges(SaveSystem.data(), _badges, Adaptive.mastered()):
+		badge_earned.emit(badge_id)
+	if not first_time:
+		SaveSystem.save_now()
+		return
+	if MotivationRules.award_points(SaveSystem.data(), "mastery:" + String(skill_id), MotivationRules.POINTS_FOR_MASTERY):
+		family_points_changed.emit(family_points())
 	RewardsRules.add_gem(data(), RewardsRules.MASTERY_GEM)
 	_count_session_gem(RewardsRules.MASTERY_GEM)
 	gem_awarded.emit(RewardsRules.MASTERY_GEM, gem_count(RewardsRules.MASTERY_GEM))

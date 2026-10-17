@@ -23,6 +23,8 @@ const BUTTON_HEIGHT_MULTIPLE: float = 1.5
 
 var _workshop_button: Button
 var _build_button: Button
+var _deep_dig_button: Button
+var _family_label: Label
 var _shelf: HBoxContainer
 var _machine_loop: Tween
 
@@ -78,8 +80,23 @@ func _add_workshop_doors() -> void:
 	row.add_child(_build_button)
 	IconArt.attach(_workshop_button, &"workshop")
 	IconArt.attach(_build_button, &"build")
+	# This week's Deep Dig (Sprint 19), only while one is waiting.
+	_deep_dig_button = Button.new()
+	_deep_dig_button.name = "DeepDigButton"
+	_deep_dig_button.text = Text.get_line(&"deepdig.hub.button")
+	_deep_dig_button.theme_type_variation = &"GoButton"
+	UI.make_touch_target(_deep_dig_button, BUTTON_WIDTH_MULTIPLE, BUTTON_HEIGHT_MULTIPLE)
+	_deep_dig_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_deep_dig_button.visible = Rewards.deep_dig_available()
+	row.add_child(_deep_dig_button)
+	IconArt.attach(_deep_dig_button, &"dig")
+	_deep_dig_button.pressed.connect(request_screen.emit.bind(&"mine", {"deep_dig": true}))
 	_workshop_button.pressed.connect(request_screen.emit.bind(&"crafting", {}))
 	_build_button.pressed.connect(request_screen.emit.bind(&"build_site", {}))
+
+
+func deep_dig_button() -> Button:
+	return _deep_dig_button
 
 
 func workshop_button() -> Button:
@@ -155,6 +172,12 @@ func _refresh() -> void:
 	_lantern.lit = Rewards.lit_today()
 	_lantern_label.text = Text.get_line(&"ui.hub.lantern", {"n": Rewards.streak()})
 	_coins_label.text = Text.get_line(&"ui.hub.coins", {"n": Rewards.coins()})
+	if _family_label == null:
+		_family_label = Label.new()
+		_family_label.name = "FamilyLabel"
+		_family_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_coins_label.get_parent().add_child(_family_label)
+	_family_label.text = Text.get_line(&"family.hub.points", {"n": Rewards.family_points()})
 
 
 func _on_dig_pressed() -> void:

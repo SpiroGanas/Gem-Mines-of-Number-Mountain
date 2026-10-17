@@ -25,6 +25,10 @@ const SCREEN_PATHS: Dictionary = {
 	&"crafting": "res://scenes/workshop/crafting/crafting.tscn",
 	&"build_site": "res://scenes/workshop/builds/build_site.tscn",
 	&"build": "res://scenes/workshop/builds/build_screen.tscn",
+	&"badges": "res://scenes/workshop/museum/badge_case.tscn",
+	&"glossary": "res://scenes/workshop/museum/word_gems.tscn",
+	&"challenge_door": "res://scenes/zones/common/challenge_door.tscn",
+	&"family_rewards": "res://scenes/shell/parent_area/family_rewards.tscn",
 	&"parent_gate": "res://scenes/shell/parent_area/parent_gate.tscn",
 	&"dashboard": "res://scenes/shell/parent_area/dashboard.tscn",
 	&"capture": "res://scenes/shell/parent_area/capture.tscn",
@@ -32,7 +36,7 @@ const SCREEN_PATHS: Dictionary = {
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing: nothing to pause there, and the parent area has no pause
 ## overlay (GDD section 3).
-const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture"]
+const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture", &"family_rewards"]
 
 @export var fade_seconds: float = 0.2
 

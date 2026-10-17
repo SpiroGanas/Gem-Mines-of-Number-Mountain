@@ -57,6 +57,7 @@ func test_every_mineral_draws() -> void:
 
 func test_the_rare_gems_differ_in_shape_and_color_from_every_other_gem() -> void:
 	var everything: Array[StringName] = GemArt.ALL_TYPES + GemArt.RARE_TYPES
+	everything.append(GemArt.GEODE) # the Deep Dig's gem (Sprint 19)
 	assert_int(GemArt.RARE_TYPES.size()).is_equal(4)
 	var shapes: Array[PackedVector2Array] = []
 	var colors: Array[Color] = []

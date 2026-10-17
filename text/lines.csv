@@ -461,3 +461,65 @@ parent.sync.result_kept,kept this device's progress,Import/export log result,0
 parent.sync.result_older_kept,file was older; kept this device's progress,Import/export log result,0
 parent.sync.result_refused,refused,Import/export log result: not a progress file or changed,0
 parent.sync.result_failed,failed,Import/export log result,0
+badge.gauss.name,Gauss Badge,Mathematician badge name (Sprint 19),0
+badge.gauss.story_1,Carl Friedrich Gauss lived in Germany long ago.,Badge story line 1,0
+badge.gauss.story_2,A famous story says his teacher gave the class a big sum.,Badge story line 2,0
+badge.gauss.story_3,Add every number from {a} to {b}!,Badge story line 3 (a = 1; b = 100),0
+badge.gauss.story_4,Gauss made pairs: {a} + {b}. Then {c} + {d}.,Badge story line 4 (pairs from both ends),0
+badge.gauss.story_5,Every pair made {n}. He found the answer fast!,Badge story line 5 (n = 101),0
+badge.gauss.story_6,Looking for patterns is a math superpower.,Badge story line 6,0
+badge.euclid.name,Euclid Badge,Mathematician badge name,0
+badge.euclid.story_1,Euclid was a teacher in a city called Alexandria.,Badge story line 1,0
+badge.euclid.story_2,He wrote a famous math book called Elements.,Badge story line 2,0
+badge.euclid.story_3,He showed how numbers are built from factors.,Badge story line 3,0
+badge.euclid.story_4,He proved that the primes never run out.,Badge story line 4,0
+badge.euclid.story_5,"However far you count, more primes are waiting!",Badge story line 5,0
+badge.eratosthenes.name,Eratosthenes Badge,Mathematician badge name,0
+badge.eratosthenes.story_1,Eratosthenes ran a giant library in Alexandria.,Badge story line 1,0
+badge.eratosthenes.story_2,He even measured how big the Earth is!,Badge story line 2 (he estimated its circumference),0
+badge.eratosthenes.story_3,He found primes with a clever sieve.,Badge story line 3,0
+badge.eratosthenes.story_4,Cross out the multiples. The numbers left are prime.,Badge story line 4,0
+badge.eratosthenes.story_5,People still use his sieve today.,Badge story line 5,0
+badge.sophie_germain.name,Sophie Germain Badge,Mathematician badge name,0
+badge.sophie_germain.story_1,Sophie Germain grew up in Paris in France.,Badge story line 1,0
+badge.sophie_germain.story_2,Back then her math school did not let girls in.,Badge story line 2,0
+badge.sophie_germain.story_3,So she studied math from books at home.,Badge story line 3,0
+badge.sophie_germain.story_4,She sent her ideas to Gauss using a different name.,Badge story line 4 (she wrote as Monsieur LeBlanc),0
+badge.sophie_germain.story_5,Some primes are named after her: Sophie Germain primes!,Badge story line 5,0
+badge.case.title,Badge Case,Badge case screen title,0
+badge.case.hello,Learn new skills to earn mathematician badges!,Bolt in the badge case,0
+badge.case.locked,Not earned yet,Badge case: a badge still to earn,0
+badge.case.earned,You earned the {name}!,"""Celebration: a badge was earned (name = the badge's name)""",0
+badge.case.read,Read the story,Badge case: open a badge's story,0
+glossary.screen.title,Word Gems,Word Gems glossary screen title,0
+glossary.screen.hello,Tap a Word Gem to see what it means.,Bolt in the glossary,0
+glossary.screen.count,You found {n} of {total} Word Gems.,Glossary: how many are collected,0
+glossary.screen.locked,Not found yet,Glossary: a Word Gem still to find,0
+glossary.screen.found,New Word Gem: {term}!,Celebration: a Word Gem was collected,0
+ui.museum.badges,Badges,Museum button: the badge case,0
+ui.museum.glossary,Word Gems,Museum button: the Word Gems glossary,0
+deepdig.hub.button,Deep Dig,Hub button: this week's Deep Dig,0
+deepdig.mine.intro,Deep Dig! Ten rocks from things you know.,Bolt at the start of the Deep Dig (no timer),0
+deepdig.mine.more,The next cave is waiting. Dig on!,Bolt between the Deep Dig's two walls,0
+deepdig.mine.done,Deep Dig done! You found a geode.,Celebration at the end of the Deep Dig,0
+door.mine.offer,Try the Challenge Door,Mine button after a wall: test out of a skill,0
+door.screen.title,Challenge Door,Challenge Door screen title,0
+door.screen.intro,Crack every rock here to open the door.,Bolt at the Challenge Door (no timer),0
+door.screen.progress,Rock {n} of {total},Challenge Door: which problem,0
+door.screen.passed,The door opens! You mastered this skill.,Challenge Door: passed (3 of 3),0
+door.screen.closed,Not quite. Let's look again. The door opens again tomorrow.,Challenge Door: a miss closes it until tomorrow (nothing is lost),0
+door.screen.back,Back to the mine,Challenge Door: leave,0
+family.hub.points,Family points: {n},Hub: family reward points,0
+family.screen.title,Family Rewards,Parent area: family reward goals,0
+family.screen.points,Points: {n},Parent area: family reward points,0
+family.screen.how,Points come from mastering skills and finishing play sessions. Never from speed.,Parent area: how points are earned,0
+family.screen.goal_text,Goal,Parent area: label for a goal's text,0
+family.screen.goal_points,Points needed: {n},Parent area: points a new goal needs,0
+family.screen.add,Add goal,Parent area: add a family goal,0
+family.screen.goal_row,{text}: {n} points,Parent area: one goal,0
+family.screen.claim,Claim,Parent area: claim a goal (spends its points),0
+family.screen.claimed,Claimed,Parent area: a claimed goal,0
+family.screen.not_enough,Needs {n} more,Parent area: not enough points yet,0
+family.screen.remove,Remove,Parent area: remove a goal,0
+family.screen.none,No goals yet.,Parent area: no goals,0
+parent.dash.family,Family rewards,Parent dashboard button,0

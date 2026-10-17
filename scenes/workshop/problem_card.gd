@@ -17,6 +17,9 @@ const PANEL_SCENE: PackedScene = preload("res://scenes/mine/answer_panel.tscn")
 
 ## Bolt to read the problem and the feedback (optional; tests may leave it null).
 var bolt: Bolt
+## Practice (the default) reports answers to Adaptive and climbs the hint ladder. The Challenge Door
+## sets it false: answers are not learning evidence there and a miss only emits `missed`.
+var practice: bool = true
 ## Tests inject a recognizer for the slate (see AnswerPanel.recognizer).
 var recognizer: Recognizer
 var slate_override: Variant = null
@@ -88,7 +91,8 @@ func _on_answered(given: Variant) -> void:
 	if _done:
 		return
 	var correct: bool = problem.is_correct(given)
-	Adaptive.record(_attempt(correct), AnswerPanel.chance_for(problem, _misses))
+	if practice:
+		Adaptive.record(_attempt(correct), AnswerPanel.chance_for(problem, _misses))
 	if correct:
 		_done = true
 		_panel.set_enabled(false)
@@ -97,6 +101,9 @@ func _on_answered(given: Variant) -> void:
 		solved.emit(problem)
 		return
 	_misses += 1
+	if not practice:
+		missed.emit(HintLadder.Rung.REPEAT_HIGHLIGHT)
+		return
 	var rung: HintLadder.Rung = mini(HintLadder.next_rung(_misses), HintLadder.Rung.WORKED_EXAMPLE) as HintLadder.Rung
 	if bolt != null:
 		bolt.say(problem.prompt_line_id, problem.prompt_params, false, problem.prompt_params.keys())
@@ -108,7 +115,7 @@ func _on_answered(given: Variant) -> void:
 
 ## "Try again" to the slate's "Did you write 47?": logged apart, never a miss (CLAUDE.md).
 func _on_rejected() -> void:
-	if _done:
+	if _done or not practice:
 		return
 	var attempt: Attempt = _attempt(false)
 	attempt.low_confidence_rejected = true

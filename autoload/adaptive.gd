@@ -149,6 +149,58 @@ func opens_successors(skill_id: StringName) -> bool:
 	return SkillRecord.opens_successors(engine.scheduler.record_of(SaveSystem.data()["skills"], skill_id))
 
 
+# --- Deep Dig and Challenge Door (Sprint 19) ---------------------------------------------------------
+
+
+## This week's Deep Dig: MotivationRules.DEEP_DIG_PROBLEMS review problems spread over the mastered
+## skills. Deterministic for the same rng state and mastered set.
+func build_deep_dig(rng: RandomNumberGenerator) -> Array[Problem]:
+	var problems: Array[Problem] = []
+	for skill_id: StringName in MotivationRules.deep_dig_skills(mastered(), rng.randi()):
+		problems.append(engine.problem_for(skill_id, rng, true))
+	return problems
+
+
+func deep_dig_available() -> bool:
+	return MotivationRules.deep_dig_available(SaveSystem.data(), clock.today(), mastered().size())
+
+
+## The Challenge Door's problems for a skill: three, or more for a skill whose questions are easy to
+## guess (MotivationRules.CHALLENGE_MAX_LUCK).
+func challenge(skill_id: StringName, rng: RandomNumberGenerator) -> Array[Problem]:
+	return engine.challenge_problems(skill_id, rng, MotivationRules.CHALLENGE_PROBLEMS, MotivationRules.CHALLENGE_MAX_LUCK, MotivationRules.CHALLENGE_MOST, AnswerPanel.chance_for)
+
+
+## The skill the Challenge Door offers now, or &"": a frontier skill the child has practised, whose
+## door is not closed today, the one closest to mastery first. None during the placement quest.
+func challenge_candidate() -> StringName:
+	if placement_active():
+		return &""
+	var best: StringName = &""
+	var best_p: float = -1.0
+	for id: StringName in frontier():
+		var record: Dictionary = engine.scheduler.record_of(SaveSystem.data()["skills"], id)
+		if int(record.get("attempts", 0)) < 1 or MotivationRules.door_closed(SaveSystem.data(), id, clock.today()):
+			continue
+		if float(record.get("p_learned", 0.0)) > best_p:
+			best = id
+			best_p = float(record.get("p_learned", 0.0))
+	return best
+
+
+## Three right at the door: the skill is mastered (evidence "challenge").
+func pass_challenge(skill_id: StringName) -> void:
+	MotivationRules.record_door_passed(SaveSystem.data(), skill_id)
+	engine.master_by_challenge(skill_id)
+	SaveSystem.save_now()
+
+
+## A miss at the door: it closes until tomorrow. Not a wrong answer: BKT never hears of it.
+func fail_challenge(skill_id: StringName) -> void:
+	MotivationRules.close_door(SaveSystem.data(), skill_id, clock.today())
+	SaveSystem.save_now()
+
+
 func flag_for_review(skill_id: StringName) -> void:
 	engine.flag_for_review(skill_id)
 

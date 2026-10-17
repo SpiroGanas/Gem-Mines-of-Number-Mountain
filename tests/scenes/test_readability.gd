@@ -8,7 +8,7 @@
 class_name ReadabilityTest
 extends GdUnitTestSuite
 
-const PARENT_AREA: Array[StringName] = [&"parent_gate", &"dashboard"]
+const PARENT_AREA: Array[StringName] = [&"parent_gate", &"dashboard", &"family_rewards"]
 
 var _dir: String
 

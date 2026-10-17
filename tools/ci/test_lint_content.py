@@ -341,3 +341,33 @@ def test_rule10_needs_a_credits_file_when_there_are_assets(tmp_path: Path) -> No
 
 def test_rule10_is_silent_with_no_assets_folder(tmp_path: Path) -> None:
     assert lint.check_asset_credits(tmp_path) == []
+
+
+# --- Rule 11: math terms in lines are Word Gems ------------------------------------------------
+
+VOCAB_ONE_TERM = '{"terms": [{"id": "factor"}]}'
+
+
+def glossary_findings(tmp_path: Path, rows: str) -> list[lint.Finding]:
+    root = make_tree(tmp_path, {
+        "text/lines.csv": "id,text,context,voice_version\n" + rows,
+        "curriculum/vocabulary.json": VOCAB_ONE_TERM,
+    })
+    return lint.check_glossary_terms(root)
+
+
+def test_rule11_flags_a_math_term_that_is_not_a_word_gem(tmp_path: Path) -> None:
+    findings = glossary_findings(tmp_path, "z5.dig.prompt,Is {n} divisible by {d}?,x,0\n")
+    assert len(findings) == 1 and "divisible" in findings[0].message
+
+
+def test_rule11_accepts_known_terms_plurals_and_placeholders(tmp_path: Path) -> None:
+    assert glossary_findings(tmp_path, "z4.dig.prompt,Find the Factors of {n}.,x,0\nz4.dig.other,{prime} is a word in braces,x,0\n") == []
+
+
+def test_rule11_skips_parent_and_word_gem_lines(tmp_path: Path) -> None:
+    assert glossary_findings(tmp_path, "parent.dash.x,A sieve report.,x,0\nvocab.sieve.term,sieve,x,0\n") == []
+
+
+def test_rule11_matches_whole_words_only(tmp_path: Path) -> None:
+    assert glossary_findings(tmp_path, "z1.dig.x,The summit is high.,x,0\n") == []
