@@ -23,14 +23,16 @@ func after_test() -> void:
 
 
 ## A mine for the tests. By default its wall holds only build problems (a drag board), so the loop
-## tests can build answers; pass all_skills for a mixed Zone 1 wall.
+## tests can build answers; pass all_skills for a wall mixing every Zone 1 skill.
 func _make_mine(seed_value: int, all_skills: bool = false) -> MineScreen:
 	var mine: MineScreen = load(MINE_SCENE).instantiate()
 	mine.animation_speed = 25.0
 	mine.seed_value = seed_value
-	var only: Array[StringName] = []
-	if not all_skills:
-		only.append(&"pv.tens_ones.build")
+	var only: Array[StringName] = [&"pv.tens_ones.build"]
+	if all_skills:
+		only.clear()
+		for skill: Skill in SkillCatalog.load_all().skills_in_zone(1):
+			only.append(skill.id)
 	mine.skill_ids = only
 	add_child(mine)
 	auto_free(mine)
@@ -96,10 +98,14 @@ func test_a_wall_of_six_to_nine_rocks_waits_for_a_pick() -> void:
 
 
 func test_the_same_seed_gives_the_same_wall_and_problems() -> void:
+	assert_object(_mine.problem_for(0)).is_null() # chosen when the rock is picked, not before
+	var first: MineScreen = _mine
+	await _open(0)
 	var other: MineScreen = _make_mine(12345)
-	assert_int(other.wall().rock_count()).is_equal(_mine.wall().rock_count())
-	for index: int in _mine.wall().rock_count():
-		assert_dict(other.problem_for(index).to_json()).is_equal(_mine.problem_for(index).to_json())
+	_mine = other
+	await _open(0)
+	assert_int(other.wall().rock_count()).is_equal(first.wall().rock_count())
+	assert_dict(other.problem_for(0).to_json()).is_equal(first.problem_for(0).to_json())
 
 
 # --- Picking and answering -----------------------------------------------------------
@@ -153,7 +159,7 @@ func test_a_not_quite_answer_wobbles_costs_nothing_and_allows_another_try() -> v
 	_answer(false)
 	await _wait_state(DigFlow.State.WOBBLE)
 	await _wait_state(DigFlow.State.AWAIT_ANSWER) # wobble, then the hint, then back to answering
-	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.")
+	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.\nHere it is again. Look at these words.")
 	# The problem stays on screen under the feedback: the child must still see the number.
 	assert_str(_mine.bolt().spoken_text()).is_equal("Build %d with ten-bars and one-gems." % _mine.current_problem().prompt_params["n"])
 	assert_bool(_mine.flow.is_cracked(3)).is_false()
@@ -330,8 +336,8 @@ func test_mixed_walls_of_every_zone_1_skill_can_be_cleared() -> void:
 		var mine: MineScreen = _make_mine(seed_value, true)
 		_mine = mine
 		for index: int in mine.wall().rock_count():
-			seen[mine.problem_for(index).skill_id] = true
 			await _answer_through_the_panel(index, true)
+			seen[mine.problem_for(index).skill_id] = true
 			await _until(func() -> bool: return mine.flow.is_cracked(index) and (mine.flow.state == DigFlow.State.PICK_ROCK or mine.flow.state == DigFlow.State.WALL_CLEAR))
 		assert_int(mine.flow.state).is_equal(DigFlow.State.WALL_CLEAR)
 		assert_int(mine.cart().gems_shown()).is_equal(mine.wall().rock_count())
@@ -352,7 +358,61 @@ func test_a_wrong_answer_on_any_skill_wobbles_costs_nothing_and_keeps_the_proble
 		assert_bool(mine.flow.is_cracked(0)).override_failure_message(problem.skill_id).is_false()
 		assert_int(mine.cart().coins_shown()).is_equal(0)
 		assert_int(mine.cart().gems_shown()).is_equal(0)
-		assert_str(mine.bolt().note_text()).is_equal("Not quite. Let's look again.")
+		assert_str(mine.bolt().note_text()).starts_with("Not quite. Let's look again.")
 		assert_str(mine.bolt().spoken_text()).is_equal(Text.get_line(problem.prompt_line_id, problem.prompt_params)) # still readable
 		mine.queue_free()
 	assert_int(skills.size()).is_greater(5)
+
+
+# --- The adaptive engine and the hint ladder (Sprint 6) --------------------------------------
+
+
+func test_every_answer_is_logged_with_its_hint_count() -> void:
+	await _open(0)
+	_answer(false)
+	await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	_answer(true)
+	await _until(func() -> bool: return _mine.flow.state == DigFlow.State.PICK_ROCK)
+	var entries: Array = SaveSystem.read_attempts()["entries"]
+	assert_int(entries.size()).is_equal(2)
+	assert_str(entries[0]["skill_id"]).is_equal("pv.tens_ones.build")
+	assert_bool(entries[0]["correct"]).is_false()
+	assert_int(entries[0]["hints_used"]).is_equal(0)
+	assert_bool(entries[1]["correct"]).is_true()
+	assert_int(entries[1]["hints_used"]).is_equal(1)
+	assert_str(entries[1]["answer_mode"]).is_equal("drag")
+	assert_str(entries[1]["session_id"]).is_equal(entries[0]["session_id"])
+	assert_float(SaveSystem.data()["skills"]["pv.tens_ones.build"]["p_learned"]).is_greater(0.0)
+
+
+func test_rung_1_repeats_the_problem_with_its_numbers_highlighted() -> void:
+	await _open(0)
+	_answer(false)
+	await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	assert_array(_mine.bolt().highlighted_params()).contains_exactly(["n"])
+	var n: int = _mine.current_problem().prompt_params["n"]
+	assert_str(_mine.bolt().spoken_bbcode()).contains("[color=%s]%d[/color]" % [Text.HIGHLIGHT_COLOR, n])
+	assert_object(_mine.answer_panel().hint_visual()).is_null() # the picture waits for rung 2
+
+
+func test_rung_2_shows_the_picture_model_and_later_misses_keep_it() -> void:
+	await _open(0)
+	for miss: int in 3:
+		_answer(false)
+		await _wait_state(DigFlow.State.WOBBLE)
+		await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	var model: VisualModel = _mine.answer_panel().hint_visual()
+	assert_object(model).is_not_null()
+	assert_dict(model.visual).is_equal(_mine.current_problem().hint_steps[1]["visual"])
+	assert_str(_mine.bolt().note_text()).contains(Text.get_line(&"bolt.hint.show_model"))
+
+
+func test_a_dig_with_no_skill_limit_starts_where_the_engine_says() -> void:
+	var mine: MineScreen = load(MINE_SCENE).instantiate()
+	mine.animation_speed = 25.0
+	mine.seed_value = 7
+	add_child(mine)
+	auto_free(mine)
+	_mine = mine
+	await _open(0)
+	assert_str(mine.current_problem().skill_id).is_equal("count.to_20.objects") # a new miner starts at the root

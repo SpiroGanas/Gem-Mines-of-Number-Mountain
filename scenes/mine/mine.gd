@@ -6,8 +6,10 @@
 ##   not quite: the rock wobbles and Bolt says "Not quite. Let's look again." Nothing is lost.
 ## When every rock is cracked Bolt offers "Head up to the surface" or "Dig more".
 ##
-## Sprint 5: problems come from the Zone 1 generators through ProblemSource, a stand-in for the
-## adaptive engine (Sprint 6). Hint rungs 1 and 2 arrive in Sprint 6, 3 and 4 in Sprint 8.
+## Each rock's problem is chosen by the Adaptive autoload when the rock is picked (so it reflects
+## the answers just given), and every answer is reported back to it. A not-quite answer climbs the
+## hint ladder (HintLadder): rung 1 repeats the problem with its numbers highlighted, rung 2 adds
+## the picture model. Rungs 3 and 4 arrive in Sprint 8.
 class_name MineScreen
 extends ShellScreen
 
@@ -23,15 +25,22 @@ const PANEL_SCENE: PackedScene = preload("res://scenes/mine/answer_panel.tscn")
 @export var animation_speed: float = 1.0
 ## 0 means a different wall every time; any other value makes the walls repeatable.
 @export var seed_value: int = 0
-## Limits the skills on the wall (tests use this); empty means every playable Zone 1 skill.
+## Limits the skills on the wall (tests use this); empty means the adaptive engine chooses.
 @export var skill_ids: Array[StringName] = []
+
+## The highest hint rung shown so far (Sprint 6 builds rungs 1 and 2).
+const TOP_RUNG: HintLadder.Rung = HintLadder.Rung.VISUAL_MODEL
 
 var flow: DigFlow = DigFlow.new()
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
-var _source: ProblemSource
+## One problem per rock, chosen when the rock is picked (null until then).
 var _problems: Array[Problem] = []
 var _panel: AnswerPanel
+## When the answer area last opened for answers (for the attempt's latency).
+var _answer_opened_ms: int = 0
+## Not-quite answers on the problem now on screen (the chance of a lucky guess rises as options go).
+var _misses_on_problem: int = 0
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -51,7 +60,6 @@ func _ready() -> void:
 		_rng.seed = seed_value
 	else:
 		_rng.randomize()
-	_source = ProblemSource.new(SkillCatalog.load_all(), skill_ids)
 	_wall.speed_scale = animation_speed
 	_cart.speed_scale = animation_speed
 	_pause_button.text = Text.get_line(&"ui.common.pause")
@@ -66,6 +74,7 @@ func _ready() -> void:
 	_wall.rock_selected.connect(_on_rock_selected)
 	_cart.gem_landed.connect(_on_gem_landed)
 	flow.state_changed.connect(_on_state_changed)
+	Adaptive.placement_finished.connect(_on_placement_finished)
 	_start_wall()
 
 
@@ -101,6 +110,7 @@ func current_problem() -> Problem:
 	return _problems[index] if index >= 0 and index < _problems.size() else null
 
 
+## The problem of rock `index`, or null if that rock has not been picked yet.
 func problem_for(index: int) -> Problem:
 	return _problems[index]
 
@@ -108,13 +118,19 @@ func problem_for(index: int) -> Problem:
 func _start_wall() -> void:
 	_wall_clear_panel.visible = false
 	var count: int = _rng.randi_range(RockWall.MIN_ROCKS, RockWall.MAX_ROCKS)
-	_problems = _source.make_wall(count, _rng)
+	_problems.clear()
+	_problems.resize(count)
 	_wall.build(count)
 	flow.start_wall(count)
 
 
 func _on_rock_selected(index: int) -> void:
+	if flow.state != DigFlow.State.PICK_ROCK or flow.is_cracked(index):
+		return
 	_sfx.play(&"select")
+	if _problems[index] == null:
+		_problems[index] = Adaptive.next_problem(_rng, skill_ids)
+	_misses_on_problem = 0
 	flow.pick_rock(index)
 
 
@@ -125,7 +141,8 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_wall.clear_selection()
 			_wall.set_interactive(true)
 			# After a rock, the praise stays until the child opens the next one.
-			_bolt.say(&"bolt.mine.pick_rock", {}, previous == DigFlow.State.GEM_DROP)
+			var pick_line: StringName = &"bolt.placement.intro" if Adaptive.placement_active() and skill_ids.is_empty() else &"bolt.mine.pick_rock"
+			_bolt.say(pick_line, {}, previous == DigFlow.State.GEM_DROP)
 		DigFlow.State.SHOW_PROBLEM:
 			_wall.set_interactive(false)
 			_wall.mark_selected(flow.current_rock())
@@ -134,6 +151,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_show_panel(problem)
 			flow.problem_shown.call_deferred()
 		DigFlow.State.AWAIT_ANSWER:
+			_answer_opened_ms = Time.get_ticks_msec()
 			if _panel != null:
 				_panel.set_enabled(true)
 		DigFlow.State.CRACK:
@@ -156,9 +174,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			open_rock.wobble_finished.connect(flow.wobble_finished, CONNECT_ONE_SHOT)
 			open_rock.play_wobble()
 		DigFlow.State.HINT:
-			# Hint rungs 1 and 2 arrive in Sprint 6. Until then Bolt adds the stock line under the
-			# problem, so the child can still see what was asked.
-			_bolt.note(&"bolt.feedback.not_quite")
+			_show_hint(mini(HintLadder.next_rung(flow.wrong_count()), TOP_RUNG) as HintLadder.Rung)
 			flow.hint_shown.call_deferred()
 		DigFlow.State.WALL_CLEAR:
 			_remove_panel()
@@ -178,8 +194,33 @@ func _on_gem_landed(_gem_type: StringName) -> void:
 
 
 func _on_answered(given: Variant) -> void:
+	if flow.state != DigFlow.State.AWAIT_ANSWER:
+		return
 	_sfx.play(&"tap")
-	flow.submit_answer(current_problem().is_correct(given))
+	var problem: Problem = current_problem()
+	var correct: bool = problem.is_correct(given)
+	var attempt: Attempt = Attempt.new()
+	attempt.skill_id = problem.skill_id
+	attempt.problem_seed = problem.seed
+	attempt.representation = problem.representation
+	attempt.answer_mode = AnswerPanel.answer_mode_for(problem)
+	attempt.correct = correct
+	attempt.hints_used = flow.wrong_count()
+	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
+	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))
+	if not correct:
+		_misses_on_problem += 1
+	flow.submit_answer(correct)
+
+
+## Hint rung `rung` for the open rock: Bolt says the problem again with its numbers highlighted,
+## the not-quite line and the rung's line go under it, and the panel adds the picture from rung 2.
+func _show_hint(rung: HintLadder.Rung) -> void:
+	var problem: Problem = current_problem()
+	_bolt.say(problem.prompt_line_id, problem.prompt_params, false, problem.prompt_params.keys())
+	_bolt.note(&"bolt.feedback.not_quite")
+	_bolt.add_note(HintLadder.line_for(rung))
+	_panel.show_hint(rung)
 
 
 func _show_panel(problem: Problem) -> void:
@@ -201,6 +242,10 @@ func _remove_panel() -> void:
 		_panel.queue_free()
 		_answer_host.remove_child(_panel)
 		_panel = null
+
+
+func _on_placement_finished(_passed: Array[StringName]) -> void:
+	_bolt.add_note(&"bolt.placement.done")
 
 
 func _on_pause_pressed() -> void:

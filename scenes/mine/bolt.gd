@@ -1,5 +1,7 @@
 ## Bolt, the mining robot, and his speech bubble. Gray-box: a drawn robot and a text bubble.
-## Every word comes from the text table through say(). Tappable Word Gem terms arrive in Sprint 7.
+## Every word comes from the text table through say(). The main line is a RichTextLabel so hint
+## rung 1 can highlight the numbers in the problem (Godot note: BBCode tags such as [b] and
+## [color] style parts of a RichTextLabel's text). Tappable Word Gem terms arrive in Sprint 7.
 class_name Bolt
 extends HBoxContainer
 
@@ -12,7 +14,9 @@ const NOTE_COLOR: Color = Color("#FFD166")
 
 var _line_id: StringName = &""
 var _note_id: StringName = &""
-var _label: Label
+var _plain: String = ""
+var _highlighted: Array = []
+var _label: RichTextLabel
 var _note_label: Label
 
 
@@ -28,7 +32,10 @@ func _ready() -> void:
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override(&"separation", 8)
 	bubble.add_child(column)
-	_label = Label.new()
+	_label = RichTextLabel.new()
+	_label.bbcode_enabled = true
+	_label.fit_content = true
+	_label.scroll_active = false
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UI.make_touch_target(_label, BUBBLE_WIDTH_MULTIPLE, 1.0)
 	column.add_child(_label)
@@ -43,9 +50,12 @@ func _ready() -> void:
 ## Bolt says a line from the text table. `params` fills its {placeholders}. Saying a new main
 ## line clears the note unless `keep_note` is true (the praise after a rock stays up while the
 ## child reads "Pick a rock to crack.").
-func say(line_id: StringName, params: Dictionary = {}, keep_note: bool = false) -> void:
+## `highlight` names params whose values are drawn bold in the headlamp yellow (hint rung 1).
+func say(line_id: StringName, params: Dictionary = {}, keep_note: bool = false, highlight: Array = []) -> void:
 	_line_id = line_id
-	_label.text = Text.get_line(line_id, params)
+	_plain = Text.get_line(line_id, params)
+	_highlighted = highlight.duplicate()
+	_label.text = Text.get_line_bbcode(line_id, params, highlight)
 	if not keep_note:
 		clear_note()
 
@@ -56,6 +66,14 @@ func note(line_id: StringName, params: Dictionary = {}) -> void:
 	_note_id = line_id
 	_note_label.text = Text.get_line(line_id, params)
 	_note_label.visible = true
+
+
+## Adds one more line under the note (the hint rung's line after "Not quite.").
+func add_note(line_id: StringName, params: Dictionary = {}) -> void:
+	if not _note_label.visible:
+		note(line_id, params)
+		return
+	_note_label.text += "\n" + Text.get_line(line_id, params)
 
 
 func clear_note() -> void:
@@ -76,7 +94,18 @@ func current_line_id() -> StringName:
 	return _line_id
 
 
+## The main line as the child reads it (no BBCode tags).
 func spoken_text() -> String:
+	return _plain
+
+
+## The params whose values are highlighted right now (empty when nothing is).
+func highlighted_params() -> Array:
+	return _highlighted.duplicate()
+
+
+## The main line's BBCode, for tests that check the highlight.
+func spoken_bbcode() -> String:
 	return _label.text
 
 

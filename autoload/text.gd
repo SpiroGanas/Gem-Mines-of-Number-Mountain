@@ -21,6 +21,8 @@ const COLUMN_ID: String = "id"
 const COLUMN_TEXT: String = "text"
 ## All columns the table must have. Extra columns are allowed.
 const REQUIRED_COLUMNS: PackedStringArray = ["id", "text", "context", "voice_version"]
+## The warm headlamp yellow used to highlight numbers in Bolt's bubble.
+const HIGHLIGHT_COLOR: String = "#FFD166"
 
 var _lines: Dictionary[StringName, String] = {}
 var _placeholder_pattern: RegEx = RegEx.new()
@@ -88,6 +90,23 @@ func get_line(id: StringName, params: Dictionary = {}) -> String:
 	if not unfilled.is_empty():
 		_report("Text: line '%s' is missing parameter(s) %s" % [id, ", ".join(unfilled)])
 	return filled
+
+
+## The line as BBCode for a RichTextLabel. Square brackets in the text are escaped, and the values
+## of the params named in `highlight` are drawn bold in `color` (hint rung 1: "look at these numbers").
+func get_line_bbcode(id: StringName, params: Dictionary = {}, highlight: Array = [], color: String = HIGHLIGHT_COLOR) -> String:
+	if not _lines.has(id):
+		return get_line(id, params) # reports the gap the usual way
+	var filled: Dictionary = {}
+	for key: Variant in params:
+		var value: String = escape_bbcode(str(params[key]))
+		filled[key] = "[b][color=%s]%s[/color][/b]" % [color, value] if highlight.has(key) else value
+	return escape_bbcode(_lines[id]).format(filled)
+
+
+## Text made safe to show in a BBCode label: "[" becomes the [lb] tag.
+static func escape_bbcode(text: String) -> String:
+	return text.replace("[", "[lb]")
 
 
 ## The placeholder names a line needs, in order of first appearance, e.g. ["a", "b"].

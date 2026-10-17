@@ -1,11 +1,13 @@
 ## The answer side of the problem panel: the problem's picture plus the right way to answer it.
 ##
-## One of four inputs is chosen from the problem (choose_input is pure and tested):
+## The input is the first of the skill's answer modes (in the order the skill lists them, GDD
+## section 4) that the problem can be answered with (choose_input is pure and tested):
 ##   TAP_PILE    tap one of the piles in the picture (which pile has more)
 ##   BOARD       build with ten-bars and one-gems on the BuildBoard (build, regroup)
 ##   CHOICES     big answer buttons: the answer plus named wrong answers, shuffled
-##   NUMBER_PAD  the on-screen number pad (write the numeral)
+##   NUMBER_PAD  the on-screen number pad (write the numeral, sums and differences)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
+## From hint rung 2 the panel also shows the problem's picture model (show_hint).
 class_name AnswerPanel
 extends VBoxContainer
 
@@ -18,28 +20,73 @@ const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
 const PAD_SCENE: PackedScene = preload("res://scenes/input/number_pad.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
+## How often a blind guess is right when the answer is typed or built rather than picked from a
+## few options (a random number on the pad, a random pile on the board). Used by the adaptive
+## engine's guessing guard; deliberately generous.
+const FREE_RESPONSE_CHANCE: float = 0.05
+## The answer buttons show the answer and at most this many distractors.
+const MAX_CHOICE_DISTRACTORS: int = 3
 
 var problem: Problem
 var input_kind: InputKind = InputKind.NONE
 
 var _visual: VisualModel
+var _hint_visual: VisualModel
 var _board: BuildBoard
 var _choices: ChoiceButtons
 var _pad: NumberPad
+var _pad_row: HBoxContainer
 var _enabled: bool = false
 
 
-## Which input fits a problem. Pure.
+## Which input fits a problem: the first listed answer mode this panel can serve. Pure.
 static func choose_input(for_problem: Problem) -> InputKind:
-	if for_problem.meta.get("tap_target") == "pile":
-		return InputKind.TAP_PILE
-	if for_problem.meta.has("tools"):
-		return InputKind.BOARD
-	if for_problem.answer_modes.has(&"tap") and not for_problem.distractors.is_empty():
-		return InputKind.CHOICES
-	if for_problem.answer_modes.has(&"number_pad"):
-		return InputKind.NUMBER_PAD
-	return InputKind.CHOICES
+	for mode: StringName in for_problem.answer_modes:
+		var kind: InputKind = _input_for_mode(mode, for_problem)
+		if kind != InputKind.NONE:
+			return kind
+	return InputKind.CHOICES if not for_problem.distractors.is_empty() else InputKind.NUMBER_PAD
+
+
+static func _input_for_mode(mode: StringName, for_problem: Problem) -> InputKind:
+	match mode:
+		&"tap":
+			if for_problem.meta.get("tap_target") == "pile":
+				return InputKind.TAP_PILE
+			if not for_problem.distractors.is_empty():
+				return InputKind.CHOICES
+		&"drag":
+			if for_problem.meta.has("tools"):
+				return InputKind.BOARD
+		&"number_pad", &"keyboard":
+			if for_problem.answer is int:
+				return InputKind.NUMBER_PAD
+	return InputKind.NONE
+
+
+## How likely a blind guess is to be right with the input this problem gets, after `eliminated`
+## options were already tried and missed on this rock. Pure; the adaptive engine weighs evidence
+## by it, so tapping one of two piles counts for less than typing a number.
+static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
+	var options: int = 0
+	match choose_input(for_problem):
+		InputKind.TAP_PILE:
+			options = for_problem.visual.get("piles", []).size()
+		InputKind.CHOICES:
+			options = mini(for_problem.distractors.size(), MAX_CHOICE_DISTRACTORS) + 1
+		_:
+			return FREE_RESPONSE_CHANCE
+	return 1.0 / float(maxi(options - eliminated, 1))
+
+
+## The attempt log's answer_mode for the input a problem gets: tap, drag or number_pad.
+static func answer_mode_for(for_problem: Problem) -> StringName:
+	match choose_input(for_problem):
+		InputKind.TAP_PILE, InputKind.CHOICES:
+			return &"tap"
+		InputKind.NUMBER_PAD:
+			return &"number_pad"
+	return &"drag"
 
 
 ## The text on an answer button: numerals, symbols, "30 + 4" for expanded form and "62, 64" for lists.
@@ -93,6 +140,41 @@ func visual_model() -> VisualModel:
 	return _visual
 
 
+## The hint picture added by show_hint(), or null (it may also be shown in the problem's own
+## picture slot; see show_hint).
+func hint_visual() -> VisualModel:
+	return _hint_visual
+
+
+## Shows the help a hint rung puts in the answer area. From rung 2 (VISUAL_MODEL) that is the
+## problem's picture model (hint_steps[1].visual): it takes the place of the problem's own picture
+## when that picture is only to look at, and is added above the input otherwise (tappable piles,
+## the build board, or a problem with no picture). Returns the VisualModel showing it.
+func show_hint(rung: HintLadder.Rung) -> VisualModel:
+	if not HintLadder.shows_model(rung) or problem.hint_steps.size() < 2:
+		return null
+	var model: Dictionary = problem.hint_steps[1].get("visual", {})
+	if model.is_empty():
+		return null
+	if _visual != null and input_kind != InputKind.TAP_PILE:
+		_visual.show_visual(model, false)
+		_hint_visual = _visual
+		return _hint_visual
+	if _hint_visual == null:
+		_hint_visual = VISUAL_SCENE.instantiate()
+		_hint_visual.compact = true
+		_hint_visual.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_hint_visual.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if _pad_row != null:
+			_pad_row.add_child(_hint_visual)
+			_pad_row.move_child(_hint_visual, 0)
+		else:
+			add_child(_hint_visual)
+			move_child(_hint_visual, 0)
+	_hint_visual.show_visual(model, false)
+	return _hint_visual
+
+
 func board() -> BuildBoard:
 	return _board
 
@@ -110,9 +192,11 @@ func _clear() -> void:
 		child.queue_free()
 		remove_child(child)
 	_visual = null
+	_hint_visual = null
 	_board = null
 	_choices = null
 	_pad = null
+	_pad_row = null
 
 
 func _add_visual(tappable: bool) -> void:
@@ -131,7 +215,7 @@ func _add_choices(rng: RandomNumberGenerator) -> void:
 	_choices = CHOICES_SCENE.instantiate()
 	add_child(_choices)
 	var label_for_value: Callable = func(value: Variant) -> String: return label_for(value, problem)
-	_choices.setup(problem.choice_options(label_for_value), rng)
+	_choices.setup(problem.choice_options(label_for_value, MAX_CHOICE_DISTRACTORS), rng)
 	_choices.chosen.connect(_on_value_given)
 
 
@@ -151,6 +235,7 @@ func _add_board() -> void:
 ## The number pad sits beside the picture so both fit on a 16:9 screen.
 func _add_pad_with_visual() -> void:
 	var row: HBoxContainer = HBoxContainer.new()
+	_pad_row = row
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override(&"separation", 32)

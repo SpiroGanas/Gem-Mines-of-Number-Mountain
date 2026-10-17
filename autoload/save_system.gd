@@ -14,6 +14,9 @@ signal saved
 ## Loading found a save it could not use. reason is "corrupt" or "newer_version".
 ## "none" (no save yet) is a normal first start and does not emit this.
 signal load_failed(reason: String)
+## A profile was (re)loaded: at start, after use_directory() and after an import. Autoloads that
+## keep in-memory state about the child (Adaptive's placement quest and session) reset on this.
+signal profile_loaded
 
 const DEFAULT_DIR: String = "user://save"
 
@@ -45,6 +48,7 @@ func load_profile() -> void:
 		_data = SaveSchema.new_profile(_now_iso())
 		if read["error"] != "none":
 			load_failed.emit(read["error"])
+		profile_loaded.emit()
 		return
 	var migration: Dictionary = SaveMigrator.migrate(read["data"])
 	last_load_report["from_version"] = migration["from_version"]
@@ -53,9 +57,11 @@ func load_profile() -> void:
 		_data = SaveSchema.new_profile(_now_iso())
 		_read_only = migration["error"] == SaveMigrator.ERR_NEWER_VERSION
 		load_failed.emit(migration["error"])
+		profile_loaded.emit()
 		return
 	last_load_report["migrated"] = migration["from_version"] != SaveSchema.CURRENT_VERSION
 	_data = SaveSchema.with_defaults(migration["data"])
+	profile_loaded.emit()
 
 
 ## The live save dictionary. Mutate it only through the owning autoload.

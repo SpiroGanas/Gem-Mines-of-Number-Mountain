@@ -23,6 +23,9 @@ func _ready() -> void:
 
 
 func _on_dig_pressed() -> void:
+	# A new miner's first dig is the placement quest ("survey the mountain").
+	if Adaptive.needs_placement() and not Adaptive.placement_active():
+		Adaptive.start_placement()
 	request_screen.emit(&"mine", {})
 
 

@@ -175,3 +175,66 @@ func test_set_up_again_replaces_the_old_widgets() -> void:
 	assert_object(_panel.choices()).is_null()
 	assert_object(_panel.number_pad()).is_not_null()
 	assert_int(_panel.input_kind).is_equal(AnswerPanel.InputKind.NUMBER_PAD)
+
+
+# --- Answer modes, guessing odds and hint pictures (Sprint 6) -------------------------------
+
+
+func test_the_first_listed_answer_mode_wins() -> void:
+	var problem: Problem = _problem(&"count.to_120.next", 2)
+	problem.answer_modes = [&"number_pad", &"tap"]
+	assert_int(AnswerPanel.choose_input(problem)).is_equal(AnswerPanel.InputKind.NUMBER_PAD)
+	problem.answer_modes = [&"tap", &"number_pad"]
+	assert_int(AnswerPanel.choose_input(problem)).is_equal(AnswerPanel.InputKind.CHOICES)
+	problem.answer_modes = [&"drag", &"number_pad"] # no drag input for this problem: the next mode serves
+	assert_int(AnswerPanel.choose_input(problem)).is_equal(AnswerPanel.InputKind.NUMBER_PAD)
+
+
+func test_the_number_pad_is_only_for_whole_number_answers() -> void:
+	var problem: Problem = _problem(&"pv.tens_ones.expanded", 2) # answer [30, 4]
+	problem.answer_modes = [&"number_pad", &"tap"]
+	assert_int(AnswerPanel.choose_input(problem)).is_equal(AnswerPanel.InputKind.CHOICES)
+
+
+func test_the_chance_of_a_lucky_guess_follows_the_input() -> void:
+	var piles: Problem = _problem(&"cmp.to_20.more_less", 1)
+	assert_float(AnswerPanel.chance_for(piles)).is_equal(0.5)
+	assert_float(AnswerPanel.chance_for(piles, 1)).is_equal(1.0) # one pile left to try
+	var choices: Problem = _problem(&"count.to_20.objects", 1)
+	var options: int = mini(choices.distractors.size(), AnswerPanel.MAX_CHOICE_DISTRACTORS) + 1
+	assert_float(AnswerPanel.chance_for(choices)).is_equal_approx(1.0 / options, 0.0001)
+	assert_float(AnswerPanel.chance_for(choices, 1)).is_equal_approx(1.0 / (options - 1), 0.0001)
+	assert_float(AnswerPanel.chance_for(_problem(&"count.write.numeral", 1))).is_equal(AnswerPanel.FREE_RESPONSE_CHANCE)
+	assert_float(AnswerPanel.chance_for(_problem(&"pv.tens_ones.build", 1))).is_equal(AnswerPanel.FREE_RESPONSE_CHANCE)
+
+
+func test_answer_modes_are_named_for_the_attempt_log() -> void:
+	assert_str(AnswerPanel.answer_mode_for(_problem(&"cmp.to_20.more_less", 1))).is_equal("tap")
+	assert_str(AnswerPanel.answer_mode_for(_problem(&"count.to_120.read", 1))).is_equal("tap")
+	assert_str(AnswerPanel.answer_mode_for(_problem(&"count.write.numeral", 1))).is_equal("number_pad")
+	assert_str(AnswerPanel.answer_mode_for(_problem(&"pv.tens_ones.build", 1))).is_equal("drag")
+
+
+func test_rung_1_needs_no_picture_and_rung_2_shows_the_model_for_every_zone_1_skill() -> void:
+	for skill: Skill in _catalog.skills_in_zone(1):
+		for representation: StringName in skill.representations:
+			var problem: Problem = _problem(skill.id, 5, representation)
+			_panel.setup(problem, _rng())
+			await get_tree().process_frame
+			assert_object(_panel.show_hint(HintLadder.Rung.REPEAT_HIGHLIGHT)).is_null()
+			var shown: VisualModel = _panel.show_hint(HintLadder.Rung.VISUAL_MODEL)
+			assert_object(shown).override_failure_message("%s (%s): no model" % [skill.id, representation]).is_not_null()
+			assert_dict(shown.visual).is_equal(problem.hint_steps[1]["visual"])
+			assert_bool(shown.is_inside_tree()).is_true()
+			# Still answerable through the same widget after the hint.
+			assert_int(_panel.input_kind).is_equal(AnswerPanel.choose_input(problem))
+
+
+func test_tappable_piles_stay_tappable_when_the_model_appears() -> void:
+	var problem: Problem = _problem(&"cmp.to_20.more_less", 4)
+	_panel.setup(problem, _rng())
+	_panel.set_enabled(true)
+	var model: VisualModel = _panel.show_hint(HintLadder.Rung.VISUAL_MODEL)
+	assert_bool(model != _panel.visual_model()).is_true()
+	assert_int(_panel.visual_model().pile_buttons().size()).is_equal(2)
+	assert_bool(model.compact).is_true()

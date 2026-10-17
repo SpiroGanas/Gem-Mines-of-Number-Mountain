@@ -49,6 +49,10 @@ static func build(target_px: int) -> Theme:
 	theme.set_font_size(&"font_size", &"NumberLabel", NUMBER_SIZE)
 	theme.set_type_variation(&"NumberLabel", &"Label")
 	theme.set_color(&"font_color", &"NumberLabel", OFF_WHITE)
+	# Bolt's speech bubble is a RichTextLabel (highlighted numbers, tappable Word Gems).
+	for size_name: StringName in [&"normal_font_size", &"bold_font_size", &"italics_font_size", &"bold_italics_font_size"]:
+		theme.set_font_size(size_name, &"RichTextLabel", BODY_SIZE)
+	theme.set_color(&"default_color", &"RichTextLabel", OFF_WHITE)
 
 	_style_button(theme, &"Button", target_px, YELLOW, YELLOW_HOVER, YELLOW_PRESSED)
 	# "Go" and other confirm buttons: green fill; the label still says what they do.

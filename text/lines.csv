@@ -110,3 +110,5 @@ z1.hint.example_list,The answer is {list}.,Worked example: a list of numbers,0
 z1.hint.example_pile_left,The pile on the left is the one.,Worked example: tap-the-pile answer,0
 z1.hint.example_pile_right,The pile on the right is the one.,Worked example: tap-the-pile answer,0
 z1.build.source_hundred,Hundred-block,Label on the pile of hundred-blocks,0
+bolt.placement.intro,Let's explore the mountain! Crack rocks so I can see what you know.,Placement quest: Bolt's line while picking rocks,0
+bolt.placement.done,All done exploring! Now I know where to dig.,Placement quest finished,0

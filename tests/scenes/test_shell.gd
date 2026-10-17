@@ -245,3 +245,16 @@ func test_the_debug_overlay_reports_the_screen_and_input_device() -> void:
 	assert_str(text).contains("screen=hub")
 	assert_str(text).contains("device=")
 	assert_str(text).contains("min_target_px=")
+
+
+func test_a_new_miners_first_dig_is_the_placement_quest_and_later_digs_are_not() -> void:
+	_shell.change_screen(&"hub")
+	await _until_screen(&"hub")
+	assert_bool(Adaptive.needs_placement()).is_true()
+	_press("DigButton")
+	await _until_screen(&"mine")
+	assert_bool(Adaptive.placement_active()).is_true()
+	var bolt: Bolt = _shell.current_screen().bolt()
+	assert_str(bolt.current_line_id()).is_equal("bolt.placement.intro")
+	SaveSystem.use_directory(_dir) # reloading the profile drops the quest in progress
+	assert_bool(Adaptive.placement_active()).is_false()

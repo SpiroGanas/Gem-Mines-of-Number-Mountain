@@ -24,9 +24,12 @@ const LABEL_SIZE: int = 30
 const HEIGHT_MULTIPLE_PILES: float = 6.0
 const HEIGHT_MULTIPLE_LINE: float = 3.2
 const HEIGHT_MULTIPLE_FRAME: float = 3.6
+const COMPACT_SCALE: float = 0.6
 
 var visual: Dictionary = {}
 var tappable: bool = false
+## A smaller picture (hint pictures added above an input), COMPACT_SCALE of the normal height.
+var compact: bool = false
 
 var _buttons: Array[Button] = []
 
@@ -46,7 +49,7 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_PILES
 		&"ten_frame":
 			height = HEIGHT_MULTIPLE_FRAME
-	UI.make_touch_target(self, 6.0, height)
+	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
 
