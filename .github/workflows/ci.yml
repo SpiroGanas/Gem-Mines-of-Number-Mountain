@@ -32,8 +32,10 @@ jobs:
       - name: Run main scene for a few frames
         run: '"$GODOT" --headless --path . --quit-after 3'
 
+      # -c keeps going after a failure; GdUnit4 stops a suite at the first failure by default,
+      # which would hide every later failure behind the first one.
       - name: Run GdUnit4 suites
-        run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -a res://tests
+        run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -c -a res://tests
 
       - name: Upload test reports
         if: always()
@@ -43,5 +45,19 @@ jobs:
           path: reports/
           if-no-files-found: ignore
 
-      # Phase 1, Sprint 3 adds: pytest for tools/, tools/ci/lint_content.py.
       # Phase 1, Sprint 11 adds: Friday Android build to the internal testing track.
+
+  python:
+    name: Python tools, content lint and curriculum checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pytest
+        run: python3 -m pip install -r tools/requirements.txt
+
+      - name: pytest (curriculum, lint rules, export permissions)
+        run: python3 -m pytest tools -q
+
+      - name: Content lint (hard-coded text, text fields, banned words, text table, curriculum)
+        run: python3 tools/ci/lint_content.py

@@ -1,0 +1,5 @@
+# Files exempt from lint rule 1 (no literal text in scenes/scripts). One repo-relative path per line.
+# Only developer-facing text may be listed here, never child-facing text.
+scenes/shell/debug_overlay.gd
+# Sprint 1 device-test scene; deleted in Sprint 4, remove this entry then.
+scenes/mine/hello_rock.tscn

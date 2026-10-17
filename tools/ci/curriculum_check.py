@@ -295,15 +295,16 @@ def check_skill_map(
     return errors
 
 
-def check_all() -> list[str]:
-    """Run every curriculum check against the files in the repository."""
-    vocabulary = load_vocabulary()
-    misconceptions = load_misconceptions()
-    bkt = load_bkt_defaults()
+def check_all(root: Path = ROOT) -> list[str]:
+    """Run every curriculum check against the curriculum files under `root`."""
+    curriculum = root / "curriculum"
+    vocabulary = load_vocabulary(curriculum / "vocabulary.json")
+    misconceptions = load_misconceptions(curriculum / "misconceptions.json")
+    bkt = load_bkt_defaults(curriculum / "bkt_defaults.json")
     errors = check_bkt_defaults(bkt)
     errors += check_misconceptions(misconceptions)
-    errors += check_vocabulary(vocabulary, load_line_ids())
-    errors += check_skill_map(load_zone_files(), vocabulary, misconceptions, bkt)
+    errors += check_vocabulary(vocabulary, load_line_ids(root / "text" / "lines.csv"))
+    errors += check_skill_map(load_zone_files(curriculum / "skills"), vocabulary, misconceptions, bkt)
     return errors
 
 
