@@ -1,0 +1,4 @@
+# Build-time tools for the digit network (tools/handwriting/). Nothing here ships in the game.
+# Approved by Spiro 2026-10-17 (PyTorch for training); see docs/sdk-audit.md.
+numpy>=2.0
+torch>=2.4
