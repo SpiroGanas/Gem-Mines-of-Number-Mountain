@@ -209,7 +209,7 @@ Detailed prerequisites for each zone are written when its sprint begins (Zones 4
 
 ## 8. Look and sound (placeholder direction)
 
-The MVP uses **placeholder art** that is coherent, not final. Commissioned art (Bolt and key art) is Phase 2.
+The MVP's art is coherent, not final: Kenney's CC0 packs where they fit (the rocks, Bolt, the buttons, four icons and the twelve sound effects, imported 2026-10-17) and shapes drawn in code everywhere else (gems, backdrops, the title picture, the museum minerals, the cart, the drag pieces, the pickaxe and museum icons). Commissioned art (Bolt and key art) is Phase 2.
 
 ### Visual direction
 
@@ -226,13 +226,14 @@ The MVP uses **placeholder art** that is coherent, not final. Commissioned art (
 
   The museum minerals (calcite, topaz, malachite, fluorite, hematite, obsidian) follow the same rule; their shapes and colors live in `scenes/mine/gem_art.gd`.
 
-- **Bolt (placeholder):** a rounded grey-blue robot with a lamp on its head and two simple eyes. Expressions: neutral, happy, thinking. No mouth movement is needed in the text-only MVP.
+- **Bolt (MVP):** Kenney's blue side-view robot on short tracks (Robot Pack), with his electric headlamp drawn on top in the color chosen in the Garage. Expressions: neutral, happy, thinking. No mouth movement is needed in the text-only MVP.
 - **Typography:** **Andika** (SIL Open Font License), a font designed for early readers, at large sizes. Imported (Andika 6.200 Regular and Bold in `assets/fonts/andika/`) and set as the theme's default font; approved in `docs/sdk-audit.md` on 2026-10-17.
 
 ### Asset sources (see `assets/CREDITS.md`)
 
 - Third-party placeholder art and sound come only from **CC0** sources (Kenney's packs are CC0). Every file gets a credits entry before it is committed.
-- Until the CC0 import, gray-box shapes and SFX are **project-made** (drawn in SVG, synthesized by a script in `tools/`).
+- Imported from Kenney on 2026-10-17: UI Pack buttons (yellow; green for the go buttons; grey when disabled) as nine-slice textures so they stretch to any touch-target size; Game Icons (gear, padlock, wrench, back arrow) as white glyphs tinted navy; four Space Shooter Extension meteors as the rock sprites; the Robot Pack for Bolt; and Interface Sounds, Impact Sounds, UI Audio and Music Jingles for the twelve sound effects.
+- Everything else stays **project-made**, drawn in code: the gems (the Kenney gem sprites share one shape, and gems must differ by shape as well as color), backdrops, title picture, museum minerals, cart, drag pieces and the pickaxe and museum icons. The music loops are synthesized by `tools/music/`; the sound synthesizer in `tools/sfx/` stays as a fallback.
 
 ### Audio direction
 
@@ -321,7 +322,7 @@ _Spiro's notes from the game-feel study (P1-S01-03):_ _(to be added)_
 | Question | Owner | When needed |
 |---|---|---|
 | Approve Andika (SIL OFL) in `docs/sdk-audit.md` and import it into `assets/fonts/` | Spiro | Done 2026-10-17 |
-| Confirm the Kenney (CC0) packs to import for rocks, gems, UI and sound, then credit each file | Spiro | Approved 2026-10-17; the zips must be downloaded on the dev PC (the build environment cannot reach kenney.nl), then the pass runs |
+| Confirm the Kenney (CC0) packs to import for rocks, gems, UI and sound, then credit each file | Spiro | Done 2026-10-17 (rocks, Bolt, buttons, icons and sounds; the gems stay code-drawn, see section 8) |
 | Paper prototype results and the "trade ten" wording | Spiro and Charlie | Before the Zone 1 lines are final (Sprint 5–7) |
 | Math reviewer for Zones 1–3 | Spiro | Before Sprint 6 (the engine consumes the prerequisites) |
 | Pen as touch for all MVP interactions (recommended) vs. separate pen handling | Spiro | After the Sprint 1 device test |

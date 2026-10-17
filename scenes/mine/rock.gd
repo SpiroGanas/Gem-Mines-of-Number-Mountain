@@ -1,5 +1,6 @@
-## One rock on the wall. A Button (so tapping, focus and keyboard activation come free) with
-## a drawn body, cracks and the gem that pops out. Gray-box shapes only.
+## One rock on the wall. A Button (so tapping, focus and keyboard activation come free) whose
+## body is one of four Kenney CC0 meteor sprites (assets/CREDITS.md), drawn by the overlay so it
+## keeps its shape at any size, with the crack line and the gem that pops out drawn on top.
 ##
 ## States: IDLE -> SELECTED (its problem is open) -> WOBBLING (not-quite answer or first tap)
 ## -> CRACKED (the gem has dropped). A cracked rock is disabled and stays open.
@@ -22,12 +23,22 @@ const PARTICLES: int = 18
 const STRONG_PARTICLES: int = 36
 const SQUASH: float = 0.1
 const STRONG_SQUASH: float = 0.18
-const BODY: Color = Color("#7B8499")
-const BODY_CRACKED: Color = Color("#555C70")
-const FACET: Color = Color("#6A7287")
-const OUTLINE: Color = Color("#3A4258")
-const SELECTED_OUTLINE: Color = Color("#FFD166")
+## The four rock sprites; a rock keeps the same one for its whole life (rock_index picks it).
+const TEXTURE_PATHS: Array[String] = [
+	"res://assets/art/kenney/rocks/rock_01.png", "res://assets/art/kenney/rocks/rock_02.png",
+	"res://assets/art/kenney/rocks/rock_03.png", "res://assets/art/kenney/rocks/rock_04.png",
+]
+## How much of the button the sprite fills (the rest is tap margin and room for the glow).
+const SPRITE_FILL: float = 0.9
+## The glow is the rock's own silhouette drawn larger behind it; the tint multiplies the brown
+## sprite up to the headlamp yellow (values above 1 brighten and clamp).
+const SELECTED_GLOW: Color = Color(2.6, 2.0, 0.9)
+const GLOW_GROW: float = 0.07
+const HOVER_TINT: Color = Color(1.1, 1.1, 1.1)
+const CRACKED_TINT: Color = Color(0.6, 0.6, 0.66)
 const CRACK_LINE: Color = Color("#2B3145")
+
+static var _textures: Array[Texture2D] = []
 
 var rock_index: int = -1
 var rock_state: RockState = RockState.IDLE
@@ -67,7 +78,25 @@ func _ready() -> void:
 	_particles.scale_amount_max = 9.0
 	add_child(_particles)
 	resized.connect(_on_resized)
+	mouse_entered.connect(_overlay.queue_redraw)
+	mouse_exited.connect(_overlay.queue_redraw)
 	_on_resized()
+
+
+## The sprite for rock `index` of the wall (the same index always gets the same rock).
+static func texture_for(index: int) -> Texture2D:
+	if _textures.is_empty():
+		for path: String in TEXTURE_PATHS:
+			_textures.append(load(path))
+	return _textures[posmod(index, _textures.size())]
+
+
+## Where the sprite sits inside a canvas of `canvas_size`: as large as fits, its own aspect, centred.
+static func sprite_rect(texture: Texture2D, canvas_size: Vector2) -> Rect2:
+	var texture_size: Vector2 = texture.get_size()
+	var scale_to_fit: float = minf(canvas_size.x * SPRITE_FILL / texture_size.x, canvas_size.y * SPRITE_FILL / texture_size.y)
+	var drawn: Vector2 = texture_size * scale_to_fit
+	return Rect2((canvas_size - drawn) * 0.5, drawn)
 
 
 func set_rock_state(next: RockState) -> void:
@@ -130,43 +159,38 @@ func gem_is_visible() -> bool:
 	return _gem != null and _gem.visible
 
 
-## Draws the facets and cracks on top of the button body.
+## Draws the rock: the sprite (with a headlamp-yellow glow behind it while selected, dimmed once
+## cracked, a touch brighter under the mouse) and the crack line on a cracked rock.
 func draw_overlay(canvas: Control) -> void:
-	var s: Vector2 = canvas.size
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = rock_index * 7919 + 17 # each rock keeps its own look
-	for i: int in 3:
-		var origin: Vector2 = Vector2(rng.randf_range(0.12, 0.7), rng.randf_range(0.15, 0.7)) * s
-		var facet: PackedVector2Array = PackedVector2Array([
-			origin, origin + Vector2(rng.randf_range(0.1, 0.2), rng.randf_range(-0.04, 0.04)) * s,
-			origin + Vector2(rng.randf_range(0.08, 0.18), rng.randf_range(0.1, 0.2)) * s,
-			origin + Vector2(rng.randf_range(-0.04, 0.04), rng.randf_range(0.08, 0.16)) * s,
-		])
-		canvas.draw_colored_polygon(facet, FACET)
+	var texture: Texture2D = texture_for(rock_index)
+	var rect: Rect2 = sprite_rect(texture, canvas.size)
+	if rock_state == RockState.SELECTED or rock_state == RockState.WOBBLING:
+		canvas.draw_texture_rect(texture, rect.grow(rect.size.x * GLOW_GROW), false, SELECTED_GLOW) # the same silhouette, a little larger
+	var tint: Color = Color.WHITE
 	if rock_state == RockState.CRACKED:
+		tint = CRACKED_TINT
+	elif is_hovered() and not disabled:
+		tint = HOVER_TINT
+	canvas.draw_texture_rect(texture, rect, false, tint)
+	if rock_state == RockState.CRACKED:
+		var s: Vector2 = rect.size
 		var crack: PackedVector2Array = PackedVector2Array([
-			Vector2(0.5, 0.05) * s, Vector2(0.42, 0.28) * s, Vector2(0.58, 0.45) * s,
-			Vector2(0.4, 0.66) * s, Vector2(0.52, 0.95) * s,
+			rect.position + Vector2(0.5, 0.08) * s, rect.position + Vector2(0.42, 0.3) * s, rect.position + Vector2(0.58, 0.47) * s,
+			rect.position + Vector2(0.4, 0.68) * s, rect.position + Vector2(0.52, 0.93) * s,
 		])
 		canvas.draw_polyline(crack, CRACK_LINE, 5.0, true)
 
 
+## The button itself draws nothing (the overlay draws the sprite); only keyboard focus shows a box.
 func _apply_styles() -> void:
-	var fill: Color = BODY_CRACKED if rock_state == RockState.CRACKED else BODY
-	var border: Color = SELECTED_OUTLINE if rock_state == RockState.SELECTED else OUTLINE
-	var width: int = 10 if rock_state == RockState.SELECTED else 5
-	for style_name: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"focus"]:
-		var box: StyleBoxFlat = StyleBoxFlat.new()
-		box.bg_color = fill
-		box.border_color = border
-		box.set_border_width_all(width)
-		box.set_corner_radius_all(48)
-		if style_name == &"hover":
-			box.bg_color = fill.lightened(0.08)
-		elif style_name == &"focus":
-			box.bg_color = Color(0, 0, 0, 0)
-			box.border_color = Color.WHITE
-		add_theme_stylebox_override(style_name, box)
+	for style_name: StringName in [&"normal", &"hover", &"pressed", &"disabled"]:
+		add_theme_stylebox_override(style_name, StyleBoxEmpty.new())
+	var focus: StyleBoxFlat = StyleBoxFlat.new()
+	focus.bg_color = Color(0, 0, 0, 0)
+	focus.border_color = Color.WHITE
+	focus.set_border_width_all(5)
+	focus.set_corner_radius_all(48)
+	add_theme_stylebox_override(&"focus", focus)
 
 
 func _on_resized() -> void:

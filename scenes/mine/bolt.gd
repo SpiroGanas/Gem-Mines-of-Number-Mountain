@@ -1,4 +1,5 @@
-## Bolt, the mining robot, and his speech bubble. Gray-box: a drawn robot and a text bubble.
+## Bolt, the mining robot, and his speech bubble. Bolt is Kenney's CC0 robot (Robot Pack, see
+## assets/CREDITS.md) on his tracks, with his electric headlamp drawn on top in the garage's color.
 ## Every word comes from the text table through say(). The main line is a RichTextLabel so hint
 ## rung 1 can highlight the numbers in the problem (Godot note: BBCode tags such as [b] and
 ## [color] style parts of a RichTextLabel's text).
@@ -12,13 +13,13 @@ extends HBoxContainer
 ## The child tapped a Word Gem (a chip or an underlined word).
 signal term_tapped(term_id: StringName)
 
-const BODY: Color = Color("#7FA3C7")
-const HEAD: Color = Color("#A9C4E0")
-const OUTLINE: Color = Color("#1F2945")
+const BODY_TEXTURE_PATH: String = "res://assets/art/kenney/bolt/robot_body.png"
+const TRACKS_TEXTURE_PATH: String = "res://assets/art/kenney/bolt/robot_tracks.png"
 ## Headlamp colors (Bolt's Garage). The light is electric, always.
 const LAMP_COLORS: Dictionary = {"blue": Color("#8FD3FF"), "green": Color("#7BD88F"), "gold": Color("#FFD166")}
 const BUBBLE_WIDTH_MULTIPLE: float = 7.0
 const NOTE_COLOR: Color = Color("#FFD166")
+const OUTLINE_COLOR: Color = Color("#1F2945")
 ## The bubble's colors (the theme's PanelContainer style), for the tail drawn beside Bolt.
 const BUBBLE_FILL: Color = ExplorerTheme.NAVY_LIGHT
 const BUBBLE_EDGE: Color = ExplorerTheme.OFF_WHITE
@@ -183,19 +184,39 @@ func spoken_bbcode() -> String:
 
 
 class _BoltArt extends Control:
+	static var _body: Texture2D
+	static var _tracks: Texture2D
+
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if _body == null:
+			_body = load(Bolt.BODY_TEXTURE_PATH)
+			_tracks = load(Bolt.TRACKS_TEXTURE_PATH)
 
 	func _draw() -> void:
 		# The bubble's tail, pointing from the bubble (at the right edge) to Bolt's head.
 		var tail: PackedVector2Array = PackedVector2Array([Vector2(size.x, size.y * 0.3), Vector2(size.x, size.y * 0.52), Vector2(size.x * 0.8, size.y * 0.28)])
 		draw_colored_polygon(tail, Bolt.BUBBLE_FILL)
 		draw_polyline(PackedVector2Array([tail[0], tail[2], tail[1]]), Bolt.BUBBLE_EDGE, 3.0, true)
-		var s: Vector2 = Vector2(size.x * 0.8, size.y)
-		draw_rect(Rect2(Vector2(0.2, 0.42) * s, Vector2(0.6, 0.5) * s), Bolt.BODY)
-		draw_rect(Rect2(Vector2(0.2, 0.42) * s, Vector2(0.6, 0.5) * s), Bolt.OUTLINE, false, 4.0)
-		draw_rect(Rect2(Vector2(0.25, 0.1) * s, Vector2(0.5, 0.34) * s), Bolt.HEAD)
-		draw_rect(Rect2(Vector2(0.25, 0.1) * s, Vector2(0.5, 0.34) * s), Bolt.OUTLINE, false, 4.0)
-		draw_circle(Vector2(0.4, 0.26) * s, s.x * 0.05, Bolt.OUTLINE) # eyes
-		draw_circle(Vector2(0.6, 0.26) * s, s.x * 0.05, Bolt.OUTLINE)
-		draw_circle(Vector2(0.5, 0.06) * s, s.x * 0.09, Bolt.lamp_color(Rewards.headlamp())) # headlamp (electric)
+		# The robot: body over tracks, each at its own aspect, in the left 80% of the figure.
+		var width: float = size.x * 0.8
+		var body_size: Vector2 = _fit(_body, width * 0.92)
+		var tracks_size: Vector2 = _fit(_tracks, width * 0.7)
+		var lamp_radius: float = width * 0.08
+		var stack_height: float = lamp_radius + body_size.y + tracks_size.y * 0.7
+		var top: float = maxf((size.y - stack_height) * 0.5, 0.0) + lamp_radius
+		var body_rect: Rect2 = Rect2(Vector2((width - body_size.x) * 0.5, top), body_size)
+		var tracks_rect: Rect2 = Rect2(Vector2((width - tracks_size.x) * 0.5, body_rect.end.y - tracks_size.y * 0.3), tracks_size)
+		draw_texture_rect(_tracks, tracks_rect, false)
+		draw_texture_rect(_body, body_rect, false)
+		# The electric headlamp, in the color from Bolt's Garage, with a soft glow.
+		var lamp_center: Vector2 = Vector2(body_rect.position.x + body_size.x * 0.3, body_rect.position.y)
+		var lamp: Color = Bolt.lamp_color(Rewards.headlamp())
+		draw_circle(lamp_center, lamp_radius * 1.9, Color(lamp, 0.3))
+		draw_circle(lamp_center, lamp_radius, lamp)
+		draw_circle(lamp_center, lamp_radius, Bolt.OUTLINE_COLOR, false, 2.0, true)
+
+	## A texture's size scaled to `width`, keeping its aspect.
+	static func _fit(texture: Texture2D, width: float) -> Vector2:
+		var texture_size: Vector2 = texture.get_size()
+		return texture_size * (width / texture_size.x)
