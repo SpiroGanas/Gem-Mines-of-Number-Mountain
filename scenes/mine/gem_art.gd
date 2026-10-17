@@ -21,6 +21,14 @@ const HEMATITE: StringName = &"hematite"
 const CALCITE: StringName = &"calcite"
 const TOPAZ: StringName = &"topaz"
 const OBSIDIAN: StringName = &"obsidian"
+## The rare gems of Zones 4 and 5. They come from rare NUMBERS, never from chance (CLAUDE.md rule 9):
+## a prime, a twin prime, a Mersenne prime or a perfect square (RewardsRules.gem_for_value). Each has
+## its own outline as well as its own color.
+const PRIME: StringName = &"prime_gem"
+const TWIN: StringName = &"twin_gem"
+const MERSENNE: StringName = &"mersenne_gem"
+const SQUARE: StringName = &"square_gem"
+const RARE_TYPES: Array[StringName] = [PRIME, TWIN, MERSENNE, SQUARE]
 ## The ten Gem Museum minerals, in the museum's order.
 const ALL_TYPES: Array[StringName] = [QUARTZ, GARNET, PYRITE, AMETHYST, MALACHITE, FLUORITE, HEMATITE, CALCITE, TOPAZ, OBSIDIAN]
 const OUTLINE: Color = Color("#1F2945")
@@ -68,7 +76,29 @@ static func shape_points(type: StringName) -> PackedVector2Array:
 			return PackedVector2Array([Vector2(0.32, 0.05), Vector2(0.68, 0.05), Vector2(0.8, 0.2), Vector2(0.8, 0.85), Vector2(0.5, 1.0), Vector2(0.2, 0.85), Vector2(0.2, 0.2)])
 		OBSIDIAN: # sharp shard
 			return PackedVector2Array([Vector2(0.45, 0.0), Vector2(0.95, 0.62), Vector2(0.6, 1.0), Vector2(0.05, 0.78)])
+		PRIME: # a four-pointed star: "unbreakable"
+			return _star(4, 0.5, 0.2)
+		MERSENNE: # an eight-pointed burst: the rarest
+			return _star(8, 0.5, 0.3)
+		TWIN: # a peanut: two lobes joined, because twin primes come as a pair
+			var peanut: PackedVector2Array = PackedVector2Array()
+			for i: int in 24:
+				var angle: float = TAU * float(i) / 24.0
+				peanut.append(Vector2(0.5 + 0.48 * cos(angle), 0.5 + 0.3 * sin(angle) * (0.55 + 0.45 * cos(angle) * cos(angle))))
+			return peanut
+		SQUARE: # a square cut with notched corners
+			return PackedVector2Array([Vector2(0.2, 0.08), Vector2(0.8, 0.08), Vector2(0.92, 0.2), Vector2(0.92, 0.8), Vector2(0.8, 0.92), Vector2(0.2, 0.92), Vector2(0.08, 0.8), Vector2(0.08, 0.2)])
 	return PackedVector2Array([Vector2(0.1, 0.1), Vector2(0.9, 0.1), Vector2(0.9, 0.9), Vector2(0.1, 0.9)])
+
+
+## A star with `tips` points, alternating the outer and inner radius around the unit square's centre.
+static func _star(tips: int, outer: float, inner: float) -> PackedVector2Array:
+	var points: PackedVector2Array = PackedVector2Array()
+	for i: int in tips * 2:
+		var angle: float = TAU * float(i) / float(tips * 2) - PI / 2.0
+		var radius: float = outer if i % 2 == 0 else inner
+		points.append(Vector2(0.5 + radius * cos(angle), 0.5 + radius * sin(angle)))
+	return points
 
 
 static func color_for(type: StringName) -> Color:
@@ -93,6 +123,14 @@ static func color_for(type: StringName) -> Color:
 			return Color("#F0A44B")
 		OBSIDIAN:
 			return Color("#3A3A4A")
+		PRIME:
+			return Color("#FF8FB3")
+		TWIN:
+			return Color("#7FD1B9")
+		MERSENNE:
+			return Color("#FFD84D")
+		SQUARE:
+			return Color("#7F9CF5")
 	return Color("#CCCCCC")
 
 

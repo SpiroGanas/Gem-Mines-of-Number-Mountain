@@ -39,6 +39,11 @@ func gem_count(gem: StringName) -> int:
 	return RewardsRules.gem_count(data(), gem)
 
 
+## The gem for a number: the rare gem it earns, or `common_gem` (see RewardsRules.gem_for_value).
+func gem_for_value(value: int, common_gem: StringName = GemArt.QUARTZ) -> StringName:
+	return RewardsRules.gem_for_value(value, common_gem)
+
+
 func total_gems() -> int:
 	var total: int = 0
 	for gem: Variant in data().get("gems", {}):
@@ -54,12 +59,15 @@ func lit_today() -> bool:
 	return RewardsRules.is_lit(data(), Adaptive.clock.today())
 
 
-## Pays a cracked rock of `zone` (first try or after hints). Returns {coins, gem, lantern_lit}.
-func pay_rock(zone: int, first_try: bool) -> Dictionary:
-	var paid: Dictionary = RewardsRules.pay_rock(data(), zone, first_try, Adaptive.clock.today())
+## Pays a cracked rock of `zone` (first try or after hints). `value` is the number the problem is
+## about (0 if none); from Zone 4 on it can make the gem a rare one. Returns
+## {coins, gem, count, lantern_lit}.
+func pay_rock(zone: int, first_try: bool, value: int = 0) -> Dictionary:
+	var paid: Dictionary = RewardsRules.pay_rock(data(), zone, first_try, Adaptive.clock.today(), value)
 	_session["rocks"] += 1
 	_session["coins"] += paid["coins"]
-	_count_session_gem(paid["gem"])
+	for i: int in int(paid["count"]):
+		_count_session_gem(paid["gem"])
 	coins_changed.emit(coins())
 	gem_awarded.emit(paid["gem"], gem_count(paid["gem"]))
 	if paid["lantern_lit"]:

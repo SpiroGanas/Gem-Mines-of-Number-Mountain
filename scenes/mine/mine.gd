@@ -226,7 +226,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_sfx.play(&"crack")
 			var rock: Rock = _wall.rock(flow.current_rock())
 			rock.crack_finished.connect(flow.crack_finished, CONNECT_ONE_SHOT)
-			rock.play_crack(GemArt.gem_for_zone(zone_of(current_problem())), Rewards.pickaxe() == &"pickaxe_t2")
+			rock.play_crack(gem_for(current_problem()), Rewards.pickaxe() == &"pickaxe_t2")
 		DigFlow.State.GEM_DROP:
 			_pay_rock() # the reward is earned the moment the rock cracks, whatever happens next
 			_sfx.play(&"gem")
@@ -254,10 +254,21 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 ## Pays the cracked rock (coins, the zone's gem, today's lantern) and saves, before the gem flies.
 ## Leaving the mine while the gem is still in the air then loses nothing the child earned.
 func _pay_rock() -> void:
-	var paid: Dictionary = Rewards.pay_rock(zone_of(current_problem()), flow.wrong_count() == 0)
+	var paid: Dictionary = Rewards.pay_rock(zone_of(current_problem()), flow.wrong_count() == 0, number_of(current_problem()))
 	if paid["lantern_lit"]:
 		_pending_celebrations.append({"line_id": &"bolt.celebrate.lantern", "lantern": true})
 	SaveSystem.save_now() # save point: after every rock
+
+
+## The number a problem is about (its `n`), or 0: from Zone 4 a prime, twin prime, Mersenne prime or
+## perfect square pays a rare gem (RewardsRules.gem_for_rock).
+static func number_of(problem: Problem) -> int:
+	return int(problem.prompt_params.get("n", 0)) if problem.prompt_params.get("n") is int else 0
+
+
+## The gem this problem's rock shows and pays.
+func gem_for(problem: Problem) -> StringName:
+	return RewardsRules.gem_for_rock(zone_of(problem), number_of(problem))
 
 
 func _on_gem_landed(_gem_type: StringName) -> void:

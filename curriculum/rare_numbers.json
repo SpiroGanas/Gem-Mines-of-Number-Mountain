@@ -1,0 +1,5 @@
+{
+  "_comment": "Numbers that earn a rare gem (Zones 4 and 5). Rare gems come from rare NUMBERS, never from chance (CLAUDE.md rule 9). mersenne_primes lists every prime of the form 2^p - 1 up to 10,000 (p prime); the others are worked out from the number itself (RewardsRules.gem_for_value). tools/crosscheck/rare_numbers.py recomputes this list independently and the tests compare the two.",
+  "schema_version": 1,
+  "mersenne_primes": [3, 7, 31, 127, 8191]
+}
