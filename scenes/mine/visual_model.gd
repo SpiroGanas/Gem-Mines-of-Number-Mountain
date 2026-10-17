@@ -1,7 +1,8 @@
 ## Draws a problem's visual: piles of hundred-blocks, ten-bars and one-gems (`gem_piles`),
 ## ten-frames (`ten_frame`, with an optional second set of dots for the second addend), number
 ## lines (`number_line`, with optional jump arcs), a balance scale (`balance`), arrays (`array`),
-## equal groups (`groups`) and gems lined up in pairs (`pairs`). Gray-box shapes in code; the
+## equal groups (`groups`), gems lined up in pairs (`pairs`) and a number's digits with the part a
+## divisibility rule looks at lit up (`digits`, Zone 5). Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -31,6 +32,8 @@ const HEIGHT_MULTIPLE_BALANCE: float = 4.2
 const HEIGHT_MULTIPLE_ARRAY: float = 4.6
 const HEIGHT_MULTIPLE_GROUPS: float = 4.0
 const HEIGHT_MULTIPLE_PAIRS: float = 3.4
+const HEIGHT_MULTIPLE_DIGITS: float = 3.2
+const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
 const SECOND_COLOR: Color = Color("#7FC8F8")
@@ -74,6 +77,8 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_GROUPS
 		&"pairs":
 			height = HEIGHT_MULTIPLE_PAIRS
+		&"digits":
+			height = HEIGHT_MULTIPLE_DIGITS
 	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
@@ -254,6 +259,8 @@ func _draw() -> void:
 			_draw_groups()
 		&"pairs":
 			_draw_pairs()
+		&"digits":
+			_draw_digits()
 
 
 func _draw_piles() -> void:
@@ -448,6 +455,71 @@ func _draw_pairs() -> void:
 		draw_rect(cells[pair * 2].merge(cells[pair * 2 + 1]).grow(-3.0), GROUP_COLOR, false, 3.0)
 	if count % 2 == 1:
 		draw_circle(cells[count - 1].get_center(), cells[count - 1].size.x * 0.5, MARKER_COLOR, false, 4.0, true) # the one left over
+
+
+## Which digits a `digits` picture lights up (indexes into its digits), by its focus: "last" (2, 5,
+## 10), "last_two" (4), "sum" and "recipe" (every digit), "sum_and_last" (6). Pure.
+static func lit_digits(count: int, focus: String) -> Array[int]:
+	var lit: Array[int] = []
+	match focus:
+		"last":
+			lit.append(count - 1)
+		"last_two":
+			for index: int in range(maxi(count - 2, 0), count):
+				lit.append(index)
+		_:
+			for index: int in count:
+				lit.append(index)
+	return lit
+
+
+## The line under a `digits` picture: "1 + 2 + 6 = 9" for a digit sum, "= 2 × 2 × 3" for a recipe,
+## nothing for the last-digit rules. Numerals and signs only. Pure.
+static func digits_caption(picture: Dictionary) -> String:
+	var digits: Array = picture.get("digits", [])
+	var focus: String = str(picture.get("focus", "last"))
+	if focus == "sum" or focus == "sum_and_last":
+		var parts: PackedStringArray = PackedStringArray()
+		var total: int = 0
+		for digit: Variant in digits:
+			parts.append(str(int(digit)))
+			total += int(digit)
+		return "%s = %d" % [" + ".join(parts), total]
+	if focus == "recipe":
+		var factors: PackedStringArray = PackedStringArray()
+		for factor: Variant in picture.get("recipe", []):
+			factors.append(str(int(factor)))
+		return "= " + " × ".join(factors)
+	return ""
+
+
+## A row of digit boxes; the lit ones get a thick headlamp-yellow border and a pointer above (so the
+## color is never the only clue), and the caption goes underneath.
+func _draw_digits() -> void:
+	var digits: Array = visual.get("digits", [])
+	if digits.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	var caption: String = digits_caption(visual)
+	var box_side: float = minf(size.y * (0.5 if caption != "" else 0.7), (size.x - 24.0) / float(digits.size()) - 12.0)
+	var row_width: float = digits.size() * (box_side + 12.0) - 12.0
+	var top: float = size.y * (0.12 if caption != "" else 0.18)
+	var left: float = (size.x - row_width) / 2.0
+	var lit: Array[int] = lit_digits(digits.size(), str(visual.get("focus", "last")))
+	for index: int in digits.size():
+		var box: Rect2 = Rect2(left + index * (box_side + 12.0), top, box_side, box_side)
+		var on: bool = lit.has(index)
+		draw_rect(box, Color(1, 1, 1, 0.08), true)
+		draw_rect(box, MARKER_COLOR if on else LINE_COLOR, false, 6.0 if on else 2.0)
+		var text: String = str(int(digits[index]))
+		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, DIGIT_SIZE)
+		draw_string(font, Vector2(box.get_center().x - text_size.x / 2.0, box.get_center().y + DIGIT_SIZE * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, DIGIT_SIZE, LINE_COLOR)
+		if on and box.position.y > 14.0:
+			var mx: float = box.get_center().x
+			draw_colored_polygon(PackedVector2Array([Vector2(mx, box.position.y - 2.0), Vector2(mx - 10.0, box.position.y - 14.0), Vector2(mx + 10.0, box.position.y - 14.0)]), MARKER_COLOR)
+	if caption != "":
+		var caption_size: Vector2 = font.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE)
+		draw_string(font, Vector2((size.x - caption_size.x) / 2.0, top + box_side + 24.0 + LABEL_SIZE), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, MARKER_COLOR)
 
 
 func _panel_style() -> StyleBoxFlat:

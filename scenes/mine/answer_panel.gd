@@ -177,7 +177,12 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 		var parts: PackedStringArray = PackedStringArray()
 		for item: Variant in value:
 			parts.append(str(item))
-		var joiner: String = " + " if for_problem.meta.get("array_label") == "sum" else ", "
+		var joiner: String = ", "
+		match for_problem.meta.get("array_label"):
+			"sum":
+				joiner = " + "
+			"product":
+				joiner = " × "
 		return joiner.join(parts)
 	return str(value)
 
