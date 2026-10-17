@@ -404,3 +404,44 @@ bolt.misconception.used_the_product,Count up by both numbers. Where do they meet
 bolt.misconception.wrong_split,Which pair has the number we asked for?,Targeted hint after the wrong_split mistake,0
 z4.fac.prompt_split,Split {n} so one piece is {a}.,Zone 4: split the boulder (drag the pickaxe to a factor pair),0
 z4.hint.example_split,"{a} × {b} = {n}, so {n} splits into {a} and {b}.",Worked example: a boulder split,0
+ui.hub.workshop,Craft,Hub button: the crafting bench (Sprint 16),0
+ui.hub.build_site,Build,Hub button: the build site for machines (Sprint 16),0
+ws.bench.title,Crafting Bench,Crafting screen title,0
+ws.bolt.hello,Pick a recipe. A recipe says what gems to use.,Bolt on the crafting bench; introduces the Word Gem 'recipe',0
+ws.bolt.nothing_yet,Keep digging! New recipes open as you learn.,Bolt on the crafting bench when no recipe is open yet,0
+ws.bolt.craft_ask,Answer this to craft it!,Bolt: the recipe's problem is on screen,0
+ws.recipe.gem_count,{n} (you have {have}),Crafting: gems a recipe takes and gems held,0
+ws.recipe.craft,Craft,Crafting: craft button,0
+ws.recipe.made,Made!,Crafting: a recipe already crafted,0
+ws.recipe.need_gems,Dig for more gems,"""Crafting: not enough gems yet (informational, no pressure)""",0
+ws.craft.done,You crafted it! Your gems built something new.,Celebration after crafting,0
+ws.recipe.pickaxe_tier2.name,Big pickaxe,Recipe name,0
+ws.recipe.pickaxe_tier2.info,Cracks every rock with a bigger crack.,Recipe: what it does,0
+ws.recipe.headlamp_white.name,White headlamp,Recipe name,0
+ws.recipe.headlamp_white.info,A bright white light for Bolt.,Recipe: what it does,0
+ws.recipe.hub_lanterns.name,Electric lanterns,Recipe name,0
+ws.recipe.hub_lanterns.info,A string of lights for the workshop.,Recipe: what it does (electric light only),0
+ws.recipe.crystal_lamp.name,Crystal lamp,Recipe name,0
+ws.recipe.crystal_lamp.info,A glowing crystal for the workshop.,Recipe: what it does,0
+hub.garage.lamp_white,White lamp,Garage item (crafted on the crafting bench),0
+ui.garage.craft_it,Craft it on the bench.,Garage: an item that is crafted not bought,0
+vocab.recipe.term,recipe,Word Gem term,0
+vocab.recipe.definition,A recipe tells what you need to make something.,Word Gem kid-sized definition,0
+build.site.title,Build Site,Build site screen title,0
+build.site.hello,Let's build a machine! Pick one.,Bolt at the build site,0
+build.site.nothing_yet,Keep digging! Machines open as you learn.,Bolt at the build site when no build is open,0
+build.site.elevator_hint,Build the elevator to reach Zone {n}!,"""Bolt at the build site: the elevator opens the next zone (n = zone number)""",0
+build.site.opens_zone,This machine opens Zone {n}.,Build site: which zone a build opens,0
+build.site.built,Built! It runs in the workshop.,Build site: a finished machine,0
+build.site.start,Start,Build site: start a build,0
+build.site.go_on,Keep going,Build site: go on with a build,0
+build.site.look,Look,Build site: look at a finished machine,0
+build.site.not_yet,Not yet,Build site: a build that is not open yet,0
+build.screen.progress,Step {n} of {total},Build screen: progress,0
+build.screen.next,Next step,Build screen: go to the next step,0
+build.cart_track.name,Cart Track,Build project name,0
+build.cart_track.intro,Fill the gap in the track. Then the cart can roll!,Bolt: the cart track build,0
+build.cart_track.done,The cart track is done! Carts roll to the quarry.,Bolt: the cart track is finished,0
+build.balance_elevator.name,Balance Elevator,Build project name,0
+build.balance_elevator.intro,Make the scale balance. Equal weight lifts the elevator!,Bolt: the balance elevator build (equal groups balance),0
+build.balance_elevator.done,It balances! The elevator can go down to Zone {n}.,Bolt: the elevator is finished and opens a zone (n = zone number),0

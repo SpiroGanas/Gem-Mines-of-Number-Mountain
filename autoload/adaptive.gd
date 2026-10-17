@@ -28,12 +28,15 @@ var _session_skills: Dictionary = {}
 
 var _catalog: SkillCatalog
 var _placement: Placement
+var _builds: Array[BuildProject] = []
 
 
 func _ready() -> void:
 	_catalog = SkillCatalog.load_all()
 	engine = AdaptiveEngine.new(_catalog, BKT.load_defaults(), clock, [], BKT.load_fitted())
 	engine.skills_source = func() -> Dictionary: return SaveSystem.data()["skills"]
+	_builds = BuildProject.load_all()
+	engine.scheduler.locked_zones = locked_zones
 	engine.skill_mastered.connect(skill_mastered.emit)
 	engine.skill_flagged.connect(skill_flagged.emit)
 	SaveSystem.profile_loaded.connect(_on_profile_loaded)
@@ -124,6 +127,26 @@ func record(attempt: Attempt, chance: float) -> Dictionary:
 	if placement_active():
 		return {"mastered": false, "first_time": false, "lapsed": false} # a retry on a placement rock
 	return engine.record_answer(attempt.skill_id, attempt.correct, attempt.hints_used, chance, attempt.latency_ms)
+
+
+## Zones a build project still keeps out of the dig (Sprint 16: the balance elevator opens Zone 4).
+func locked_zones() -> Array[int]:
+	return WorkshopRules.locked_zones(SaveSystem.data(), _builds, zone_has_answers)
+
+
+## True when the child has answered at least one problem of `zone`.
+func zone_has_answers(zone: int) -> bool:
+	var skills: Dictionary = SaveSystem.data()["skills"]
+	for id: String in skills:
+		if _catalog.has_skill(StringName(id)) and _catalog.skill(StringName(id)).zone == zone and int(skills[id].get("attempts", 0)) > 0:
+			return true
+	return false
+
+
+## True when a skill opens the skills after it (mastered, placement-passed or secure): what makes a
+## recipe or a build appear in the workshop.
+func opens_successors(skill_id: StringName) -> bool:
+	return SkillRecord.opens_successors(engine.scheduler.record_of(SaveSystem.data()["skills"], skill_id))
 
 
 func flag_for_review(skill_id: StringName) -> void:

@@ -1,7 +1,8 @@
 ## Chooses which skill the next rock practises (Phase 1 plan, "Adaptive engine"). Pure: it reads the
 ## save's skill records and a day string, and keeps only this session's short memory.
 ##
-##   frontier   skills not mastered whose prerequisites are all mastered, placement-passed or secure
+##   frontier   skills not mastered whose prerequisites are all mastered, placement-passed or secure,
+##              outside a zone a build project still keeps closed (locked_zones, Sprint 16)
 ##   resting    a secure skill that was already answered right today: it waits for another day,
 ##              because a second correct day is what confirms mastery
 ##   practice   the frontier minus the resting skills (the resting ones if nothing else is left)
@@ -20,6 +21,9 @@ const REVIEW_SHARE: float = 0.3
 var catalog: SkillCatalog
 ## Skills that can be served, in curriculum order (built generators only, or a test's limit).
 var playable: Array[StringName] = []
+## Returns the zones the dig must not offer yet (Array[int]); unset means none. The Adaptive autoload
+## sets it from the build projects (WorkshopRules.locked_zones); the engine's tests leave it unset.
+var locked_zones: Callable = Callable()
 
 var _active: Array[StringName] = []
 var _recent: Array[StringName] = []
@@ -68,7 +72,10 @@ func is_unlocked(skills: Dictionary, id: StringName) -> bool:
 
 func frontier(skills: Dictionary) -> Array[StringName]:
 	var result: Array[StringName] = []
+	var closed: Array = locked_zones.call() if locked_zones.is_valid() else []
 	for id: StringName in playable:
+		if not closed.is_empty() and closed.has(catalog.skill(id).zone):
+			continue
 		if not SkillRecord.is_mastered(record_of(skills, id)) and is_unlocked(skills, id):
 			result.append(id)
 	return result

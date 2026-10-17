@@ -294,11 +294,12 @@ def check_skill_map(
     if cycle:
         errors.append("skill map: prerequisite cycle " + " -> ".join(cycle))
 
-    # Every vocabulary term for a detailed zone should be taught by some skill.
+    # Every vocabulary term for a detailed zone should be taught by some skill, unless the term says
+    # where else it is taught ("taught_by": "workshop" for the crafting bench's "recipe").
     detailed_zones = {zone for sid, zone in skill_zone.items() if skill_status[sid] == "detailed"}
     used_terms = {t for sid, s in skills.items() if skill_status[sid] == "detailed" for t in s["terms"]}
     for term_id, term in vocabulary.items():
-        if term["zone"] in detailed_zones and term_id not in used_terms:
+        if term["zone"] in detailed_zones and term_id not in used_terms and not term.get("taught_by"):
             errors.append(f"vocabulary: '{term_id}' (zone {term['zone']}) is used by no skill")
 
     # bkt_type keys must exist in bkt_defaults.json.

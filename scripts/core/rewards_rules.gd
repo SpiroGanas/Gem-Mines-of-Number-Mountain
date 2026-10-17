@@ -38,7 +38,9 @@ const SHOP: Dictionary = {
 	&"headlamp_gold": {"price": 40, "kind": "headlamp", "color": "gold"},
 }
 const DEFAULT_HEADLAMP: String = "blue"
-const HEADLAMP_ITEMS: Dictionary = {"blue": &"", "green": &"headlamp_green", "gold": &"headlamp_gold"}
+## Headlamp color -> the inventory item that unlocks it (blue is Bolt's own). White is crafted in the
+## workshop (curriculum/recipes.json), not bought.
+const HEADLAMP_ITEMS: Dictionary = {"blue": &"", "green": &"headlamp_green", "gold": &"headlamp_gold", "white": &"headlamp_white"}
 
 
 static func coins_for_rock(first_try: bool) -> int:
@@ -194,6 +196,14 @@ static func has_headlamp(rewards: Dictionary, color: String) -> bool:
 		return false
 	var item: StringName = HEADLAMP_ITEMS[color]
 	return item == &"" or owns(rewards, item)
+
+
+## The headlamp color an inventory item unlocks ("" for an item that is not a headlamp).
+static func headlamp_for_item(item: StringName) -> String:
+	for color: String in HEADLAMP_ITEMS:
+		if HEADLAMP_ITEMS[color] == item and item != &"":
+			return color
+	return ""
 
 
 ## Puts on an owned headlamp color. Returns false for one not owned.

@@ -9,6 +9,7 @@ const ITEMS: Array[Dictionary] = [
 	{"id": &"headlamp_blue", "name": &"hub.garage.lamp_blue", "lamp": "blue"},
 	{"id": &"headlamp_green", "name": &"hub.garage.lamp_green", "lamp": "green"},
 	{"id": &"headlamp_gold", "name": &"hub.garage.lamp_gold", "lamp": "gold"},
+	{"id": &"headlamp_white", "name": &"hub.garage.lamp_white", "lamp": "white"},
 	{"id": &"pickaxe_t2", "name": &"hub.garage.pickaxe_t2", "info": &"hub.garage.pickaxe_t2_info"},
 ]
 
@@ -121,6 +122,10 @@ func _refresh() -> void:
 
 
 func _show_price(button: Button, id: StringName) -> void:
+	if not RewardsRules.SHOP.has(id): # made in the workshop, never bought
+		button.text = Text.get_line(&"ui.garage.craft_it")
+		button.disabled = true
+		return
 	var price: int = RewardsRules.price_of(id)
 	if Rewards.can_buy(id):
 		button.text = Text.get_line(&"ui.garage.buy", {"n": price})

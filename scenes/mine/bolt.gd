@@ -16,7 +16,7 @@ signal term_tapped(term_id: StringName)
 const BODY_TEXTURE_PATH: String = "res://assets/art/kenney/bolt/robot_body.png"
 const TRACKS_TEXTURE_PATH: String = "res://assets/art/kenney/bolt/robot_tracks.png"
 ## Headlamp colors (Bolt's Garage). The light is electric, always.
-const LAMP_COLORS: Dictionary = {"blue": Color("#8FD3FF"), "green": Color("#7BD88F"), "gold": Color("#FFD166")}
+const LAMP_COLORS: Dictionary = {"blue": Color("#8FD3FF"), "green": Color("#7BD88F"), "gold": Color("#FFD166"), "white": Color("#F4F7FF")}
 const BUBBLE_WIDTH_MULTIPLE: float = 7.0
 const NOTE_COLOR: Color = Color("#FFD166")
 const OUTLINE_COLOR: Color = Color("#1F2945")

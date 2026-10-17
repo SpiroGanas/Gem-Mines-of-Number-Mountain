@@ -16,11 +16,19 @@ signal mineral_found(gem: StringName)
 signal skill_celebrated(skill_id: StringName)
 signal purchased(item: StringName)
 signal headlamp_changed(color: String)
+## A recipe was crafted in the workshop (Sprint 16).
+signal crafted(recipe_id: StringName)
+## A build step was finished; `done` when it finished the whole build.
+signal build_step_finished(build_id: StringName, step: int, done: bool)
 
 var _session: Dictionary = {}
+var _recipes: Array[Recipe] = []
+var _builds: Array[BuildProject] = []
 
 
 func _ready() -> void:
+	_recipes = Recipe.load_all()
+	_builds = BuildProject.load_all()
 	Adaptive.skill_mastered.connect(_on_skill_mastered)
 	Adaptive.session_started.connect(func(_id: String) -> void: reset_session())
 	SaveSystem.profile_loaded.connect(reset_session)
@@ -112,6 +120,88 @@ func pickaxe() -> StringName:
 
 func museum_open(mineral: StringName) -> bool:
 	return RewardsRules.museum_open(data(), mineral)
+
+
+# --- Workshop: crafting and builds (Sprint 16) ----------------------------------------------------
+
+
+func recipes() -> Array[Recipe]:
+	return _recipes
+
+
+func recipe(id: StringName) -> Recipe:
+	for entry: Recipe in _recipes:
+		if entry.id == id:
+			return entry
+	return null
+
+
+## Recipes the workshop shows now (their unlock skill opens its successors), in file order.
+func open_recipes() -> Array[Recipe]:
+	var result: Array[Recipe] = []
+	for entry: Recipe in _recipes:
+		if WorkshopRules.is_open(entry, Adaptive.opens_successors):
+			result.append(entry)
+	return result
+
+
+func can_craft(id: StringName) -> bool:
+	var entry: Recipe = recipe(id)
+	return entry != null and WorkshopRules.can_craft(SaveSystem.data(), entry, Adaptive.opens_successors)
+
+
+func is_crafted(id: StringName) -> bool:
+	var entry: Recipe = recipe(id)
+	return entry != null and WorkshopRules.is_crafted(SaveSystem.data(), entry)
+
+
+## Crafts a recipe after its problem was answered right: spends the gems, adds the output, saves.
+func craft(id: StringName) -> bool:
+	var entry: Recipe = recipe(id)
+	if entry == null or not WorkshopRules.craft(SaveSystem.data(), entry, Adaptive.opens_successors):
+		return false
+	SaveSystem.save_now()
+	crafted.emit(id)
+	if entry.output_type == "headlamp":
+		headlamp_changed.emit(headlamp())
+	return true
+
+
+func builds() -> Array[BuildProject]:
+	return _builds
+
+
+func build(id: StringName) -> BuildProject:
+	for entry: BuildProject in _builds:
+		if entry.id == id:
+			return entry
+	return null
+
+
+func build_state(id: StringName) -> Dictionary:
+	var entry: BuildProject = build(id)
+	return WorkshopRules.build_state(SaveSystem.data(), entry) if entry != null else {"step": 0, "done": false}
+
+
+func is_built(id: StringName) -> bool:
+	return bool(build_state(id)["done"])
+
+
+func is_build_open(id: StringName) -> bool:
+	var entry: BuildProject = build(id)
+	return entry != null and WorkshopRules.is_open_build(entry, Adaptive.opens_successors)
+
+
+## Records a finished build step and saves at once (closing the app mid-build resumes here).
+## Returns true when that step finished the build.
+func finish_build_step(id: StringName) -> bool:
+	var entry: BuildProject = build(id)
+	if entry == null or is_built(id):
+		return false
+	var done: bool = WorkshopRules.finish_step(SaveSystem.data(), entry)
+	SaveSystem.save_now()
+	build_step_finished.emit(id, int(build_state(id)["step"]), done)
+	return done
 
 
 ## This session's tally for the wind-down recap: {rocks, coins, gems: {type: n}, gem_total, minerals}.

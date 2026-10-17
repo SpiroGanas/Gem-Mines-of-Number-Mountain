@@ -69,7 +69,7 @@ func _ready() -> void:
 
 
 ## Shows the card. `items` is a list of {line_id: StringName, gem: StringName} or
-## {line_id, lantern: true}: one line and one picture each.
+## {line_id, lantern: true}: one line and one picture each. An item may add `params` for its line.
 func celebrate(items: Array[Dictionary]) -> void:
 	for child: Node in _lines.get_children() + _art_row.get_children():
 		child.queue_free()
@@ -77,7 +77,7 @@ func celebrate(items: Array[Dictionary]) -> void:
 	_line_ids.clear()
 	for item: Dictionary in items:
 		var label: Label = Label.new()
-		label.text = Text.get_line(item["line_id"])
+		label.text = Text.get_line(item["line_id"], item.get("params", {}))
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_lines.add_child(label)
