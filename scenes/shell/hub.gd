@@ -1,6 +1,6 @@
 ## Hub: the surface workshop (GDD section 3). Bolt's greeting, the big Dig button, then Museum,
 ## Garage and Settings, and the lantern streak and coins. Every button has a short label; the art
-## pass (Sprint 10) adds a picture to each. The Grown-ups button arrives with the parent area.
+## pass (Sprint 10) adds a picture to each. Grown-ups (small, in the corner) opens the parent gate.
 class_name HubScreen
 extends ShellScreen
 
@@ -14,6 +14,7 @@ const BUTTON_HEIGHT_MULTIPLE: float = 1.5
 @onready var _museum_button: Button = %MuseumButton
 @onready var _garage_button: Button = %GarageButton
 @onready var _settings_button: Button = %SettingsButton
+@onready var _grownups_button: Button = %GrownupsButton
 @onready var _lantern: LanternArt = %Lantern
 @onready var _lantern_label: Label = %LanternLabel
 @onready var _coins_label: Label = %CoinsLabel
@@ -26,6 +27,9 @@ func _ready() -> void:
 	_museum_button.text = Text.get_line(&"ui.hub.museum")
 	_garage_button.text = Text.get_line(&"ui.hub.garage")
 	_settings_button.text = Text.get_line(&"ui.hub.settings")
+	_grownups_button.text = Text.get_line(&"ui.hub.grownups")
+	UI.make_touch_target(_grownups_button, 2.5, 1.0)
+	_grownups_button.pressed.connect(request_screen.emit.bind(&"parent_gate", {}))
 	UI.make_touch_target(_dig_button, DIG_WIDTH_MULTIPLE, DIG_HEIGHT_MULTIPLE)
 	for button: Button in [_museum_button, _garage_button, _settings_button]:
 		UI.make_touch_target(button, BUTTON_WIDTH_MULTIPLE, BUTTON_HEIGHT_MULTIPLE)

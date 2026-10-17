@@ -154,6 +154,37 @@ func read_attempts() -> Dictionary:
 	return {"entries": entries, "skipped": skipped}
 
 
+## Replaces attempts.jsonl with `entries` (an import merges two logs). Written to a .tmp first and
+## renamed, so a crash leaves the old log or the new one, never half of one.
+func write_attempts(entries: Array) -> Error:
+	var make_error: Error = DirAccess.make_dir_recursive_absolute(dir)
+	if make_error != OK:
+		return make_error
+	var tmp_path: String = _path(ATTEMPTS_FILE + ".tmp")
+	var file: FileAccess = FileAccess.open(tmp_path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	for entry: Variant in entries:
+		file.store_string(JSON.stringify(entry) + "\n")
+	file.flush()
+	file.close()
+	var path: String = _path(ATTEMPTS_FILE)
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
+	return DirAccess.rename_absolute(tmp_path, path)
+
+
+## The entries of any attempt log file (a fixture, a log from a bundle), skipping broken lines.
+func read_attempts_file(path: String) -> Array:
+	var entries: Array = []
+	if FileAccess.file_exists(path):
+		for line: String in FileAccess.get_file_as_string(path).split("\n", false):
+			var parsed: Variant = JsonUtil.parse_text(line)
+			if parsed is Dictionary:
+				entries.append(parsed)
+	return entries
+
+
 func _path(file_name: String) -> String:
 	return dir.path_join(file_name)
 

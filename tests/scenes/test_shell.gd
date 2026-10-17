@@ -273,3 +273,20 @@ func test_the_hub_opens_the_museum_and_the_garage_and_shows_the_lantern() -> voi
 	await _until_screen(&"garage")
 	_press("BackButton")
 	await _until_screen(&"hub")
+
+
+func test_grown_ups_go_through_the_gate_and_the_parent_area_cannot_be_paused() -> void:
+	_shell.change_screen(&"hub")
+	await _until_screen(&"hub")
+	_press("GrownupsButton")
+	await _until_screen(&"parent_gate")
+	_shell.toggle_pause()
+	assert_bool(_shell.is_paused()).is_false()
+	var gate: ParentGateScreen = _shell.current_screen()
+	var pad: NumberPad = gate.number_pad()
+	for digit: String in str(gate.rules.answer()):
+		pad.press_digit(int(digit))
+	pad.submit()
+	await _until_screen(&"dashboard")
+	_shell.toggle_pause()
+	assert_bool(_shell.is_paused()).is_false()

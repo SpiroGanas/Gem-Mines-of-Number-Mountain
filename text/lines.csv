@@ -227,3 +227,35 @@ ui.garage.use,Use,Garage: wear an owned headlamp,0
 ui.garage.in_use,In use,Garage: the headlamp Bolt wears now,0
 ui.garage.owned,Yours!,Garage: an owned tool,0
 ui.garage.need,Dig to earn {n} more coins.,"Garage: not enough coins yet (informational, no pressure)",0
+ui.hub.grownups,Grown-ups,Workshop button: the parent area (behind the parent gate),0
+ui.common.less,Less,Generic button: make a number smaller,0
+ui.common.more,More,Generic button: make a number bigger,0
+parent.gate.title,For grown-ups,Parent gate heading,0
+parent.gate.question,"To open the grown-up area, answer: {a} × {b} = ?",Parent gate question (adult level),0
+parent.gate.missed,That is not it. Here is a new one.,Parent gate: a miss,0
+parent.gate.wait,Too many tries. Please wait a moment.,Parent gate: locked for 30 seconds after three misses (no countdown shown),0
+parent.dash.title,Progress,Parent dashboard heading,0
+parent.dash.recovered,The last save could not be read. The backup copy was used.,Parent dashboard: the save was recovered from .tmp or .bak,0
+parent.dash.time,Time played,Parent dashboard section,0
+parent.dash.today,Today: {n} minutes,Parent dashboard,0
+parent.dash.week,This week: {n} minutes,Parent dashboard: the last 7 days,0
+parent.dash.mastered,Skills mastered ({n}),Parent dashboard section,0
+parent.dash.struggling,Needs practice ({n}),Parent dashboard section: flagged skills or 3 misses in the last 5 first tries,0
+parent.dash.skill_reason,{skill}: {reason},Parent dashboard: a skill that needs practice and why,0
+parent.dash.reason_flagged,flagged for review,Parent dashboard: hint rung 4 or a missed review,0
+parent.dash.reason_misses,3 or more misses in the last 5 tries,Parent dashboard,0
+parent.dash.sessions,Recent sessions ({n}),Parent dashboard section: the last 7,0
+parent.dash.session_row,"{day}: {minutes} min, {rocks} rocks, {percent}% right first try",Parent dashboard: one session,0
+parent.dash.none,None yet.,Parent dashboard: an empty list,0
+parent.dash.settings,Settings,Parent dashboard section,0
+parent.dash.session_length,Session length: {n} minutes,Parent dashboard: the soft time limit,0
+parent.dash.nickname,Nickname,Parent dashboard: the child's nickname,0
+parent.dash.rerun,Re-run the placement quest,Parent dashboard button,0
+parent.dash.rerun_done,The next dig starts with the placement quest.,Parent dashboard,0
+parent.dash.export,Export progress,Parent dashboard button: save a progress file,0
+parent.dash.import,Import progress,Parent dashboard button: load a progress file,0
+parent.dash.exported,Saved to {path},Parent dashboard: export done,0
+parent.dash.export_failed,The progress file could not be saved.,Parent dashboard,0
+parent.dash.imported,Progress imported.,Parent dashboard: the imported progress was newer and replaced this device's,0
+parent.dash.import_kept,"This device's progress is newer, so it was kept. The answers were added.",Parent dashboard: newest wins,0
+parent.dash.import_failed,That file could not be imported.,Parent dashboard,0

@@ -136,3 +136,95 @@ func test_other_notifications_do_not_save() -> void:
 	var system: Node = _system()
 	system._notification(Node.NOTIFICATION_READY)
 	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_false()
+
+
+# --- Export and import (P1-S09-05) ---------------------------------------------------------
+
+
+func _attempt(skill: StringName, ts: String) -> Attempt:
+	var attempt: Attempt = Attempt.new()
+	attempt.skill_id = skill
+	attempt.ts = ts
+	attempt.session_id = "s1"
+	attempt.correct = true
+	return attempt
+
+
+func test_a_bundle_round_trips_between_two_devices() -> void:
+	var tablet: Node = _system()
+	tablet.data()["rewards"]["coins"] = 77
+	tablet.data()["child"]["nickname"] = "Charlie"
+	tablet.append_attempt(_attempt(&"count.to_20.objects", "2026-12-07T10:00:00Z"))
+	var bundle_path: String = _dir.path_join("bundle.json")
+	assert_int(tablet.export_bundle(bundle_path)).is_equal(OK)
+	var chromebook_dir: String = create_temp_dir("chromebook_" + str(Time.get_ticks_usec()))
+	var chromebook: Node = auto_free(load(SYSTEM_SCRIPT).new())
+	chromebook.use_directory(chromebook_dir)
+	chromebook.append_attempt(_attempt(&"cmp.to_20.more_less", "2026-12-06T09:00:00Z"))
+	chromebook.data()["updated_at"] = "2026-01-01T00:00:00Z" # older than the tablet's
+	assert_int(chromebook.import_bundle(bundle_path)).is_equal(OK)
+	assert_bool(chromebook.last_import_report["replaced"]).is_true()
+	assert_int(chromebook.data()["rewards"]["coins"]).is_equal(77)
+	assert_str(chromebook.data()["child"]["nickname"]).is_equal("Charlie")
+	var log_entries: Array = chromebook.read_attempts()["entries"]
+	assert_int(log_entries.size()).is_equal(2) # both devices' answers, oldest first
+	assert_str(log_entries[0]["skill_id"]).is_equal("cmp.to_20.more_less")
+	# Importing the same bundle again adds nothing twice.
+	chromebook.import_bundle(bundle_path)
+	assert_int(chromebook.read_attempts()["entries"].size()).is_equal(2)
+
+
+func test_an_older_bundle_never_replaces_newer_progress_but_its_answers_are_kept() -> void:
+	var old_device: Node = _system()
+	old_device.data()["rewards"]["coins"] = 5
+	old_device.append_attempt(_attempt(&"count.to_20.objects", "2026-12-01T10:00:00Z"))
+	var bundle_path: String = _dir.path_join("old.json")
+	old_device.export_bundle(bundle_path)
+	var other: Node = auto_free(load(SYSTEM_SCRIPT).new())
+	other.use_directory(create_temp_dir("newer_" + str(Time.get_ticks_usec())))
+	other.data()["rewards"]["coins"] = 99
+	other.data()["updated_at"] = "2099-01-01T00:00:00Z"
+	assert_int(other.import_bundle(bundle_path)).is_equal(OK)
+	assert_bool(other.last_import_report["replaced"]).is_false()
+	assert_int(other.data()["rewards"]["coins"]).is_equal(99)
+	assert_int(other.read_attempts()["entries"].size()).is_equal(1)
+
+
+func test_the_replaced_save_is_kept_as_the_backup() -> void:
+	var source: Node = _system()
+	source.data()["rewards"]["coins"] = 1
+	var bundle_path: String = _dir.path_join("b.json")
+	source.export_bundle(bundle_path)
+	var target_dir: String = create_temp_dir("target_" + str(Time.get_ticks_usec()))
+	var target: Node = auto_free(load(SYSTEM_SCRIPT).new())
+	target.use_directory(target_dir)
+	target.data()["rewards"]["coins"] = 42
+	target.data()["updated_at"] = "2000-01-01T00:00:00Z"
+	SaveStore.new(target_dir).write_profile(target.data())
+	target.import_bundle(bundle_path)
+	var backup: Dictionary = JsonUtil.parse_file(target_dir.path_join("profile.json.bak"))
+	assert_int(backup["rewards"]["coins"]).is_equal(42)
+
+
+func test_a_file_that_is_not_a_bundle_changes_nothing() -> void:
+	var system: Node = _system()
+	system.data()["rewards"]["coins"] = 3
+	var path: String = _dir.path_join("nope.json")
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string("{\"hello\": 1}")
+	file.close()
+	assert_int(system.import_bundle(path)).is_equal(ERR_INVALID_DATA)
+	assert_str(system.last_import_report["error"]).is_equal(ProgressBundle.ERR_NOT_A_BUNDLE)
+	assert_int(system.data()["rewards"]["coins"]).is_equal(3)
+
+
+func test_a_bundle_from_a_newer_game_is_refused() -> void:
+	var system: Node = _system()
+	var bundle: Dictionary = ProgressBundle.make(SaveSchema.new_profile("t"), [], "t")
+	bundle["profile"]["schema_version"] = SaveSchema.CURRENT_VERSION + 1
+	var path: String = _dir.path_join("future.json")
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(bundle))
+	file.close()
+	assert_int(system.import_bundle(path)).is_equal(ERR_INVALID_DATA)
+	assert_str(system.last_import_report["error"]).is_equal(SaveMigrator.ERR_NEWER_VERSION)

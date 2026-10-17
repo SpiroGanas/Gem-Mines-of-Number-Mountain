@@ -25,6 +25,8 @@ var save_dir: String = DEFAULT_DIR
 ## What the last load_profile() found: {source, recovered, error, from_version, migrated}.
 ## The parent dashboard shows a note when `recovered` is true.
 var last_load_report: Dictionary = {}
+## What the last import_bundle() did: {ok, error, replaced, attempts}.
+var last_import_report: Dictionary = {}
 
 var _store: SaveStore
 var _data: Dictionary = {}
@@ -98,6 +100,52 @@ func read_attempts() -> Dictionary:
 	if _store == null:
 		_store = SaveStore.new(save_dir)
 	return _store.read_attempts()
+
+
+## Writes the progress bundle (the profile and the whole attempt log) to `path`. Parent-gated:
+## only the parent area calls this, and it is the only way progress leaves the device.
+func export_bundle(path: String) -> Error:
+	save_now()
+	var bundle: Dictionary = ProgressBundle.make(_data, read_attempts()["entries"], _now_iso())
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+	file.store_string(JSON.stringify(bundle, "\t"))
+	file.close()
+	return OK
+
+
+## Reads a bundle from `path`. The newer profile wins (the one replaced is kept as profile.json.bak)
+## and the two attempt logs are merged. A bundle from a newer game version, or a file that is not a
+## bundle, changes nothing. Details in last_import_report.
+func import_bundle(path: String) -> Error:
+	last_import_report = {"ok": false, "error": "", "replaced": false, "attempts": 0}
+	var bundle: Variant = JsonUtil.parse_file(path)
+	var problem: String = ProgressBundle.problem_with(bundle)
+	if problem != "":
+		last_import_report["error"] = problem
+		return ERR_INVALID_DATA
+	var migration: Dictionary = SaveMigrator.migrate(bundle["profile"])
+	if not migration["ok"]:
+		last_import_report["error"] = migration["error"]
+		return ERR_INVALID_DATA
+	if _store == null:
+		_store = SaveStore.new(save_dir)
+	var merged: Array = ProgressBundle.merge_attempts(read_attempts()["entries"], bundle["attempts"])
+	var log_error: Error = _store.write_attempts(merged)
+	if log_error != OK:
+		last_import_report["error"] = error_string(log_error)
+		return log_error
+	last_import_report["attempts"] = merged.size()
+	if ProgressBundle.is_newer(migration["data"], _data):
+		var write_error: Error = _store.write_profile(SaveSchema.with_defaults(migration["data"])) # keeps ours as .bak
+		if write_error != OK:
+			last_import_report["error"] = error_string(write_error)
+			return write_error
+		last_import_report["replaced"] = true
+		load_profile()
+	last_import_report["ok"] = true
+	return OK
 
 
 ## Points the save system at another folder and reloads from it. Used by tests so they
