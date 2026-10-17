@@ -220,7 +220,7 @@ func test_exactly_one_button_checks_the_shown_fact() -> void:
 		assert_int(checking).is_equal(1)
 		assert_int(problem.distractors.size()).is_equal(2)
 		for entry: Dictionary in problem.distractors:
-			assert_str(entry["misconception"]).is_equal("wrong_operation")
+			assert_str(entry["misconception"]).is_equal("wrong_numbers")
 	assert_int(starts["z2.eq.prompt_inverse_add"]).is_between(N / 3, N * 2 / 3)
 	assert_int(starts["z2.eq.prompt_inverse_sub"]).is_between(N / 3, N * 2 / 3)
 
@@ -232,6 +232,32 @@ func test_the_other_inverse_fact_is_never_offered() -> void:
 		var c: int = problem.prompt_params["c"]
 		var also_checks: String = "%d - %d = %d" % [c, a, b] if problem.prompt_line_id == &"z2.eq.prompt_inverse_add" else "%d + %d = %d" % [b, a, c]
 		assert_array(problem.distractor_values()).not_contains([also_checks])
+
+
+func test_every_button_uses_the_checking_sign_so_the_sign_gives_nothing_away() -> void:
+	for problem: Problem in _problems(INVERSE):
+		var adding: bool = problem.prompt_line_id == &"z2.eq.prompt_inverse_add"
+		var sign_of_answer: String = _parse(problem.answer)["op"]
+		assert_str(sign_of_answer).is_equal("-" if adding else "+")
+		for option: Variant in problem.distractor_values():
+			assert_str(_parse(option)["op"]).is_equal(sign_of_answer)
+
+
+func test_the_wrong_buttons_use_other_numbers_and_are_not_the_same_fact_twice() -> void:
+	for problem: Problem in _problems(INVERSE):
+		var shown_numbers: Array = [problem.prompt_params["a"], problem.prompt_params["b"], problem.prompt_params["c"]]
+		shown_numbers.sort()
+		var seen: Array = [problem.answer]
+		for option: Variant in problem.distractor_values():
+			var fact: Dictionary = _parse(option)
+			var numbers: Array = [fact["x"], fact["y"], fact["z"]]
+			numbers.sort()
+			assert_array(numbers).is_not_equal(shown_numbers)
+			assert_array(seen).not_contains([option])
+			seen.append(option)
+			assert_int(int(fact["y"])).is_greater_equal(1)
+			assert_int(int(fact["z"])).is_greater_equal(1)
+			assert_int(maxi(int(fact["x"]), int(fact["z"]))).is_less_equal(20)
 
 
 func test_the_inverse_hint_jumps_back_or_forward_by_b() -> void:

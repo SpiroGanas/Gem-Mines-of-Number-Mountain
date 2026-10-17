@@ -150,6 +150,7 @@ bolt.misconception.thought_equal,Are both amounts really the same?,Targeted hint
 bolt.misconception.thought_unequal,Count both sides again. They might match!,Targeted hint after the thought_unequal mistake,0
 bolt.misconception.traded_wrong_count,A trade is always exactly ten.,Targeted hint after the traded_wrong_count mistake,0
 bolt.misconception.used_tens_digit,Look at the ones digit. It tells even or odd.,Targeted hint after the used_tens_digit mistake,0
+bolt.misconception.wrong_numbers,Use the same three numbers as the first fact.,Targeted hint after the wrong_numbers mistake,0
 bolt.misconception.wrong_operation,Check the sign. Do we add or take away?,Targeted hint after the wrong_operation mistake,0
 bolt.misconception.wrong_place,Look at which digit the question asks about.,Targeted hint after the wrong_place mistake,0
 bolt.misconception.wrong_step,Check the jump size between the numbers.,Targeted hint after the wrong_step mistake,0

@@ -186,12 +186,21 @@ def _inverse_check(problem: dict) -> list[str]:
     checking = [option for option in options if checks(parse(option), shown)]  # type: ignore[arg-type]
     if checking != [problem["answer"]]:
         errors.append(f"exactly one option may check {text(*shown)!r}; these do: {checking}")
-    if any(entry["misconception"] != "wrong_operation" for entry in problem["distractors"]):
-        errors.append("every wrong option is named wrong_operation")
-    turned = text(b, "+", a, c) if shown[1] == "+" else text(c, "-", a, b)  # same sign, other fact of the family
-    added_again = text(c, "+", b, c + b)  # adds b to the whole
-    if sorted(entry["value"] for entry in problem["distractors"]) != sorted([turned, added_again]):
-        errors.append(f"the wrong options should be {turned!r} and {added_again!r}")
+    if any(entry["misconception"] != "wrong_numbers" for entry in problem["distractors"]):
+        errors.append("every wrong option is named wrong_numbers")
+    # A wrong button has the checking sign too (so the sign gives nothing away) but other numbers.
+    wrong = [parse(entry["value"]) for entry in problem["distractors"]]
+    if len(wrong) != 2 or len({entry["value"] for entry in problem["distractors"]}) != 2:
+        errors.append("there should be exactly two different wrong options")
+    for entry, fact in zip(problem["distractors"], wrong):
+        if fact is None:
+            continue
+        if fact[1] != parse(problem["answer"])[1]:  # type: ignore[index]
+            errors.append(f"wrong option {entry['value']!r} should use the same sign as the answer")
+        if numbers(fact) == numbers(shown):
+            errors.append(f"wrong option {entry['value']!r} uses the shown fact's numbers; it would check it too")
+        if min(fact[2], fact[3]) < 1 or max(fact[0], fact[3]) > problem["params"]["max"]:
+            errors.append(f"wrong option {entry['value']!r} has a number out of range")
 
     model = problem["hint_steps"][1]["visual"]
     jump = {"from": c, "to": a} if shown[1] == "+" else {"from": a, "to": c}  # take b away again, or add it back

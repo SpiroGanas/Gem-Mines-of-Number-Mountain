@@ -39,6 +39,7 @@
     "thought_unequal": "Chose < or > for two numbers that are equal.",
     "traded_wrong_count": "Traded the wrong number of ones when swapping for a ten (or the other way).",
     "used_tens_digit": "Used the tens digit to decide even or odd instead of the ones digit.",
+    "wrong_numbers": "Picked a fact with the right sign but different numbers, instead of the same three numbers.",
     "wrong_operation": "Used a different operation than the one the fact needs.",
     "wrong_place": "Answered for the other digit instead of the digit asked about.",
     "wrong_step": "Counted by the wrong step (for example by 2s when asked for 5s).",

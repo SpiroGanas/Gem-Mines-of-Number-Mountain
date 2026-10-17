@@ -132,7 +132,7 @@
       "terms": ["inverse"],
       "bkt_type": "concept",
       "is_fact_skill": false,
-      "misconceptions": ["wrong_operation"]
+      "misconceptions": ["wrong_numbers"]
     },
     {
       "id": "add.to_100.tens",

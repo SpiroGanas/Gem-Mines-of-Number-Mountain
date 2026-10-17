@@ -32,7 +32,7 @@ var _placement: Placement
 
 func _ready() -> void:
 	_catalog = SkillCatalog.load_all()
-	engine = AdaptiveEngine.new(_catalog, BKT.load_defaults(), clock)
+	engine = AdaptiveEngine.new(_catalog, BKT.load_defaults(), clock, [], BKT.load_fitted())
 	engine.skills_source = func() -> Dictionary: return SaveSystem.data()["skills"]
 	engine.skill_mastered.connect(skill_mastered.emit)
 	engine.skill_flagged.connect(skill_flagged.emit)

@@ -234,7 +234,7 @@ def test_a_malformed_export_is_a_failure_not_a_crash() -> None:
 
 def test_runner_knows_the_mvp_skills_and_misconceptions() -> None:
     assert len(SKILLS) == 45
-    assert len(ALLOWED) == 42
+    assert len(ALLOWED) == 43
     assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every MVP generator has a checker
 
 

@@ -9,6 +9,8 @@ extends RefCounted
 
 ## The smallest whole a family can have: 1 + 2 = 3 (the two parts must differ).
 const SMALLEST_WHOLE: int = 3
+## "Near" for a wrong inverse-check button: its numbers differ from the right ones by this much in total.
+const NEAR_GAP: int = 4
 
 
 static func generate(skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Problem:
@@ -105,29 +107,78 @@ static func _build(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 ## family's other inverse fact (c - a = b, or b + a = c) would check it too, so it is never
 ## offered: exactly one button is right. Every button shows a true fact.
 static func _inverse_check(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
-	var top: int = GeneratorKit.eased_max(SMALLEST_WHOLE, int(params.get("max", 20)), GeneratorKit.difficulty_of(params))
+	var most: int = int(params.get("max", 20))
+	var top: int = GeneratorKit.eased_max(SMALLEST_WHOLE, most, GeneratorKit.difficulty_of(params))
 	var parts: Vector2i = _parts(top, rng)
 	var a: int = parts.x
 	var b: int = parts.y
 	var c: int = a + b
 	var jump: Dictionary
 	problem.prompt_params = {"a": a, "b": b, "c": c}
-	if rng.randi_range(0, 1) == 0:
+	# Every button shows a true fact with the sign that checks, so the sign gives nothing away; the
+	# two wrong buttons use other numbers (Sprint 12, docs/decisions.md).
+	var adding: bool = rng.randi_range(0, 1) == 0
+	var wrong: Array[String]
+	if adding:
 		problem.prompt_line_id = &"z2.eq.prompt_inverse_add"
 		problem.answer = sub_fact(c, b, a)
-		GeneratorKit.add_distractor(problem, skill, add_fact(b, a, c), &"wrong_operation") # turned around, still adding
-		GeneratorKit.add_distractor(problem, skill, add_fact(c, b, c + b), &"wrong_operation") # adds b again instead of taking it away
+		wrong = _other_numbers_subtraction(a, b, c, most, rng)
 		jump = {"from": c, "to": a}
 	else:
 		problem.prompt_line_id = &"z2.eq.prompt_inverse_sub"
 		problem.answer = add_fact(a, b, c)
-		GeneratorKit.add_distractor(problem, skill, sub_fact(c, a, b), &"wrong_operation") # the other subtraction, still subtracting
-		GeneratorKit.add_distractor(problem, skill, add_fact(c, b, c + b), &"wrong_operation") # flips the sign but keeps the whole first
+		wrong = _other_numbers_addition(a, b, c, most, rng)
 		jump = {"from": a, "to": c}
+	for fact: String in wrong:
+		GeneratorKit.add_distractor(problem, skill, fact, &"wrong_numbers")
 	var window: Vector2i = GeneratorKit.window_around([a, c])
 	var model: Dictionary = GeneratorKit.number_line(window.x, window.y, 1 if window.y - window.x <= 10 else 2, [a, c], [])
 	model["jumps"] = [jump]
 	return model
+
+
+## Two true subtractions "x - y = z" that do not use the numbers a, b and c, as near to them as
+## possible (their numbers differ from c, b, a by a few in total), for an addition a + b = c.
+static func _other_numbers_subtraction(a: int, b: int, c: int, most: int, rng: RandomNumberGenerator) -> Array[String]:
+	var near: Array[Dictionary] = []
+	for x: int in range(3, most + 1):
+		for y: int in range(1, x - 1):
+			near.append({"text": sub_fact(x, y, x - y), "numbers": [x, y, x - y], "gap": absi(x - c) + absi(y - b) + absi(x - y - a)})
+	return _two_nearest(near, [a, b, c], rng)
+
+
+## Two true additions "x + y = z" that do not use a, b and c, for a subtraction c - b = a.
+static func _other_numbers_addition(a: int, b: int, c: int, most: int, rng: RandomNumberGenerator) -> Array[String]:
+	var near: Array[Dictionary] = []
+	for x: int in range(1, most - 1):
+		for y: int in range(1, most - x + 1):
+			near.append({"text": add_fact(x, y, x + y), "numbers": [x, y, x + y], "gap": absi(x - a) + absi(y - b) + absi(x + y - c)})
+	return _two_nearest(near, [a, b, c], rng)
+
+
+## Two different facts at random from the nearest ones (a total gap of 4 or less, or all of them if
+## fewer than two are that near) whose three numbers are not `avoid`'s, in any order.
+static func _two_nearest(candidates: Array[Dictionary], avoid: Array[int], rng: RandomNumberGenerator) -> Array[String]:
+	var sorted_avoid: Array[int] = avoid.duplicate()
+	sorted_avoid.sort()
+	var pool: Array[String] = []
+	var rest: Array[String] = []
+	for candidate: Dictionary in candidates:
+		var numbers: Array = candidate["numbers"].duplicate()
+		numbers.sort()
+		if numbers == sorted_avoid:
+			continue
+		if int(candidate["gap"]) <= NEAR_GAP:
+			pool.append(candidate["text"])
+		else:
+			rest.append(candidate["text"])
+	if pool.size() < 2:
+		pool.append_array(rest)
+	var first: int = rng.randi_range(0, pool.size() - 1)
+	var one: String = pool[first]
+	pool.remove_at(first)
+	var two: String = pool[rng.randi_range(0, pool.size() - 1)]
+	return [one, two]
 
 
 ## Two different parts (x, y), each at least 1, whose whole x + y is from 3 to `top`.

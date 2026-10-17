@@ -23,15 +23,18 @@ var catalog: SkillCatalog
 var clock: GameClock
 var scheduler: Scheduler
 var defaults: Dictionary
+## Fitted per-skill parameters (BKT.load_fitted); a skill with enough data uses its own.
+var fitted: Dictionary
 ## Returns the live skills dictionary (the save's "skills"). Tests pass their own.
 var skills_source: Callable
 
 var _own_skills: Dictionary = {}
 
 
-func _init(skill_catalog: SkillCatalog, bkt_defaults: Dictionary, game_clock: GameClock, limit_to: Array[StringName] = []) -> void:
+func _init(skill_catalog: SkillCatalog, bkt_defaults: Dictionary, game_clock: GameClock, limit_to: Array[StringName] = [], fitted_params: Dictionary = {}) -> void:
 	catalog = skill_catalog
 	defaults = bkt_defaults
+	fitted = fitted_params
 	clock = game_clock
 	scheduler = Scheduler.new(catalog, limit_to)
 	skills_source = func() -> Dictionary: return _own_skills
@@ -42,7 +45,7 @@ func skills() -> Dictionary:
 
 
 func params_for(skill_id: StringName) -> Dictionary:
-	return BKT.params_for(defaults, catalog.skill(skill_id).bkt_type)
+	return BKT.params_for_skill(defaults, fitted, skill_id, catalog.skill(skill_id).bkt_type)
 
 
 ## The skill's record, created with its prior if new.
