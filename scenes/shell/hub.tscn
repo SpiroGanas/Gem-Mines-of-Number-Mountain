@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/shell/hub.gd" id="1_hub"]
+[ext_resource type="PackedScene" path="res://scenes/mine/bolt.tscn" id="2_bolt"]
+[ext_resource type="Script" path="res://scenes/shell/lantern_art.gd" id="3_lantern"]
 
 [node name="Hub" type="Control"]
 layout_mode = 3
@@ -11,30 +13,73 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_hub")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
 
-[node name="Column" type="VBoxContainer" parent="Center"]
+[node name="Column" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 64
+theme_override_constants/separation = 40
 
-[node name="GreetingLabel" type="Label" parent="Center/Column"]
+[node name="Top" type="HBoxContainer" parent="Margin/Column"]
+layout_mode = 2
+theme_override_constants/separation = 48
+
+[node name="Bolt" parent="Margin/Column/Top" instance=ExtResource("2_bolt")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"HeadingLabel"
+size_flags_horizontal = 3
+
+[node name="Status" type="VBoxContainer" parent="Margin/Column/Top"]
+layout_mode = 2
+alignment = 1
+
+[node name="Lantern" type="Control" parent="Margin/Column/Top/Status"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("3_lantern")
+
+[node name="LanternLabel" type="Label" parent="Margin/Column/Top/Status"]
+unique_name_in_owner = true
+layout_mode = 2
 horizontal_alignment = 1
 
-[node name="DigButton" type="Button" parent="Center/Column"]
+[node name="CoinsLabel" type="Label" parent="Margin/Column/Top/Status"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+horizontal_alignment = 1
 
-[node name="SettingsButton" type="Button" parent="Center/Column"]
+[node name="Center" type="CenterContainer" parent="Margin/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DigButton" type="Button" parent="Margin/Column/Center"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 4
+theme_type_variation = &"GoButton"
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Column"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 40
+
+[node name="MuseumButton" type="Button" parent="Margin/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GarageButton" type="Button" parent="Margin/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SettingsButton" type="Button" parent="Margin/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2

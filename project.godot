@@ -25,6 +25,7 @@ UI="*res://autoload/ui.gd"
 InputRouter="*res://autoload/input_router.gd"
 SaveSystem="*res://autoload/save_system.gd"
 Adaptive="*res://autoload/adaptive.gd"
+Rewards="*res://autoload/rewards.gd"
 
 [debug]
 

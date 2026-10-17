@@ -258,3 +258,18 @@ func test_a_new_miners_first_dig_is_the_placement_quest_and_later_digs_are_not()
 	assert_str(bolt.current_line_id()).is_equal("bolt.placement.intro")
 	SaveSystem.use_directory(_dir) # reloading the profile drops the quest in progress
 	assert_bool(Adaptive.placement_active()).is_false()
+
+
+func test_the_hub_opens_the_museum_and_the_garage_and_shows_the_lantern() -> void:
+	_shell.change_screen(&"hub")
+	await _until_screen(&"hub")
+	var lantern: Label = _shell.current_screen().find_child("LanternLabel", true, false)
+	assert_str(lantern.text).is_equal(Text.get_line(&"ui.hub.lantern", {"n": 0}))
+	_press("MuseumButton")
+	await _until_screen(&"museum")
+	_press("BackButton")
+	await _until_screen(&"hub")
+	_press("GarageButton")
+	await _until_screen(&"garage")
+	_press("BackButton")
+	await _until_screen(&"hub")

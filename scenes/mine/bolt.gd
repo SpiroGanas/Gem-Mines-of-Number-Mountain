@@ -15,7 +15,8 @@ signal term_tapped(term_id: StringName)
 const BODY: Color = Color("#7FA3C7")
 const HEAD: Color = Color("#A9C4E0")
 const OUTLINE: Color = Color("#1F2945")
-const LAMP: Color = Color("#FFD166")
+## Headlamp colors (Bolt's Garage). The light is electric, always.
+const LAMP_COLORS: Dictionary = {"blue": Color("#8FD3FF"), "green": Color("#7BD88F"), "gold": Color("#FFD166")}
 const BUBBLE_WIDTH_MULTIPLE: float = 7.0
 const NOTE_COLOR: Color = Color("#FFD166")
 ## The bubble's colors (the theme's PanelContainer style), for the tail drawn beside Bolt.
@@ -32,6 +33,7 @@ var _links: Dictionary = {}
 var _label: RichTextLabel
 var _note_label: Label
 var _chips: HFlowContainer
+var _figure: Control
 
 
 func _ready() -> void:
@@ -39,6 +41,8 @@ func _ready() -> void:
 	var figure: Control = _BoltArt.new()
 	UI.make_touch_target(figure, 2.2, 2.2) # the right part of it is the bubble's tail
 	add_child(figure)
+	_figure = figure
+	Rewards.headlamp_changed.connect(func(_color: String) -> void: _figure.queue_redraw())
 	var bubble: PanelContainer = PanelContainer.new()
 	bubble.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bubble.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -145,6 +149,11 @@ func clear_note() -> void:
 	_note_label.visible = false
 
 
+## The light color of a headlamp name ("blue", "green", "gold").
+static func lamp_color(lamp: String) -> Color:
+	return LAMP_COLORS.get(lamp, LAMP_COLORS["blue"])
+
+
 func current_note_id() -> StringName:
 	return _note_id
 
@@ -188,4 +197,4 @@ class _BoltArt extends Control:
 		draw_rect(Rect2(Vector2(0.25, 0.1) * s, Vector2(0.5, 0.34) * s), Bolt.OUTLINE, false, 4.0)
 		draw_circle(Vector2(0.4, 0.26) * s, s.x * 0.05, Bolt.OUTLINE) # eyes
 		draw_circle(Vector2(0.6, 0.26) * s, s.x * 0.05, Bolt.OUTLINE)
-		draw_circle(Vector2(0.5, 0.06) * s, s.x * 0.09, Bolt.LAMP) # headlamp (electric)
+		draw_circle(Vector2(0.5, 0.06) * s, s.x * 0.09, Bolt.lamp_color(Rewards.headlamp())) # headlamp (electric)

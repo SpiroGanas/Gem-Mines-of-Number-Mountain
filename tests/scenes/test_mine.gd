@@ -395,9 +395,9 @@ func test_rung_1_repeats_the_problem_with_its_numbers_highlighted() -> void:
 	assert_object(_mine.answer_panel().hint_visual()).is_null() # the picture waits for rung 2
 
 
-func test_rung_2_shows_the_picture_model_and_later_misses_keep_it() -> void:
+func test_rung_2_shows_the_picture_model() -> void:
 	await _open(0)
-	for miss: int in 3:
+	for miss: int in 2:
 		_answer(false)
 		await _wait_state(DigFlow.State.WOBBLE)
 		await _wait_state(DigFlow.State.AWAIT_ANSWER)
@@ -450,3 +450,87 @@ func test_misconception_of_finds_the_distractor_that_was_given() -> void:
 	assert_str(MineScreen.misconception_of(problem, 43)).is_equal("digit_swap")
 	assert_str(MineScreen.misconception_of(problem, 99)).is_empty()
 	assert_str(MineScreen.misconception_of(problem, true)).is_empty() # a different kind of value is never a match
+
+
+func test_rung_3_shows_a_solved_friend_of_the_problem() -> void:
+	await _open(0)
+	for miss: int in 3:
+		_answer(false)
+		await _wait_state(DigFlow.State.WOBBLE)
+		await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	var card: PanelContainer = _mine.answer_panel().example_card()
+	assert_object(card).is_not_null()
+	var example: Dictionary = _mine.current_problem().hint_steps[2]["example"]
+	var texts: Array[String] = []
+	for label: Node in card.find_children("*", "Label", true, false):
+		texts.append((label as Label).text)
+	assert_array(texts).contains([Text.get_line(StringName(example["prompt_line_id"]), example["prompt_params"]), Text.get_line(StringName(example["answer_line_id"]), example["answer_params"])])
+	assert_str(_mine.bolt().note_text()).contains(Text.get_line(&"bolt.hint.worked_example"))
+
+
+func test_rung_4_swaps_in_an_easier_problem_once_and_flags_the_skill() -> void:
+	await _open(0)
+	var first: Problem = _mine.current_problem()
+	for miss: int in 4:
+		_answer(false)
+		await _wait_state(DigFlow.State.WOBBLE)
+		await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	var easier: Problem = _mine.current_problem()
+	assert_bool(easier == first).is_false()
+	assert_str(easier.skill_id).is_equal(first.skill_id)
+	assert_int(easier.params["difficulty"]).is_equal(-1)
+	assert_bool(SaveSystem.data()["skills"]["pv.tens_ones.build"]["flagged_for_review"]).is_true()
+	assert_str(_mine.bolt().spoken_text()).is_equal(Text.get_line(easier.prompt_line_id, easier.prompt_params))
+	assert_str(_mine.bolt().note_text()).contains(Text.get_line(&"bolt.hint.easier"))
+	_answer(false) # a fifth miss keeps the easier problem and its help
+	await _wait_state(DigFlow.State.WOBBLE)
+	await _wait_state(DigFlow.State.AWAIT_ANSWER)
+	assert_bool(_mine.current_problem() == easier).is_true()
+	_answer(true)
+	await _until(func() -> bool: return _mine.flow.state == DigFlow.State.PICK_ROCK)
+	assert_int(_mine.cart().coins_shown()).is_equal(DigFlow.COINS_AFTER_HINT) # still paid, never less
+
+
+func test_a_cracked_rock_pays_the_zone_gem_into_the_save_and_lights_todays_lantern() -> void:
+	await _solve(0)
+	assert_int(SaveSystem.data()["rewards"]["coins"]).is_equal(DigFlow.COINS_FIRST_TRY)
+	assert_int(SaveSystem.data()["rewards"]["gems"]["quartz"]).is_equal(1)
+	assert_bool(Rewards.lit_today()).is_true()
+	assert_bool(_mine.celebration().visible).is_true() # the first rock of the day lights the lantern
+	assert_array(_mine.celebration().line_ids()).contains_exactly([&"bolt.celebrate.lantern"])
+	_mine.celebration().continue_button().pressed.emit()
+	assert_bool(_mine.celebration().visible).is_false()
+	await _solve(1)
+	assert_bool(_mine.celebration().visible).is_false() # once a day
+
+
+func test_mastering_a_skill_is_celebrated_with_an_amethyst() -> void:
+	Adaptive.skill_mastered.emit(&"pv.tens_ones.build", true)
+	await _solve(0)
+	assert_array(_mine.celebration().line_ids()).contains([&"bolt.celebrate.mastery"])
+	assert_int(SaveSystem.data()["rewards"]["gems"]["amethyst"]).is_equal(1)
+
+
+func test_after_the_soft_limit_the_wind_down_waits_for_the_rock_to_finish() -> void:
+	var clock: FakeClock = FakeClock.new()
+	Adaptive.use_clock(clock)
+	Adaptive.start_session()
+	await _open(0)
+	clock.advance(21 * 60) # past the 20-minute default, mid-rock
+	assert_bool(Adaptive.wind_down_due()).is_true()
+	assert_bool(_mine.wind_down().visible).is_false() # never in the middle of a rock
+	_answer(true)
+	await _until(func() -> bool: return _mine.flow.state == DigFlow.State.PICK_ROCK)
+	if _mine.celebration().visible:
+		_mine.celebration().continue_button().pressed.emit() # today's lantern comes first
+	assert_bool(_mine.wind_down().visible).is_true()
+	var lines: Array[String] = _mine.wind_down().recap_lines()
+	assert_array(lines).contains([Text.get_line(&"ui.recap.rocks", {"n": 1}), Text.get_line(&"ui.recap.coins", {"n": DigFlow.COINS_FIRST_TRY})])
+	for line: String in lines:
+		assert_bool(line.contains(":") and line.split(":")[1].strip_edges().is_valid_int()).is_true() # counts, never a clock
+	var requested: Array[StringName] = []
+	_mine.request_screen.connect(func(id: StringName, _args: Dictionary) -> void: requested.append(id))
+	_mine.wind_down().head_up_button().pressed.emit()
+	assert_array(requested).contains_exactly([&"hub"])
+	assert_bool(Adaptive.has_session()).is_false()
+	Adaptive.use_clock(GameClock.new())

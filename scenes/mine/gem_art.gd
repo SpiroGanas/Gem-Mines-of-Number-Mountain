@@ -1,9 +1,10 @@
 ## Draws one gem from shapes, so the gray-box mine needs no image files.
 ##
 ## Gems differ by SHAPE as well as color (CLAUDE.md accessibility rule): quartz is a six-sided
-## crystal point, garnet a round-cut stone, pyrite a cube, amethyst a tall prism. Shapes are
-## in unit coordinates (0..1) and scaled to the control's size. The CC0 art pass in Sprint 10
-## replaces this with real sprites.
+## crystal point, garnet a round-cut stone, pyrite a cube, amethyst a tall prism, and the six
+## museum minerals each have their own outline (malachite a banded oval, fluorite an octahedron,
+## hematite a rounded lump, calcite a rhombohedron, topaz a long crystal with a flat top,
+## obsidian a sharp shard). Shapes are in unit coordinates (0..1) and scaled to the control's size.
 ##
 ## Godot note: a Control's _draw() runs when the control needs repainting; call
 ## queue_redraw() after changing anything that affects how it looks.
@@ -14,7 +15,14 @@ const QUARTZ: StringName = &"quartz"
 const GARNET: StringName = &"garnet"
 const PYRITE: StringName = &"pyrite"
 const AMETHYST: StringName = &"amethyst"
-const ALL_TYPES: Array[StringName] = [QUARTZ, GARNET, PYRITE, AMETHYST]
+const MALACHITE: StringName = &"malachite"
+const FLUORITE: StringName = &"fluorite"
+const HEMATITE: StringName = &"hematite"
+const CALCITE: StringName = &"calcite"
+const TOPAZ: StringName = &"topaz"
+const OBSIDIAN: StringName = &"obsidian"
+## The ten Gem Museum minerals, in the museum's order.
+const ALL_TYPES: Array[StringName] = [QUARTZ, GARNET, PYRITE, AMETHYST, MALACHITE, FLUORITE, HEMATITE, CALCITE, TOPAZ, OBSIDIAN]
 const OUTLINE: Color = Color("#1F2945")
 const OUTLINE_WIDTH: float = 3.0
 
@@ -39,6 +47,27 @@ static func shape_points(type: StringName) -> PackedVector2Array:
 			return PackedVector2Array([Vector2(0.12, 0.34), Vector2(0.40, 0.08), Vector2(0.96, 0.08), Vector2(0.96, 0.66), Vector2(0.68, 0.94), Vector2(0.12, 0.94)])
 		AMETHYST: # tall prism with a pointed top
 			return PackedVector2Array([Vector2(0.5, 0.0), Vector2(0.78, 0.2), Vector2(0.78, 0.88), Vector2(0.5, 1.0), Vector2(0.22, 0.88), Vector2(0.22, 0.2)])
+		MALACHITE: # wide oval (its stripes are drawn on top)
+			var oval: PackedVector2Array = PackedVector2Array()
+			for i: int in 20:
+				var angle: float = TAU * float(i) / 20.0
+				oval.append(Vector2(0.5 + 0.48 * cos(angle), 0.5 + 0.32 * sin(angle)))
+			return oval
+		FLUORITE: # octahedron: a diamond with a ridge
+			return PackedVector2Array([Vector2(0.5, 0.0), Vector2(0.92, 0.5), Vector2(0.5, 1.0), Vector2(0.08, 0.5)])
+		HEMATITE: # rounded lump of three bumps
+			var lump: PackedVector2Array = PackedVector2Array()
+			for i: int in 24:
+				var angle: float = TAU * float(i) / 24.0
+				var radius: float = 0.36 + 0.08 * cos(3.0 * angle)
+				lump.append(Vector2(0.5 + radius * cos(angle), 0.52 + radius * sin(angle)))
+			return lump
+		CALCITE: # rhombohedron: a leaning box
+			return PackedVector2Array([Vector2(0.3, 0.1), Vector2(0.95, 0.1), Vector2(0.7, 0.9), Vector2(0.05, 0.9)])
+		TOPAZ: # long crystal with a flat top
+			return PackedVector2Array([Vector2(0.32, 0.05), Vector2(0.68, 0.05), Vector2(0.8, 0.2), Vector2(0.8, 0.85), Vector2(0.5, 1.0), Vector2(0.2, 0.85), Vector2(0.2, 0.2)])
+		OBSIDIAN: # sharp shard
+			return PackedVector2Array([Vector2(0.45, 0.0), Vector2(0.95, 0.62), Vector2(0.6, 1.0), Vector2(0.05, 0.78)])
 	return PackedVector2Array([Vector2(0.1, 0.1), Vector2(0.9, 0.1), Vector2(0.9, 0.9), Vector2(0.1, 0.9)])
 
 
@@ -52,6 +81,18 @@ static func color_for(type: StringName) -> Color:
 			return Color("#E0B84A")
 		AMETHYST:
 			return Color("#9B6BD6")
+		MALACHITE:
+			return Color("#2E9E5B")
+		FLUORITE:
+			return Color("#5CC8C8")
+		HEMATITE:
+			return Color("#8A4A4A")
+		CALCITE:
+			return Color("#F2E6C9")
+		TOPAZ:
+			return Color("#F0A44B")
+		OBSIDIAN:
+			return Color("#3A3A4A")
 	return Color("#CCCCCC")
 
 
@@ -83,4 +124,7 @@ func _draw() -> void:
 	draw_colored_polygon(facet, fill.lightened(0.35))
 	var outline: PackedVector2Array = scaled.duplicate()
 	outline.append(scaled[0])
-	draw_polyline(outline, OUTLINE, OUTLINE_WIDTH, true)
+	draw_polyline(outline, OUTLINE if gem_type != OBSIDIAN else fill.lightened(0.6), OUTLINE_WIDTH, true)
+	if gem_type == MALACHITE: # its light and dark bands
+		for band: float in [0.36, 0.5, 0.64]:
+			draw_line(Vector2(0.12, band) * size, Vector2(0.88, band) * size, fill.darkened(0.35), maxf(size.y * 0.04, 2.0))

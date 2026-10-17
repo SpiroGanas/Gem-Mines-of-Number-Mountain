@@ -20,8 +20,13 @@ func test_a_skill_without_a_built_generator_gets_an_invalid_callable() -> void:
 	assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_false()
 
 
-func test_registered_names_are_the_four_zone_1_generators() -> void:
-	assert_array(GeneratorRegistry.registered_names()).contains_exactly_in_any_order([&"CountingGenerator", &"CompareGenerator", &"PlaceValueGenerator", &"RegroupGenerator"])
+func test_every_registered_generator_is_used_by_a_skill_and_zone_1_is_complete() -> void:
+	var used: Dictionary = {}
+	for id: StringName in _catalog.ids():
+		used[_catalog.skill(id).generator] = true
+	for name: StringName in GeneratorRegistry.registered_names():
+		assert_bool(used.has(name)).override_failure_message("%s is registered but no skill uses it" % name).is_true()
+	assert_array(GeneratorRegistry.registered_names()).contains([&"CountingGenerator", &"CompareGenerator", &"PlaceValueGenerator", &"RegroupGenerator"])
 
 
 func test_make_problem_records_the_seed_and_is_reproducible() -> void:

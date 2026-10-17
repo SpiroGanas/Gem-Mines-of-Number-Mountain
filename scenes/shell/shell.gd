@@ -19,6 +19,8 @@ const SCREEN_PATHS: Dictionary = {
 	&"hub": "res://scenes/shell/hub.tscn",
 	&"settings": "res://scenes/shell/settings.tscn",
 	&"mine": "res://scenes/mine/mine.tscn",
+	&"museum": "res://scenes/workshop/museum.tscn",
+	&"garage": "res://scenes/workshop/garage.tscn",
 }
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing (there is nothing to pause).

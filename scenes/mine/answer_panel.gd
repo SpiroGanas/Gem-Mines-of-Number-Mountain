@@ -8,7 +8,8 @@
 ##   NUMBER_PAD  the on-screen number pad (write the numeral, sums and differences)
 ##   TILES       drag tiles into slots on the TileBoard (number strips, ordering, fact families)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
-## From hint rung 2 the panel also shows the problem's picture model (show_hint).
+## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
+## "friend" of the problem (show_hint).
 class_name AnswerPanel
 extends VBoxContainer
 
@@ -39,6 +40,7 @@ var _choices: ChoiceButtons
 var _pad: NumberPad
 var _pad_row: HBoxContainer
 var _tiles: TileBoard
+var _example: PanelContainer
 var _enabled: bool = false
 
 
@@ -172,13 +174,29 @@ func hint_visual() -> VisualModel:
 	return _hint_visual
 
 
-## Shows the help a hint rung puts in the answer area. From rung 2 (VISUAL_MODEL) that is the
-## problem's picture model (hint_steps[1].visual): it takes the place of the problem's own picture
-## when that picture is only to look at, and is added above the input otherwise (tappable piles,
-## the build board, or a problem with no picture). Returns the VisualModel showing it.
+## Shows the help a hint rung puts in the answer area and returns the picture model it shows (or
+## null). From rung 2 (VISUAL_MODEL) that is the problem's picture model (hint_steps[1].visual): it
+## takes the place of the problem's own picture when that picture is only to look at, and is added
+## above the input otherwise (tappable piles, the build board, a problem with no picture). From
+## rung 3 (WORKED_EXAMPLE) a card above the input shows a solved problem of the same skill with
+## other numbers; an added model box steps aside for it so everything still fits the screen.
 func show_hint(rung: HintLadder.Rung) -> VisualModel:
 	if not HintLadder.shows_model(rung) or problem.hint_steps.size() < 2:
 		return null
+	var shown: VisualModel = _show_model()
+	if HintLadder.shows_example(rung) and problem.hint_steps.size() >= 3:
+		_show_example()
+		if _hint_visual != null and _hint_visual != _visual:
+			_hint_visual.visible = false
+	return shown
+
+
+## The worked-example card from rung 3, or null.
+func example_card() -> PanelContainer:
+	return _example
+
+
+func _show_model() -> VisualModel:
 	var model: Dictionary = problem.hint_steps[1].get("visual", {})
 	if model.is_empty():
 		return null
@@ -199,6 +217,38 @@ func show_hint(rung: HintLadder.Rung) -> VisualModel:
 			move_child(_hint_visual, 0)
 	_hint_visual.show_visual(model, false)
 	return _hint_visual
+
+
+func _show_example() -> void:
+	if _example != null:
+		return
+	var step: Dictionary = problem.hint_steps[2]
+	var example: Dictionary = step.get("example", {})
+	if example.is_empty():
+		return
+	_example = PanelContainer.new()
+	_example.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override(&"separation", 8)
+	_example.add_child(column)
+	var asked: Label = Label.new()
+	asked.text = Text.get_line(StringName(example["prompt_line_id"]), example["prompt_params"])
+	asked.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(asked)
+	var picture: Dictionary = step.get("visual", {})
+	if not picture.is_empty():
+		var visual: VisualModel = VISUAL_SCENE.instantiate()
+		visual.compact = true
+		visual.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_child(visual)
+		visual.show_visual(picture, false)
+	var solved: Label = Label.new()
+	solved.text = Text.get_line(StringName(example["answer_line_id"]), example["answer_params"])
+	solved.add_theme_color_override(&"font_color", Color(Text.HIGHLIGHT_COLOR))
+	solved.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(solved)
+	add_child(_example)
+	move_child(_example, 0)
 
 
 func board() -> BuildBoard:
@@ -228,6 +278,7 @@ func _clear() -> void:
 	_pad = null
 	_pad_row = null
 	_tiles = null
+	_example = null
 
 
 func _add_visual(tappable: bool) -> void:

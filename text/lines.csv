@@ -169,3 +169,61 @@ z2.hint.example_true,Both sides make {n}. So it is true.,Worked example: a true 
 z2.hint.example_false,The left side makes {left}. The right side makes {right}. So it is false.,Worked example: a false equation,0
 ui.answer.true,True,Answer button: the equation is true,0
 ui.answer.false,False,Answer button: the equation is false,0
+bolt.celebrate.mastery,You learned a new skill! Here is an amethyst.,Celebration: a skill was mastered for the first time,0
+bolt.celebrate.mineral,You found a new mineral for the museum!,Celebration: a museum mineral was earned,0
+bolt.celebrate.lantern,Your lantern is lit for today!,Celebration: the first rock of the day lit the electric lantern,0
+bolt.wind_down.time,Time to head up to the surface.,Wind-down: the parent's soft session limit has passed,0
+bolt.wind_down.great,Great digging today!,Wind-down: Bolt's goodbye,0
+ui.recap.title,Today's dig,Wind-down recap heading,0
+ui.recap.rocks,Rocks cracked: {n},Wind-down recap,0
+ui.recap.gems,Gems found: {n},Wind-down recap,0
+ui.recap.coins,Coins earned: {n},Wind-down recap,0
+ui.recap.skills,Skills practiced: {n},Wind-down recap,0
+ui.hub.museum,Museum,Workshop button: the Gem Museum,0
+ui.hub.garage,Garage,Workshop button: Bolt's Garage,0
+ui.hub.lantern,Lanterns lit: {n},Workshop: the lantern streak (days played; it never goes down),0
+ui.hub.coins,Coins: {n},Workshop: coins held,0
+hub.museum.title,Gem Museum,Museum heading,0
+hub.museum.not_found,Not found yet.,Museum: a case still closed,0
+hub.museum.you_have,You have {n}.,Museum: how many of this mineral the child holds,0
+hub.museum.pick,Tap a case to learn about it.,Museum: instruction,0
+hub.museum.how_learn_n,Learn {n} skills to find it.,Museum: how to earn a milestone mineral,0
+hub.museum.quartz_how,Crack rocks in Pebble Meadow to find it.,Museum: how to earn quartz,0
+hub.museum.garnet_how,Crack rocks in the Quarry of Tens to find it.,Museum: how to earn garnet,0
+hub.museum.pyrite_how,Crack rocks in the Skip-Count Caves to find it.,Museum: how to earn pyrite,0
+hub.museum.amethyst_how,Learn a new skill to find it.,Museum: how to earn amethyst,0
+hub.museum.malachite_how,Learn every skill in Pebble Meadow to find it.,Museum: how to earn malachite,0
+hub.museum.fluorite_how,Learn every skill in the Quarry of Tens to find it.,Museum: how to earn fluorite,0
+hub.museum.hematite_how,Learn every skill in the Skip-Count Caves to find it.,Museum: how to earn hematite,0
+hub.museum.quartz_name,Quartz,Mineral name,0
+hub.museum.garnet_name,Garnet,Mineral name,0
+hub.museum.pyrite_name,Pyrite,Mineral name,0
+hub.museum.amethyst_name,Amethyst,Mineral name,0
+hub.museum.malachite_name,Malachite,Mineral name,0
+hub.museum.fluorite_name,Fluorite,Mineral name,0
+hub.museum.hematite_name,Hematite,Mineral name,0
+hub.museum.calcite_name,Calcite,Mineral name,0
+hub.museum.topaz_name,Topaz,Mineral name,0
+hub.museum.obsidian_name,Obsidian,Mineral name,0
+hub.museum.quartz_fact,Quartz is one of the most common minerals. Its crystals have six sides.,Museum fact,0
+hub.museum.garnet_fact,Garnets are deep red. People have used them as gems for thousands of years.,Museum fact,0
+hub.museum.pyrite_fact,Pyrite shines like gold. Its crystals can grow as perfect cubes.,Museum fact,0
+hub.museum.amethyst_fact,Amethyst is a purple kind of quartz. It grows inside hollow rocks.,Museum fact,0
+hub.museum.malachite_fact,Malachite is bright green. It has light and dark stripes.,Museum fact,0
+hub.museum.fluorite_fact,Fluorite comes in many colors. Some pieces glow under special light.,Museum fact,0
+hub.museum.hematite_fact,"Hematite is heavy and shiny. When you rub it, it leaves a red streak.",Museum fact,0
+hub.museum.calcite_fact,Calcite is soft. Chalk and marble are made of it.,Museum fact,0
+hub.museum.topaz_fact,"Topaz is very hard. It can be golden, blue or pink.",Museum fact,0
+hub.museum.obsidian_fact,Obsidian is glass made by a volcano. Its edges are very sharp.,Museum fact,0
+hub.garage.title,Bolt's Garage,Garage heading,0
+hub.garage.hello,Pick a new lamp or a tool for me!,Garage: Bolt's greeting,0
+hub.garage.pickaxe_t2,Big pickaxe,Garage item,0
+hub.garage.pickaxe_t2_info,It cracks rocks with a bigger burst!,Garage item description,0
+hub.garage.lamp_blue,Blue lamp,Garage item: Bolt's starting headlamp,0
+hub.garage.lamp_green,Green lamp,Garage item,0
+hub.garage.lamp_gold,Gold lamp,Garage item,0
+ui.garage.buy,Buy for {n} coins,"Garage: buy button (coins only, never real money)",0
+ui.garage.use,Use,Garage: wear an owned headlamp,0
+ui.garage.in_use,In use,Garage: the headlamp Bolt wears now,0
+ui.garage.owned,Yours!,Garage: an owned tool,0
+ui.garage.need,Dig to earn {n} more coins.,"Garage: not enough coins yet (informational, no pressure)",0

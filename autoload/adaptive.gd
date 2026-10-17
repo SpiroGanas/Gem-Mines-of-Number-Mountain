@@ -11,11 +11,20 @@ signal skill_mastered(skill_id: StringName, first_time: bool)
 signal skill_flagged(skill_id: StringName)
 ## The placement quest ended; `passed` are the skills it marked as already known.
 signal placement_finished(passed: Array[StringName])
+## A new play session began (the first rock of the day, or after a long break or a wind-down).
+signal session_started(session_id: String)
+
+## A gap this long without an answer ends a session; the next rock starts a new one.
+const SESSION_GAP_SECONDS: int = 1800
 
 ## The time source. Tests replace it with tests/helpers/fake_clock.gd through use_clock().
 var clock: GameClock = GameClock.new()
 var engine: AdaptiveEngine
 var session_id: String = ""
+var session_started_unix: int = 0
+
+var _last_activity_unix: int = 0
+var _session_skills: Dictionary = {}
 
 var _catalog: SkillCatalog
 var _placement: Placement
@@ -42,16 +51,38 @@ func use_clock(new_clock: GameClock) -> void:
 ## Starts a play session: a new session id for the attempt log and a fresh interleave set.
 func start_session() -> String:
 	session_id = "s%d" % clock.now_unix()
+	session_started_unix = clock.now_unix()
+	_last_activity_unix = session_started_unix
+	_session_skills.clear()
 	engine.scheduler.reset_session()
+	session_started.emit(session_id)
 	return session_id
 
 
+## True while a session is running: started, and no break longer than SESSION_GAP_SECONDS since.
 func has_session() -> bool:
-	return session_id != ""
+	return session_id != "" and clock.now_unix() - _last_activity_unix < SESSION_GAP_SECONDS
 
 
 func end_session() -> void:
 	session_id = ""
+
+
+## Seconds since the session started (0 with no session).
+func session_seconds() -> int:
+	return clock.now_unix() - session_started_unix if has_session() else 0
+
+
+## The parent's soft limit has been reached (settings.session_minutes). The mine winds down at the
+## next rock boundary; nothing is ever shown counting down.
+func wind_down_due() -> bool:
+	var minutes: int = int(SaveSystem.data()["settings"].get("session_minutes", 20))
+	return has_session() and session_seconds() >= minutes * 60
+
+
+## How many different skills were practised this session (for the recap).
+func skills_practised() -> int:
+	return _session_skills.size()
 
 
 ## The next rock's problem. In the placement quest it probes the quest's current skill.
@@ -78,6 +109,8 @@ func record(attempt: Attempt, chance: float) -> Dictionary:
 	if attempt.ts == "":
 		attempt.ts = clock.now_iso()
 	SaveSystem.append_attempt(attempt)
+	_last_activity_unix = clock.now_unix()
+	_session_skills[attempt.skill_id] = true
 	if placement_active() and attempt.skill_id == _placement.current_skill() and attempt.hints_used == 0:
 		_placement.record(attempt.correct)
 		_apply_placement()

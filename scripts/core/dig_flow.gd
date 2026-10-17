@@ -8,9 +8,8 @@
 ##
 ## Rules this encodes (CLAUDE.md rules 8 and 9): a not-quite answer never costs a coin or a
 ## gem, there is no game-over and no timer, and rewards are the same every time: one coin per
-## cracked rock (two on the first try) and one gem. The numbers follow Rewards v1 in the
-## Phase 1 plan; Sprint 8 moves the persistent totals into the Rewards autoload and this
-## class keeps only the per-wall tally.
+## cracked rock (two on the first try) and one gem. The numbers come from RewardsRules; the
+## persistent totals live in the Rewards autoload and this class keeps only the per-wall tally.
 class_name DigFlow
 extends RefCounted
 
@@ -19,8 +18,8 @@ enum State { IDLE, PICK_ROCK, SHOW_PROBLEM, AWAIT_ANSWER, CRACK, GEM_DROP, WOBBL
 ## The state changed. `previous` is where it came from.
 signal state_changed(state: State, previous: State)
 
-const COINS_FIRST_TRY: int = 2
-const COINS_AFTER_HINT: int = 1
+const COINS_FIRST_TRY: int = RewardsRules.COINS_FIRST_TRY
+const COINS_AFTER_HINT: int = RewardsRules.COINS_AFTER_HINT
 const GEMS_PER_ROCK: int = 1
 ## The hint ladder has four rungs (Sprint 6 builds them); the rung never goes past this.
 const MAX_HINT_RUNG: int = 4

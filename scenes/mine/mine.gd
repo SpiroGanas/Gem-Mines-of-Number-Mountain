@@ -9,7 +9,13 @@
 ## Each rock's problem is chosen by the Adaptive autoload when the rock is picked (so it reflects
 ## the answers just given), and every answer is reported back to it. A not-quite answer climbs the
 ## hint ladder (HintLadder): rung 1 repeats the problem with its numbers highlighted, rung 2 adds
-## the picture model. Rungs 3 and 4 arrive in Sprint 8.
+## the picture model, rung 3 a solved "friend" of the problem, rung 4 swaps in an easier problem
+## of the same skill and flags the skill for review.
+##
+## Cracked rocks are paid by the Rewards autoload (coins, the zone's gem, today's lantern). Between
+## rocks a Celebration card marks a skill mastered, a museum mineral found or the lantern lit, and
+## once the parent's soft time limit has passed the WindDown recap appears at the next rock
+## boundary: the child always finishes the rock in hand.
 class_name MineScreen
 extends ShellScreen
 
@@ -18,9 +24,7 @@ signal rock_finished(index: int)
 ## Every rock on the wall is cracked.
 signal wall_cleared
 
-const ZONE: int = 1
 const PANEL_SCENE: PackedScene = preload("res://scenes/mine/answer_panel.tscn")
-const CARD_SCRIPT: GDScript = preload("res://scenes/mine/word_gem_card.gd")
 
 ## 1.0 is normal speed. Tests raise it so animations finish quickly.
 @export var animation_speed: float = 1.0
@@ -29,8 +33,9 @@ const CARD_SCRIPT: GDScript = preload("res://scenes/mine/word_gem_card.gd")
 ## Limits the skills on the wall (tests use this); empty means the adaptive engine chooses.
 @export var skill_ids: Array[StringName] = []
 
-## The highest hint rung shown so far (Sprint 6 builds rungs 1 and 2).
-const TOP_RUNG: HintLadder.Rung = HintLadder.Rung.VISUAL_MODEL
+## Rocks the child may still crack after the soft limit before the wind-down shows (0: the wind-down
+## comes at the very next rock boundary). Needs Spiro: the plan leaves "one extra rock" open.
+const EXTRA_ROCKS_AFTER_LIMIT: int = 0
 
 var flow: DigFlow = DigFlow.new()
 
@@ -44,7 +49,13 @@ var _answer_opened_ms: int = 0
 var _misses_on_problem: int = 0
 ## The misconception the last not-quite answer matched (empty when it matched none).
 var _last_misconception: StringName = &""
+## The open rock already swapped in its easier problem (hint rung 4 happens once per rock).
+var _eased: bool = false
 var _word_gem_card: WordGemCard
+var _celebration: Celebration
+var _wind_down: WindDown
+var _pending_celebrations: Array[Dictionary] = []
+var _rocks_since_limit: int = 0
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -79,9 +90,20 @@ func _ready() -> void:
 	_cart.gem_landed.connect(_on_gem_landed)
 	flow.state_changed.connect(_on_state_changed)
 	Adaptive.placement_finished.connect(_on_placement_finished)
-	_word_gem_card = CARD_SCRIPT.new()
-	add_child(_word_gem_card) # last child: drawn over everything
+	_celebration = Celebration.new()
+	_celebration.speed_scale = animation_speed
+	add_child(_celebration)
+	_celebration.closed.connect(_after_rock)
+	_wind_down = WindDown.new()
+	add_child(_wind_down)
+	_wind_down.head_up_requested.connect(_on_wind_down_head_up)
+	_word_gem_card = WordGemCard.new()
+	add_child(_word_gem_card) # last: drawn over everything
 	_bolt.term_tapped.connect(_on_term_tapped)
+	Rewards.skill_celebrated.connect(_on_skill_celebrated)
+	Rewards.mineral_found.connect(_on_mineral_found)
+	_cart.strong = Rewards.pickaxe() == &"pickaxe_t2"
+	_cart.set_totals(Rewards.coins(), 0)
 	_start_wall()
 
 
@@ -108,6 +130,19 @@ func answer_panel() -> AnswerPanel:
 
 func word_gem_card() -> WordGemCard:
 	return _word_gem_card
+
+
+func celebration() -> Celebration:
+	return _celebration
+
+
+func wind_down() -> WindDown:
+	return _wind_down
+
+
+## The zone a problem's skill belongs to (it decides the gem: quartz, garnet or pyrite).
+func zone_of(problem: Problem) -> int:
+	return Adaptive.catalog().skill(problem.skill_id).zone
 
 
 ## The build board, if the open problem is answered by building (otherwise null).
@@ -142,6 +177,7 @@ func _on_rock_selected(index: int) -> void:
 	if _problems[index] == null:
 		_problems[index] = Adaptive.next_problem(_rng, skill_ids)
 	_misses_on_problem = 0
+	_eased = false
 	flow.pick_rock(index)
 
 
@@ -173,7 +209,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_sfx.play(&"crack")
 			var rock: Rock = _wall.rock(flow.current_rock())
 			rock.crack_finished.connect(flow.crack_finished, CONNECT_ONE_SHOT)
-			rock.play_crack(GemArt.gem_for_zone(ZONE))
+			rock.play_crack(GemArt.gem_for_zone(zone_of(current_problem())), Rewards.pickaxe() == &"pickaxe_t2")
 		DigFlow.State.GEM_DROP:
 			_sfx.play(&"gem")
 			var rock: Rock = _wall.rock(flow.current_rock())
@@ -187,7 +223,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			open_rock.wobble_finished.connect(flow.wobble_finished, CONNECT_ONE_SHOT)
 			open_rock.play_wobble()
 		DigFlow.State.HINT:
-			_show_hint(mini(HintLadder.next_rung(flow.wrong_count()), TOP_RUNG) as HintLadder.Rung)
+			_show_hint(HintLadder.next_rung(flow.wrong_count()))
 			flow.hint_shown.call_deferred()
 		DigFlow.State.WALL_CLEAR:
 			_remove_panel()
@@ -199,11 +235,48 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 
 func _on_gem_landed(_gem_type: StringName) -> void:
 	_sfx.play(&"coin")
-	_cart.set_totals(flow.coins, flow.gems)
+	var paid: Dictionary = Rewards.pay_rock(zone_of(current_problem()), flow.wrong_count() == 0)
+	if paid["lantern_lit"]:
+		_pending_celebrations.append({"line_id": &"bolt.celebrate.lantern", "lantern": true})
+	_cart.set_totals(Rewards.coins(), flow.gems)
 	var finished: int = flow.current_rock()
 	SaveSystem.save_now() # save point: after every rock
 	flow.gem_dropped()
 	rock_finished.emit(finished)
+	if _pending_celebrations.is_empty():
+		_after_rock()
+	else:
+		_sfx.play(&"fanfare")
+		_celebration.celebrate(_pending_celebrations.duplicate())
+		_pending_celebrations.clear()
+
+
+## A rock is done (and its celebration, if any, was closed): wind down if the soft limit passed.
+func _after_rock() -> void:
+	if not Adaptive.placement_active() and Adaptive.wind_down_due():
+		_rocks_since_limit += 1
+		if _rocks_since_limit > EXTRA_ROCKS_AFTER_LIMIT:
+			_show_wind_down()
+
+
+func _show_wind_down() -> void:
+	_wall.set_interactive(false)
+	_bolt.say(&"bolt.wind_down.time")
+	_wind_down.show_recap(Rewards.session_summary(), Adaptive.skills_practised(), Rewards.lit_today())
+
+
+func _on_wind_down_head_up() -> void:
+	_sfx.play(&"tap")
+	Adaptive.end_session()
+	request_screen.emit(&"hub", {})
+
+
+func _on_skill_celebrated(_skill_id: StringName) -> void:
+	_pending_celebrations.append({"line_id": &"bolt.celebrate.mastery", "gem": RewardsRules.MASTERY_GEM})
+
+
+func _on_mineral_found(gem: StringName) -> void:
+	_pending_celebrations.append({"line_id": &"bolt.celebrate.mineral", "gem": gem})
 
 
 func _on_answered(given: Variant) -> void:
@@ -240,6 +313,9 @@ static func misconception_of(problem: Problem, given: Variant) -> StringName:
 ## the not-quite line and the rung's line go under it, and the panel adds the picture from rung 2.
 func _show_hint(rung: HintLadder.Rung) -> void:
 	var problem: Problem = current_problem()
+	if HintLadder.swaps_problem(rung, _eased):
+		_ease_problem(problem)
+		return
 	_bolt.say(problem.prompt_line_id, problem.prompt_params, false, problem.prompt_params.keys())
 	_bolt.note(&"bolt.feedback.not_quite")
 	var targeted: StringName = StringName("bolt.misconception.%s" % _last_misconception)
@@ -247,6 +323,21 @@ func _show_hint(rung: HintLadder.Rung) -> void:
 		_bolt.add_note(targeted)
 	_bolt.add_note(HintLadder.line_for(rung))
 	_panel.show_hint(rung)
+
+
+## Hint rung 4: an easier problem of the same skill takes the rock's place, and the skill is flagged
+## so the dashboard shows it (not during the placement quest, which is only looking).
+func _ease_problem(problem: Problem) -> void:
+	_eased = true
+	var easier: Problem = Adaptive.easier_problem(problem, _rng)
+	_problems[flow.current_rock()] = easier
+	if not Adaptive.placement_active():
+		Adaptive.flag_for_review(problem.skill_id)
+	_misses_on_problem = 0
+	_bolt.say(easier.prompt_line_id, easier.prompt_params)
+	_bolt.note(&"bolt.feedback.not_quite")
+	_bolt.add_note(HintLadder.line_for(HintLadder.Rung.EASIER_PROBLEM))
+	_show_panel(easier)
 
 
 func _show_panel(problem: Problem) -> void:

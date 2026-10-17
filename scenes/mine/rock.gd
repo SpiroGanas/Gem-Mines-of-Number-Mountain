@@ -18,6 +18,10 @@ const WIDTH_MULTIPLE: float = 2.6
 const HEIGHT_MULTIPLE: float = 2.0
 const WOBBLE_SECONDS: float = 0.3
 const CRACK_SECONDS: float = 0.28
+const PARTICLES: int = 18
+const STRONG_PARTICLES: int = 36
+const SQUASH: float = 0.1
+const STRONG_SQUASH: float = 0.18
 const BODY: Color = Color("#7B8499")
 const BODY_CRACKED: Color = Color("#555C70")
 const FACET: Color = Color("#6A7287")
@@ -51,7 +55,7 @@ func _ready() -> void:
 	_particles = CPUParticles2D.new()
 	_particles.emitting = false
 	_particles.one_shot = true
-	_particles.amount = 18
+	_particles.amount = PARTICLES
 	_particles.lifetime = 0.6
 	_particles.explosiveness = 1.0
 	_particles.direction = Vector2(0, -1)
@@ -85,8 +89,9 @@ func play_wobble() -> void:
 	_tween.tween_callback(_on_wobble_done)
 
 
-## Cracks the rock open and reveals `gem_type`, then emits crack_finished.
-func play_crack(gem_type: StringName) -> void:
+## Cracks the rock open and reveals `gem_type`, then emits crack_finished. `strong` is the big
+## pickaxe from the garage: more sparkle and a bigger squash.
+func play_crack(gem_type: StringName, strong: bool = false) -> void:
 	set_rock_state(RockState.CRACKED)
 	disabled = true
 	_gem.gem_type = gem_type
@@ -94,12 +99,14 @@ func play_crack(gem_type: StringName) -> void:
 	_gem.position = (size - _gem.size) * 0.5
 	_gem.visible = true
 	_particles.color = GemArt.color_for(gem_type)
+	_particles.amount = STRONG_PARTICLES if strong else PARTICLES
 	_particles.position = size * 0.5
 	_particles.restart()
 	_particles.emitting = true
 	_restart_tween()
 	# Squash and stretch: flatten, spring up, settle (GDD "Game feel").
-	_tween.tween_property(self, "scale", Vector2(1.1, 0.88), CRACK_SECONDS * 0.3)
+	var squash: float = 1.0 + (STRONG_SQUASH if strong else SQUASH)
+	_tween.tween_property(self, "scale", Vector2(squash, 2.0 - squash), CRACK_SECONDS * 0.3)
 	_tween.tween_property(self, "scale", Vector2(0.96, 1.06), CRACK_SECONDS * 0.3)
 	_tween.tween_property(self, "scale", Vector2.ONE, CRACK_SECONDS * 0.4)
 	_tween.tween_callback(crack_finished.emit)
