@@ -132,6 +132,7 @@ bolt.misconception.forgot_regroup,Ten ones make a ten. Trade them in.,Targeted h
 bolt.misconception.forgot_untrade,"Break a ten into ones first, then take away.",Targeted hint after the forgot_untrade mistake,0
 bolt.misconception.left_side_only,Look at both sides of the equals sign.,Targeted hint after the left_side_only mistake,0
 bolt.misconception.leftover_miscounted,Make the pairs again. Is one gem left over?,Targeted hint after the leftover_miscounted mistake,0
+bolt.misconception.parity_swapped,Even numbers make pairs with none left over.,Targeted hint after the parity_swapped mistake,0
 bolt.misconception.off_by_group,Count the groups again. Is one extra or missing?,Targeted hint after the off_by_group mistake,0
 bolt.misconception.off_by_one,So close! Count again carefully.,Targeted hint after the off_by_one mistake,0
 bolt.misconception.off_by_row,"Count the rows again, one at a time.",Targeted hint after the off_by_row mistake,0

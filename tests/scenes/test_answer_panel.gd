@@ -1,7 +1,9 @@
-# Mirrors scenes/mine/answer_panel.gd. Every Zone 1 problem must render and be answerable through
-# the widget it gets, and the problem must judge the widget's output correctly.
+# Mirrors scenes/mine/answer_panel.gd. Every MVP problem (Zones 1-3) must render and be answerable
+# through the widget it gets, and the problem must judge the widget's output correctly.
 class_name AnswerPanelTest
 extends GdUnitTestSuite
+
+const MVP_ZONES: Array[int] = [1, 2, 3]
 
 var _catalog: SkillCatalog
 var _panel: AnswerPanel
@@ -36,6 +38,13 @@ func _problem(skill_id: StringName, seed_value: int, representation: StringName 
 	return GeneratorRegistry.make_problem(_catalog.skill(skill_id), seed_value, overrides)
 
 
+func _mvp_skills() -> Array[Skill]:
+	var skills: Array[Skill] = []
+	for zone: int in MVP_ZONES:
+		skills.append_array(_catalog.skills_in_zone(zone))
+	return skills
+
+
 func _give(problem: Problem, target: Variant) -> void:
 	assert_bool(PanelDriver.give(_panel, target)).override_failure_message("%s: could not give %s through the widget" % [problem.skill_id, target]).is_true()
 
@@ -68,6 +77,44 @@ func test_each_zone_1_skill_gets_the_input_the_plan_describes() -> void:
 		assert_int(AnswerPanel.choose_input(_problem(skill_id, 3))).override_failure_message(skill_id).is_equal(expected[skill_id])
 
 
+func test_each_zone_2_and_3_skill_gets_the_input_the_plan_describes() -> void:
+	var by_input: Dictionary = {
+		AnswerPanel.InputKind.TILES: [&"eq.fact_family.build", &"skip.by_10.to_120", &"skip.by_5.to_100", &"skip.by_2.to_40"],
+		AnswerPanel.InputKind.ARRAY: [&"arr.rows_cols.build"],
+		AnswerPanel.InputKind.CHOICES: [&"eq.balance.true_false", &"eq.inverse.check", &"parity.even_odd.pairs", &"parity.even_odd.rule", &"mult.commutative.match"],
+	}
+	var counted: int = 0
+	for skill: Skill in _catalog.skills_in_zone(2) + _catalog.skills_in_zone(3):
+		var expected: AnswerPanel.InputKind = AnswerPanel.InputKind.NUMBER_PAD # whole-number answers
+		for kind: AnswerPanel.InputKind in by_input:
+			if by_input[kind].has(skill.id):
+				expected = kind
+		for representation: StringName in skill.representations:
+			assert_int(AnswerPanel.choose_input(_problem(skill.id, 3, representation))).override_failure_message("%s (%s)" % [skill.id, representation]).is_equal(expected)
+		counted += 1
+	assert_int(counted).is_equal(28)
+
+
+func test_word_answers_get_word_labels() -> void:
+	for skill_id: StringName in [&"parity.even_odd.pairs", &"eq.balance.true_false"]:
+		var problem: Problem = _problem(skill_id, 2)
+		_panel.setup(problem, _rng())
+		for index: int in _panel.choices().button_count():
+			var button_text: String = _panel.choices().button(index).text
+			assert_bool(button_text.is_valid_int()).override_failure_message("%s shows %s" % [skill_id, button_text]).is_false()
+			assert_bool(button_text.begins_with("[")).is_false() # never a missing line
+
+
+func test_counting_by_twos_shows_the_strip_around_the_slots() -> void:
+	var problem: Problem = _problem(&"skip.by_2.to_40", 7)
+	var sequence: Array = AnswerPanel.strip_sequence(problem)
+	assert_int(sequence.size()).is_equal(problem.meta["strip"].size())
+	assert_int(sequence.count(null)).is_equal(problem.answer.size())
+	for index: int in sequence.size():
+		if sequence[index] == null:
+			assert_bool(problem.answer.has(problem.meta["strip"][index])).is_true()
+
+
 func test_labels_show_numerals_symbols_sums_and_lists() -> void:
 	var plain: Problem = Problem.new()
 	assert_str(AnswerPanel.label_for(34, plain)).is_equal("34")
@@ -81,8 +128,8 @@ func test_labels_show_numerals_symbols_sums_and_lists() -> void:
 # --- Every problem renders and can be answered right and wrong -----------------------------
 
 
-func test_every_zone_1_problem_can_be_answered_correctly_through_its_widget() -> void:
-	for skill: Skill in _catalog.skills_in_zone(1):
+func test_every_mvp_problem_can_be_answered_correctly_through_its_widget() -> void:
+	for skill: Skill in _mvp_skills():
 		for representation: StringName in skill.representations:
 			for seed_value: int in range(1, 31):
 				var problem: Problem = _problem(skill.id, seed_value, representation)
@@ -95,8 +142,8 @@ func test_every_zone_1_problem_can_be_answered_correctly_through_its_widget() ->
 				assert_bool(problem.is_correct(heard[0])).override_failure_message("%s seed %d: gave %s, expected %s" % [skill.id, seed_value, heard[0], problem.answer]).is_true()
 
 
-func test_every_zone_1_problem_judges_a_named_wrong_answer_as_wrong() -> void:
-	for skill: Skill in _catalog.skills_in_zone(1):
+func test_every_mvp_problem_judges_a_named_wrong_answer_as_wrong() -> void:
+	for skill: Skill in _mvp_skills():
 		for seed_value: int in range(1, 31):
 			var problem: Problem = _problem(skill.id, seed_value)
 			if problem.distractors.is_empty():
@@ -215,8 +262,8 @@ func test_answer_modes_are_named_for_the_attempt_log() -> void:
 	assert_str(AnswerPanel.answer_mode_for(_problem(&"pv.tens_ones.build", 1))).is_equal("drag")
 
 
-func test_rung_1_needs_no_picture_and_rung_2_shows_the_model_for_every_zone_1_skill() -> void:
-	for skill: Skill in _catalog.skills_in_zone(1):
+func test_rung_1_needs_no_picture_and_rung_2_shows_the_model_for_every_mvp_skill() -> void:
+	for skill: Skill in _mvp_skills():
 		for representation: StringName in skill.representations:
 			var problem: Problem = _problem(skill.id, 5, representation)
 			_panel.setup(problem, _rng())

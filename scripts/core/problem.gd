@@ -23,6 +23,11 @@
 ##   label_lines    {label_key: line id}: answer buttons whose labels are words ("True", "Even")
 ##                  instead of numerals. Keys come from Problem.label_key(value).
 ##   array_label    "sum": an Array answer reads "30 + 4" instead of "30, 4"
+##   strip          [int]: the whole number strip, blanks included, when the picture is not a
+##                  number line (counting by twos shows pairs); the tile board draws the strip
+##                  around its slots from it. The blanks are the answer's values.
+## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
+## ignores keys it does not know.
 class_name Problem
 extends RefCounted
 

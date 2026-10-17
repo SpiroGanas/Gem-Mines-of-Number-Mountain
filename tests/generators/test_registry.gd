@@ -9,18 +9,20 @@ func before() -> void:
 	_catalog = SkillCatalog.load_all()
 
 
-func test_every_zone_1_skill_has_a_generator() -> void:
-	for skill: Skill in _catalog.skills_in_zone(1):
-		assert_bool(GeneratorRegistry.has_generator(skill.generator)).override_failure_message("no generator for " + skill.id).is_true()
-		assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_true()
+func test_every_mvp_skill_has_a_generator() -> void:
+	for zone: int in [1, 2, 3]:
+		for skill: Skill in _catalog.skills_in_zone(zone):
+			assert_bool(GeneratorRegistry.has_generator(skill.generator)).override_failure_message("no generator for " + skill.id).is_true()
+			assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_true()
 
 
 func test_a_skill_without_a_built_generator_gets_an_invalid_callable() -> void:
-	var skill: Skill = _catalog.skill(&"add.to_10.sums")
+	var skill: Skill = _catalog.skill(&"add.to_10.sums").duplicate()
+	skill.generator = &"PrimeGenerator" # a later zone's generator, not built in the MVP
 	assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_false()
 
 
-func test_every_registered_generator_is_used_by_a_skill_and_zone_1_is_complete() -> void:
+func test_every_registered_generator_is_used_by_a_skill() -> void:
 	var used: Dictionary = {}
 	for id: StringName in _catalog.ids():
 		used[_catalog.skill(id).generator] = true

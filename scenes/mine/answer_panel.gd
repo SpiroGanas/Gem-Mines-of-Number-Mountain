@@ -378,17 +378,21 @@ func _add_array_builder() -> void:
 	_array.submitted.connect(_on_value_given)
 
 
-## For a number strip (a number line whose blanks are the answer), the strip in reading order with
-## null where each blank goes, so the slots sit between the numbers around them. Otherwise empty.
+## For a number strip (a number line whose blanks are the answer, or meta.strip), the strip in
+## reading order with null where each blank goes, so the slots sit between the numbers around
+## them. Otherwise empty.
 static func strip_sequence(for_problem: Problem) -> Array:
 	var line: Dictionary = for_problem.visual
 	var slots: int = int(for_problem.meta.get("tile_board", {}).get("slots", 0))
-	if line.get("type") != "number_line" or line.get("blanks", []).size() != slots:
-		return []
-	var step: int = maxi(int(line["labeled_every"]), 1)
 	var sequence: Array = []
-	for value: int in range(int(line["min"]), int(line["max"]) + 1, step):
-		sequence.append(null if line["blanks"].has(value) else value)
+	var strip: Array = for_problem.meta.get("strip", [])
+	if not strip.is_empty() and for_problem.answer is Array:
+		for value: Variant in strip:
+			sequence.append(null if for_problem.answer.has(value) else value)
+	elif line.get("type") == "number_line" and line.get("blanks", []).size() == slots:
+		var step: int = maxi(int(line["labeled_every"]), 1)
+		for value: int in range(int(line["min"]), int(line["max"]) + 1, step):
+			sequence.append(null if line["blanks"].has(value) else value)
 	return sequence if sequence.count(null) == slots and sequence.size() <= 8 else []
 
 

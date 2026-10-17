@@ -137,13 +137,17 @@ def check_bkt_defaults(bkt: dict) -> list[str]:
     return errors
 
 
-def check_misconceptions(misconceptions: dict[str, str]) -> list[str]:
+def check_misconceptions(misconceptions: dict[str, str], line_ids: set[str] | None = None) -> list[str]:
+    """Names are snake_case with a parent-facing description; with `line_ids`, each name also has
+    Bolt's targeted hint line, bolt.misconception.<name>, in text/lines.csv."""
     errors: list[str] = []
     for name, description in misconceptions.items():
         if not SNAKE_RE.match(name):
             errors.append(f"misconceptions: '{name}' is not snake_case")
         if not isinstance(description, str) or not description.strip():
             errors.append(f"misconceptions: '{name}' needs a parent-facing description")
+        if line_ids is not None and f"bolt.misconception.{name}" not in line_ids:
+            errors.append(f"misconceptions: '{name}' has no hint line bolt.misconception.{name} in text/lines.csv")
     return errors
 
 
@@ -306,9 +310,10 @@ def check_all(root: Path = ROOT) -> list[str]:
     vocabulary = load_vocabulary(curriculum / "vocabulary.json")
     misconceptions = load_misconceptions(curriculum / "misconceptions.json")
     bkt = load_bkt_defaults(curriculum / "bkt_defaults.json")
+    line_ids = load_line_ids(root / "text" / "lines.csv")
     errors = check_bkt_defaults(bkt)
-    errors += check_misconceptions(misconceptions)
-    errors += check_vocabulary(vocabulary, load_line_ids(root / "text" / "lines.csv"))
+    errors += check_misconceptions(misconceptions, line_ids)
+    errors += check_vocabulary(vocabulary, line_ids)
     errors += check_skill_map(load_zone_files(curriculum / "skills"), vocabulary, misconceptions, bkt)
     return errors
 
