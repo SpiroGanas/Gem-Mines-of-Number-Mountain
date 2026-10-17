@@ -32,6 +32,10 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 				board.put(target[index], index)
 			board.submit()
 			return true
+		AnswerPanel.InputKind.ARRAY:
+			panel.array_builder().set_array(int(target["rows"]), int(target["cols"]))
+			panel.array_builder().submit()
+			return true
 		AnswerPanel.InputKind.BOARD:
 			var tray: DragTarget = panel.board().tray()
 			tray.clear()

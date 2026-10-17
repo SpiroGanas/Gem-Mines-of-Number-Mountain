@@ -7,6 +7,7 @@
 ##   CHOICES     big answer buttons: the answer plus named wrong answers, shuffled
 ##   NUMBER_PAD  the on-screen number pad (write the numeral, sums and differences)
 ##   TILES       drag tiles into slots on the TileBoard (number strips, ordering, fact families)
+##   ARRAY       drag or tap out rows and columns on the ArrayBuilder (build an array)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
 ## "friend" of the problem (show_hint).
@@ -16,12 +17,13 @@ extends VBoxContainer
 ## The child gave an answer. `given` is in the problem's canonical answer shape.
 signal answered(given: Variant)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
 const PAD_SCENE: PackedScene = preload("res://scenes/input/number_pad.tscn")
 const TILES_SCENE: PackedScene = preload("res://scenes/input/tile_board.tscn")
+const ARRAY_SCENE: PackedScene = preload("res://scenes/input/array_builder.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
 ## few options (a random number on the pad, a random pile on the board). Used by the adaptive
@@ -40,6 +42,7 @@ var _choices: ChoiceButtons
 var _pad: NumberPad
 var _pad_row: HBoxContainer
 var _tiles: TileBoard
+var _array: ArrayBuilder
 var _example: PanelContainer
 var _enabled: bool = false
 
@@ -65,6 +68,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem) -> InputKind
 				return InputKind.BOARD
 			if for_problem.meta.has("tile_board"):
 				return InputKind.TILES
+			if for_problem.meta.has("array_builder"):
+				return InputKind.ARRAY
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				return InputKind.NUMBER_PAD
@@ -83,6 +88,9 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			options = mini(for_problem.distractors.size(), MAX_CHOICE_DISTRACTORS) + 1
 		InputKind.TILES:
 			return tile_chance(for_problem.meta["tile_board"])
+		InputKind.ARRAY:
+			var limits: Dictionary = for_problem.meta["array_builder"]
+			return 1.0 / float(maxi(int(limits["max_rows"]) * int(limits["max_cols"]), 1))
 		_:
 			return FREE_RESPONSE_CHANCE
 	return 1.0 / float(maxi(options - eliminated, 1))
@@ -146,6 +154,9 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 		InputKind.TILES:
 			_add_visual(false)
 			_add_tiles()
+		InputKind.ARRAY:
+			_add_visual(false)
+			_add_array_builder()
 	set_enabled(_enabled)
 
 
@@ -159,6 +170,8 @@ func set_enabled(enabled: bool) -> void:
 		_pad.set_enabled(enabled)
 	if _tiles != null:
 		_tiles.set_enabled(enabled)
+	if _array != null:
+		_array.set_enabled(enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
 		for button: Button in _visual.pile_buttons():
 			button.disabled = not enabled
@@ -267,6 +280,10 @@ func tile_board() -> TileBoard:
 	return _tiles
 
 
+func array_builder() -> ArrayBuilder:
+	return _array
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -278,6 +295,7 @@ func _clear() -> void:
 	_pad = null
 	_pad_row = null
 	_tiles = null
+	_array = null
 	_example = null
 
 
@@ -346,6 +364,16 @@ func _add_tiles() -> void:
 	_tiles.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_tiles)
 	_tiles.submitted.connect(_on_value_given)
+
+
+func _add_array_builder() -> void:
+	var limits: Dictionary = problem.meta["array_builder"]
+	_array = ARRAY_SCENE.instantiate()
+	_array.max_rows = int(limits["max_rows"])
+	_array.max_cols = int(limits["max_cols"])
+	_array.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_array)
+	_array.submitted.connect(_on_value_given)
 
 
 ## For a number strip (a number line whose blanks are the answer), the strip in reading order with
