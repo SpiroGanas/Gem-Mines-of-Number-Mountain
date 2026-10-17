@@ -13,7 +13,7 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 		AnswerPanel.InputKind.CHOICES:
 			var values: Array = panel.choices().values_in_order()
 			for index: int in values.size():
-				if Problem.canonical(values[index]) == Problem.canonical(target):
+				if Problem.same(values[index], target):
 					panel.choices().button(index).pressed.emit()
 					return true
 			return false

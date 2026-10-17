@@ -34,6 +34,7 @@ static func problem_errors(problem: Problem, skill: Skill, allowed_names: Array[
 	errors.append_array(_distractor_errors(problem, skill, allowed_names, where))
 	errors.append_array(_hint_errors(problem, where))
 	errors.append_array(_visual_errors(problem.visual, where + " visual"))
+	errors.append_array(_meta_errors(problem, where))
 	if not problem.is_correct(problem.answer):
 		errors.append("%s: the answer is not accepted as correct" % where)
 	for entry: Dictionary in problem.distractors:
@@ -80,10 +81,11 @@ static func _distractor_errors(problem: Problem, skill: Skill, allowed_names: Ar
 		if not skill.misconceptions.has(name):
 			errors.append("%s: misconception '%s' is not listed for the skill" % [where, name])
 		var canon: Variant = Problem.canonical(entry["value"])
-		if canon == Problem.canonical(problem.answer):
+		if Problem.same(canon, problem.answer):
 			errors.append("%s: distractor equals the answer (%s)" % [where, canon])
-		if seen.has(canon):
-			errors.append("%s: duplicate distractor value %s" % [where, canon])
+		for earlier: Variant in seen:
+			if Problem.same(earlier, canon):
+				errors.append("%s: duplicate distractor value %s" % [where, canon])
 		seen.append(canon)
 	if problem.answer_modes.has(&"tap") and problem.distractors.is_empty():
 		errors.append("%s: a tap problem needs at least one distractor" % where)
@@ -140,8 +142,9 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 					if not pile[key] is int or pile[key] < 0:
 						errors.append("%s: pile %s must be a whole number of at least 0" % [where, key])
 		&"ten_frame":
-			if visual["count"] < 0 or visual["count"] > 10 * visual["frames"]:
-				errors.append("%s: count %s does not fit %s frame(s)" % [where, visual["count"], visual["frames"]])
+			var second: int = int(visual.get("second", 0))
+			if visual["count"] < 0 or second < 0 or visual["count"] + second > 10 * visual["frames"]:
+				errors.append("%s: count %s + %s does not fit %s frame(s)" % [where, visual["count"], second, visual["frames"]])
 		&"number_line":
 			if visual["min"] >= visual["max"]:
 				errors.append("%s: line min must be below max" % where)
@@ -153,6 +156,90 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 					errors.append("%s: blank %d is off the line" % [where, blank])
 			if visual["labeled_every"] < 1:
 				errors.append("%s: labeled_every must be at least 1" % where)
+			for jump: Dictionary in visual.get("jumps", []):
+				for end: String in ["from", "to"]:
+					if not jump.get(end) is int or jump[end] < visual["min"] or jump[end] > visual["max"]:
+						errors.append("%s: jump %s %s is off the line" % [where, end, jump.get(end)])
+		&"balance":
+			var sides: Array[int] = []
+			for side: String in ["left", "right"]:
+				var terms: Variant = visual.get(side)
+				if not terms is Array or terms.is_empty() or terms.size() > 3:
+					errors.append("%s: %s pan needs 1 to 3 numbers" % [where, side])
+					return errors
+				var total: int = 0
+				for term: Variant in terms:
+					if not term is int or term < 0:
+						errors.append("%s: %s pan holds %s, not a whole number" % [where, side, term])
+						return errors
+					total += term
+				sides.append(total)
+			var tilt: String = str(visual.get("tilt", ""))
+			if not Problem.TILTS.has(tilt):
+				errors.append("%s: unknown tilt '%s'" % [where, tilt])
+			elif tilt != "unknown":
+				var expected: String = "level" if sides[0] == sides[1] else ("left" if sides[0] > sides[1] else "right")
+				if tilt != expected:
+					errors.append("%s: pans of %d and %d should tilt %s, not %s" % [where, sides[0], sides[1], expected, tilt])
+		&"array":
+			for key: String in ["rows", "cols"]:
+				if not visual.get(key) is int or visual[key] < 1 or visual[key] > 10:
+					errors.append("%s: array %s must be 1 to 10" % [where, key])
+		&"groups":
+			for key: String in ["groups", "size"]:
+				if not visual.get(key) is int or visual[key] < 1 or visual[key] > 10:
+					errors.append("%s: %s must be 1 to 10" % [where, key])
+		&"pairs":
+			if not visual.get("count") is int or visual["count"] < 0 or visual["count"] > 40:
+				errors.append("%s: pairs count must be 0 to 40" % where)
+	return errors
+
+
+## The meta keys that shape the answer input must agree with the answer (see Problem).
+static func _meta_errors(problem: Problem, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	var meta: Dictionary = problem.meta
+	if meta.has("tile_board"):
+		var board: Dictionary = meta["tile_board"]
+		var tiles: Array = Problem.canonical(board.get("tiles", []))
+		var slots: int = int(board.get("slots", 0))
+		if tiles.size() < slots or tiles.size() > 8:
+			errors.append("%s: a tile board needs %d to 8 tiles, has %d" % [where, slots, tiles.size()])
+		for index: int in tiles.size():
+			if tiles.find(tiles[index]) != index:
+				errors.append("%s: tile %s is listed twice" % [where, tiles[index]])
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is Array or value.size() != slots:
+				errors.append("%s: tile answer %s must fill exactly %d slots" % [where, value, slots])
+				continue
+			var spare: Array = tiles.duplicate()
+			for item: Variant in Problem.canonical(value):
+				if not spare.has(item):
+					errors.append("%s: %s needs a tile %s that is not on the board" % [where, value, item])
+				spare.erase(item)
+			if not board.get("ordered", true) and Problem.canonical(value) != Problem.sorted_values(value):
+				errors.append("%s: unordered tile answer %s is not sorted" % [where, value])
+	if meta.has("array_builder"):
+		var limits: Dictionary = meta["array_builder"]
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is Dictionary or not value.has("rows") or not value.has("cols"):
+				errors.append("%s: an array answer must be {rows, cols}" % where)
+			elif value["rows"] < 1 or value["cols"] < 1 or value["rows"] > limits["max_rows"] or value["cols"] > limits["max_cols"]:
+				errors.append("%s: %s does not fit the %dx%d builder" % [where, value, limits["max_rows"], limits["max_cols"]])
+	if meta.has("label_lines"):
+		var labels: Dictionary = meta["label_lines"]
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			var key: String = Problem.label_key(value)
+			if not labels.has(key):
+				errors.append("%s: no label line for answer %s" % [where, key])
+			elif not Text.has_line(StringName(labels[key])):
+				errors.append("%s: label line '%s' is not in the text table" % [where, labels[key]])
 	return errors
 
 
@@ -162,7 +249,7 @@ static func _json_errors(problem: Problem, where: String) -> Array[String]:
 	if not parsed is Dictionary:
 		errors.append("%s: to_json() did not survive a JSON round trip" % where)
 		return errors
-	if parsed["answer"] != Problem.canonical(problem.answer):
+	if not Problem.same(parsed["answer"], problem.answer):
 		errors.append("%s: answer changed in the JSON round trip" % where)
 	if parsed["seed"] != problem.seed:
 		errors.append("%s: seed changed in the JSON round trip" % where)

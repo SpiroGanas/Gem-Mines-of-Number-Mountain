@@ -44,6 +44,9 @@ static func choose_input(for_problem: Problem) -> InputKind:
 
 ## The text on an answer button: numerals, symbols, "30 + 4" for expanded form and "62, 64" for lists.
 static func label_for(value: Variant, for_problem: Problem) -> String:
+	var words: Dictionary = for_problem.meta.get("label_lines", {})
+	if words.has(Problem.label_key(value)):
+		return Text.get_line(StringName(words[Problem.label_key(value)])) # "True", "Even"...
 	if value is Array:
 		var parts: PackedStringArray = PackedStringArray()
 		for item: Variant in value:

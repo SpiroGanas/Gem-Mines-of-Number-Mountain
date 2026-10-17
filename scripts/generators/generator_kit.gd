@@ -48,11 +48,10 @@ static func add_distractor(problem: Problem, skill: Skill, value: Variant, misco
 	assert(skill.misconceptions.has(misconception), "%s is not a misconception of %s" % [misconception, skill.id])
 	if value is int and value < 0:
 		return
-	var canon: Variant = Problem.canonical(value)
-	if canon == Problem.canonical(problem.answer):
+	if Problem.same(value, problem.answer):
 		return
 	for existing: Dictionary in problem.distractors:
-		if Problem.canonical(existing["value"]) == canon:
+		if Problem.same(existing["value"], value):
 			return
 	problem.distractors.append({"value": value, "misconception": misconception})
 
@@ -180,7 +179,7 @@ static func make_example(make: Callable, problem: Problem, rng: RandomNumberGene
 			and candidate.prompt_params == problem.prompt_params and candidate.visual == problem.visual
 		if identical:
 			continue
-		if Problem.canonical(candidate.answer) != Problem.canonical(problem.answer):
+		if not Problem.same(candidate.answer, problem.answer):
 			return candidate
 		if same_answer == null:
 			same_answer = candidate
