@@ -197,7 +197,7 @@
       "terms": ["difference"],
       "bkt_type": "procedure",
       "is_fact_skill": false,
-      "misconceptions": ["smaller_from_larger", "digit_swap"]
+      "misconceptions": ["smaller_from_larger", "digit_swap", "added_instead"]
     },
     {
       "id": "sub.to_100.regroup",

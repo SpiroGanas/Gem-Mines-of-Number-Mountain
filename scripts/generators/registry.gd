@@ -20,6 +20,8 @@ static func table() -> Dictionary:
 		&"FactFamilyGenerator": FactFamilyGenerator.generate,
 		&"MissingPartGenerator": MissingPartGenerator.generate,
 		&"BalanceGenerator": BalanceGenerator.generate,
+		&"AdditionGenerator": AdditionGenerator.generate,
+		&"SubtractionGenerator": SubtractionGenerator.generate,
 	}
 
 

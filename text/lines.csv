@@ -275,3 +275,13 @@ firstrun.name.crystal,Crystal,Preset miner name,0
 firstrun.name.digger,Digger,Preset miner name,0
 firstrun.name.rocket,Rocket,Preset miner name,0
 firstrun.name.echo,Echo,Preset miner name,0
+z2.add.prompt_sum,What is {a} + {b}?,Zone 2: add two numbers,0
+z2.add.prompt_make_ten,What is {a} + {b}? Make a ten to help.,Zone 2: add within 20 by making a ten,0
+z2.add.prompt_tens,What is {a} + {b}? Think in tens.,Zone 2: add multiples of ten,0
+z2.add.prompt_three,What is {a} + {b} + {c}?,Zone 2: add three numbers,0
+z2.sub.prompt_diff,What is {a} - {b}?,Zone 2: subtract,0
+z2.sub.prompt_tens,What is {a} - {b}? Think in tens.,Zone 2: subtract multiples of ten,0
+z2.hint.example_add,So {a} + {b} = {sum}.,Worked example: an addition fact,0
+z2.hint.example_add_three,So {a} + {b} + {c} = {sum}.,Worked example: adding three numbers,0
+z2.hint.example_make_ten,{a} + {fill} = {ten}. Then {ten} + {rest} = {sum}.,Worked example: make a ten then add the rest,0
+z2.hint.example_sub,So {a} - {b} = {diff}.,Worked example: a subtraction fact,0
