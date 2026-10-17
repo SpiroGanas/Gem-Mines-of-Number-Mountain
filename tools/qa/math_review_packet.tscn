@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tools/qa/math_review_packet.gd" id="1_packet"]
+
+[node name="MathReviewPacket" type="Node"]
+script = ExtResource("1_packet")
