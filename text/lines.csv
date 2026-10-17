@@ -445,3 +445,19 @@ build.cart_track.done,The cart track is done! Carts roll to the quarry.,Bolt: th
 build.balance_elevator.name,Balance Elevator,Build project name,0
 build.balance_elevator.intro,Make the scale balance. Equal weight lifts the elevator!,Bolt: the balance elevator build (equal groups balance),0
 build.balance_elevator.done,It balances! The elevator can go down to Zone {n}.,Bolt: the elevator is finished and opens a zone (n = zone number),0
+parent.dash.import_older,This file is older than this device's progress. Its answers were added. Keep this device's progress or use the file?,Parent dashboard: an older progress file waits for the parent's choice (Sprint 17),0
+parent.dash.import_same,Both have the same progress. Nothing changed.,Parent dashboard: the file was saved at the same moment,0
+parent.dash.import_changed,That file was changed or cut short. Nothing was changed.,Parent dashboard: checksum mismatch,0
+parent.dash.keep_local,Keep this device's progress,Parent dashboard: the default choice for an older file,0
+parent.dash.use_file,Use the file anyway,Parent dashboard: replace this device's progress with an older file (a backup is kept),0
+parent.dash.device_id,This device: {id},Parent dashboard: the short random id of this device,0
+parent.dash.sync_log,Import and export log ({n}),Parent dashboard section heading,0
+parent.dash.sync_row,{at}: {action} {file} ({result}),Parent dashboard: one import or export,0
+parent.sync.action_export,Exported,Import/export log action,0
+parent.sync.action_import,Imported,Import/export log action,0
+parent.sync.result_ok,done,Import/export log result,0
+parent.sync.result_replaced,used the file,Import/export log result: the file replaced this device's progress (backup kept),0
+parent.sync.result_kept,kept this device's progress,Import/export log result,0
+parent.sync.result_older_kept,file was older; kept this device's progress,Import/export log result,0
+parent.sync.result_refused,refused,Import/export log result: not a progress file or changed,0
+parent.sync.result_failed,failed,Import/export log result,0

@@ -225,6 +225,7 @@ func test_a_bundle_from_a_newer_game_is_refused() -> void:
 	var system: Node = _system()
 	var bundle: Dictionary = ProgressBundle.make(SaveSchema.new_profile("t"), [], "t")
 	bundle["profile"]["schema_version"] = SaveSchema.CURRENT_VERSION + 1
+	bundle["checksum"] = ProgressBundle.checksum_of(bundle) # a real export from that newer game
 	var path: String = _dir.path_join("future.json")
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(bundle))
@@ -240,6 +241,7 @@ func test_importing_over_a_save_from_a_newer_build_is_refused() -> void:
 	assert_int(SaveStore.new(_dir).write_profile(newer)).is_equal(OK)
 	var bundle: Dictionary = ProgressBundle.make(SaveSchema.new_profile("t"), [], "t")
 	bundle["profile"]["updated_at"] = "2099-01-01T00:00:00Z" # newer by date, but from this (older) build
+	bundle["checksum"] = ProgressBundle.checksum_of(bundle)
 	var path: String = _dir.path_join("older_game.json")
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(bundle))
