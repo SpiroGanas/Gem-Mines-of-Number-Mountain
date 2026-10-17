@@ -528,3 +528,12 @@ z2.zone.name,Quarry of Tens,Zone 2 name on its banner,0
 z3.zone.name,Skip-Count Caves,Zone 3 name on its banner,0
 z4.zone.name,Factor Workshop,Zone 4 name on its banner,0
 z5.zone.name,Prime Caverns,Zone 5 name on its banner,0
+parent.week.title,This week,Parent dashboard v2: weekly summary heading (Sprint 21),0
+parent.week.summary,{minutes} minutes in {sessions} sessions. {mastered} skills mastered. {struggling} skills need help.,Parent dashboard v2: the week in one line,0
+parent.week.handwriting,Handwriting: {n} written answers. {confirmed} needed a check ({percent}%). {rejected} times Try again.,Parent dashboard v2: handwriting confirmation rate this week,0
+parent.map.title,Skill map,Parent dashboard v2: the visual skill map,0
+parent.map.mastered,Mastered,Skill map legend,0
+parent.map.practicing,Practicing,Skill map legend,0
+parent.map.needs_review,Needs review,Skill map legend: a missed review or a skill flagged by the fourth hint,0
+parent.map.not_started,Not started,Skill map legend,0
+parent.map.detail,{skill}: {state},Skill map: the tapped skill and its state,0

@@ -1,6 +1,9 @@
-## Parent dashboard v1 (P1-S09-04): time played today and this week, skills mastered, skills that
-## need practice (flagged, or 3 misses in the last 5 first tries), the last 7 sessions, settings
-## (session length, nickname, re-run placement) and progress export / import. Grown-ups only: it
+## Parent dashboard (v1 P1-S09-04, v2 Sprint 21): the week's summary (minutes, sessions, skills
+## mastered, skills that need help, the handwriting confirmation rate), time played today, the visual
+## skill map (SkillMap: zones as rows, skills colored and shaped by state), skills mastered, skills
+## that need practice (flagged, or 3 misses in the last 5 first tries), the last 7 sessions, settings
+## (session length, nickname, re-run placement, family rewards) and progress export / import with
+## its log. Grown-ups only: it
 ## sits behind the parent gate, and it is the one screen where a LineEdit (the nickname) is allowed.
 ## The numbers come from ProgressReport over the save and the attempt log; nothing here leaves the
 ## device unless the parent exports it.
@@ -19,6 +22,7 @@ var _file_dialog: FileDialog
 ## The older file waiting for the parent's choice (Sprint 17), or "".
 var _pending_older: String = ""
 var _older_row: HBoxContainer
+var _skill_map: SkillMap
 
 
 func _ready() -> void:
@@ -58,13 +62,25 @@ func refresh() -> void:
 	var entries: Array = SaveSystem.read_attempts()["entries"]
 	var today: String = Adaptive.clock.today()
 	var offset: int = Adaptive.clock.utc_offset_minutes()
+	var week: Dictionary = ProgressReport.week_summary(entries, SaveSystem.data()["skills"], today, offset)
+	var struggling: Array[StringName] = Adaptive.engine.struggling(entries)
+	_section(&"parent.week.title")
+	var summary: Label = _label(&"parent.week.summary", {"minutes": week["minutes"], "sessions": week["sessions"], "mastered": week["mastered"], "struggling": struggling.size()})
+	summary.name = "WeekSummary"
+	_content.add_child(summary)
+	var handwriting: Label = _label(&"parent.week.handwriting", {"n": week["handwriting_answers"], "confirmed": week["handwriting_confirmed"], "percent": week["confirmation_percent"], "rejected": week["handwriting_rejected"]})
+	handwriting.name = "WeekHandwriting"
+	_content.add_child(handwriting)
 	_section(&"parent.dash.time")
 	_content.add_child(_label(&"parent.dash.today", {"n": ProgressReport.minutes(ProgressReport.seconds_on(entries, today, offset))}))
 	_content.add_child(_label(&"parent.dash.week", {"n": ProgressReport.minutes(ProgressReport.seconds_this_week(entries, today, offset))}))
+	_section(&"parent.map.title")
+	_skill_map = SkillMap.new()
+	_skill_map.name = "SkillMap"
+	_content.add_child(_skill_map)
 	var mastered: Array[StringName] = Adaptive.mastered()
 	_section(&"parent.dash.mastered", {"n": mastered.size()})
 	_content.add_child(_names(mastered))
-	var struggling: Array[StringName] = Adaptive.engine.struggling(entries)
 	_section(&"parent.dash.struggling", {"n": struggling.size()})
 	for id: StringName in struggling:
 		var record: Dictionary = Adaptive.engine.scheduler.record_of(SaveSystem.data()["skills"], id)
@@ -236,6 +252,10 @@ func use_older_file() -> void:
 	if _pending_older == "":
 		return
 	import_from(_pending_older, true)
+
+
+func skill_map() -> SkillMap:
+	return _skill_map
 
 
 func older_choice_visible() -> bool:

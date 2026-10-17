@@ -201,6 +201,35 @@ func fail_challenge(skill_id: StringName) -> void:
 	SaveSystem.save_now()
 
 
+# --- Dashboard v2 (Sprint 21) -------------------------------------------------------------------------
+
+const STATE_NOT_STARTED: StringName = &"not_started"
+const STATE_PRACTICING: StringName = &"practicing"
+const STATE_MASTERED: StringName = &"mastered"
+const STATE_NEEDS_REVIEW: StringName = &"needs_review"
+
+
+## Each playable skill's state for the parent's skill map, in curriculum order: needs_review (flagged:
+## a missed review or the fourth hint), mastered, practicing (answered at least once) or not_started.
+## The dashboard shows these and never works mastery out itself.
+func skill_states() -> Dictionary:
+	var states: Dictionary = {}
+	for id: StringName in engine.scheduler.playable:
+		states[id] = state_of(id)
+	return states
+
+
+func state_of(skill_id: StringName) -> StringName:
+	var record: Dictionary = engine.scheduler.record_of(SaveSystem.data()["skills"], skill_id)
+	if bool(record.get("flagged_for_review", false)):
+		return STATE_NEEDS_REVIEW
+	if SkillRecord.is_mastered(record):
+		return STATE_MASTERED
+	if int(record.get("attempts", 0)) > 0:
+		return STATE_PRACTICING
+	return STATE_NOT_STARTED
+
+
 func flag_for_review(skill_id: StringName) -> void:
 	engine.flag_for_review(skill_id)
 

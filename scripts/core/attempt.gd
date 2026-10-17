@@ -18,6 +18,9 @@ var latency_ms: int = 0
 ## A low-confidence handwriting reading the child rejected. Never counts as a wrong
 ## answer (Phase 2); always false in the MVP.
 var low_confidence_rejected: bool = false
+## A handwriting reading the child confirmed ("Did you write 47?" then Yes). Optional in the log
+## (Sprint 21, for the dashboard's confirmation rate); absent means false.
+var confirmed: bool = false
 
 
 ## The exact object written as one line of attempts.jsonl.
@@ -33,6 +36,7 @@ func to_json() -> Dictionary:
 		"hints_used": hints_used,
 		"latency_ms": latency_ms,
 		"low_confidence_rejected": low_confidence_rejected,
+		"confirmed": confirmed,
 	}
 
 
@@ -48,4 +52,5 @@ static func from_json(entry: Dictionary) -> Attempt:
 	attempt.hints_used = int(entry.get("hints_used", 0))
 	attempt.latency_ms = int(entry.get("latency_ms", 0))
 	attempt.low_confidence_rejected = bool(entry.get("low_confidence_rejected", false))
+	attempt.confirmed = bool(entry.get("confirmed", false))
 	return attempt

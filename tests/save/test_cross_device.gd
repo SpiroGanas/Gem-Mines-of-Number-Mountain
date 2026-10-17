@@ -153,9 +153,11 @@ func test_a_round_trip_two_in_one_to_tablet_and_back_keeps_everything() -> void:
 	assert_int(tablet.import_bundle(first)).is_equal(OK)
 	assert_bool(tablet.data()["workshop"]["builds"]["cart_track"]["done"]).is_true()
 	tablet.data()["rewards"]["coins"] = 55 # Charlie plays on the tablet
-	await get_tree().create_timer(1.1).timeout # the next save is a later second
 	var second: String = _dir.path_join("second.json")
 	tablet.export_bundle(second)
+	# The 2-in-1 last saved before the tablet's play (saves are stamped to the second, and this test
+	# runs within one, so the 2-in-1's stamp is set back rather than waiting on the wall clock).
+	two_in_one.data()["updated_at"] = "2000-01-01T00:00:00Z"
 	assert_int(two_in_one.import_bundle(second)).is_equal(OK)
 	assert_bool(two_in_one.last_import_report["replaced"]).is_true()
 	assert_int(two_in_one.data()["rewards"]["coins"]).is_equal(55)

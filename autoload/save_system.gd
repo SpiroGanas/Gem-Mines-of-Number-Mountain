@@ -122,7 +122,7 @@ func export_bundle(path: String) -> Error:
 		var error: Error = FileAccess.get_open_error()
 		_log_sync("export", path, "failed")
 		return error
-	file.store_string(JSON.stringify(bundle, "\t"))
+	file.store_string(JSON.stringify(bundle, "\t", false, true)) # full precision: the checksum must survive the trip
 	file.close()
 	_log_sync("export", path, "ok")
 	return OK

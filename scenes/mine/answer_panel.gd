@@ -350,6 +350,11 @@ func boulder_split() -> BoulderSplit:
 	return _split
 
 
+## True when the last answer came from the slate after the child confirmed an unsure reading.
+func slate_confirmed() -> bool:
+	return _slate != null and _slate.last_answer_confirmed()
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()

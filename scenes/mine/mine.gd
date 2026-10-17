@@ -427,6 +427,7 @@ func _on_answered(given: Variant) -> void:
 	attempt.representation = problem.representation
 	attempt.answer_mode = AnswerPanel.answer_mode_for_kind(_panel.input_kind)
 	attempt.correct = correct
+	attempt.confirmed = _panel.slate_confirmed()
 	attempt.hints_used = flow.wrong_count()
 	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
 	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))

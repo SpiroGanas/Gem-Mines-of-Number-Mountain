@@ -31,7 +31,7 @@ static func make(profile: Dictionary, attempts: Array, now_iso: String, device_i
 ## SHA-256 of the profile and the attempts. Both are first put through JSON and back, so the sum is
 ## the same before writing (ints) and after reading (JSON numbers come back as floats).
 static func checksum_of(bundle: Dictionary) -> String:
-	var body: Variant = JSON.parse_string(JSON.stringify({"attempts": bundle.get("attempts", []), "profile": bundle.get("profile", {})}))
+	var body: Variant = JSON.parse_string(JSON.stringify({"attempts": bundle.get("attempts", []), "profile": bundle.get("profile", {})}, "", false, true))
 	return JSON.stringify(body, "", true, true).sha256_text()
 
 

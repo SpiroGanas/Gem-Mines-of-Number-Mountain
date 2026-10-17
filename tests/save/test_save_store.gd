@@ -226,4 +226,4 @@ func test_an_attempt_object_round_trips_through_the_log() -> void:
 func test_attempt_json_has_exactly_the_documented_fields() -> void:
 	var keys: Array = Attempt.new().to_json().keys()
 	keys.sort()
-	assert_array(keys).contains_exactly(["answer_mode", "correct", "hints_used", "latency_ms", "low_confidence_rejected", "problem_seed", "representation", "session_id", "skill_id", "ts"])
+	assert_array(keys).contains_exactly(["answer_mode", "confirmed", "correct", "hints_used", "latency_ms", "low_confidence_rejected", "problem_seed", "representation", "session_id", "skill_id", "ts"])
