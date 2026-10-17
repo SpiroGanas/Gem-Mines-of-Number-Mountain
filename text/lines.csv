@@ -81,3 +81,32 @@ z1.dig.prompt_build_number,Build {n} with ten-bars and one-gems.,Zone 1 prompt: 
 z1.build.source_ten,Ten-bar,Label on the pile of ten-bars,0
 z1.build.source_one,One-gem,Label on the pile of one-gems,0
 z1.build.tray,Drop them here,Hint on the empty cart tray,0
+z1.count.prompt_objects,How many gems are there?,Zone 1 counting: count the gems,0
+z1.count.prompt_read_line,Which number is the arrow on?,Zone 1: read a number line,0
+z1.count.prompt_next,"{a}, {b}, ... What number comes next?",Zone 1: count on,0
+z1.count.prompt_between,What number is between {a} and {b}?,Zone 1: the number in the middle,0
+z1.count.prompt_strip,Fill in the missing numbers.,Zone 1: number strip,0
+z1.count.prompt_write_piles,Write the number for these gems.,Zone 1: write a numeral (concrete),0
+z1.count.prompt_write_words,Write the number: {tens} tens and {ones} ones.,Zone 1: write a numeral (abstract),0
+z1.cmp.prompt_more,Tap the pile with more gems.,Zone 1: compare two piles,0
+z1.cmp.prompt_fewer,Tap the pile with fewer gems.,Zone 1: compare two piles,0
+z1.cmp.prompt_symbol,Which symbol goes between {a} and {b}?,Zone 1: compare with symbols,0
+z1.cmp.order_least_first,Put the numbers in order. Start with the least.,Zone 1: order three numbers,0
+z1.cmp.order_greatest_first,Put the numbers in order. Start with the greatest.,Zone 1: order three numbers,0
+z1.pv.prompt_read_piles,How many gems is that?,Zone 1: read tens and ones (concrete),0
+z1.pv.prompt_read_words,{tens} tens and {ones} ones. What number is that?,Zone 1: read tens and ones (abstract),0
+z1.pv.prompt_expanded,Which shows {n} as tens plus ones?,Zone 1: expanded form,0
+z1.pv.prompt_digit_value,"In {n}, what is the value of the {digit}?",Zone 1: value of a digit,0
+z1.pv.prompt_ten_more,What is ten more than {n}?,Zone 1: ten more,0
+z1.pv.prompt_ten_less,What is ten less than {n}?,Zone 1: ten less,0
+z1.pv.prompt_build_hundred,"Build {n} with a hundred-block, ten-bars and one-gems.",Zone 1: build a number over 100,0
+z1.regroup.prompt_trade_ten,You have {tens} tens and {ones} ones. Trade ten ones for one ten.,Zone 1: regroup ones into a ten,0
+z1.regroup.prompt_untrade,You have {tens} tens and {ones} ones. Trade one ten for ten ones.,Zone 1: regroup a ten into ones,0
+z1.hint.example_number,The answer is {answer}.,Worked example: a number answer,0
+z1.hint.example_tens_ones,That is {tens} tens and {ones} ones.,Worked example: tens and ones,0
+z1.hint.example_hundreds,"That is {hundreds} hundred, {tens} tens and {ones} ones.","Worked example: hundreds, tens and ones",0
+z1.hint.example_symbol,So we write {a} {symbol} {b}.,Worked example: a comparison symbol,0
+z1.hint.example_list,The answer is {list}.,Worked example: a list of numbers,0
+z1.hint.example_pile_left,The pile on the left is the one.,Worked example: tap-the-pile answer,0
+z1.hint.example_pile_right,The pile on the right is the one.,Worked example: tap-the-pile answer,0
+z1.build.source_hundred,Hundred-block,Label on the pile of hundred-blocks,0

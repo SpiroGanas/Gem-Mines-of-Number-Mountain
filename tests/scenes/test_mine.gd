@@ -22,10 +22,16 @@ func after_test() -> void:
 	TestWindow.restore(get_window())
 
 
-func _make_mine(seed_value: int) -> MineScreen:
+## A mine for the tests. By default its wall holds only build problems (a drag board), so the loop
+## tests can build answers; pass all_skills for a mixed Zone 1 wall.
+func _make_mine(seed_value: int, all_skills: bool = false) -> MineScreen:
 	var mine: MineScreen = load(MINE_SCENE).instantiate()
 	mine.animation_speed = 25.0
 	mine.seed_value = seed_value
+	var only: Array[StringName] = []
+	if not all_skills:
+		only.append(&"pv.tens_ones.build")
+	mine.skill_ids = only
 	add_child(mine)
 	auto_free(mine)
 	mine.sfx().played.connect(func(id: StringName) -> void: _sounds.append(id))
@@ -61,7 +67,7 @@ func _open(index: int) -> void:
 
 
 func _answer(correct: bool) -> void:
-	var answer: Dictionary = _mine.current_problem()["answer"]
+	var answer: Dictionary = _mine.current_problem().answer
 	if correct:
 		_build(answer["tens"], answer["ones"])
 	else:
@@ -93,7 +99,7 @@ func test_the_same_seed_gives_the_same_wall_and_problems() -> void:
 	var other: MineScreen = _make_mine(12345)
 	assert_int(other.wall().rock_count()).is_equal(_mine.wall().rock_count())
 	for index: int in _mine.wall().rock_count():
-		assert_dict(other.problem_for(index)).is_equal(_mine.problem_for(index))
+		assert_dict(other.problem_for(index).to_json()).is_equal(_mine.problem_for(index).to_json())
 
 
 # --- Picking and answering -----------------------------------------------------------
@@ -101,8 +107,8 @@ func test_the_same_seed_gives_the_same_wall_and_problems() -> void:
 
 func test_picking_a_rock_opens_its_problem_with_the_number_in_the_prompt() -> void:
 	await _open(2)
-	var problem: Dictionary = _mine.current_problem()
-	var n: int = problem["prompt_params"]["n"]
+	var problem: Problem = _mine.current_problem()
+	var n: int = problem.prompt_params["n"]
 	assert_str(_mine.bolt().spoken_text()).is_equal("Build %d with ten-bars and one-gems." % n)
 	assert_object(_mine.board()).is_not_null()
 	assert_int(_mine.wall().rock(2).rock_state).is_equal(Rock.RockState.SELECTED)
@@ -149,7 +155,7 @@ func test_a_not_quite_answer_wobbles_costs_nothing_and_allows_another_try() -> v
 	await _wait_state(DigFlow.State.AWAIT_ANSWER) # wobble, then the hint, then back to answering
 	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.")
 	# The problem stays on screen under the feedback: the child must still see the number.
-	assert_str(_mine.bolt().spoken_text()).is_equal("Build %d with ten-bars and one-gems." % _mine.current_problem()["prompt_params"]["n"])
+	assert_str(_mine.bolt().spoken_text()).is_equal("Build %d with ten-bars and one-gems." % _mine.current_problem().prompt_params["n"])
 	assert_bool(_mine.flow.is_cracked(3)).is_false()
 	assert_int(_mine.cart().coins_shown()).is_equal(0)
 	assert_int(_mine.wall().rock(3).rock_state).is_equal(Rock.RockState.SELECTED)
@@ -292,7 +298,7 @@ func test_a_rock_can_be_solved_by_dragging_pieces_with_synthetic_touch() -> void
 	# The real thing a child does: tap a rock, then drag pieces from the piles into the tray
 	# with a finger. Events go through the global InputRouter, as they do in the game.
 	await _open(0)
-	var answer: Dictionary = _mine.current_problem()["answer"]
+	var answer: Dictionary = _mine.current_problem().answer
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var board: BuildBoard = _mine.board()
@@ -305,3 +311,48 @@ func test_a_rock_can_be_solved_by_dragging_pieces_with_synthetic_touch() -> void
 	await _until(func() -> bool: return _mine.flow.is_cracked(0))
 	await _until(func() -> bool: return _mine.flow.state == DigFlow.State.PICK_ROCK)
 	assert_int(_mine.cart().coins_shown()).is_equal(DigFlow.COINS_FIRST_TRY)
+
+
+# --- Mixed Zone 1 walls (Sprint 5): every skill, answered through its own widget -------------
+
+
+## Opens a rock and gives `correct` or a named-wrong answer through the widget the problem got.
+func _answer_through_the_panel(index: int, correct: bool) -> void:
+	await _open(index)
+	var problem: Problem = _mine.current_problem()
+	var target: Variant = problem.answer if correct else PanelDriver.wrong_value(problem)
+	assert_bool(PanelDriver.give(_mine.answer_panel(), target)).override_failure_message("%s: could not give %s" % [problem.skill_id, target]).is_true()
+
+
+func test_mixed_walls_of_every_zone_1_skill_can_be_cleared() -> void:
+	var seen: Dictionary = {}
+	for seed_value: int in [11, 12, 13, 14, 15]:
+		var mine: MineScreen = _make_mine(seed_value, true)
+		_mine = mine
+		for index: int in mine.wall().rock_count():
+			seen[mine.problem_for(index).skill_id] = true
+			await _answer_through_the_panel(index, true)
+			await _until(func() -> bool: return mine.flow.is_cracked(index) and (mine.flow.state == DigFlow.State.PICK_ROCK or mine.flow.state == DigFlow.State.WALL_CLEAR))
+		assert_int(mine.flow.state).is_equal(DigFlow.State.WALL_CLEAR)
+		assert_int(mine.cart().gems_shown()).is_equal(mine.wall().rock_count())
+		mine.queue_free()
+	assert_int(seen.size()).is_greater(8) # a good spread of the 17 skills turned up
+
+
+func test_a_wrong_answer_on_any_skill_wobbles_costs_nothing_and_keeps_the_problem_visible() -> void:
+	var skills: Dictionary = {}
+	for seed_value: int in range(21, 41):
+		var mine: MineScreen = _make_mine(seed_value, true)
+		_mine = mine
+		await _answer_through_the_panel(0, false)
+		var problem: Problem = mine.current_problem()
+		skills[problem.skill_id] = true
+		await _wait_state(DigFlow.State.WOBBLE)
+		await _wait_state(DigFlow.State.AWAIT_ANSWER)
+		assert_bool(mine.flow.is_cracked(0)).override_failure_message(problem.skill_id).is_false()
+		assert_int(mine.cart().coins_shown()).is_equal(0)
+		assert_int(mine.cart().gems_shown()).is_equal(0)
+		assert_str(mine.bolt().note_text()).is_equal("Not quite. Let's look again.")
+		assert_str(mine.bolt().spoken_text()).is_equal(Text.get_line(problem.prompt_line_id, problem.prompt_params)) # still readable
+		mine.queue_free()
+	assert_int(skills.size()).is_greater(5)

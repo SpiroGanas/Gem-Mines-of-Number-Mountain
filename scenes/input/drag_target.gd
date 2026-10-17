@@ -8,7 +8,7 @@ extends PanelContainer
 signal changed
 
 ## Kinds this tray accepts.
-@export var accepts: PackedStringArray = PackedStringArray(["ten", "one"])
+@export var accepts: PackedStringArray = PackedStringArray(["hundred", "ten", "one"])
 
 var _flow: HFlowContainer
 var _hint: Label
@@ -50,7 +50,7 @@ func contains_point(global_point: Vector2) -> bool:
 	return get_global_rect().has_point(global_point)
 
 
-## Adds an item if its kind is accepted. Tens are kept ahead of ones.
+## Adds an item if its kind is accepted. Hundreds come first, then tens, then ones.
 func add_item(item: DragItem) -> bool:
 	if not accepts_kind(item.kind):
 		return false
@@ -58,15 +58,24 @@ func add_item(item: DragItem) -> bool:
 		item.get_parent().remove_child(item)
 	item.position = Vector2.ZERO
 	_flow.add_child(item)
-	if item.kind == DragItem.TEN:
-		var tens_before: int = 0
-		for existing: Node in _flow.get_children():
-			if existing != item and existing is DragItem and (existing as DragItem).kind == DragItem.TEN:
-				tens_before += 1
-		_flow.move_child(item, tens_before)
+	var ahead: int = 0
+	for existing: Node in _flow.get_children():
+		if existing != item and existing is DragItem and _rank((existing as DragItem).kind) <= _rank(item.kind):
+			ahead += 1
+	_flow.move_child(item, ahead)
 	_refresh()
 	changed.emit()
 	return true
+
+
+## Sort order inside the tray: hundreds, tens, ones.
+static func _rank(kind: StringName) -> int:
+	match kind:
+		DragItem.HUNDRED:
+			return 0
+		DragItem.TEN:
+			return 1
+	return 2
 
 
 ## Takes an item out (the caller owns it afterwards).
@@ -85,9 +94,9 @@ func items() -> Array[DragItem]:
 	return result
 
 
-## How many items of each kind are in the tray, e.g. {ten: 3, one: 4}.
+## How many items of each kind are in the tray, e.g. {hundred: 0, ten: 3, one: 4}.
 func counts() -> Dictionary:
-	var result: Dictionary = {DragItem.TEN: 0, DragItem.ONE: 0}
+	var result: Dictionary = {DragItem.HUNDRED: 0, DragItem.TEN: 0, DragItem.ONE: 0}
 	for item: DragItem in items():
 		result[item.kind] = int(result.get(item.kind, 0)) + 1
 	return result

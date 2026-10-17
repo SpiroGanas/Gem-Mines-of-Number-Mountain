@@ -165,8 +165,7 @@ func _apply_styles() -> void:
 func _on_resized() -> void:
 	pivot_offset = size * 0.5
 	if _overlay != null:
-		_overlay.size = size
-		_overlay.queue_redraw()
+		_overlay.queue_redraw() # the overlay's full-rect anchors already resize it
 
 
 func _on_wobble_done() -> void:

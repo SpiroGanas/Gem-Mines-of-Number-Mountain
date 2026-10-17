@@ -190,7 +190,7 @@ static func generate(skill: Skill, params: Dictionary, rng: RandomNumberGenerato
 
 Rules: distractors never equal the answer and have no duplicates; each distractor names its misconception; the generator fills `hint_steps` for the four ladder rungs; the same seed always yields the same problem.
 
-- `scripts/generators/registry.gd` (`class_name GeneratorRegistry`) resolves a skill's `generator` string (`"CountingGenerator"` or `"Class.method"`) to a `Callable` once at load time, so later zones add generators as data plus one file. Verify in Godot docs how to obtain a static `Callable` from a `class_name` script in 4.7.
+- `scripts/generators/registry.gd` (`class_name GeneratorRegistry`) maps a skill's `generator` string (`"CountingGenerator"`) to the generator's static `generate` function as a `Callable`, through a table written as `CountingGenerator.generate` (a compile-checked reference), so later zones add one generator file and one table line. As built in Sprint 5 only the class-name form exists, not `"Class.method"`; `GeneratorRegistry.make_problem(skill, seed, overrides)` is the reproducible entry point. See `docs/decisions.md`.
 - `curriculum/misconceptions.json` is the allowed list of distractor misconception names with a one-line parent-facing description each; tests and lint rule 6 reject unknown names.
 - `tests/curriculum/test_skill_graph.gd` mirrors the Python DAG check in GdUnit4 (Sprint 5), so the Godot side also fails on a cycle, a missing prerequisite or an unresolvable generator.
 - Test helpers (`tests/helpers/input_sim.gd`, Sprint 4): `InputRouter.simulate_tap(pos)` and `InputRouter.simulate_drag(from, to)` feed synthetic `InputEventScreenTouch` / `InputEventScreenDrag` events so scene tests run headless.

@@ -49,7 +49,7 @@ func test_the_tray_counts_pieces_by_kind() -> void:
 	_board.tray().add_item(DragItem.make(DragItem.TEN))
 	_board.tray().add_item(DragItem.make(DragItem.TEN))
 	_board.tray().add_item(DragItem.make(DragItem.ONE))
-	assert_dict(_board.tray().counts()).is_equal({DragItem.TEN: 2, DragItem.ONE: 1})
+	assert_dict(_board.tray().counts()).is_equal({DragItem.HUNDRED: 0, DragItem.TEN: 2, DragItem.ONE: 1})
 	assert_dict(_board.answer()).is_equal({"tens": 2, "ones": 1})
 
 
@@ -243,3 +243,82 @@ func test_the_board_has_no_text_field_and_stops_listening_when_removed() -> void
 	_host.remove_child(_board)
 	_board.queue_free()
 	assert_int(_router.pointer_down.get_connections().size()).is_equal(count_before - 1)
+
+
+# --- Hundreds, a pre-filled tray and tap to remove (Sprint 5) -------------------------
+
+
+func _board_with(tools: Array[StringName], initial: Dictionary) -> BuildBoard:
+	var board: BuildBoard = load(BOARD_SCENE).instantiate()
+	board.router = _router
+	board.tools = tools
+	board.initial = initial
+	board.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var host: Control = auto_free(Control.new())
+	host.size = Vector2(1400, 1000)
+	add_child(host)
+	host.add_child(board)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	return board
+
+
+func test_a_hundred_pile_adds_hundreds_to_the_answer() -> void:
+	var board: BuildBoard = await _board_with([DragItem.HUNDRED, DragItem.TEN, DragItem.ONE], {})
+	assert_dict(board.answer()).is_equal({"tens": 0, "ones": 0, "hundreds": 0})
+	InputSim.tap(_router, _center(board.source(DragItem.HUNDRED)))
+	InputSim.tap(_router, _center(board.source(DragItem.TEN)))
+	InputSim.tap(_router, _center(board.source(DragItem.ONE)))
+	InputSim.tap(_router, _center(board.source(DragItem.ONE)))
+	assert_dict(board.answer()).is_equal({"hundreds": 1, "tens": 1, "ones": 2})
+	var kinds: Array[StringName] = []
+	for item: DragItem in board.tray().items():
+		kinds.append(item.kind)
+	assert_array(kinds).contains_exactly([DragItem.HUNDRED, DragItem.TEN, DragItem.ONE, DragItem.ONE]) # always in order
+
+
+func test_a_board_without_a_hundred_pile_has_no_hundreds_key() -> void:
+	assert_bool(_board.answer().has("hundreds")).is_false()
+	assert_bool(_board.source(DragItem.TEN) != null).is_true()
+
+
+func test_the_tray_can_start_filled_for_regrouping() -> void:
+	var board: BuildBoard = await _board_with([DragItem.TEN, DragItem.ONE], {"tens": 3, "ones": 13})
+	assert_dict(board.answer()).is_equal({"tens": 3, "ones": 13})
+
+
+func test_regrouping_by_tapping_pieces_out_and_a_bar_in() -> void:
+	var board: BuildBoard = await _board_with([DragItem.TEN, DragItem.ONE], {"tens": 3, "ones": 13})
+	for i: int in 10:
+		var piece: DragItem = board.tray().items().back() # the last one is a gem
+		InputSim.tap(_router, piece.get_global_rect().get_center())
+	InputSim.tap(_router, _center(board.source(DragItem.TEN)))
+	assert_dict(board.answer()).is_equal({"tens": 4, "ones": 3}) # 43 before and after: nothing was lost
+
+
+func test_tapping_a_placed_piece_removes_it_and_announces_it() -> void:
+	_drag_from_pile(DragItem.ONE)
+	await get_tree().process_frame
+	var removed: Array[StringName] = []
+	_board.item_removed.connect(func(kind: StringName) -> void: removed.append(kind))
+	var piece: DragItem = _board.tray().items()[0]
+	InputSim.tap(_router, piece.get_global_rect().get_center())
+	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 0})
+	assert_array(removed).contains_exactly([DragItem.ONE])
+
+
+func test_the_hundred_block_is_big_and_worth_a_hundred() -> void:
+	var block: DragItem = auto_free(DragItem.make(DragItem.HUNDRED))
+	add_child(block)
+	assert_int(block.value()).is_equal(100)
+	assert_float(block.custom_minimum_size.x).is_greater_equal(float(UI.min_target_px()) * 2.0)
+
+
+func test_a_gem_next_to_a_ten_bar_keeps_its_own_square_size() -> void:
+	# Regression: a flow container used to stretch gems to the height of the ten-bars in their row.
+	var board: BuildBoard = await _board_with([DragItem.TEN, DragItem.ONE], {"tens": 2, "ones": 3})
+	await get_tree().process_frame
+	for item: DragItem in board.tray().items():
+		if item.kind == DragItem.ONE:
+			assert_float(item.size.y).is_equal_approx(item.custom_minimum_size.y, 1.0)
+			assert_float(item.size.y).is_equal_approx(item.size.x, 1.0)

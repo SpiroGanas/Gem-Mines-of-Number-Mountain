@@ -37,6 +37,13 @@ jobs:
       - name: Run GdUnit4 suites
         run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -c -a res://tests
 
+      # Godot exports 10,000 seeded problems per built generator as JSON lines and the Python
+      # checkers (tools/crosscheck/checkers/, which share no code with the generators)
+      # recompute every answer and distractor from that JSON. Exit code 3 means Godot has not
+      # built the project yet, so it must come after the import step above.
+      - name: Cross-check problem generators in Python
+        run: python3 tools/crosscheck/run.py --all --n 10000
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4

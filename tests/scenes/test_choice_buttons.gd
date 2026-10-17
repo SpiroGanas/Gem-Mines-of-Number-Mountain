@@ -111,3 +111,19 @@ func test_setup_again_replaces_the_buttons() -> void:
 	_choices.setup(_options([1, 2, 3, 4]), _rng(1))
 	_choices.setup(_options([8, 9]), _rng(1))
 	assert_int(_choices.button_count()).is_equal(2)
+
+
+func test_four_wide_answers_wrap_instead_of_running_off_the_edge() -> void:
+	TestWindow.use_design_size(get_window())
+	var host: Control = auto_free(Control.new())
+	host.size = Vector2(700, 400) # narrower than four buttons side by side
+	add_child(host)
+	var choices: ChoiceButtons = load(SCENE).instantiate()
+	choices.set_anchors_preset(Control.PRESET_FULL_RECT)
+	host.add_child(choices)
+	choices.setup(_options(["106, 98", "96, 98", "97, 99", "62, 64"]), _rng(3))
+	await get_tree().process_frame
+	await get_tree().process_frame
+	for index: int in 4:
+		assert_bool(host.get_global_rect().encloses(choices.button(index).get_global_rect())).override_failure_message("button %d runs outside" % index).is_true()
+	TestWindow.restore(get_window())

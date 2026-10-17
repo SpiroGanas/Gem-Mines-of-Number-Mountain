@@ -6,7 +6,11 @@
 ##   - drag from a pile into the tray to add a piece;
 ##   - drag a piece out of the tray (drop it anywhere outside) to remove it;
 ##   - tap a pile to add one piece without dragging (a kind shortcut for small hands).
-## The board never scores anything. It reports {tens, ones} through `submitted`.
+## Optional pieces: `tools` picks which piles exist (add &"hundred" for numbers over 99) and
+## `initial` starts the tray filled, for regrouping ({tens: 3, ones: 13}). Set both before the
+## board enters the scene tree. Tapping a piece that is already in the tray removes it.
+## The board never scores anything. It reports {tens, ones} (plus hundreds when there is a
+## hundred pile) through `submitted`.
 class_name BuildBoard
 extends VBoxContainer
 
@@ -22,6 +26,10 @@ const TAP_SLOP_PX: float = 14.0
 
 ## The pointer source. Defaults to the InputRouter autoload; tests inject their own.
 var router: Node
+## Which piles to offer, left to right.
+var tools: Array[StringName] = [DragItem.TEN, DragItem.ONE]
+## Pieces to start with in the tray, e.g. {hundreds: 0, tens: 3, ones: 13}. Missing keys mean 0.
+var initial: Dictionary = {}
 
 var _tray: DragTarget
 var _done_button: Button
@@ -45,8 +53,9 @@ func _ready() -> void:
 	sources.alignment = BoxContainer.ALIGNMENT_CENTER
 	sources.add_theme_constant_override(&"separation", 64)
 	add_child(sources)
-	_sources[DragItem.TEN] = _make_source(DragItem.TEN, &"z1.build.source_ten", sources)
-	_sources[DragItem.ONE] = _make_source(DragItem.ONE, &"z1.build.source_one", sources)
+	var labels: Dictionary = {DragItem.HUNDRED: &"z1.build.source_hundred", DragItem.TEN: &"z1.build.source_ten", DragItem.ONE: &"z1.build.source_one"}
+	for kind: StringName in tools:
+		_sources[kind] = _make_source(kind, labels[kind], sources)
 	_done_button = Button.new()
 	_done_button.text = Text.get_line(&"ui.mine.done")
 	_done_button.theme_type_variation = &"GoButton"
@@ -63,6 +72,7 @@ func _ready() -> void:
 	router.pointer_down.connect(_on_pointer_down)
 	router.pointer_move.connect(_on_pointer_move)
 	router.pointer_up.connect(_on_pointer_up)
+	_fill_tray(initial)
 	set_enabled(_enabled)
 
 
@@ -86,10 +96,13 @@ func source(kind: StringName) -> Control:
 	return _sources[kind]
 
 
-## The answer as the tray stands: {tens, ones}.
+## The answer as the tray stands: {tens, ones}, plus hundreds when there is a hundred pile.
 func answer() -> Dictionary:
 	var counts: Dictionary = _tray.counts()
-	return {"tens": counts[DragItem.TEN], "ones": counts[DragItem.ONE]}
+	var result: Dictionary = {"tens": counts[DragItem.TEN], "ones": counts[DragItem.ONE]}
+	if tools.has(DragItem.HUNDRED):
+		result["hundreds"] = counts[DragItem.HUNDRED]
+	return result
 
 
 func is_dragging() -> bool:
@@ -107,6 +120,13 @@ func set_enabled(enabled: bool) -> void:
 func submit() -> void:
 	if _enabled:
 		submitted.emit(answer())
+
+
+func _fill_tray(pieces: Dictionary) -> void:
+	for kind: StringName in [DragItem.HUNDRED, DragItem.TEN, DragItem.ONE]:
+		var key: String = {DragItem.HUNDRED: "hundreds", DragItem.TEN: "tens", DragItem.ONE: "ones"}[kind]
+		for i: int in int(pieces.get(key, 0)):
+			_tray.add_item(DragItem.make(kind))
 
 
 func _make_source(kind: StringName, line_id: StringName, parent: Control) -> Control:
@@ -159,6 +179,11 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 	var item: DragItem = _dragging
 	_dragging = null
 	var is_tap: bool = pos.distance_to(_down_position) <= TAP_SLOP_PX
+	if _from_tray and is_tap:
+		# A tap on a piece already in the tray takes it out.
+		item_removed.emit(item.kind)
+		item.queue_free()
+		return
 	var over_tray: bool = _tray.contains_point(pos)
 	if _down_source != &"" and is_tap:
 		over_tray = true # tapping a pile adds one piece

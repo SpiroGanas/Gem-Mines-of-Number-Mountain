@@ -4,7 +4,7 @@
 ## always shows the same order (tests rely on it) and the right answer is not always first.
 ## It never knows which option is right; the host compares the chosen value.
 class_name ChoiceButtons
-extends HBoxContainer
+extends HFlowContainer
 
 ## An option was tapped. `value` is the option's value as given to setup().
 signal chosen(value: Variant)
@@ -20,8 +20,10 @@ var _enabled: bool = true
 
 
 func _ready() -> void:
-	alignment = BoxContainer.ALIGNMENT_CENTER
-	add_theme_constant_override(&"separation", 24)
+	# A flow container wraps to a second row when four buttons do not fit one.
+	alignment = FlowContainer.ALIGNMENT_CENTER
+	add_theme_constant_override(&"h_separation", 24)
+	add_theme_constant_override(&"v_separation", 24)
 
 
 ## options: [{value: Variant, label: String}]. The labels are already child-facing text

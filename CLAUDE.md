@@ -100,18 +100,19 @@ project.godot
 autoload/            # Singletons: Text, SaveSystem, Adaptive, Rewards, InputRouter, UI (Narration and Profiles arrive in Phase 3)
 scenes/
   shell/             # title, hub, pause, settings, parent_area/
-  mine/              # rock wall, rock, cart, Bolt
-  input/             # NumberPad, ChalkSlate, DragTarget
+  mine/              # mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
+  input/             # NumberPad, BuildBoard, DragTarget, DragItem, ChoiceButtons, ChalkSlate (Phase 2)
   workshop/          # crafting, museum, builds/
   zones/z01_pebble_meadow/ … z12_infinite_core/
 scripts/
   generators/        # one file per skill family; pure logic, no nodes
   adaptive/          # bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd
-  save/              # save_system.gd, migrations/
-  core/              # Problem, Skill, Attempt resource classes
+  save/              # schema, migrator, store, migrations/
+  core/              # Problem, Skill, SkillCatalog, Attempt, DigFlow, ProblemSource, JsonUtil, SfxBank
+  ui/                # ExplorerTheme (theme built in code)
 curriculum/
   skills/zNN_*.json  # skill graph: id, prereqs, generator, params, representations, terms
-  vocabulary.json
+  vocabulary.json  misconceptions.json  bkt_defaults.json
 text/
   lines.csv          # id, text, context, voice_version (voice_version used from Phase 3)
 narration/
@@ -119,9 +120,9 @@ narration/
 assets/              # art, fonts (Andika), sfx, music. Every file needs a LICENSE entry in assets/CREDITS.md.
 addons/              # gdUnit4, digit_ink (built AAR)
 android/plugins/digit_ink/   # Kotlin plugin source (Gradle project)
-tests/               # GdUnit4 tests mirroring scripts/ and scenes/
+tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
-  voice/  crosscheck/  bkt/  handwriting/  ci/
+  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/
 docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, privacy-policy.md
 private/             # GITIGNORED: Charlie's exported logs and handwriting samples. Never commit or upload.
 ```
@@ -140,13 +141,15 @@ Set `GODOT` to the pinned Godot 4.7 executable (e.g., `export GODOT="/c/Tools/Go
 "$GODOT" --headless --path . --import
 
 # Run all Godot tests (GdUnit4). CI and other headless runs add: --headless --ignoreHeadlessMode
-GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh -a res://tests        # Git Bash
-# Windows cmd alternative: set GODOT_BIN=... && addons\gdUnit4\runtest.cmd -a res://tests
+# -c continues after a failure (otherwise a suite stops at its first failing test)
+GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh -c -a res://tests        # Git Bash
+# Windows cmd alternative: set GODOT_BIN=... && addons\gdUnit4\runtest.cmd -c -a res://tests
 
 # Run one test suite
 GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh -a res://tests/generators/test_place_value.gd
 
-# Python tools tests and the independent math cross-check (10,000 problems per generator)
+# Python tools tests and the independent math cross-check (10,000 problems per generator;
+# the cross-check needs GODOT set and the project imported once)
 python -m pytest tools
 python tools/crosscheck/run.py --all --n 10000
 
@@ -293,6 +296,8 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 - Zones 1–3: counting, place value, regrouping, addition and subtraction within 100, skip counting, even/odd, arrays.
 - Dig loop, BKT engine, kid-friendly text, rewards v1, parent dashboard v1.
 - Tap, drag and number-pad input.
+
+**Built so far (through Sprint 5):** shell and screens, `Text`, `UI`, `InputRouter`, `SaveSystem`, `NumberPad`, the drag board, the dig loop with placeholder art and sound, the skill map, and the Zone 1 generators with their cross-check. `ProblemSource` is a stand-in for the Adaptive engine (Sprint 6). Zones 2 and 3 generators arrive in Sprints 7 and 9. Decisions waiting on Spiro are marked "Needs Spiro" in `docs/decisions.md`.
 
 **Out of scope until after the MVP:** narration and the voice pipeline (Phase 3), handwriting, crafting, Zones 4–12, cross-device sync, profiles, public release. Don't build ahead of the current sprint; add ideas to the backlog instead.
 
