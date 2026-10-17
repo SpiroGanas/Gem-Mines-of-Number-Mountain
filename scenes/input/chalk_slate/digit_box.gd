@@ -2,7 +2,8 @@
 ##
 ## Listens to InputRouter's stroke signals (which already drop a resting palm, so the box never has
 ## to), draws the strokes like chalk in _draw(), and hands them out normalized to the box (0..1) for
-## a Recognizer. The strokes live only in memory, only so the child can see what they wrote; they are
+## a Recognizer. Points are kept normalized, so a posture change that resizes the box mid-stroke only
+## rescales the drawing; it never distorts or loses it. The strokes live only in memory, only so the child can see what they wrote; they are
 ## never saved, and clear() (or freeing the box) discards them (CLAUDE.md rule 2).
 ##
 ## Godot note: _draw() is called by the engine whenever queue_redraw() has been asked for; it draws
@@ -32,6 +33,7 @@ const FLAGGED_EDGE: Color = Color("#FFD166")
 ## The stroke source. Defaults to the InputRouter autoload; tests inject their own.
 var router: Node
 
+## Points normalized to the box (0..1, y down).
 var _strokes: Array[PackedVector2Array] = []
 var _current: PackedVector2Array = PackedVector2Array()
 var _drawing: bool = false
@@ -77,12 +79,8 @@ func has_ink() -> bool:
 ## The strokes normalized to the box: x and y from 0 to 1, y down. A copy; the box keeps its own.
 func strokes() -> Array[PackedVector2Array]:
 	var result: Array[PackedVector2Array] = []
-	var box: Vector2 = Vector2(maxf(size.x, 1.0), maxf(size.y, 1.0))
 	for stroke: PackedVector2Array in _strokes:
-		var line: PackedVector2Array = PackedVector2Array()
-		for point: Vector2 in stroke:
-			line.append(point / box)
-		result.append(line)
+		result.append(stroke.duplicate())
 	return result
 
 
@@ -122,8 +120,14 @@ func _accepts_pointer() -> bool:
 	return _enabled and is_visible_in_tree() and can_process()
 
 
+## `pos` (a point on the screen) in box pixels.
 func _local(pos: Vector2) -> Vector2:
 	return get_global_transform().affine_inverse() * pos
+
+
+## A box-pixel point as a fraction of the box.
+func _normalized(local: Vector2) -> Vector2:
+	return local / Vector2(maxf(size.x, 1.0), maxf(size.y, 1.0))
 
 
 func _on_stroke_started(pos: Vector2, _pressure: float, _is_pen: bool) -> void:
@@ -133,7 +137,7 @@ func _on_stroke_started(pos: Vector2, _pressure: float, _is_pen: bool) -> void:
 	if not Rect2(Vector2.ZERO, size).has_point(local):
 		return
 	_drawing = true
-	_current = PackedVector2Array([local])
+	_current = PackedVector2Array([_normalized(local)])
 	queue_redraw()
 
 
@@ -141,10 +145,11 @@ func _on_stroke_moved(pos: Vector2, _pressure: float) -> void:
 	if not _drawing or not _accepts_pointer():
 		return
 	var local: Vector2 = _local(pos).clamp(Vector2.ZERO, size) # sliding out of the box does not end the stroke
+	var point: Vector2 = _normalized(local)
 	if _current.size() >= MAX_POINTS_PER_STROKE:
-		_current[_current.size() - 1] = local
-	elif local.distance_to(_current[_current.size() - 1]) >= MIN_POINT_DISTANCE:
-		_current.append(local)
+		_current[_current.size() - 1] = point
+	elif local.distance_to(_current[_current.size() - 1] * size) >= MIN_POINT_DISTANCE:
+		_current.append(point)
 	else:
 		return
 	queue_redraw()
@@ -154,9 +159,9 @@ func _on_stroke_ended() -> void:
 	if not _drawing:
 		return
 	_drawing = false
-	var bounds: Rect2 = Rect2(_current[0], Vector2.ZERO)
+	var bounds: Rect2 = Rect2(_current[0] * size, Vector2.ZERO)
 	for point: Vector2 in _current:
-		bounds = bounds.expand(point)
+		bounds = bounds.expand(point * size)
 	if maxf(bounds.size.x, bounds.size.y) >= MIN_STROKE_SIZE:
 		_strokes.append(_current)
 		_flagged = false
@@ -197,7 +202,7 @@ func _draw() -> void:
 
 func _draw_stroke(stroke: PackedVector2Array, width: float) -> void:
 	if stroke.size() >= 2:
-		draw_polyline(stroke, CHALK, width, true)
+		draw_polyline(Transform2D(Vector2(size.x, 0.0), Vector2(0.0, size.y), Vector2.ZERO) * stroke, CHALK, width, true) # scales every point from 0..1 to pixels
 	if not stroke.is_empty():
-		draw_circle(stroke[0], width / 2.0, CHALK)
-		draw_circle(stroke[stroke.size() - 1], width / 2.0, CHALK)
+		draw_circle(stroke[0] * size, width / 2.0, CHALK)
+		draw_circle(stroke[stroke.size() - 1] * size, width / 2.0, CHALK)

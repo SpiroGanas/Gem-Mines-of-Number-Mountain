@@ -153,3 +153,16 @@ func test_the_strokes_it_hands_out_are_a_copy() -> void:
 	var copy: Array[PackedVector2Array] = _box.strokes()
 	copy.clear()
 	assert_int(_box.strokes().size()).is_equal(1)
+
+
+func test_resizing_the_box_mid_stroke_rescales_the_drawing_without_losing_or_distorting_it() -> void:
+	var rect: Rect2 = _box.get_global_rect()
+	InputSim.touch(_router, rect.position + rect.size * Vector2(0.2, 0.2), true)
+	InputSim.drag(_router, rect.position + rect.size * Vector2(0.5, 0.5))
+	_box.size = _box.size * 1.5 # a posture change makes the box bigger while the stroke is in progress
+	InputSim.drag(_router, _box.get_global_rect().position + _box.size * Vector2(0.8, 0.8))
+	InputSim.touch(_router, _box.get_global_rect().position + _box.size * Vector2(0.8, 0.8), false)
+	var points: PackedVector2Array = _box.strokes()[0]
+	assert_float(points[0].x).is_equal_approx(0.2, 0.01)
+	assert_float(points[1].y).is_equal_approx(0.5, 0.01) # drawn before the resize, still where it was
+	assert_float(points[points.size() - 1].x).is_equal_approx(0.8, 0.01)
