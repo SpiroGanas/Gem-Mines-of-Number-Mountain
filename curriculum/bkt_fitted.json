@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "fit_date": null,
+  "min_samples": 30,
+  "prior_strength": 5.0,
+  "attempts_read": 0,
+  "skills": {}
+}

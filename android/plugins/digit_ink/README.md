@@ -1,5 +1,9 @@
-# digit_ink: Android handwriting-recognition plugin (Phase 2, Sprint 13)
+# digit_ink: not used
 
-Kotlin Gradle project that exposes on-device digit recognition (LiteRT) to Godot through the Android plugin system. One digit per box; returns `{digit: int, confidence: float}`. Strokes are discarded after recognition and never stored.
+The plan once called for a Kotlin plugin here that ran a LiteRT digit model. On 2026-10-17 Spiro chose to run the network in GDScript instead (`docs/decisions.md`, Sprint 13), so there is no Android plugin, no LiteRT and no ML Kit. Handwriting recognition lives in:
 
-Build with `./gradlew assembleRelease`, then `python tools/ci/copy_plugin.py` copies the AAR into `addons/digit_ink/bin/`. See `docs/phases/phase-2-version-1-0.md`.
+- `scripts/input/` (`StrokeRaster`, `DigitNet`, `NetRecognizer`, `FakeRecognizer`, `DigitInk`)
+- `assets/handwriting/digit_net.json` (the weights)
+- `tools/handwriting/` (training and evaluation, PyTorch, build-time only)
+
+This folder is kept empty on purpose so a plugin could be added later if a device ever needs one.

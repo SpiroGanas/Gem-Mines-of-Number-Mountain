@@ -232,10 +232,10 @@ def test_a_malformed_export_is_a_failure_not_a_crash() -> None:
 # --- Runner ----------------------------------------------------------------------------------
 
 
-def test_runner_knows_the_mvp_skills_and_misconceptions() -> None:
-    assert len(SKILLS) == 45
-    assert len(ALLOWED) == 42
-    assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every MVP generator has a checker
+def test_runner_knows_the_skills_and_misconceptions() -> None:
+    assert len(SKILLS) == 61 # Zones 1-4
+    assert len(ALLOWED) == 58
+    assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every generator has a checker
 
 
 def test_check_file_prefixes_failures_with_skill_and_seed(tmp_path: Path) -> None:
@@ -261,7 +261,7 @@ def test_main_rejects_an_unknown_skill(capsys: pytest.CaptureFixture[str]) -> No
 
 
 def test_a_generator_the_exporter_has_not_got_is_skipped(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], tmp_path: Path) -> None:
-    # Every MVP generator is built, so the skip path (for skills of later zones) is driven directly.
+    # Every generator of Zones 1-4 is built, so the skip path (for skills of later zones) is driven directly.
     monkeypatch.setattr(run, "export", lambda *args: run.EXIT_NOT_BUILT)
     assert run.main(["--skill", "add.to_10.sums", "--n", "5", "--godot", "/bin/true", "--out", str(tmp_path)]) == 0
     assert "skip   add.to_10.sums" in capsys.readouterr().out
@@ -279,8 +279,8 @@ def test_end_to_end_one_skill(tmp_path: Path) -> None:
 
 
 @needs_godot
-def test_end_to_end_every_mvp_skill(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_end_to_end_every_skill(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert run.main(["--all", "--n", "120", "--godot", GODOT, "--out", str(tmp_path)]) == 0
     output = capsys.readouterr().out
-    assert output.count("ok     ") == 45 # Zones 1-3, every skill
+    assert output.count("ok     ") == 61 # Zones 1-4, every skill
     assert "generator not built yet" not in output

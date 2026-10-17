@@ -12,8 +12,16 @@
 ## - Mouse movement only counts as a drag while the left button is held.
 ## - Escape (and Android's back gesture, handled by the Shell) asks for the pause menu.
 ##
-## Palm rejection during pen strokes arrives with the chalk slate in Phase 2; this is
-## the single place it will be added.
+## Strokes (the chalk slate, Sprint 14): stroke_started / stroke_moved / stroke_ended carry the
+## pen pressure for writing. Palm rejection lives here and nowhere else:
+## - while a pen stroke is active, every other touch is a palm and is ignored;
+## - if a palm is already down when the pen arrives, a drag that is clearly a pen (it reports a tilt
+##   or the eraser end) takes the stroke over: the palm's stroke is cancelled (stroke_cancelled, and
+##   pointer_up so nothing is left held) and the pen starts a fresh one.
+## How a ChromeOS stylus arrives is still unverified on the real devices (docs/decisions.md,
+## Sprint 1): a stylus may come as touch with pressure, or as mouse motion with pressure. Both paths
+## are handled; the takeover needs the stronger tilt or eraser signal so a finger is never mistaken
+## for a pen.
 extends Node
 
 enum DeviceKind { TOUCH, PEN, MOUSE, KEYBOARD }
@@ -27,13 +35,29 @@ signal device_kind_changed(kind: DeviceKind)
 signal posture_changed(size: Vector2i)
 ## Escape was pressed.
 signal pause_requested
+## A stroke began at `pos`. `is_pen` is a best guess from the device (a finger or a mouse is false;
+## a pen is only known once its first drag arrives, so it can be false here and true after).
+signal stroke_started(pos: Vector2, pressure: float, is_pen: bool)
+## The stroke moved to `pos`. `pressure` is 0..1 (1.0 for a finger or mouse).
+signal stroke_moved(pos: Vector2, pressure: float)
+## The stroke ended normally (finger, pen or mouse lifted).
+signal stroke_ended
+## The stroke was not the child's: a resting palm that a pen took over from. Drop it.
+signal stroke_cancelled
 
 const NO_TOUCH: int = -1
+
+## True while a pen (not a finger or mouse) is drawing. Other touches are palms and are ignored.
+var pen_stroke_active: bool = false
 
 var _last_kind: DeviceKind = DeviceKind.TOUCH
 var _mouse_seen: bool = false
 var _active_touch: int = NO_TOUCH
+var _active_position: Vector2 = Vector2.ZERO
 var _mouse_down: bool = false
+## Touches that came down while another was active: index -> where. Ignored unless a pen drag proves
+## one is the pen (then it takes over from a palm).
+var _waiting_touches: Dictionary[int, Vector2] = {}
 
 
 func _ready() -> void:
@@ -72,35 +96,77 @@ func process_event(event: InputEvent) -> void:
 
 func _handle_touch(event: InputEventScreenTouch) -> void:
 	if event.pressed:
-		if _active_touch != NO_TOUCH:
-			return # a second finger: ignore
-		_active_touch = event.index
-		_set_kind(DeviceKind.TOUCH)
-		pointer_down.emit(event.position, DeviceKind.TOUCH, event.index)
+		if _active_touch != NO_TOUCH or _mouse_down or pen_stroke_active:
+			_waiting_touches[event.index] = event.position # a second finger or a palm: ignore, but remember
+			return
+		_start_touch(event.index, event.position)
 	elif event.index == _active_touch:
 		_active_touch = NO_TOUCH
-		pointer_up.emit(event.position, DeviceKind.TOUCH, event.index)
+		pen_stroke_active = false
+		_waiting_touches.clear()
+		pointer_up.emit(event.position, _last_kind if _last_kind == DeviceKind.PEN else DeviceKind.TOUCH, event.index)
+		stroke_ended.emit()
+	else:
+		_waiting_touches.erase(event.index)
+
+
+func _start_touch(index: int, position: Vector2) -> void:
+	_active_touch = index
+	_active_position = position
+	_set_kind(DeviceKind.TOUCH)
+	pointer_down.emit(position, DeviceKind.TOUCH, index)
+	stroke_started.emit(position, 1.0, false)
 
 
 func _handle_drag(event: InputEventScreenDrag) -> void:
+	var is_pen: bool = _looks_like_pen(event.pressure, event.tilt, event.pen_inverted)
 	if event.index != _active_touch:
-		return
-	var kind: DeviceKind = DeviceKind.PEN if _looks_like_pen(event.pressure, event.tilt, event.pen_inverted) else DeviceKind.TOUCH
+		# A waiting touch that proves to be the pen takes the stroke from a resting palm.
+		if _waiting_touches.has(event.index) and not pen_stroke_active and _is_clearly_pen(event.tilt, event.pen_inverted):
+			_take_over(event.index)
+		else:
+			return
+	var kind: DeviceKind = DeviceKind.PEN if is_pen else DeviceKind.TOUCH
+	if kind == DeviceKind.PEN:
+		pen_stroke_active = true
 	_set_kind(kind)
+	_active_position = event.position
 	pointer_move.emit(event.position, kind, event.index)
+	stroke_moved.emit(event.position, event.pressure if is_pen else 1.0)
+
+
+## The pen at `index` replaces the stroke of whatever touch was active (a palm).
+func _take_over(index: int) -> void:
+	var start: Vector2 = _waiting_touches.get(index, _active_position)
+	if _active_touch != NO_TOUCH:
+		pointer_up.emit(_active_position, DeviceKind.TOUCH, _active_touch)
+		stroke_cancelled.emit()
+	_waiting_touches.erase(index)
+	_active_touch = index
+	_active_position = start
+	pen_stroke_active = true
+	_set_kind(DeviceKind.PEN)
+	pointer_down.emit(start, DeviceKind.PEN, index)
+	stroke_started.emit(start, 1.0, true)
 
 
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
 	if event.device == InputEvent.DEVICE_ID_EMULATION or event.button_index != MOUSE_BUTTON_LEFT:
 		return
 	_mouse_seen = true
-	_set_kind(DeviceKind.MOUSE)
 	if event.pressed:
+		if _active_touch != NO_TOUCH:
+			return # a touch is already drawing: this mouse press is a palm or a second device
+		_set_kind(DeviceKind.MOUSE)
 		_mouse_down = true
 		pointer_down.emit(event.position, DeviceKind.MOUSE, 0)
+		stroke_started.emit(event.position, 1.0, false)
 	elif _mouse_down:
 		_mouse_down = false
-		pointer_up.emit(event.position, DeviceKind.MOUSE, 0)
+		var was_pen: bool = pen_stroke_active
+		pen_stroke_active = false
+		pointer_up.emit(event.position, DeviceKind.PEN if was_pen else DeviceKind.MOUSE, 0)
+		stroke_ended.emit()
 
 
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
@@ -109,9 +175,13 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	_mouse_seen = true
 	if not _mouse_down:
 		return
-	var kind: DeviceKind = DeviceKind.PEN if _looks_like_pen(event.pressure, event.tilt, event.pen_inverted) else DeviceKind.MOUSE
+	var is_pen: bool = _looks_like_pen(event.pressure, event.tilt, event.pen_inverted)
+	var kind: DeviceKind = DeviceKind.PEN if is_pen else DeviceKind.MOUSE
+	if is_pen:
+		pen_stroke_active = true # a stylus delivered as mouse motion: touches while it draws are palms
 	_set_kind(kind)
 	pointer_move.emit(event.position, kind, 0)
+	stroke_moved.emit(event.position, event.pressure if is_pen else 1.0)
 
 
 func _handle_key(event: InputEventKey) -> void:
@@ -130,6 +200,12 @@ func _handle_key(event: InputEventKey) -> void:
 ## PEN is treated exactly like TOUCH by every consumer.
 func _looks_like_pen(pressure: float, tilt: Vector2, inverted: bool) -> bool:
 	return inverted or tilt != Vector2.ZERO or (pressure > 0.0 and pressure < 1.0)
+
+
+## A drag that can only come from a pen: it reports a tilt, or the eraser end. Pressure alone is not
+## enough, because some touch screens report a fractional pressure for a finger.
+func _is_clearly_pen(tilt: Vector2, inverted: bool) -> bool:
+	return inverted or tilt != Vector2.ZERO
 
 
 func _set_kind(kind: DeviceKind) -> void:

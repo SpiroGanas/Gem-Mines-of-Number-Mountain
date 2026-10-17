@@ -25,18 +25,19 @@ SKILL_ID_RE = re.compile(r"^[a-z][a-z0-9]*\.[a-z0-9_]+\.[a-z0-9_]+$")
 SNAKE_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 ZONE_FILE_RE = re.compile(r"^z(\d{2})_([a-z0-9_]+)\.json$")
 
-# String check only (Sprint 2): the generator classes planned for Zones 1-3.
+# String check only (Sprint 2): the generator classes planned for Zones 1-4.
 # tests/curriculum/test_skill_graph.gd checks real resolution from Sprint 5 on.
 KNOWN_GENERATORS = frozenset({
     "CountingGenerator", "CompareGenerator", "PlaceValueGenerator", "RegroupGenerator",
     "AdditionGenerator", "SubtractionGenerator", "FactFamilyGenerator",
     "MissingPartGenerator", "BalanceGenerator",
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
+    "MultFactsGenerator", "DivFactsGenerator", "FactorsGenerator", "MultiplesGenerator", "PrimeCompositeGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
 WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs"})
-ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard"})
+ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
 ZONE_STATUSES = frozenset({"detailed", "outline"})
 ZONE_COUNT = 12
@@ -244,6 +245,9 @@ def check_skill_map(
                 errors.append(f"{where}: {key} must be a non-empty list without duplicates")
             elif not set(values) <= allowed_values:
                 errors.append(f"{where}: {key} has unknown values {sorted(set(values) - allowed_values)}")
+        if _is_str_list(skill["answer_modes"]) and "handwriting" in skill["answer_modes"] and not (
+                {"number_pad", "keyboard"} & set(skill["answer_modes"])):
+            errors.append(f"{where}: handwriting replaces the number pad, so the skill must also list number_pad")
         if not _is_str_list(skill["terms"]):
             errors.append(f"{where}: terms must be a list of term ids")
         else:

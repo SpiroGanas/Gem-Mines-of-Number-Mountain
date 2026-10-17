@@ -39,6 +39,7 @@ Every file under `assets/` needs an entry here before it is committed. Record th
 | `assets/fonts/andika/Andika-Regular.ttf` | Child-facing text font (every Label, Button and Bolt's bubble) | Andika 6.200, SIL International, https://github.com/silnrsi/font-andika/releases/tag/v6.200 | SIL Open Font License 1.1 (Reserved Font Names "Andika" and "SIL") | Approved by Spiro 2026-10-17 (`docs/sdk-audit.md`) |
 | `assets/fonts/andika/Andika-Bold.ttf` | Bold for the highlighted numbers in Bolt's bubble (hint rung 1) | Same release | SIL Open Font License 1.1 | Same |
 | `assets/fonts/andika/OFL.txt` | The font license, shipped with the fonts as the OFL requires | Same release | SIL Open Font License 1.1 | |
+| `assets/handwriting/digit_net.json` | The digit-reading network's weights (about 52,000 numbers; no pictures) | Project-trained by `tools/handwriting/train.py` (PyTorch, build-time only) from the MNIST handwritten-digit database, by Yann LeCun, Corinna Cortes and Christopher J.C. Burges, http://yann.lecun.com/exdb/mnist/ (training pictures were fetched at build time and are not in the repository or the app) | Weights: Project. MNIST is distributed under CC BY-SA 3.0 | **Needs Spiro:** whether weights trained on a CC BY-SA dataset carry the share-alike condition is not settled; credit is given here, and a legal check is advised before the public release (Phase 3). Retraining with Charlie's captured digits does not remove MNIST's contribution. See `docs/decisions.md`, Sprint 13 |
 
 ## Selected sources (chosen in Sprint 2)
 

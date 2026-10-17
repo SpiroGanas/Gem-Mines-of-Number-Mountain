@@ -105,6 +105,50 @@ static func number_line(low: int, high: int, labeled_every: int, markers: Array[
 	return {"type": "number_line", "min": low, "max": high, "labeled_every": labeled_every, "markers": markers, "blanks": blanks}
 
 
+## A rows x cols array of gems (1 to 10 each); `outline_rows` rings each row.
+static func array_picture(rows: int, cols: int, outline_rows: bool = false) -> Dictionary:
+	var picture: Dictionary = {"type": "array", "rows": rows, "cols": cols}
+	if outline_rows:
+		picture["outline_rows"] = true
+	return picture
+
+
+## A number line from 0 to groups * size with one hop of `size` for each group, labeled every `size`
+## (skip counting). `markers` are values to point at.
+static func hops_line(groups: int, size: int, markers: Array[int] = []) -> Dictionary:
+	var line: Dictionary = number_line(0, groups * size, size, markers, [])
+	var jumps: Array[Dictionary] = []
+	for index: int in groups:
+		jumps.append({"from": index * size, "to": (index + 1) * size})
+	line["jumps"] = jumps
+	return line
+
+
+## meta.label_lines for a yes/no answer (the answer is a bool): "Yes" and "No" on the buttons.
+static func yes_no_labels() -> Dictionary:
+	return {"true": "ui.common.yes", "false": "ui.common.no"}
+
+
+## An untyped list of whole numbers as an Array[int] (Array.slice and friends lose the type).
+static func ints_of(values: Array) -> Array[int]:
+	var result: Array[int] = []
+	for value: Variant in values:
+		result.append(int(value))
+	return result
+
+
+## How many different numbers are on a tile board holding `answer` and every distractor so far,
+## and `extra` (a candidate wrong answer). The tile board holds at most 8 tiles.
+static func pool_size_with(problem: Problem, extra: Array) -> int:
+	var seen: Dictionary = {}
+	var answers: Array = [problem.answer, extra]
+	answers.append_array(problem.distractor_values())
+	for answer: Variant in answers:
+		for item: Variant in answer:
+			seen[int(item)] = true
+	return seen.size()
+
+
 ## A line window that holds every value in `values`, rounded out to whole tens (at least 10 wide).
 static func window_around(values: Array[int], floor_at: int = 0, ceiling_at: int = 120) -> Vector2i:
 	var low: int = values.min()

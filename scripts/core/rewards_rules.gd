@@ -14,6 +14,11 @@ extends RefCounted
 const COINS_FIRST_TRY: int = 2
 const COINS_AFTER_HINT: int = 1
 const MASTERY_GEM: StringName = &"amethyst"
+## From this zone on, a rock whose problem is about one number (`n`) can pay a rare gem for it.
+const RARE_FROM_ZONE: int = 4
+const RARE_NUMBERS_PATH: String = "res://curriculum/rare_numbers.json"
+
+static var _mersenne: Array[int] = []
 
 ## Museum minerals found through learning, in the order a child usually reaches them. Each needs
 ## either `mastered` skills in all, or every skill of a `zone` mastered.
@@ -42,12 +47,59 @@ static func coins_for_rock(first_try: bool) -> int:
 
 ## Pays one cracked rock: coins, one gem of the zone's type, and today's lantern.
 ## Returns {coins: int, gem: StringName, lantern_lit: bool}.
-static func pay_rock(rewards: Dictionary, zone: int, first_try: bool, today: String) -> Dictionary:
+## `value` is the number the rock's problem is about (0 when it has none); from Zone 4 on it can make
+## the gem a rare one (gem_for_rock). Returns {coins, gem, count, lantern_lit}; a twin gem drops as a
+## linked pair, so `count` is 2 for it and 1 for every other gem.
+static func pay_rock(rewards: Dictionary, zone: int, first_try: bool, today: String, value: int = 0) -> Dictionary:
 	var coins: int = coins_for_rock(first_try)
 	rewards["coins"] = int(rewards.get("coins", 0)) + coins
-	var gem: StringName = GemArt.gem_for_zone(zone)
-	add_gem(rewards, gem)
-	return {"coins": coins, "gem": gem, "lantern_lit": light_lantern(rewards, today)}
+	var gem: StringName = gem_for_rock(zone, value)
+	var count: int = gems_in_drop(gem)
+	add_gem(rewards, gem, count)
+	return {"coins": coins, "gem": gem, "count": count, "lantern_lit": light_lantern(rewards, today)}
+
+
+## The gem a cracked rock shows and pays: its zone's common gem, or from Zone 4 a rare one for the
+## number its problem is about. Pure and seedless: the same number always gives the same gem.
+static func gem_for_rock(zone: int, value: int) -> StringName:
+	var common: StringName = GemArt.gem_for_zone(zone)
+	if zone >= RARE_FROM_ZONE and value > 0:
+		return gem_for_value(value, common)
+	return common
+
+
+## Rare gems come from rare NUMBERS, never from chance (CLAUDE.md rule 9). The first that applies:
+## a Mersenne prime (3, 7, 31, 127, 8191) is the legendary gem; a prime with a prime two away is a
+## twin gem; any other prime is a prime gem; a perfect square is a square gem; anything else is
+## `common_gem`. tools/crosscheck/rare_numbers.py recomputes every number up to 10,000 independently.
+static func gem_for_value(value: int, common_gem: StringName = GemArt.QUARTZ) -> StringName:
+	if value < 1:
+		return common_gem
+	if mersenne_primes().has(value):
+		return GemArt.MERSENNE
+	if MathUtil.is_prime(value):
+		if MathUtil.is_prime(value - 2) or MathUtil.is_prime(value + 2):
+			return GemArt.TWIN
+		return GemArt.PRIME
+	var root: int = roundi(sqrt(float(value)))
+	if root * root == value:
+		return GemArt.SQUARE
+	return common_gem
+
+
+## How many gems one drop of `gem` adds: a twin gem is a linked pair, the rest are single.
+static func gems_in_drop(gem: StringName) -> int:
+	return 2 if gem == GemArt.TWIN else 1
+
+
+## The Mersenne primes from curriculum/rare_numbers.json (read once).
+static func mersenne_primes() -> Array[int]:
+	if _mersenne.is_empty():
+		var data: Variant = JsonUtil.parse_file(RARE_NUMBERS_PATH)
+		if data is Dictionary:
+			for value: Variant in data.get("mersenne_primes", []):
+				_mersenne.append(int(value))
+	return _mersenne
 
 
 static func add_gem(rewards: Dictionary, gem: StringName, count: int = 1) -> void:

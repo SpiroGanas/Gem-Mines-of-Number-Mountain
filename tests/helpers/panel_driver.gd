@@ -32,6 +32,8 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 				board.put(target[index], index)
 			board.submit()
 			return true
+		AnswerPanel.InputKind.SPLIT:
+			return panel.boulder_split().choose_pair(int(target[0])) # a split gives [smaller, larger]
 		AnswerPanel.InputKind.ARRAY:
 			panel.array_builder().set_array(int(target["rows"]), int(target["cols"]))
 			panel.array_builder().submit()

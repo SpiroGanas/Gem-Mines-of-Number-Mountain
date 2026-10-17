@@ -116,10 +116,10 @@ curriculum/              skill graph JSON (one file per zone), vocabulary.json, 
 text/lines.csv           every child-facing line: id, text, context, voice_version
 narration/audio/         generated narration (Phase 3); never hand-edited
 assets/                  art, fonts, sfx, music; every file credited in assets/CREDITS.md
-addons/                  gdUnit4 (installed), digit_ink (Phase 2)
-android/plugins/digit_ink/   Kotlin handwriting-recognition plugin (Phase 2)
+addons/                  gdUnit4 (installed)
+android/plugins/digit_ink/   empty placeholder (handwriting recognition runs in GDScript: scripts/input/)
 tests/                   GdUnit4 suites mirroring autoload/, scripts/ and scenes/, plus helpers/ (synthetic input, test window)
-tools/                   Python: crosscheck/, ci/, sfx/, music/ (built); bkt/, handwriting/, voice/ (later phases)
+tools/                   Python: crosscheck/, ci/, sfx/, music/, bkt/, handwriting/ (built); voice/ (Phase 3)
 docs/                    development-plan.md, phases/, decisions.md, sdk-audit.md, gdd.md
 private/                 gitignored: exported play logs and handwriting samples; never committed
 ```

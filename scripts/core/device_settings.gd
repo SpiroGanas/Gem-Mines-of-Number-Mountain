@@ -1,4 +1,5 @@
-## Settings that belong to the device, not to the child: the music and sound volumes.
+## Settings that belong to the device, not to the child: the music and sound volumes, and whether
+## handwriting answers are offered on this device.
 ## Kept in user://device_settings.cfg (a Godot ConfigFile), apart from the child's save, so the save
 ## schema does not change and a second child on the same tablet (Phase 3 profiles) shares them.
 ## Levels run 0 (off) to LEVELS; apply() sets the Music and SFX audio buses.
@@ -44,6 +45,18 @@ func set_level(channel: String, value: int) -> void:
 	_config.set_value("audio", channel, clampi(value, 0, LEVELS))
 	_config.save(path)
 	apply()
+
+
+## Handwriting answers (the chalk slate) are offered on this device. On by default; the device still
+## needs a touch screen and the digit network (DigitInk.is_available), so a mouse-only Chromebook
+## never shows the slate whatever this says.
+func handwriting_enabled() -> bool:
+	return bool(_config.get_value("input", "handwriting", true))
+
+
+func set_handwriting_enabled(enabled: bool) -> void:
+	_config.set_value("input", "handwriting", enabled)
+	_config.save(path)
 
 
 ## Sets the audio buses to the saved levels.

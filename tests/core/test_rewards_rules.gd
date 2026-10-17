@@ -9,8 +9,8 @@ func _rewards() -> Dictionary:
 
 func test_a_rock_pays_two_coins_on_the_first_try_one_after_hints_and_one_zone_gem() -> void:
 	var rewards: Dictionary = _rewards()
-	assert_dict(RewardsRules.pay_rock(rewards, 1, true, "2026-12-07")).is_equal({"coins": 2, "gem": &"quartz", "lantern_lit": true})
-	assert_dict(RewardsRules.pay_rock(rewards, 2, false, "2026-12-07")).is_equal({"coins": 1, "gem": &"garnet", "lantern_lit": false})
+	assert_dict(RewardsRules.pay_rock(rewards, 1, true, "2026-12-07")).is_equal({"coins": 2, "gem": &"quartz", "count": 1, "lantern_lit": true})
+	assert_dict(RewardsRules.pay_rock(rewards, 2, false, "2026-12-07")).is_equal({"coins": 1, "gem": &"garnet", "count": 1, "lantern_lit": false})
 	RewardsRules.pay_rock(rewards, 3, true, "2026-12-07")
 	assert_int(rewards["coins"]).is_equal(5)
 	assert_dict(rewards["gems"]).is_equal({"quartz": 1, "garnet": 1, "pyrite": 1})

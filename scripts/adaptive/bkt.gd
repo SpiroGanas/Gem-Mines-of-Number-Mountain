@@ -11,6 +11,11 @@ class_name BKT
 extends RefCounted
 
 const DEFAULTS_PATH: String = "res://curriculum/bkt_defaults.json"
+## Per-skill values fitted offline by tools/bkt/fit.py from a parent-exported play log.
+const FITTED_PATH: String = "res://curriculum/bkt_fitted.json"
+## A skill's fitted values are used only from this many logged first tries up; fewer than that
+## and the defaults of its type stay in charge (a short log cannot pin down four numbers).
+const MIN_FITTED_SAMPLES: int = 30
 const PARAM_KEYS: Array[String] = ["prior", "learn", "guess", "slip"]
 ## A guess can be raised to the item's chance, but never to certainty (the formulas divide by it).
 const MAX_GUESS: float = 0.99
@@ -65,4 +70,29 @@ static func params_for(defaults: Dictionary, bkt_type: StringName) -> Dictionary
 	if source.has("fluency_ms"):
 		params["fluency_ms"] = int(source["fluency_ms"])
 	params["hint_weight"] = float(defaults.get("hint_weight", 0.5))
+	return params
+
+
+## curriculum/bkt_fitted.json as {skill_id: {prior, learn, guess, slip, n, ...}}. A missing or
+## unreadable file is not an error: no fit has been made yet, so every skill uses its defaults.
+static func load_fitted(path: String = FITTED_PATH) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var data: Variant = JsonUtil.parse_file(path)
+	if not data is Dictionary or not data.get("skills") is Dictionary:
+		push_warning("BKT: %s is not a fitted-parameters file; using the defaults" % path)
+		return {}
+	return data["skills"]
+
+
+## One skill's parameters: its fitted values when it has MIN_FITTED_SAMPLES or more (the other
+## fields, fluency_ms and hint_weight, always come from the defaults), else params_for().
+static func params_for_skill(defaults: Dictionary, fitted: Dictionary, skill_id: StringName, bkt_type: StringName) -> Dictionary:
+	var params: Dictionary = params_for(defaults, bkt_type)
+	var entry: Variant = fitted.get(String(skill_id))
+	if not entry is Dictionary or int(entry.get("n", 0)) < MIN_FITTED_SAMPLES:
+		return params
+	for key: String in PARAM_KEYS:
+		if entry.has(key):
+			params[key] = float(entry[key])
 	return params
