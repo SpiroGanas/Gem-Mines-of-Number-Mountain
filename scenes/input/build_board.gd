@@ -84,6 +84,19 @@ func _exit_tree() -> void:
 		router.pointer_up.disconnect(_on_pointer_up)
 
 
+## The pause menu pauses the tree, but the router keeps translating events (Escape must still
+## close the menu) and a signal reaches a paused node. A half-finished drag is dropped, so no
+## piece is left hanging under the menu.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		_cancel_drag()
+
+
+## True while the board may react to the pointer: shown on screen and not paused.
+func _accepts_pointer() -> bool:
+	return is_visible_in_tree() and can_process()
+
+
 func tray() -> DragTarget:
 	return _tray
 
@@ -146,7 +159,7 @@ func _make_source(kind: StringName, line_id: StringName, parent: Control) -> Con
 
 
 func _on_pointer_down(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) -> void:
-	if not _enabled or _dragging != null:
+	if not _enabled or _dragging != null or not _accepts_pointer():
 		return
 	_down_position = pos
 	_down_source = &""

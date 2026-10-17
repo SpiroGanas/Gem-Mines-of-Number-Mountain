@@ -16,6 +16,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	get_tree().paused = false
 	TestWindow.restore(get_window())
 
 
@@ -141,3 +142,18 @@ func test_every_tile_and_slot_is_a_full_touch_target() -> void:
 		assert_float(face.custom_minimum_size.x).is_greater_equal(float(UI.min_target_px()))
 		assert_float(face.custom_minimum_size.y).is_greater_equal(float(UI.min_target_px()))
 	assert_float(board.tile_face("12 - 5 = 7").size.x).is_greater_equal(board.tile_face("12 - 5 = 7").get_minimum_size().x)
+
+
+func test_a_paused_board_ignores_taps_and_drops_the_tile_it_was_dragging() -> void:
+	var board: TileBoard = await _make([4, 5, 6], 2)
+	InputSim.touch(_router, _center(board.tile_face(4)), true)
+	InputSim.drag(_router, _center(board.slot_face(0)))
+	assert_bool(board.is_dragging()).is_true()
+	get_tree().paused = true
+	assert_bool(board.is_dragging()).is_false()
+	InputSim.touch(_router, _center(board.slot_face(0)), false)
+	InputSim.tap(_router, _center(board.tile_face(5)))
+	get_tree().paused = false
+	assert_array(board.placed()).contains_exactly([null, null])
+	InputSim.tap(_router, _center(board.tile_face(5)))
+	assert_array(board.placed()).contains_exactly([5, null])

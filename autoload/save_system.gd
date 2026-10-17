@@ -120,6 +120,11 @@ func export_bundle(path: String) -> Error:
 ## bundle, changes nothing. Details in last_import_report.
 func import_bundle(path: String) -> Error:
 	last_import_report = {"ok": false, "error": "", "replaced": false, "attempts": 0}
+	if _read_only:
+		# The save on disk came from a newer build. Importing would write an older profile over it
+		# (and the next save would then bury the newer one), so the import is refused like any save.
+		last_import_report["error"] = SaveMigrator.ERR_NEWER_VERSION
+		return ERR_UNAVAILABLE
 	var bundle: Variant = JsonUtil.parse_file(path)
 	var problem: String = ProgressBundle.problem_with(bundle)
 	if problem != "":

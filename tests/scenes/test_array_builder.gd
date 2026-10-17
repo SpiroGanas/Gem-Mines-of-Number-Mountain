@@ -13,6 +13,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	get_tree().paused = false
 	TestWindow.restore(get_window())
 
 
@@ -74,3 +75,16 @@ func test_every_cell_is_a_full_touch_target() -> void:
 	var builder: ArrayBuilder = await _make()
 	assert_float(builder.cell(0, 0).custom_minimum_size.x).is_greater_equal(float(UI.min_target_px()))
 	assert_float(builder.cell(4, 4).size.y).is_greater_equal(float(UI.min_target_px()))
+
+
+func test_a_paused_builder_ignores_taps_and_drags() -> void:
+	var builder: ArrayBuilder = await _make()
+	InputSim.touch(_router, _center(builder.cell(0, 0)), true)
+	get_tree().paused = true
+	InputSim.drag(_router, _center(builder.cell(3, 3))) # the press before the pause does not carry on
+	InputSim.touch(_router, _center(builder.cell(3, 3)), false)
+	InputSim.tap(_router, _center(builder.cell(2, 2)))
+	get_tree().paused = false
+	assert_dict(builder.answer()).is_equal({"rows": 1, "cols": 1})
+	InputSim.tap(_router, _center(builder.cell(2, 2)))
+	assert_dict(builder.answer()).is_equal({"rows": 3, "cols": 3})

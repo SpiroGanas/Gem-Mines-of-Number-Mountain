@@ -4,7 +4,7 @@ Build-time only. Nothing here ships in the game.
 
 | Folder | Purpose | Phase |
 |---|---|---|
-| `sfx/` | `generate_placeholder_sfx.py`: synthesizes the placeholder sound effects and encodes them as OGG (standard library plus `ffmpeg`; deterministic). To be replaced by a licensed CC0 pack once Spiro picks one. | 1 |
+| `sfx/` | `generate_placeholder_sfx.py`: synthesizes the placeholder sound effects and encodes them as OGG (standard library plus `ffmpeg`; deterministic). The game plays Kenney's CC0 sounds since 2026-10-17 (`assets/sfx/kenney/`); this stays as a fallback that can synthesize a stand-in for any sound. | 1 |
 | `music/` | `generate_placeholder_music.py`: synthesizes the calm workshop and mine loops as OGG, the same way. | 1 |
 | `crosscheck/` | Independent re-computation of generator answers and distractors from exported problem JSON. `export_problems.gd` (run by Godot) writes 10,000 seeded problems per generator as JSON lines; `run.py --all --n 10000` runs the per-generator checkers in `checkers/` (one per generator, 13 for Zones 1–3) on them. Needs `GODOT` set and the project imported. Must not share code with the GDScript generators. Add one checker module and one `CHECKERS` entry per new generator. | 1 |
 | `ci/` | `lint_content.py` (hard-coded child strings, `LineEdit` in child scenes, banned content keywords, text-table and curriculum checks, network code), `curriculum_check.py` (skill graph rules, used by pytest and the lint), `perf_check.py` (no allocations in `_process`, OGG audio, exported-size budget), `copy_plugin.py` (Phase 2) | 1–2 |

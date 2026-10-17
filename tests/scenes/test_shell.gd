@@ -240,6 +240,26 @@ func test_the_title_shows_the_game_name_from_the_text_table() -> void:
 # --- Developer overlay ----------------------------------------------------------------
 
 
+func test_the_debug_overlay_reads_input_only_while_it_is_shown() -> void:
+	var overlay: DebugOverlay = _shell.find_child("DebugOverlay", true, false)
+	assert_bool(overlay.visible).is_true() # tests run in a debug build
+	assert_bool(overlay.is_processing_input()).is_true()
+	overlay.visible = false # F3 in a debug build; a release build never shows it at all
+	assert_bool(overlay.is_processing_input()).is_false()
+	overlay.visible = true
+	assert_bool(overlay.is_processing_input()).is_true()
+
+
+func test_a_posture_change_gives_the_shell_and_the_pause_menu_the_rebuilt_theme() -> void:
+	var before: Theme = _shell.theme
+	get_window().size = Vector2i(1440, 1080) # folded into tablet posture: 4:3
+	await get_tree().process_frame
+	assert_object(_shell.theme).is_not_same(before)
+	assert_object(_shell.theme).is_same(UI.theme())
+	assert_object(_shell.find_child("PauseMenu", true, false).theme).is_same(_shell.theme)
+	get_window().size = TestWindow.DESIGN_SIZE
+
+
 func test_the_debug_overlay_reports_the_screen_and_input_device() -> void:
 	_shell.change_screen(&"hub")
 	await _until_screen(&"hub")

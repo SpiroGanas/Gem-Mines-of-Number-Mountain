@@ -1,5 +1,6 @@
-## Plays the short sound effects on the SFX bus (project-made placeholder sounds, see
-## tools/sfx/generate_placeholder_sfx.py).
+## Plays the short sound effects on the SFX bus. The sounds are Kenney's CC0 packs (Interface
+## Sounds, Impact Sounds, UI Audio, Music Jingles), one file per sound id, credited in
+## assets/CREDITS.md; tools/sfx/generate_placeholder_sfx.py can synthesize stand-ins if one is ever lost.
 ##
 ## Every action in the game has a sound (GDD section 8). A small pool of players lets
 ## sounds overlap (a crack and a gem pop at nearly the same moment). `played` fires for every
@@ -14,7 +15,7 @@ extends Node
 ## A sound was requested (whether or not audio hardware exists).
 signal played(sfx_id: StringName)
 
-const SOUND_DIR: String = "res://assets/sfx/placeholder"
+const SOUND_DIR: String = "res://assets/sfx/kenney"
 const BUS: StringName = &"SFX"
 const VOICES: int = 4
 const SOUND_IDS: Array[StringName] = [&"tap", &"select", &"place", &"wobble", &"crack", &"gem", &"coin", &"soft_miss", &"fanfare", &"sparkle", &"lantern", &"buy"]

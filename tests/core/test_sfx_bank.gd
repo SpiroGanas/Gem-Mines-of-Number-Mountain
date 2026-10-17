@@ -1,4 +1,4 @@
-# Mirrors scripts/core/sfx_bank.gd and the generated sounds in assets/sfx/placeholder/.
+# Mirrors scripts/core/sfx_bank.gd and the Kenney CC0 sounds in assets/sfx/kenney/.
 class_name SfxBankTest
 extends GdUnitTestSuite
 

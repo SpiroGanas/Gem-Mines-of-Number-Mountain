@@ -64,6 +64,7 @@ func _ready() -> void:
 	_pause_menu.settings_requested.connect(_on_pause_settings_requested)
 	InputRouter.pause_requested.connect(toggle_pause)
 	InputRouter.posture_changed.connect(_on_posture_changed)
+	UI.metrics_changed.connect(_on_metrics_changed)
 	_transition.color.a = 1.0 # start black; the first screen fades in
 	change_screen(START_SCREEN)
 
@@ -200,3 +201,11 @@ func _on_pause_settings_requested() -> void:
 
 func _on_posture_changed(_size: Vector2i) -> void:
 	SaveSystem.save_now() # CLAUDE.md save point: posture change
+
+
+## A posture change can change the touch-target size, and the theme's button padding derives from
+## it (UI.theme() rebuilds the theme). The Shell's theme reaches every screen through the tree; the
+## pause menu sits in a CanvasLayer and styles itself.
+func _on_metrics_changed() -> void:
+	theme = UI.theme()
+	_pause_menu.theme = theme

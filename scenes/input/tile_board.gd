@@ -104,6 +104,17 @@ func _exit_tree() -> void:
 		router.pointer_up.disconnect(_on_pointer_up)
 
 
+## A paused game (the pause menu) drops a half-finished drag; see BuildBoard.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		_cancel_drag()
+
+
+## True while the board may react to the pointer: shown on screen and not paused.
+func _accepts_pointer() -> bool:
+	return is_visible_in_tree() and can_process()
+
+
 ## The values in the slots, left to right (null for an empty slot).
 func placed() -> Array:
 	return _placed.duplicate()
@@ -209,7 +220,7 @@ func _refresh() -> void:
 
 
 func _on_pointer_down(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) -> void:
-	if not _enabled or _dragging:
+	if not _enabled or _dragging or not _accepts_pointer():
 		return
 	_down_position = pos
 	for index: int in _slot_faces.size():

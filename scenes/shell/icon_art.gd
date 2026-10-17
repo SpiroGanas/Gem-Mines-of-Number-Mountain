@@ -1,11 +1,22 @@
-## Small pictures for buttons, drawn in code (placeholder art pass): every workshop button has a
-## picture as well as its word (GDD section 3), so a child who cannot read a label yet can still
-## find Dig, the Museum or the Garage. attach() puts one at the left of a button.
+## Small pictures for buttons: every workshop button has a picture as well as its word (GDD
+## section 3), so a child who cannot read a label yet can still find Dig, the Museum or the Garage.
+## attach() puts one at the left of a button. The gear, the padlock, the wrench and the back arrow
+## are Kenney's CC0 Game Icons (white glyphs tinted navy); the pickaxe and the museum case, which
+## the pack does not have, are drawn in code in the same flat style.
 class_name IconArt
 extends Control
 
 const KINDS: Array[StringName] = [&"dig", &"museum", &"garage", &"settings", &"grownups", &"back"]
 const INK: Color = Color("#1F2945")
+## Kenney Game Icons (assets/CREDITS.md) for the kinds the pack covers.
+const TEXTURE_PATHS: Dictionary = {
+	&"settings": "res://assets/art/kenney/icons/gear.png",
+	&"grownups": "res://assets/art/kenney/icons/locked.png",
+	&"garage": "res://assets/art/kenney/icons/wrench.png",
+	&"back": "res://assets/art/kenney/icons/return.png",
+}
+
+static var _textures: Dictionary = {}
 
 @export var kind: StringName = &"dig":
 	set(value):
@@ -36,12 +47,25 @@ static func attach(button: Button, icon_kind: StringName) -> IconArt:
 	return icon
 
 
+## The pack glyph for a kind, loaded once, or null for a drawn kind.
+static func texture_for(icon_kind: StringName) -> Texture2D:
+	if not TEXTURE_PATHS.has(icon_kind):
+		return null
+	if not _textures.has(icon_kind):
+		_textures[icon_kind] = load(TEXTURE_PATHS[icon_kind])
+	return _textures[icon_kind]
+
+
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _draw() -> void:
 	var s: Vector2 = size
+	var glyph: Texture2D = texture_for(kind)
+	if glyph != null:
+		draw_texture_rect(glyph, Rect2(Vector2.ZERO, s), false, INK) # a white glyph tinted navy
+		return
 	var w: float = maxf(s.x * 0.09, 3.0)
 	match kind:
 		&"dig": # a pickaxe

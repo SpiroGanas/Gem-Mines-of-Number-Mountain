@@ -95,6 +95,8 @@ func celebrate(items: Array[Dictionary]) -> void:
 	visible = true
 	_continue_button.grab_focus()
 	await get_tree().process_frame
+	if not is_inside_tree():
+		return # the mine was left during the wait; there is nothing left to animate
 	_particles.position = size * 0.5
 	_particles.color = GemArt.color_for(items[0].get("gem", GemArt.AMETHYST)) if not items.is_empty() else Color.WHITE
 	_particles.restart()

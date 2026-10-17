@@ -228,3 +228,25 @@ func test_a_bundle_from_a_newer_game_is_refused() -> void:
 	file.close()
 	assert_int(system.import_bundle(path)).is_equal(ERR_INVALID_DATA)
 	assert_str(system.last_import_report["error"]).is_equal(SaveMigrator.ERR_NEWER_VERSION)
+
+
+func test_importing_over_a_save_from_a_newer_build_is_refused() -> void:
+	var newer: Dictionary = SaveSchema.new_profile("t")
+	newer["schema_version"] = SaveSchema.CURRENT_VERSION + 1
+	newer["rewards"]["coins"] = 999
+	assert_int(SaveStore.new(_dir).write_profile(newer)).is_equal(OK)
+	var bundle: Dictionary = ProgressBundle.make(SaveSchema.new_profile("t"), [], "t")
+	bundle["profile"]["updated_at"] = "2099-01-01T00:00:00Z" # newer by date, but from this (older) build
+	var path: String = _dir.path_join("older_game.json")
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify(bundle))
+	file.close()
+	var system: Node = _system()
+	assert_str(system.last_load_report["error"]).is_equal(SaveMigrator.ERR_NEWER_VERSION)
+	assert_int(system.import_bundle(path)).is_not_equal(OK)
+	assert_bool(system.last_import_report["ok"]).is_false()
+	assert_str(system.last_import_report["error"]).is_equal(SaveMigrator.ERR_NEWER_VERSION)
+	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	assert_int(on_disk["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION + 1)
+	assert_int(on_disk["rewards"]["coins"]).is_equal(999)
+	assert_bool(FileAccess.file_exists(_dir.path_join("attempts.jsonl"))).is_false() # nothing merged either
