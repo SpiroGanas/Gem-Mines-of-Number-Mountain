@@ -129,15 +129,15 @@ jobs:
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
 
-      - name: Import the project and install the Gradle build template
-        run: |
-          "$GODOT" --headless --path . --import
-          "$GODOT" --headless --path . --install-android-build-template --quit
+      - name: Import the project
+        run: '"$GODOT" --headless --path . --import'
 
-      - name: Export the debug APK
+      # --install-android-build-template only works together with an export flag; it puts the
+      # Gradle build template in android/build (gitignored) before the export uses it.
+      - name: Install the Gradle build template and export the debug APK
         run: |
           mkdir -p build
-          "$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
+          "$GODOT" --headless --path . --install-android-build-template --export-debug "Android" build/gem-mines-debug.apk
           test -s build/gem-mines-debug.apk
 
       # CLAUDE.md rule 1: the app never asks for the network. The preset test checks the
