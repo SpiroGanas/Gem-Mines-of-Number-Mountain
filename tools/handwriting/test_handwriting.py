@@ -5,8 +5,10 @@ import random
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
+
+# CI installs only pytest, so everything here skips when numpy is missing (the modules under test import it).
+np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
