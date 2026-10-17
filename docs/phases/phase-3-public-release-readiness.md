@@ -29,7 +29,7 @@ Detailed implementation plan for Phase 3 of *Gem Mines of Number Mountain*. The 
 
 Phase 3 starts only when all of these are true. Check them in Sprint 22's Monday planning and list any gap as a Sprint 22 backlog item.
 
-1. **Version 1.0 private build** is installed on the 2-in-1 (all three postures) and the tablet from the internal testing track, with Zones 1–5, handwriting (`ChalkSlate` + `addons/digit_ink`), crafting and engineering projects, cross-device progress, badges, commissioned Bolt art and the Sprint 20 polish pass.
+1. **Version 1.0 private build** is installed on the 2-in-1 (all three postures) and the tablet from the internal testing track, with Zones 1–5, handwriting (`ChalkSlate` with the digit network run in GDScript), crafting and engineering projects, cross-device progress, badges, Bolt's CC0-and-code poses and the Sprint 20 polish pass (no commissioned art: Spiro's decision).
 2. **Text table is complete for Zones 1–5.** Every child-facing line in `text/lines.csv` has an ID, text and context, and `tools/ci/lint_content.py` passes (no hard-coded child strings, no `LineEdit` in child scenes, no banned content keywords).
 3. **Save schema** is at a known `schema_version` (call it `N`) with migrations and fixtures for every prior version in `tests/save/fixtures/`.
 4. **Math reviewer sign-off** on Zones 1–5 is recorded in `docs/decisions.md`.

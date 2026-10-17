@@ -370,6 +370,7 @@ MATH_TERMS = {
     r"recipes?": "recipe",
     r"sieves?": "sieve",
     r"divisible": "divisible",
+    r"divid(?:e|es|ing)|division|÷": "divide",
     r"prime factorizations?": "prime_factorization",
     r"fundamental theorem": "fundamental_theorem",
 }

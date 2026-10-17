@@ -64,7 +64,7 @@
       "params": {"mode": "facts", "divisor_min": 2, "divisor_max": 5, "quotient_min": 2, "quotient_max": 10},
       "representations": ["concrete", "pictorial", "abstract"],
       "answer_modes": ["number_pad", "tap", "handwriting"],
-      "terms": ["equal_groups"],
+      "terms": ["equal_groups", "divide"],
       "bkt_type": "fact",
       "is_fact_skill": true,
       "misconceptions": ["multiplied_instead", "off_by_one"]
@@ -77,7 +77,7 @@
       "params": {"mode": "facts", "divisor_min": 6, "divisor_max": 10, "quotient_min": 2, "quotient_max": 10},
       "representations": ["pictorial", "abstract"],
       "answer_modes": ["number_pad", "tap", "handwriting"],
-      "terms": ["equal_groups"],
+      "terms": ["equal_groups", "divide"],
       "bkt_type": "fact",
       "is_fact_skill": true,
       "misconceptions": ["multiplied_instead", "off_by_one"]

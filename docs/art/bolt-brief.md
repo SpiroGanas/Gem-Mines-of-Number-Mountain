@@ -1,5 +1,7 @@
 # Art brief: Bolt, key art, zone banners and gems
 
+> **Superseded (Sprint 20).** Spiro decided not to commission an artist. Version 1.0 uses Kenney CC0 packs and code-drawn art instead; `docs/art/asset-inventory.md` maps each item of this brief to what replaced it. The brief stays as a record in case a commission is reconsidered.
+
 **Project:** Gem Mines of Number Mountain, a mining-and-crafting game that teaches number theory to children aged 6–12 on Android tablets and Chromebooks (landscape, touchscreen, stylus).
 **Status:** draft for the Sprint 15 hand-off. Sending it to artists and recording a quote are human steps (`docs/development-plan.md`, sprint P2-S15-08). Nothing below has been agreed with an artist yet.
 **Contact:** [fill in before sending]

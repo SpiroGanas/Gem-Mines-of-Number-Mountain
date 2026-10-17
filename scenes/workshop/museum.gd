@@ -16,6 +16,7 @@ const HOW_LINES: Dictionary = {
 	&"fluorite": &"hub.museum.fluorite_how", &"hematite": &"hub.museum.hematite_how",
 	&"prime_gem": &"hub.museum.prime_gem_how", &"twin_gem": &"hub.museum.twin_gem_how",
 	&"mersenne_gem": &"hub.museum.mersenne_gem_how", &"square_gem": &"hub.museum.square_gem_how",
+	&"geode": &"hub.museum.geode_how",
 }
 
 var _cases: Dictionary[StringName, Button] = {}
@@ -73,7 +74,9 @@ func _ready() -> void:
 	grid.add_theme_constant_override(&"v_separation", 20)
 	grid.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	body.add_child(grid)
-	for mineral: StringName in GemArt.ALL_TYPES + GemArt.RARE_TYPES:
+	var shown: Array[StringName] = GemArt.ALL_TYPES + GemArt.RARE_TYPES
+	shown.append(GemArt.GEODE) # the weekly Deep Dig's gem (Sprint 19)
+	for mineral: StringName in shown:
 		grid.add_child(_make_case(mineral))
 	var detail: PanelContainer = PanelContainer.new()
 	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL

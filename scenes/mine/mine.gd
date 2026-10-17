@@ -542,6 +542,12 @@ func _show_panel(problem: Problem) -> void:
 	_panel.answered.connect(_on_answered)
 	_panel.rejected.connect(_on_slate_rejected)
 	_panel.digit_written.connect(_on_digit_written)
+	var sieve: SieveGrid = _panel.sieve_grid()
+	if sieve != null:
+		sieve.toggled.connect(func(_number: int, _crossed: bool) -> void: _sfx.play(&"sieve_mark"))
+	var tree: FactorTree = _panel.factor_tree()
+	if tree != null:
+		tree.piece_split.connect(func(_value: int, _a: int, _b: int) -> void: _sfx.play(&"split"))
 	var split: BoulderSplit = _panel.boulder_split()
 	if split != null:
 		split.split_chosen.connect(func(_value: int, _a: int, _b: int) -> void: _sfx.play(&"split"))

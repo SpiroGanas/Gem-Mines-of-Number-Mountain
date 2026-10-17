@@ -222,7 +222,7 @@ These guardrails also line up with Google Play's expectations for children's app
 | Voice narration (Phase 3) | **Licensed AI text-to-speech**, generated ahead of time | See 5.6. Not part of the MVP. |
 | Audio processing | **ffmpeg** (loudness normalization, OGG encoding) and **Audacity** for spot fixes | Run automatically by the voice pipeline |
 | Fonts | **Andika** (SIL, free, Open Font License) | Designed specifically for beginning readers. Especially important because the MVP is text-based. |
-| Art | **Kenney.nl** free (CC0) packs for MVP placeholders; **Krita** / **Inkscape**; a **commissioned human artist** for Bolt and key art (Phase 2) | Clear ownership of the main character matters for a published game. Copyright for AI-generated character art is still unsettled. |
+| Art | **Kenney.nl** free (CC0) packs for MVP placeholders; **Krita** / **Inkscape**; Kenney CC0 packs plus code-drawn art for Version 1.0 too: **Spiro decided not to commission an artist** (Sprint 20, `docs/decisions.md`) | CC0 art has clear ownership (public domain) and no AI-generated art is used, so the copyright question does not arise. A commission can still be reconsidered later. |
 | Music and sound effects | Licensed royalty-free packs (check the license allows app use) | |
 | Automated tests | **GdUnit4** (Godot), **pytest** (Python tools) | |
 | Source control and CI | **Git + private GitHub repository**; **GitHub Actions** running Godot headless | Every merge builds and tests; Friday builds upload to the internal testing track. |
@@ -355,7 +355,7 @@ These guardrails also line up with Google Play's expectations for children's app
 |---|---|---|
 | **Product owner, developer, producer** | Spiro | ~40 hrs/week |
 | **AI coding assistant** | Claude Code (or similar) | Throughout. Spiro reviews and approves all changes. |
-| **2D artist** | Contract | Bolt and key art after the go decision (Sprints 15–20); zone art batches after that |
+| **2D artist** | Not hired (Spiro's decision, Sprint 20) | Version 1.0 uses CC0 packs and code-drawn art; reconsider only if a later zone needs it |
 | **Math/curriculum reviewer** | A teacher or math tutor, contract | About 2–4 hrs per zone |
 | **Playtester** | Charlie | One observed 15–20 min session per weekend, plus free play |
 | **Second observer** | Another adult (e.g., Charlie's other parent or a grandparent) | Watches some playtests, since the developer-parent is the least neutral observer |
@@ -513,7 +513,7 @@ Plus about 3 hours studying the game feel of well-regarded learning games (e.g.,
 | **17** | Mar 8–12 | **Cross-device progress** (Charlie uses two devices). Choose an approach that fits the Families Policy: parent-managed export/import (file or Google Drive) vs. Google Play Games cloud saves (check its use in children's apps). Build it with "newest wins plus backup." |
 | **18** | Mar 15–19 | **Zone 5: Prime Caverns.** Interactive Sieve of Eratosthenes, factor trees, prime factorization, divisibility rules, rare twin-prime and Mersenne-prime gems. |
 | **19** | Mar 22–26 | **Long-term motivation.** First 4 mathematician badges, Word Gems glossary, weekly Deep Dig, Challenge Door, family reward points. |
-| **20** | Mar 29–Apr 2 | **Art and polish.** Commissioned Bolt and key art integrated; Zones 1–5 art pass; music; animation and particle polish; accessibility pass. |
+| **20** | Mar 29–Apr 2 | **Art and polish.** Bolt's six poses and key art from CC0 packs and code (no commission, Spiro's decision); Zones 1–5 art pass; synthesized music per zone group; animation and particle polish; accessibility pass. |
 | **21** | Apr 5–9 | **Version 1.0 hardening.** Parent dashboard v2 (visual skill map, weekly summary). Math reviewer checks Zones 1–5. Performance and save-migration tests. Release to internal testing. |
 
 **Milestone: Version 1.0 (private) at the end of Sprint 21 (April 9, 2027)**
@@ -649,8 +649,8 @@ Charlie will be about 7 at this point. The game already holds content through ab
 | AI coding assistant subscription | Throughout | Monthly subscription |
 | AI voice service (paid plan with commercial license) | Phase 3 onward, generation months only | Low monthly fee; check current pricing |
 | Math reviewer | ~2–4 hrs per zone | Hourly rate |
-| **After the go decision:** commissioned art for Bolt and key art, then zone art batches | Sprints 15–20, then per zone | Get quotes |
-| Music and sound-effect packs | Sprint 10 / 20 | Small one-time license fees |
+| ~~Commissioned art~~ (not needed: Spiro chose CC0 packs and code-drawn art, Sprint 20) | n/a | $0 |
+| Music and sound-effect packs | Sprint 10 / 20 | $0: Kenney CC0 sounds and synthesized music |
 | GitHub private repository and Actions | Throughout | Free tier is likely enough |
 
 **MVP cash spend is minimal:** account fees, a few hours of math review and the AI coding subscription. The AI-voice plan isn't needed until Phase 3. The larger spending (art) only starts if the decision gate says go.
@@ -675,7 +675,7 @@ Charlie will be about 7 at this point. The game already holds content through ab
 6. **Bolt's voice:** provider and voice (Sprint 22, with Charlie's vote).
 7. **Pricing:** free, paid upfront, or free with a one-time "unlock the deep mountain" purchase. No ads and no loot boxes in any case.
 8. **Name and branding:** check the game name is available as a store listing and web domain.
-9. **Artist:** commission Bolt and key art (Sprint 15 brief).
+9. ~~**Artist:** commission Bolt and key art (Sprint 15 brief).~~ Decided in Sprint 20: no commission; CC0 packs and code-drawn art.
 
 ---
 

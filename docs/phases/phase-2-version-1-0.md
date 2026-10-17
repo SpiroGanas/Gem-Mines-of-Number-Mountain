@@ -26,6 +26,22 @@ Everything in this document is subordinate to `CLAUDE.md`. If a task here seems 
 - Zones 6–12, Scholar mode, web export.
 - Any live network feature. The Android export preset still does not request `INTERNET`.
 
+## Status (2026-10-17)
+
+Sprints 12 to 21 are **built in code** on the Phase 2 branch; what is left needs Charlie, the devices or a person (the math reviewer). Details and every deviation from this plan are in `docs/decisions.md` (one entry per sprint).
+
+| Sprint | In code | Left for Spiro, the devices or a reviewer |
+|---|---|---|
+| 12-15 | BKT fit, handwriting, Zone 4, rare gems | Charlie's logs, his digits, the decision gate, Zone 4 sign-off |
+| 16 | Crafting bench (4 recipes), build site, cart track, balance elevator (opens Zone 4), hub doors and machines | Weekend playtest of the elevator |
+| 17 | Save schema v2, newest-wins import with backups and a checksum, device id, import/export log | The round trip on the real devices; the native picker on ChromeOS |
+| 18 | Zone 5: 11 skills, 4 generators and checkers, sieve grid, factor tree, rare-gem museum cases | Zone 5 prerequisite sign-off; the sieve playtest |
+| 19 | 4 badges, Word Gems glossary and lint rule, weekly Deep Dig, Challenge Door, family points | The first badge story with Charlie |
+| 20 | No artist (Spiro): Bolt's poses from CC0 frames and tweens, zone art, synthesized music per zone, cross-fade, new sounds, aspect-ratio captures | Frame times on both devices (`docs/qa/perf-1.0.md`) |
+| 21 | Dashboard v2, math review packet and AI pre-review, release checklist | Human math review, device matrices, the release AAB, the `v1.0.0` tag (`docs/qa/release-1.0.md`) |
+
+Decisions made for this stretch (Spiro): one save migration (v1 to v2) for all Phase 2 records; no commissioned art; synthesized music; export/import only for cross-device; the Challenge Door's mastery path approved; Zone 5 prerequisites written provisionally.
+
 ## Entry criteria
 
 Phase 2 starts only when the MVP acceptance criteria from the master plan hold:
@@ -239,7 +255,7 @@ The Challenge Door's "3 of 3 marks mastery" interacts with BKT thresholds; it mu
 
 ### F. Art pipeline and polish (Sprints 15 brief, 20 integration)
 
-- **Placeholders** stay CC0 (Kenney.nl) until the commissioned art arrives. Every asset file has an entry in `assets/CREDITS.md` with source, license and URL; `tools/ci/lint_content.py` fails on an asset without one (add this check in Sprint 15).
+- **No commission (Spiro, Sprint 20):** the CC0 placeholders (Kenney.nl) and code-drawn art are the Version 1.0 art. Every asset file has an entry in `assets/CREDITS.md` with source, license and URL; `tools/ci/lint_content.py` fails on an asset without one (add this check in Sprint 15).
 - **Commission** (Sprint 15 brief): Bolt in 6 poses (idle, point, cheer, think, "not quite", wave), headlamp as a separate layer for color customization, hub key art, zone banners for Zones 1–5, the gem set (gems differ by shape as well as color). Deliverables as layered source plus PNG at 2× and 1×, packed into atlases by Godot's import (`AtlasTexture` via the editor's texture-atlas import, verify current 4.7 workflow in docs).
 - **Integration** (Sprint 20): swap sprites behind the same scene node names so no scripts change; animation polish with `create_tween()` (squash and stretch on rock crack, gem arc into the cart); `GPUParticles2D` for sparkle, kept to one emitter per event; music via two `AudioStreamPlayer` nodes cross-fading, OGG only.
 - **Accessibility pass** (Sprint 20): every interactive control at least `UI.min_target_px()`; color never the only clue; contrast of text on chalk and rock backgrounds checked; all four aspect ratios (16:9, 16:10, 3:2, 4:3) screenshot-tested.
@@ -440,7 +456,7 @@ Weekend playtest: the first badge story. Does Charlie listen or read it to the e
 
 ### Sprint 20 (Mar 29–Apr 2): Art and polish
 
-**Goal.** Commissioned Bolt and key art integrated, art pass on Zones 1–5, music, animation and particle polish, accessibility pass.
+**Goal.** Bolt's poses and key art (from CC0 packs and code: no commission, Spiro's decision), art pass on Zones 1–5, music, animation and particle polish, accessibility pass.
 
 | ID | Branch | Item | Done when |
 |---|---|---|---|
@@ -507,7 +523,7 @@ Version 1.0 (private) is accepted when all of the following hold:
 3. Crafting and both build projects work, persist across app close, and unlock zones as designed.
 4. Progress round-trips between the two devices with newest-wins and a verified backup.
 5. Badges, Word Gems, Deep Dig, Challenge Door and family reward points are live and earned from mastery and effort only.
-6. Commissioned Bolt and key art are integrated; 60 fps on both devices; download under 150 MB.
+6. Bolt's six poses and the key art are integrated (CC0 and code-drawn; no commission); 60 fps on both devices; download under 150 MB.
 7. Every save from every tagged release migrates to 1.0 in automated tests and on a real device.
 8. Zero crashes across 5 consecutive playtest sessions on the 1.0 build; airplane-mode session passes.
 9. Every child-facing string comes from `text/lines.csv`; lint and all test suites pass on the release commit.
@@ -520,7 +536,7 @@ Version 1.0 (private) is accepted when all of the following hold:
 | Recognizer below 97% on Charlie's digits | Medium | High: handwriting frustrates him | Per-digit boxes; augmentation for child writing; confirmation prompt; the number pad always available; a second training round in Sprint 14 with the Sprint 13 weekend samples |
 | ChromeOS delivers pen events in an unexpected way (as touch, no pressure) | Medium | Medium | Sprint 1 findings in `docs/decisions.md`; palm rejection tested on the real 2-in-1 before the gate; worst case, pen is treated as a finger |
 | Decision gate says "adjust" mid-phase | Medium | Medium | Sprints 15–21 are each one backlog theme; reorder or drop without rework because generators, builds and rewards are data-driven |
-| Commissioned art is late | Medium | Low | Placeholders are complete and credited; Sprint 20 can slip to Phase 3 without blocking 1.0 logic |
+| ~~Commissioned art is late~~ | n/a | n/a | No commission (Spiro, Sprint 20): CC0 packs and code-drawn art |
 | Save migrations break an old device | Low | High | Fixture per version; manual update-over-old-build on both devices every release; backups before import |
 | Two devices diverge and newest-wins loses work | Medium | Medium | Backup before replace; "keep this device" choice; import log in the parent area |
 | Zone 4–5 math too abstract for age 6–7 | Medium | Medium | Concrete representations first (arrays, rectangles, boulder splitting); BKT gates depth; Challenge Door lets him skip only by proving it |
@@ -535,7 +551,7 @@ Version 1.0 (private) is accepted when all of the following hold:
 4. **Save schema versions:** one migration per sprint (v2 in Sprint 17, v3 in Sprint 19) or fewer, larger migrations. Recommendation: one per sprint; each is small and fixture-tested.
 5. **Curriculum prerequisites** for Zones 4 and 5 (sign-off in Sprints 15 and 18).
 6. **Challenge Door mastery evidence** (3 of 3 at hardest params counts as mastery without the 2-distinct-days rule). Recommendation: approve, since the simulated random guesser stays under chance and the master plan calls for it.
-7. **Artist commission** scope and budget (Sprint 15 brief).
+7. ~~**Artist commission** scope and budget (Sprint 15 brief).~~ Decided: no commission.
 8. **Music and SFX pack licenses** (Sprint 20) confirmed for distributed-app use.
 9. **Decision gate outcome** on Feb 19, 2027.
 

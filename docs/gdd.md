@@ -209,7 +209,7 @@ Detailed prerequisites for each zone are written when its sprint begins (Zones 4
 
 ## 8. Look and sound (placeholder direction)
 
-The MVP's art is coherent, not final: Kenney's CC0 packs where they fit (the rocks, Bolt, the buttons, four icons and the twelve sound effects, imported 2026-10-17) and shapes drawn in code everywhere else (gems, backdrops, the title picture, the museum minerals, the cart, the drag pieces, the pickaxe and museum icons). Commissioned art (Bolt and key art) is Phase 2.
+The MVP's art is coherent, not final: Kenney's CC0 packs where they fit (the rocks, Bolt, the buttons, four icons and the twelve sound effects, imported 2026-10-17) and shapes drawn in code everywhere else (gems, backdrops, the title picture, the museum minerals, the cart, the drag pieces, the pickaxe and museum icons). Version 1.0 keeps this direction: Spiro decided not to commission an artist, so the Sprint 20 pass adds more Kenney CC0 pieces (Bolt's cheer and rolling frames, cave edges, particles, icons) and more code-drawn art (Number Mountain on the hub, zone tints and banners, the workshop's machines, badge emblems). `docs/art/asset-inventory.md` lists every piece.
 
 ### Visual direction
 

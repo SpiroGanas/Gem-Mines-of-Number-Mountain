@@ -123,13 +123,13 @@ bolt.misconception.counted_bars_as_ones,Each bar is ten gems. Count the bars by 
 bolt.misconception.counted_from_one,"Start at the first number, then count on.",Targeted hint after the counted_from_one mistake,0
 bolt.misconception.counted_groups,That is how many groups. How many gems in all?,Targeted hint after the counted_groups mistake,0
 bolt.misconception.counted_tens_as_ones,"A ten-bar is worth ten, not one.",Targeted hint after the counted_tens_as_ones mistake,0
-bolt.misconception.decade_skip,Check the tens. Did we jump one ten too far?,Targeted hint after the decade_skip mistake,0
+bolt.misconception.decade_skip,Check the tens. One ten too many or too few?,Targeted hint after the decade_skip mistake,0
 bolt.misconception.digit_swap,Check the order of your digits.,Targeted hint after the digit_swap mistake,0
 bolt.misconception.digit_value_as_digit,Think about the place. A tens digit is worth tens.,Targeted hint after the digit_value_as_digit mistake,0
 bolt.misconception.double_counted,Touch each gem just once as you count.,Targeted hint after the double_counted mistake,0
 bolt.misconception.dropped_addend,Check that you added every number.,Targeted hint after the dropped_addend mistake,0
 bolt.misconception.forgot_regroup,Ten ones make a ten. Trade them in.,Targeted hint after the forgot_regroup mistake,0
-bolt.misconception.forgot_untrade,"Break a ten into ones first, then take away.",Targeted hint after the forgot_untrade mistake,0
+bolt.misconception.forgot_untrade,You broke a ten. Take it away from the tens too.,Targeted hint after the forgot_untrade mistake,0
 bolt.misconception.left_side_only,Look at both sides of the equals sign.,Targeted hint after the left_side_only mistake,0
 bolt.misconception.leftover_miscounted,Make the pairs again. Is one gem left over?,Targeted hint after the leftover_miscounted mistake,0
 bolt.misconception.parity_swapped,Even numbers make pairs with none left over.,Targeted hint after the parity_swapped mistake,0
@@ -390,7 +390,7 @@ vocab.composite.definition,A composite has more than two factors. It can break i
 bolt.misconception.added_factors,Multiplying means equal groups. Do not add the two numbers.,Targeted hint after the added_factors mistake,0
 bolt.misconception.counted_factors_not_pairs,"A pair uses two factors. Count the pairs, not the factors.",Targeted hint after the counted_factors_not_pairs mistake,0
 bolt.misconception.factor_not_multiple,A factor goes into the number. A multiple comes from counting up.,Targeted hint after the factor_not_multiple mistake,0
-bolt.misconception.missing_one_and_n,Do not forget one. The number is its own factor too.,Targeted hint after the missing_one_and_n mistake,0
+bolt.misconception.missing_one_and_n,Remember: 1 and the number itself are factors too.,Targeted hint after the missing_one_and_n mistake,0
 bolt.misconception.multiple_not_factor,Factors fit inside the number. They are never bigger.,Targeted hint after the multiple_not_factor mistake,0
 bolt.misconception.multiplied_instead,Dividing shares into equal groups. The answer gets smaller.,Targeted hint after the multiplied_instead mistake,0
 bolt.misconception.no_check_made,Make equal groups. Is anything left over?,Targeted hint after the no_check_made mistake,0
@@ -557,7 +557,7 @@ z5.hint.example_recipe_2,The prime recipe for {n} is {a} × {b}.,Worked example:
 z5.hint.example_recipe_3,The prime recipe for {n} is {a} × {b} × {c}.,Worked example: a prime recipe of three primes,0
 z5.hint.example_recipe_4,{n} has the prime recipe {a} × {b} × {c} × {d}.,Worked example: a prime recipe of four primes,0
 z5.fta.prompt,Three miners made recipes for {n}. Which one is right?,Zone 5: who is right? (Fundamental Theorem of Arithmetic),0
-z5.fta.theorem,Every number has exactly one prime recipe. That's the Fundamental Theorem of Arithmetic.,Teaching line: the Fundamental Theorem of Arithmetic,0
+z5.fta.theorem,Every number bigger than 1 has just one prime recipe. Order does not matter. That's the Fundamental Theorem of Arithmetic.,Teaching line: the Fundamental Theorem of Arithmetic,0
 z5.div.prompt,Is {n} divisible by {d}?,Zone 5: divisibility rules (yes or no),0
 z5.hint.example_div_yes,{n} ÷ {d} = {q}. Nothing is left over.,Worked example: a number that is divisible,0
 z5.hint.example_div_no,{n} ÷ {d} = {q} with {r} left over.,Worked example: a number that is not divisible,0
@@ -582,7 +582,7 @@ vocab.prime_factorization.definition,A prime factorization is a number's prime r
 vocab.divisible.term,divisible,Word Gem term,0
 vocab.divisible.definition,A number is divisible by another when it shares evenly. Nothing is left over.,Word Gem kid-sized definition,0
 vocab.fundamental_theorem.term,Fundamental Theorem of Arithmetic,Word Gem term,0
-vocab.fundamental_theorem.definition,Every number has exactly one prime recipe. That's the Fundamental Theorem of Arithmetic.,Word Gem kid-sized definition,0
+vocab.fundamental_theorem.definition,Every number bigger than 1 has just one prime recipe. Order does not matter.,Word Gem kid-sized definition,0
 hub.museum.prime_gem_name,Prime Gem,Mineral name (rare-number gem),0
 hub.museum.twin_gem_name,Twin Gems,Mineral name (rare-number gem),0
 hub.museum.mersenne_gem_name,Mersenne Gem,Mineral name (rare-number gem),0
@@ -595,3 +595,8 @@ hub.museum.prime_gem_how,Dig a rock with a prime number to find it.,Museum: how 
 hub.museum.twin_gem_how,Dig a prime with another prime two away.,Museum: how to earn twin gems,0
 hub.museum.mersenne_gem_how,Dig one of the rarest primes to find it.,Museum: how to earn the Mersenne gem,0
 hub.museum.square_gem_how,Dig a rock with a square number to find it.,Museum: how to earn the square gem,0
+hub.museum.geode_name,Geode,"Mineral name (the Deep Dig's gem, Sprint 19)",0
+hub.museum.geode_fact,A geode is a plain rock with crystals hiding inside.,Museum fact (geode),0
+hub.museum.geode_how,Finish a weekly Deep Dig to find it.,Museum: how to earn the geode,0
+vocab.divide.term,divide,Word Gem term (added after the Sprint 21 math pre-review),0
+vocab.divide.definition,To divide is to share into equal groups. The ÷ sign means divide.,Word Gem kid-sized definition,0

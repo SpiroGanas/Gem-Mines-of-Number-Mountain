@@ -100,7 +100,7 @@ Composed in code from the files above: the mountain backdrop, `ladder.png` down 
 
 The gems stay **drawn in code** (`GemArt`): the rule that gems differ by shape as well as color rules out the Kenney gem sprites, which share one shape. `glint.png` and `glow.png` add the shine.
 
-## Sound effects (`assets/sfx/sprint20/`)
+## Sound effects (`assets/sfx/kenney/`, moved there when they were wired in)
 
 | File | When it plays | Source |
 |---|---|---|
@@ -110,7 +110,7 @@ The gems stay **drawn in code** (`GemArt`): the rule that gems differ by shape a
 | `build_step.ogg` | A build step clicks into place | Impact Sounds `impactMetal_light_004.ogg` (0.2 s) |
 | `badge.ogg` | A mathematician badge earned | Music Jingles `jingles_STEEL04.ogg` (0.9 s steel-drum jingle, unlike the pizzicato wall-cleared fanfare) |
 
-They wait in `assets/sfx/sprint20/` because `SfxBank` (and its test) expect `assets/sfx/kenney/` to hold exactly the sounds it lists: when a scene starts using one, move the file (with its `.import`) into `assets/sfx/kenney/`, add its id to `SfxBank.SOUND_IDS` and update its `assets/CREDITS.md` path.
+They were fetched into `assets/sfx/sprint20/` and moved into `assets/sfx/kenney/` when the game started using them (Sprint 20 integration); `SfxBank.SOUND_IDS` lists all seventeen.
 
 ## Music (`assets/music/placeholder/`)
 
