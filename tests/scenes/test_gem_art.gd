@@ -19,7 +19,7 @@ func test_gems_differ_by_shape() -> void:
 		for other: PackedVector2Array in seen:
 			assert_bool(points == other).override_failure_message(type + " has the same outline as another gem").is_false()
 		seen.append(points)
-	assert_int(seen.size()).is_equal(4)
+	assert_int(seen.size()).is_equal(10)
 
 
 func test_gems_differ_by_color() -> void:
@@ -40,6 +40,16 @@ func test_a_gem_never_takes_clicks() -> void:
 	assert_int(gem.mouse_filter).is_equal(Control.MOUSE_FILTER_IGNORE)
 
 
-func test_the_museum_minerals_for_the_mvp_zones_match_the_rewards_plan() -> void:
-	# Rewards v1: quartz, garnet, pyrite, plus amethyst for mastery.
-	assert_array(GemArt.ALL_TYPES).contains_exactly([&"quartz", &"garnet", &"pyrite", &"amethyst"])
+func test_the_museum_minerals_match_the_rewards_plan() -> void:
+	# Rewards v1: the ten Gem Museum minerals, zone gems and the mastery gem first.
+	assert_array(GemArt.ALL_TYPES).contains_exactly([&"quartz", &"garnet", &"pyrite", &"amethyst", &"malachite", &"fluorite", &"hematite", &"calcite", &"topaz", &"obsidian"])
+
+
+func test_every_mineral_draws() -> void:
+	for type: StringName in GemArt.ALL_TYPES:
+		var gem: GemArt = auto_free(GemArt.new())
+		gem.gem_type = type
+		gem.size = Vector2(96, 96)
+		add_child(gem)
+		await get_tree().process_frame
+		assert_str(gem.gem_type).is_equal(type)

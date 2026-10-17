@@ -81,3 +81,31 @@ func test_choice_options_lists_the_answer_first_then_distractors_up_to_the_limit
 	assert_dict(options[0]).is_equal({"value": 5, "label": "#5"})
 	assert_array(problem.distractor_values()).contains_exactly([4, 6, 7, 8])
 	assert_int(problem.choice_options(func(value: Variant) -> String: return str(value), 1).size()).is_equal(2)
+
+
+func test_a_true_false_answer_matches_only_the_same_truth_value() -> void:
+	var problem: Problem = _problem(true)
+	assert_bool(problem.is_correct(true)).is_true()
+	assert_bool(problem.is_correct(false)).is_false()
+	assert_bool(problem.is_correct(1)).is_false() # a number is not a truth value
+
+
+func test_label_keys_name_truth_values_and_text() -> void:
+	assert_str(Problem.label_key(true)).is_equal("true")
+	assert_str(Problem.label_key(false)).is_equal("false")
+	assert_str(Problem.label_key(&"even")).is_equal("even")
+	assert_str(Problem.label_key(12)).is_equal("12")
+
+
+func test_sorted_values_puts_numbers_first_then_text_in_order() -> void:
+	assert_array(Problem.sorted_values([12, 3, 7])).contains_exactly([3, 7, 12])
+	assert_array(Problem.sorted_values(["8 - 5 = 3", "3 + 5 = 8", "5 + 3 = 8"])).contains_exactly(["3 + 5 = 8", "5 + 3 = 8", "8 - 5 = 3"])
+	assert_array(Problem.sorted_values([&"b", 2, "a", 1])).contains_exactly([1, 2, "a", "b"])
+
+
+func test_values_of_different_kinds_are_never_the_same_answer() -> void:
+	assert_bool(Problem.same(1, true)).is_false()
+	assert_bool(Problem.same([1, 2], [1, true])).is_false()
+	assert_bool(Problem.same({"tens": 1}, {"tens": 1.0})).is_true()
+	assert_bool(Problem.same(&"=", "=")).is_true()
+	assert_bool(Problem.same([3, 4], [3, 4, 5])).is_false()

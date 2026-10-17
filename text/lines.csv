@@ -110,3 +110,205 @@ z1.hint.example_list,The answer is {list}.,Worked example: a list of numbers,0
 z1.hint.example_pile_left,The pile on the left is the one.,Worked example: tap-the-pile answer,0
 z1.hint.example_pile_right,The pile on the right is the one.,Worked example: tap-the-pile answer,0
 z1.build.source_hundred,Hundred-block,Label on the pile of hundred-blocks,0
+bolt.placement.intro,Let's explore the mountain! Crack rocks so I can see what you know.,Placement quest: Bolt's line while picking rocks,0
+bolt.placement.done,All done exploring! Now I know where to dig.,Placement quest finished,0
+bolt.misconception.added_as_ones,"Those are tens, not ones. Count them by tens.",Targeted hint after the added_as_ones mistake,0
+bolt.misconception.added_both,"We want the missing part, not a bigger total.",Targeted hint after the added_both mistake,0
+bolt.misconception.added_instead,Look at the sign. This one takes away.,Targeted hint after the added_instead mistake,0
+bolt.misconception.added_tens_to_ones,"Line up the places. Add tens to tens, ones to ones.",Targeted hint after the added_tens_to_ones mistake,0
+bolt.misconception.carried_twice,"Trade a ten only once, when the ones make ten.",Targeted hint after the carried_twice mistake,0
+bolt.misconception.changed_ones,Ten more or less changes the tens. The ones stay.,Targeted hint after the changed_ones mistake,0
+bolt.misconception.compared_ones_first,Look at the tens first. They tell us more.,Targeted hint after the compared_ones_first mistake,0
+bolt.misconception.counted_bars_as_ones,Each bar is ten gems. Count the bars by tens.,Targeted hint after the counted_bars_as_ones mistake,0
+bolt.misconception.counted_from_one,"Start at the first number, then count on.",Targeted hint after the counted_from_one mistake,0
+bolt.misconception.counted_groups,That is how many groups. How many gems in all?,Targeted hint after the counted_groups mistake,0
+bolt.misconception.counted_tens_as_ones,"A ten-bar is worth ten, not one.",Targeted hint after the counted_tens_as_ones mistake,0
+bolt.misconception.decade_skip,Check the tens. Did we jump one ten too far?,Targeted hint after the decade_skip mistake,0
+bolt.misconception.digit_swap,Check the order of your digits.,Targeted hint after the digit_swap mistake,0
+bolt.misconception.digit_value_as_digit,Think about the place. A tens digit is worth tens.,Targeted hint after the digit_value_as_digit mistake,0
+bolt.misconception.double_counted,Touch each gem just once as you count.,Targeted hint after the double_counted mistake,0
+bolt.misconception.dropped_addend,Check that you added every number.,Targeted hint after the dropped_addend mistake,0
+bolt.misconception.forgot_regroup,Ten ones make a ten. Trade them in.,Targeted hint after the forgot_regroup mistake,0
+bolt.misconception.forgot_untrade,"Break a ten into ones first, then take away.",Targeted hint after the forgot_untrade mistake,0
+bolt.misconception.left_side_only,Look at both sides of the equals sign.,Targeted hint after the left_side_only mistake,0
+bolt.misconception.leftover_miscounted,Make the pairs again. Is one gem left over?,Targeted hint after the leftover_miscounted mistake,0
+bolt.misconception.parity_swapped,Even numbers make pairs with none left over.,Targeted hint after the parity_swapped mistake,0
+bolt.misconception.off_by_group,Count the groups again. Is one extra or missing?,Targeted hint after the off_by_group mistake,0
+bolt.misconception.off_by_one,So close! Count again carefully.,Targeted hint after the off_by_one mistake,0
+bolt.misconception.off_by_row,"Count the rows again, one at a time.",Targeted hint after the off_by_row mistake,0
+bolt.misconception.off_by_two,Close! Check the double again.,Targeted hint after the off_by_two mistake,0
+bolt.misconception.picked_smaller,Read the question again. More or fewer?,Targeted hint after the picked_smaller mistake,0
+bolt.misconception.reversed_order,Check where to start: least or greatest?,Targeted hint after the reversed_order mistake,0
+bolt.misconception.reversed_symbol,The pointy end faces the smaller number.,Targeted hint after the reversed_symbol mistake,0
+bolt.misconception.rows_cols_swapped,Rows go across. Columns go up and down.,Targeted hint after the rows_cols_swapped mistake,0
+bolt.misconception.rows_cols_swapped_wrong,Turn the array around. Do the numbers stay the same?,Targeted hint after the rows_cols_swapped_wrong mistake,0
+bolt.misconception.rows_plus_cols,"Count every gem, not just the rows and columns.",Targeted hint after the rows_plus_cols mistake,0
+bolt.misconception.smaller_from_larger,Look at the top ones. Do we need to trade a ten?,Targeted hint after the smaller_from_larger mistake,0
+bolt.misconception.subtracted_as_ones,Those are tens. Take tens away from tens.,Targeted hint after the subtracted_as_ones mistake,0
+bolt.misconception.swapped_minuend,Start from the biggest number when you take away.,Targeted hint after the swapped_minuend mistake,0
+bolt.misconception.thought_equal,Are both amounts really the same?,Targeted hint after the thought_equal mistake,0
+bolt.misconception.thought_unequal,Count both sides again. They might match!,Targeted hint after the thought_unequal mistake,0
+bolt.misconception.traded_wrong_count,A trade is always exactly ten.,Targeted hint after the traded_wrong_count mistake,0
+bolt.misconception.used_tens_digit,Look at the ones digit. It tells even or odd.,Targeted hint after the used_tens_digit mistake,0
+bolt.misconception.wrong_operation,Check the sign. Do we add or take away?,Targeted hint after the wrong_operation mistake,0
+bolt.misconception.wrong_place,Look at which digit the question asks about.,Targeted hint after the wrong_place mistake,0
+bolt.misconception.wrong_step,Check the jump size between the numbers.,Targeted hint after the wrong_step mistake,0
+bolt.misconception.wrong_table,Check which number we are counting by.,Targeted hint after the wrong_table mistake,0
+z2.eq.prompt_fact_family,"Build the fact family for {a}, {b} and {c}.",Zone 2: drag the four facts that use the same three numbers,0
+z2.eq.prompt_inverse_add,{a} + {b} = {c}. Which fact checks it with the inverse?,Zone 2: pick the subtraction that undoes an addition,0
+z2.eq.prompt_inverse_sub,{c} - {b} = {a}. Which fact checks it with the inverse?,Zone 2: pick the addition that undoes a subtraction,0
+z2.eq.prompt_missing_addend,{a} + ? = {c}. What number is missing?,Zone 2: missing addend,0
+z2.eq.prompt_missing_subtrahend,{c} - ? = {a}. What number is missing?,Zone 2: missing number in a subtraction,0
+z2.eq.prompt_balance_two_two,{a} + {b} = {c} + {d}. Is this true or false?,Zone 2: true or false with two numbers on each side,0
+z2.eq.prompt_balance_two_one,{a} + {b} = {c}. Is this true or false?,Zone 2: true or false with one number on the right,0
+z2.eq.prompt_balance_one_two,{c} = {a} + {b}. Is this true or false?,Zone 2: true or false with one number on the left,0
+z2.hint.example_family,The family is {list}.,"Worked example: the four facts of a family, joined by semicolons",0
+z2.hint.example_check,{fact} checks it. The inverse undoes the first fact.,Worked example: the fact that checks with the inverse,0
+z2.hint.example_missing_addend,{a} + {n} = {c}. So the missing number is {n}.,Worked example: missing addend,0
+z2.hint.example_missing_subtrahend,{c} - {n} = {a}. So the missing number is {n}.,Worked example: missing number in a subtraction,0
+z2.hint.example_true,Both sides make {n}. So it is true.,Worked example: a true equation,0
+z2.hint.example_false,The left side makes {left}. The right side makes {right}. So it is false.,Worked example: a false equation,0
+ui.answer.true,True,Answer button: the equation is true,0
+ui.answer.false,False,Answer button: the equation is false,0
+bolt.celebrate.mastery,You learned a new skill! Here is an amethyst.,Celebration: a skill was mastered for the first time,0
+bolt.celebrate.mineral,You found a new mineral for the museum!,Celebration: a museum mineral was earned,0
+bolt.celebrate.lantern,Your lantern is lit for today!,Celebration: the first rock of the day lit the electric lantern,0
+bolt.wind_down.time,Time to head up to the surface.,Wind-down: the parent's soft session limit has passed,0
+bolt.wind_down.great,Great digging today!,Wind-down: Bolt's goodbye,0
+ui.recap.title,Today's dig,Wind-down recap heading,0
+ui.recap.rocks,Rocks cracked: {n},Wind-down recap,0
+ui.recap.gems,Gems found: {n},Wind-down recap,0
+ui.recap.coins,Coins earned: {n},Wind-down recap,0
+ui.recap.skills,Skills practiced: {n},Wind-down recap,0
+ui.hub.museum,Museum,Workshop button: the Gem Museum,0
+ui.hub.garage,Garage,Workshop button: Bolt's Garage,0
+ui.hub.lantern,Lanterns lit: {n},Workshop: the lantern streak (days played; it never goes down),0
+ui.hub.coins,Coins: {n},Workshop: coins held,0
+hub.museum.title,Gem Museum,Museum heading,0
+hub.museum.not_found,Not found yet.,Museum: a case still closed,0
+hub.museum.you_have,You have {n}.,Museum: how many of this mineral the child holds,0
+hub.museum.pick,Tap a case to learn about it.,Museum: instruction,0
+hub.museum.how_learn_n,Learn {n} skills to find it.,Museum: how to earn a milestone mineral,0
+hub.museum.quartz_how,Crack rocks in Pebble Meadow to find it.,Museum: how to earn quartz,0
+hub.museum.garnet_how,Crack rocks in the Quarry of Tens to find it.,Museum: how to earn garnet,0
+hub.museum.pyrite_how,Crack rocks in the Skip-Count Caves to find it.,Museum: how to earn pyrite,0
+hub.museum.amethyst_how,Learn a new skill to find it.,Museum: how to earn amethyst,0
+hub.museum.malachite_how,Learn every skill in Pebble Meadow to find it.,Museum: how to earn malachite,0
+hub.museum.fluorite_how,Learn every skill in the Quarry of Tens to find it.,Museum: how to earn fluorite,0
+hub.museum.hematite_how,Learn every skill in the Skip-Count Caves to find it.,Museum: how to earn hematite,0
+hub.museum.quartz_name,Quartz,Mineral name,0
+hub.museum.garnet_name,Garnet,Mineral name,0
+hub.museum.pyrite_name,Pyrite,Mineral name,0
+hub.museum.amethyst_name,Amethyst,Mineral name,0
+hub.museum.malachite_name,Malachite,Mineral name,0
+hub.museum.fluorite_name,Fluorite,Mineral name,0
+hub.museum.hematite_name,Hematite,Mineral name,0
+hub.museum.calcite_name,Calcite,Mineral name,0
+hub.museum.topaz_name,Topaz,Mineral name,0
+hub.museum.obsidian_name,Obsidian,Mineral name,0
+hub.museum.quartz_fact,Quartz is one of the most common minerals. Its crystals have six sides.,Museum fact,0
+hub.museum.garnet_fact,Garnets are deep red. People have used them as gems for thousands of years.,Museum fact,0
+hub.museum.pyrite_fact,Pyrite shines like gold. Its crystals can grow as perfect cubes.,Museum fact,0
+hub.museum.amethyst_fact,Amethyst is a purple kind of quartz. It grows inside hollow rocks.,Museum fact,0
+hub.museum.malachite_fact,Malachite is bright green. It has light and dark stripes.,Museum fact,0
+hub.museum.fluorite_fact,Fluorite comes in many colors. Some pieces glow under special light.,Museum fact,0
+hub.museum.hematite_fact,"Hematite is heavy and shiny. When you rub it, it leaves a red streak.",Museum fact,0
+hub.museum.calcite_fact,Calcite is soft. Chalk and marble are made of it.,Museum fact,0
+hub.museum.topaz_fact,"Topaz is very hard. It can be golden, blue or pink.",Museum fact,0
+hub.museum.obsidian_fact,Obsidian is glass made by a volcano. Its edges are very sharp.,Museum fact,0
+hub.garage.title,Bolt's Garage,Garage heading,0
+hub.garage.hello,Pick a new lamp or a tool for me!,Garage: Bolt's greeting,0
+hub.garage.pickaxe_t2,Big pickaxe,Garage item,0
+hub.garage.pickaxe_t2_info,It cracks rocks with a bigger burst!,Garage item description,0
+hub.garage.lamp_blue,Blue lamp,Garage item: Bolt's starting headlamp,0
+hub.garage.lamp_green,Green lamp,Garage item,0
+hub.garage.lamp_gold,Gold lamp,Garage item,0
+ui.garage.buy,Buy for {n} coins,"Garage: buy button (coins only, never real money)",0
+ui.garage.use,Use,Garage: wear an owned headlamp,0
+ui.garage.in_use,In use,Garage: the headlamp Bolt wears now,0
+ui.garage.owned,Yours!,Garage: an owned tool,0
+ui.garage.need,Dig to earn {n} more coins.,"Garage: not enough coins yet (informational, no pressure)",0
+ui.hub.grownups,Grown-ups,Workshop button: the parent area (behind the parent gate),0
+ui.common.less,Less,Generic button: make a number smaller,0
+ui.common.more,More,Generic button: make a number bigger,0
+parent.gate.title,For grown-ups,Parent gate heading,0
+parent.gate.question,"To open the grown-up area, answer: {a} × {b} = ?",Parent gate question (adult level),0
+parent.gate.missed,That is not it. Here is a new one.,Parent gate: a miss,0
+parent.gate.wait,Too many tries. Please wait a moment.,Parent gate: locked for 30 seconds after three misses (no countdown shown),0
+parent.dash.title,Progress,Parent dashboard heading,0
+parent.dash.recovered,The last save could not be read. The backup copy was used.,Parent dashboard: the save was recovered from .tmp or .bak,0
+parent.dash.time,Time played,Parent dashboard section,0
+parent.dash.today,Today: {n} minutes,Parent dashboard,0
+parent.dash.week,This week: {n} minutes,Parent dashboard: the last 7 days,0
+parent.dash.mastered,Skills mastered ({n}),Parent dashboard section,0
+parent.dash.struggling,Needs practice ({n}),Parent dashboard section: flagged skills or 3 misses in the last 5 first tries,0
+parent.dash.skill_reason,{skill}: {reason},Parent dashboard: a skill that needs practice and why,0
+parent.dash.reason_flagged,flagged for review,Parent dashboard: hint rung 4 or a missed review,0
+parent.dash.reason_misses,3 or more misses in the last 5 tries,Parent dashboard,0
+parent.dash.sessions,Recent sessions ({n}),Parent dashboard section: the last 7,0
+parent.dash.session_row,"{day}: {minutes} min, {rocks} rocks, {percent}% right first try",Parent dashboard: one session,0
+parent.dash.none,None yet.,Parent dashboard: an empty list,0
+parent.dash.settings,Settings,Parent dashboard section,0
+parent.dash.session_length,Session length: {n} minutes,Parent dashboard: the soft time limit,0
+parent.dash.nickname,Nickname,Parent dashboard: the child's nickname,0
+parent.dash.rerun,Re-run the placement quest,Parent dashboard button,0
+parent.dash.rerun_done,The next dig starts with the placement quest.,Parent dashboard,0
+parent.dash.export,Export progress,Parent dashboard button: save a progress file,0
+parent.dash.import,Import progress,Parent dashboard button: load a progress file,0
+parent.dash.exported,Saved to {path},Parent dashboard: export done,0
+parent.dash.export_failed,The progress file could not be saved.,Parent dashboard,0
+parent.dash.imported,Progress imported.,Parent dashboard: the imported progress was newer and replaced this device's,0
+parent.dash.import_kept,"This device's progress is newer, so it was kept. The answers were added.",Parent dashboard: newest wins,0
+parent.dash.import_failed,That file could not be imported.,Parent dashboard,0
+ui.settings.music,Music,Settings: music volume,0
+ui.settings.sounds,Sounds,Settings: sound effects volume,0
+bolt.first_run.hello,"Hi! I'm Bolt, a mining robot.",First run: Bolt says hello,0
+bolt.first_run.lamp,My headlamp lights the way in the mine.,First run: Bolt's electric headlamp,0
+bolt.first_run.name,What should I call you?,First run: pick a miner name,0
+bolt.first_run.grownup,A grown-up can type your real name later.,First run: the real name is entered in the parent area,0
+bolt.first_run.ready,Nice to meet you! Let's explore the mountain together.,First run: hand-off to the placement quest,0
+ui.first_run.start,Let's dig!,First run: start the placement quest,0
+firstrun.name.spark,Spark,Preset miner name,0
+firstrun.name.pebble,Pebble,Preset miner name,0
+firstrun.name.comet,Comet,Preset miner name,0
+firstrun.name.nova,Nova,Preset miner name,0
+firstrun.name.crystal,Crystal,Preset miner name,0
+firstrun.name.digger,Digger,Preset miner name,0
+firstrun.name.rocket,Rocket,Preset miner name,0
+firstrun.name.echo,Echo,Preset miner name,0
+z2.add.prompt_sum,What is {a} + {b}?,Zone 2: add two numbers,0
+z2.add.prompt_make_ten,What is {a} + {b}? Make a ten to help.,Zone 2: add within 20 by making a ten,0
+z2.add.prompt_tens,What is {a} + {b}? Think in tens.,Zone 2: add multiples of ten,0
+z2.add.prompt_three,What is {a} + {b} + {c}?,Zone 2: add three numbers,0
+z2.sub.prompt_diff,What is {a} - {b}?,Zone 2: subtract,0
+z2.sub.prompt_tens,What is {a} - {b}? Think in tens.,Zone 2: subtract multiples of ten,0
+z2.hint.example_add,So {a} + {b} = {sum}.,Worked example: an addition fact,0
+z2.hint.example_add_three,So {a} + {b} + {c} = {sum}.,Worked example: adding three numbers,0
+z2.hint.example_make_ten,{a} + {fill} = {ten}. Then {ten} + {rest} = {sum}.,Worked example: make a ten then add the rest,0
+z2.hint.example_sub,So {a} - {b} = {diff}.,Worked example: a subtraction fact,0
+ui.answer.even,Even,Answer button label: an even number,0
+ui.answer.odd,Odd,Answer button label: an odd number,0
+z3.skip.prompt_by_10,Count by tens. Fill in the missing numbers.,Zone 3: number strip counting by 10,0
+z3.skip.prompt_by_5,Count by fives. Fill in the missing numbers.,Zone 3: number strip counting by 5,0
+z3.skip.prompt_by_2,Count by twos. Fill in the missing numbers.,Zone 3: number strip counting by 2,0
+z3.parity.prompt_pairs,Make pairs. Is the number of gems even or odd?,Zone 3: even or odd by pairing gems,0
+z3.parity.prompt_rule,Is {n} even or odd?,Zone 3: even or odd from the number,0
+z3.arr.prompt_count,How many gems are in this array?,Zone 3: count the gems in an array,0
+z3.arr.prompt_build,Build an array with {rows} rows and {cols} columns.,Zone 3: build an array,0
+z3.mult.prompt_repeated_2,What is {n} + {n}?,Zone 3: repeated addition with 2 groups,0
+z3.mult.prompt_repeated_3,What is {n} + {n} + {n}?,Zone 3: repeated addition with 3 groups,0
+z3.mult.prompt_repeated_4,What is {n} + {n} + {n} + {n}?,Zone 3: repeated addition with 4 groups,0
+z3.mult.prompt_repeated_5,What is {n} + {n} + {n} + {n} + {n}?,Zone 3: repeated addition with 5 groups,0
+z3.mult.prompt_equal_groups,There are {groups} groups of {size} gems. How many in all?,Zone 3: total of equal groups,0
+z3.mult.prompt_commutative,This array shows {rows} × {cols}. Which shows the same total?,Zone 3: commutative property; the answer buttons show facts such as 5 × 3,0
+z3.mult.prompt_fact,What is {a} × {b}?,"Zone 3: times tables for 2, 5 and 10",0
+z3.hint.example_blanks,The missing numbers are {a} and {b}.,Worked example: the two blanks of a number strip,0
+z3.hint.example_pairs_even,{n} gems make pairs with none left over. So {n} is even.,Worked example: even by pairing,0
+z3.hint.example_pairs_odd,{n} gems make pairs with one left over. So {n} is odd.,Worked example: odd by pairing,0
+z3.hint.example_rule_even,{n} ends in {digit}. So {n} is even.,Worked example: even from the ones digit,0
+z3.hint.example_rule_odd,{n} ends in {digit}. So {n} is odd.,Worked example: odd from the ones digit,0
+z3.hint.example_array_total,{rows} rows of {cols} gems make {total}.,Worked example: the total of an array,0
+z3.hint.example_array_shape,The array has {rows} rows and {cols} columns.,Worked example: the shape of an array,0
+z3.hint.example_groups_total,{groups} groups of {size} make {total}.,Worked example: the total of equal groups,0
+z3.hint.example_commutative,{rows} × {cols} and {cols} × {rows} both make {total}.,Worked example: turning an array keeps the total,0
+z3.hint.example_fact,{a} × {b} = {product}.,Worked example: a times fact,0

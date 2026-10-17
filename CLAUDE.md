@@ -108,7 +108,7 @@ scripts/
   generators/        # one file per skill family; pure logic, no nodes
   adaptive/          # bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd
   save/              # schema, migrator, store, migrations/
-  core/              # Problem, Skill, SkillCatalog, Attempt, DigFlow, ProblemSource, JsonUtil, SfxBank
+  core/              # Problem, Skill, SkillCatalog, Attempt, DigFlow, GameClock, RewardsRules, ProgressReport, JsonUtil, SfxBank, ...
   ui/                # ExplorerTheme (theme built in code)
 curriculum/
   skills/zNN_*.json  # skill graph: id, prereqs, generator, params, representations, terms
@@ -122,7 +122,7 @@ addons/              # gdUnit4, digit_ink (built AAR)
 android/plugins/digit_ink/   # Kotlin plugin source (Gradle project)
 tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
-  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/
+  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/
 docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, privacy-policy.md
 private/             # GITIGNORED: Charlie's exported logs and handwriting samples. Never commit or upload.
 ```
@@ -157,8 +157,11 @@ python tools/crosscheck/run.py --all --n 10000
 python tools/voice/generate.py --dry-run
 python tools/voice/generate.py --changed
 
-# Lint: fails on hard-coded child-facing strings, LineEdit in child scenes, banned content keywords
+# Lint: fails on hard-coded child-facing strings, LineEdit in child scenes, banned content keywords, network code
 python tools/ci/lint_content.py
+
+# Static performance check: no allocations in _process, OGG audio, exported-size budget
+python tools/ci/perf_check.py
 
 # Build the Kotlin handwriting plugin and copy the AAR into addons/digit_ink/bin/
 cd android/plugins/digit_ink && ./gradlew assembleRelease && cd -
@@ -297,7 +300,7 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 - Dig loop, BKT engine, kid-friendly text, rewards v1, parent dashboard v1.
 - Tap, drag and number-pad input.
 
-**Built so far (through Sprint 5):** shell and screens, `Text`, `UI`, `InputRouter`, `SaveSystem`, `NumberPad`, the drag board, the dig loop with placeholder art and sound, the skill map, and the Zone 1 generators with their cross-check. `ProblemSource` is a stand-in for the Adaptive engine (Sprint 6). Zones 2 and 3 generators arrive in Sprints 7 and 9. Decisions waiting on Spiro are marked "Needs Spiro" in `docs/decisions.md`.
+**Built so far (Sprints 1–11 in code):** shell and screens (title, first run, workshop, museum, garage, settings, pause, parent gate and dashboard), all six autoloads (`Text`, `UI`, `InputRouter`, `SaveSystem`, `Adaptive`, `Rewards`), every MVP input (`NumberPad`, drag board, tiles, array builder, choices, tap piles), the dig loop with Word Gems and the four-rung hint ladder, the BKT engine with placement and spaced review, Rewards v1, placeholder art and music, and generators for all 45 Zone 1–3 skills with their Python cross-checks. Left for the devices: the bug bash, profiler captures, the release AAB and Charlie's first session (`docs/decisions.md`, Sprint 11). Decisions waiting on Spiro are marked "Needs Spiro" in `docs/decisions.md`.
 
 **Out of scope until after the MVP:** narration and the voice pipeline (Phase 3), handwriting, crafting, Zones 4–12, cross-device sync, profiles, public release. Don't build ahead of the current sprint; add ideas to the backlog instead.
 

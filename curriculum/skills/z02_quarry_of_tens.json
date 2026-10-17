@@ -119,7 +119,7 @@
       "terms": ["equal"],
       "bkt_type": "concept",
       "is_fact_skill": false,
-      "misconceptions": ["left_side_only"]
+      "misconceptions": ["left_side_only", "thought_equal", "thought_unequal"]
     },
     {
       "id": "eq.inverse.check",
@@ -197,7 +197,7 @@
       "terms": ["difference"],
       "bkt_type": "procedure",
       "is_fact_skill": false,
-      "misconceptions": ["smaller_from_larger", "digit_swap"]
+      "misconceptions": ["smaller_from_larger", "digit_swap", "added_instead"]
     },
     {
       "id": "sub.to_100.regroup",

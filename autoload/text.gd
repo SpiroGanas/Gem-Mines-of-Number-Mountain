@@ -21,6 +21,8 @@ const COLUMN_ID: String = "id"
 const COLUMN_TEXT: String = "text"
 ## All columns the table must have. Extra columns are allowed.
 const REQUIRED_COLUMNS: PackedStringArray = ["id", "text", "context", "voice_version"]
+## The warm headlamp yellow used to highlight numbers in Bolt's bubble.
+const HIGHLIGHT_COLOR: String = "#FFD166"
 
 var _lines: Dictionary[StringName, String] = {}
 var _placeholder_pattern: RegEx = RegEx.new()
@@ -90,6 +92,50 @@ func get_line(id: StringName, params: Dictionary = {}) -> String:
 	return filled
 
 
+## The line as BBCode for a RichTextLabel. Square brackets in the text are escaped, and the values
+## of the params named in `highlight` are drawn bold in `color` (hint rung 1: "look at these numbers").
+## `links` maps Word Gem words to their term ids ({"sum": &"sum", "fact family": &"fact_family"}):
+## each whole-word match in the line (any case) becomes a tappable [url] whose meta is the term
+## id, so a RichTextLabel's meta_clicked reports which Word Gem was tapped.
+func get_line_bbcode(id: StringName, params: Dictionary = {}, highlight: Array = [], color: String = HIGHLIGHT_COLOR, links: Dictionary = {}) -> String:
+	if not _lines.has(id):
+		return get_line(id, params) # reports the gap the usual way
+	var filled: Dictionary = {}
+	for key: Variant in params:
+		var value: String = escape_bbcode(str(params[key]))
+		filled[key] = "[b][color=%s]%s[/color][/b]" % [color, value] if highlight.has(key) else value
+	var template: String = escape_bbcode(_lines[id])
+	if not links.is_empty():
+		template = _link_words(template, links)
+	return template.format(filled)
+
+
+func _link_words(template: String, links: Dictionary) -> String:
+	var words: Array = links.keys()
+	words.sort_custom(func(a: String, b: String) -> bool: return a.length() > b.length()) # "equal groups" before "equal"
+	var escaped: PackedStringArray = PackedStringArray()
+	for word: String in words:
+		escaped.append(word.replace(" ", "\\s+"))
+	var pattern: RegEx = RegEx.new()
+	pattern.compile("(?i)\\b(" + "|".join(escaped) + ")\\b")
+	var result: String = ""
+	var last: int = 0
+	for found: RegExMatch in pattern.search_all(template):
+		if found.get_start() > 0 and template[found.get_start() - 1] == "{":
+			continue # a placeholder such as {tens}, not the word
+		var word: String = found.get_string(1)
+		var term: Variant = links.get(word.to_lower(), links.get(" ".join(word.to_lower().split(" ", false)), ""))
+		result += template.substr(last, found.get_start() - last)
+		result += "[url=%s][u]%s[/u][/url]" % [term, word]
+		last = found.get_end()
+	return result + template.substr(last)
+
+
+## Text made safe to show in a BBCode label: "[" becomes the [lb] tag.
+static func escape_bbcode(text: String) -> String:
+	return text.replace("[", "[lb]")
+
+
 ## The placeholder names a line needs, in order of first appearance, e.g. ["a", "b"].
 ## Generators' tests use this to prove a problem supplies every parameter its prompt needs.
 func required_params(id: StringName) -> PackedStringArray:
@@ -98,7 +144,7 @@ func required_params(id: StringName) -> PackedStringArray:
 	return _placeholders_in(_lines[id])
 
 
-## A Word Gem: {term: String, text: String, picture: Texture2D or null}.
+## A Word Gem: {term: String, text: String, picture: Texture2D or null, visual: Dictionary}.
 ## Empty when the term id is unknown. Words come from the text table; the picture
 ## and the line ids come from curriculum/vocabulary.json.
 func term_definition(term_id: StringName) -> Dictionary:
@@ -115,14 +161,24 @@ func term_definition(term_id: StringName) -> Dictionary:
 		"term": get_line(StringName(entry["term_line_id"])),
 		"text": get_line(StringName(entry["definition_line_id"])),
 		"picture": picture,
+		"visual": entry.get("visual", {}),
 	}
+
+
+## Every Word Gem id in curriculum/vocabulary.json, in file order.
+func term_ids() -> Array[StringName]:
+	_ensure_vocabulary()
+	var ids: Array[StringName] = []
+	for id: StringName in _vocabulary:
+		ids.append(id)
+	return ids
 
 
 func _ensure_vocabulary() -> void:
 	if _vocabulary_loaded:
 		return
 	_vocabulary_loaded = true
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(VOCABULARY_PATH))
+	var parsed: Variant = JsonUtil.parse_file(VOCABULARY_PATH) # whole numbers stay ints (picture sizes)
 	if not parsed is Dictionary:
 		push_error("Text: cannot read %s" % VOCABULARY_PATH)
 		return

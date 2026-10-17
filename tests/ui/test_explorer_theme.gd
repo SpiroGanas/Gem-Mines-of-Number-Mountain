@@ -47,3 +47,23 @@ func test_button_style_leaves_room_for_a_finger() -> void:
 	var theme: Theme = ExplorerTheme.build(64)
 	var box: StyleBox = theme.get_stylebox(&"normal", &"Button")
 	assert_float(box.get_margin(SIDE_LEFT)).is_greater_equal(12.0)
+
+
+func test_the_sprint_7_colors_meet_the_contrast_rules() -> void:
+	# Word Gem chips: navy text on light amethyst; AAA at rest and hovered, AA pressed (like every button).
+	for fill: Color in [ExplorerTheme.LAVENDER, ExplorerTheme.LAVENDER_HOVER]:
+		assert_float(ExplorerTheme.contrast_ratio(ExplorerTheme.NAVY, fill)).is_greater_equal(ExplorerTheme.MIN_TEXT_CONTRAST)
+	assert_float(ExplorerTheme.contrast_ratio(ExplorerTheme.NAVY, ExplorerTheme.LAVENDER_PRESSED)).is_greater_equal(4.5)
+	# Highlighted numbers and Bolt's note line on the speech bubble (AAA).
+	assert_float(ExplorerTheme.contrast_ratio(Color(Text.HIGHLIGHT_COLOR), ExplorerTheme.NAVY_LIGHT)).is_greater_equal(ExplorerTheme.MIN_TEXT_CONTRAST)
+	assert_float(ExplorerTheme.contrast_ratio(Bolt.NOTE_COLOR, ExplorerTheme.NAVY_LIGHT)).is_greater_equal(ExplorerTheme.MIN_TEXT_CONTRAST)
+	# Tile text on a tile (AAA).
+	assert_float(ExplorerTheme.contrast_ratio(TileBoard.TILE_TEXT, TileBoard.TILE_FILL)).is_greater_equal(ExplorerTheme.MIN_TEXT_CONTRAST)
+
+
+func test_bolts_bubble_text_and_word_gem_chips_are_styled() -> void:
+	var theme: Theme = ExplorerTheme.build(64)
+	assert_int(theme.get_font_size(&"normal_font_size", &"RichTextLabel")).is_equal(ExplorerTheme.BODY_SIZE)
+	assert_int(theme.get_font_size(&"bold_font_size", &"RichTextLabel")).is_equal(ExplorerTheme.BODY_SIZE)
+	assert_str(String(theme.get_type_variation_base(&"WordGemButton"))).is_equal("Button")
+	assert_int(theme.get_font_size(&"font_size", &"WordGemButton")).is_equal(ExplorerTheme.WORD_GEM_SIZE)

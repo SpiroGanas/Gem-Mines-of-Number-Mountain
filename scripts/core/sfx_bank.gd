@@ -1,4 +1,5 @@
-## Plays the short sound effects on the SFX bus (Sprint 4 placeholder sounds).
+## Plays the short sound effects on the SFX bus (project-made placeholder sounds, see
+## tools/sfx/generate_placeholder_sfx.py).
 ##
 ## Every action in the game has a sound (GDD section 8). A small pool of players lets
 ## sounds overlap (a crack and a gem pop at nearly the same moment). `played` fires for every
@@ -16,7 +17,7 @@ signal played(sfx_id: StringName)
 const SOUND_DIR: String = "res://assets/sfx/placeholder"
 const BUS: StringName = &"SFX"
 const VOICES: int = 4
-const SOUND_IDS: Array[StringName] = [&"tap", &"select", &"place", &"wobble", &"crack", &"gem", &"coin", &"soft_miss", &"fanfare"]
+const SOUND_IDS: Array[StringName] = [&"tap", &"select", &"place", &"wobble", &"crack", &"gem", &"coin", &"soft_miss", &"fanfare", &"sparkle", &"lantern", &"buy"]
 
 var _streams: Dictionary[StringName, AudioStream] = {}
 var _players: Array[AudioStreamPlayer] = []

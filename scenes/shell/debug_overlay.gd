@@ -19,6 +19,8 @@ func _ready() -> void:
 	visible = OS.is_debug_build()
 	_timer.wait_time = REFRESH_SECONDS
 	_timer.timeout.connect(refresh)
+	if not OS.is_debug_build():
+		_timer.stop() # a release build never shows it, so it never builds its text either
 	InputRouter.device_kind_changed.connect(func(_kind: InputRouter.DeviceKind) -> void: refresh())
 	InputRouter.posture_changed.connect(func(_size: Vector2i) -> void: refresh())
 	refresh()

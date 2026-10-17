@@ -17,6 +17,15 @@ static func table() -> Dictionary:
 		&"CompareGenerator": CompareGenerator.generate,
 		&"PlaceValueGenerator": PlaceValueGenerator.generate,
 		&"RegroupGenerator": RegroupGenerator.generate,
+		&"FactFamilyGenerator": FactFamilyGenerator.generate,
+		&"MissingPartGenerator": MissingPartGenerator.generate,
+		&"BalanceGenerator": BalanceGenerator.generate,
+		&"AdditionGenerator": AdditionGenerator.generate,
+		&"SubtractionGenerator": SubtractionGenerator.generate,
+		&"SkipCountGenerator": SkipCountGenerator.generate,
+		&"ParityGenerator": ParityGenerator.generate,
+		&"ArraysGenerator": ArraysGenerator.generate,
+		&"MultiplicationGenerator": MultiplicationGenerator.generate,
 	}
 
 

@@ -271,3 +271,37 @@ def test_rules_6_and_7_report_curriculum_problems(tmp_path: Path) -> None:
     })
     found = lint.check_curriculum(root)
     assert found and all(f.rule == "6-7" for f in found)
+
+
+# ---------------------------------------------------------------------------
+# Rule 9: no network code
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "var http: HTTPRequest = HTTPRequest.new()",
+        "var peer := StreamPeerTCP.new()",
+        "var socket := WebSocketPeer.new()",
+        "OS.shell_open(link)",
+        'var link: String = "https://example.com"',
+    ],
+)
+def test_rule9_flags_network_code(tmp_path: Path, code: str) -> None:
+    root = make_tree(tmp_path, {"autoload/x.gd": f"func f() -> void:\n\t{code}\n"})
+    assert messages(lint.check_no_network(root)) == ["9:autoload/x.gd:2"]
+
+
+def test_rule9_ignores_comments_and_code_outside_the_game(tmp_path: Path) -> None:
+    root = make_tree(tmp_path, {
+        "scripts/x.gd": "# See https://docs.godotengine.org for HTTPRequest.\nfunc f() -> void:\n\tpass # no HTTPClient here\n",
+        "tests/y.gd": "var http := HTTPRequest.new()\n",
+        "tools/z.py": "URL = 'https://example.com'\n",
+    })
+    assert lint.check_no_network(root) == []
+
+
+def test_rule9_flags_a_network_node_in_a_scene(tmp_path: Path) -> None:
+    root = make_tree(tmp_path, {"scenes/a.tscn": '[node name="Fetch" type="HTTPRequest" parent="."]\n'})
+    assert messages(lint.check_no_network(root)) == ["9:scenes/a.tscn:1"]

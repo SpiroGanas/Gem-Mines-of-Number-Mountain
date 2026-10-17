@@ -144,6 +144,8 @@ static func _order(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 	if not least_first:
 		by_ones.reverse()
 	GeneratorKit.add_distractor(problem, skill, by_ones, &"compared_ones_first")
+	# Drag the numbers into order: the tiles come in the order the piles are shown.
+	problem.meta["tile_board"] = {"tiles": shown.duplicate(), "slots": count, "ordered": true}
 	var window: Vector2i = GeneratorKit.window_around(numbers)
 	return GeneratorKit.number_line(window.x, window.y, 10 if window.y - window.x <= 60 else 20, numbers, [])
 

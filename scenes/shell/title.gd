@@ -16,8 +16,17 @@ func _ready() -> void:
 	_title_label.text = Text.get_line(&"ui.title.name")
 	_play_button.text = Text.get_line(&"ui.title.play")
 	UI.make_touch_target(_play_button, PLAY_WIDTH_MULTIPLE, PLAY_HEIGHT_MULTIPLE)
+	var picture: TitleArt = TitleArt.new()
+	picture.custom_minimum_size = UI.target_size(8.0, 4.0)
+	_title_label.get_parent().add_child(picture)
+	_title_label.get_parent().move_child(picture, 0)
+	var backdrop: Backdrop = Backdrop.new()
+	add_child(backdrop)
+	move_child(backdrop, 0)
 	_play_button.pressed.connect(_on_play_pressed)
 
 
 func _on_play_pressed() -> void:
-	request_screen.emit(&"hub", {})
+	# A profile with no nickname yet has not met Bolt: the first run comes first.
+	var first_time: bool = str(SaveSystem.data()["child"].get("nickname", "")).is_empty()
+	request_screen.emit(&"first_run" if first_time else &"hub", {})

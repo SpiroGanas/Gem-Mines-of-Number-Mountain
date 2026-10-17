@@ -224,6 +224,8 @@ The MVP uses **placeholder art** that is coherent, not final. Commissioned art (
   | Pyrite | 3 | Cube | Gold |
   | Amethyst (mastery bonus) | any | Tall prism | Purple |
 
+  The museum minerals (calcite, topaz, malachite, fluorite, hematite, obsidian) follow the same rule; their shapes and colors live in `scenes/mine/gem_art.gd`.
+
 - **Bolt (placeholder):** a rounded grey-blue robot with a lamp on its head and two simple eyes. Expressions: neutral, happy, thinking. No mouth movement is needed in the text-only MVP.
 - **Typography:** **Andika** (SIL Open Font License), a font designed for early readers, at large sizes. Selected; import is pending Spiro's approval in `docs/sdk-audit.md` (see section 11). Until it is imported the engine's default font is used.
 
@@ -323,3 +325,24 @@ _Spiro's notes from the game-feel study (P1-S01-03):_ _(to be added)_
 | Paper prototype results and the "trade ten" wording | Spiro and Charlie | Before the Zone 1 lines are final (Sprint 5–7) |
 | Math reviewer for Zones 1–3 | Spiro | Before Sprint 6 (the engine consumes the prerequisites) |
 | Pen as touch for all MVP interactions (recommended) vs. separate pen handling | Spiro | After the Sprint 1 device test |
+
+---
+
+## 12. Readability checklist (P1-S10-04)
+
+Run this on every screen before it ships, and again after any layout change. The automated half runs in `tests/scenes/test_readability.gd` on every screen the Shell can show; the rest is a manual check with the screenshots on the 2-in-1 and the tablet.
+
+| # | Check | How it is checked |
+|---|---|---|
+| 1 | Every button is at least one touch target (`UI.min_target_px()`, 64 dp) in both directions | Automated |
+| 2 | Every visible word comes from `text/lines.csv`: no `[missing.id]`, no unfilled `{placeholder}` | Automated, plus `tools/ci/lint_content.py` |
+| 3 | No `LineEdit`, `TextEdit` or `SpinBox` outside the parent area | Automated, plus the lint |
+| 4 | Text on every backdrop palette keeps AAA contrast (7:1); button text keeps AA (4.5:1) | Automated (`test_readability.gd`, `test_explorer_theme.gd`) |
+| 5 | Every workshop button has a picture as well as a word | Automated |
+| 6 | Every instruction has a picture beside it (the problem's visual, a pile, a strip or an icon) | Manual |
+| 7 | Color is never the only clue: gems differ by shape, the lantern shows a bulb, choices carry words or numbers | Manual (gem shapes are also checked in `test_gem_art.gd`) |
+| 8 | Nothing is cut off at 16:9, 16:10, 3:2 and 4:3, with the longest hint (rung 3) on screen | Manual, with the screenshot probe; Bolt's notes are capped at two lines |
+| 9 | Overlays (Word Gem card, celebration, wind-down) cover the whole screen and wait for a tap | Automated (`test_mine.gd`) and manual |
+| 10 | Each Explorer line is one instruction of 12 words or fewer | Lint warning, plus a read-through |
+
+**Last run:** Sprint 10, at 1920×1080, every screen and one problem of each input kind with hint rungs 1–3. Fixed: the rung-3 build board was pushed off the screen (Done now sits beside the piles and the notes are capped at two lines), Bolt was drawn stretched beside a tall bubble, the tile strip's worked example needed the room taken by the picture, and the three overlays were drawn in the top-left corner instead of filling the screen. Still to do on the devices: the same pass at 4:3 and 3:2, and with the stylus.

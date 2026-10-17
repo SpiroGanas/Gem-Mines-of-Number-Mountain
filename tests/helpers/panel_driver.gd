@@ -13,7 +13,7 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 		AnswerPanel.InputKind.CHOICES:
 			var values: Array = panel.choices().values_in_order()
 			for index: int in values.size():
-				if Problem.canonical(values[index]) == Problem.canonical(target):
+				if Problem.same(values[index], target):
 					panel.choices().button(index).pressed.emit()
 					return true
 			return false
@@ -22,6 +22,19 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			for digit: String in str(int(target)):
 				panel.number_pad().press_digit(int(digit))
 			panel.number_pad().submit()
+			return true
+		AnswerPanel.InputKind.TILES:
+			var board: TileBoard = panel.tile_board()
+			board.clear()
+			for index: int in target.size():
+				if board.tile_face(target[index]) == null:
+					return false
+				board.put(target[index], index)
+			board.submit()
+			return true
+		AnswerPanel.InputKind.ARRAY:
+			panel.array_builder().set_array(int(target["rows"]), int(target["cols"]))
+			panel.array_builder().submit()
 			return true
 		AnswerPanel.InputKind.BOARD:
 			var tray: DragTarget = panel.board().tray()

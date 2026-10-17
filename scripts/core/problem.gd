@@ -7,13 +7,42 @@
 ##   int                        a count or a number
 ##   StringName                 a choice such as &"<", &">" or &"="
 ##   Array[int]                 an ordered list, e.g. [30, 4] or the blanks of a number strip
-##   Dictionary                 {tens, ones} or {hundreds, tens, ones}
+##   Dictionary                 {tens, ones}, {hundreds, tens, ones} or {rows, cols}
+##   bool                       true / false (is the scale balanced? is it even?)
+##   String                     a fact such as "12 - 5 = 7"
+##
+## Optional `meta` keys that pick or shape the answer input (AnswerPanel reads them):
+##   tools          ["ten", "one"] or ["hundred", "ten", "one"]: build on the BuildBoard
+##   start          {tens, ones}: pieces already in the BuildBoard tray (regrouping)
+##   tap_target     "pile": tap one of the piles in the picture
+##   tile_board     {tiles: Array, slots: int, ordered: bool}: drag tiles into slots. The answer
+##                  is an Array of `slots` tile values; when `ordered` is false the answer (and every
+##                  distractor) is sorted with Problem.sorted_values() so any order of the same
+##                  tiles is the same answer.
+##   array_builder  {max_rows: int, max_cols: int}: drag or tap out an array; answer {rows, cols}
+##   label_lines    {label_key: line id}: answer buttons whose labels are words ("True", "Even")
+##                  instead of numerals. Keys come from Problem.label_key(value).
+##   array_label    "sum": an Array answer reads "30 + 4" instead of "30, 4"
+##   strip          [int]: the whole number strip, blanks included, when the picture is not a
+##                  number line (counting by twos shows pairs); the tile board draws the strip
+##                  around its slots from it. The blanks are the answer's values.
+## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
+## ignores keys it does not know.
 class_name Problem
 extends RefCounted
 
 ## The four hint rungs, in the order the ladder climbs them (Phase 1 plan, hint ladder).
 const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"worked_example", &"easier_problem"]
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line"]
+## gem_piles   {piles: [{hundreds, tens, ones}]}
+## ten_frame   {count, frames, second?}: `count` dots, then `second` dots of another color
+## number_line {min, max, labeled_every, markers, blanks, jumps?: [{from, to}]}
+## balance     {left: [int], right: [int], tilt: "unknown" | "level" | "left" | "right"}: the
+##             addends on each pan; "left" means the left pan is heavier (lower)
+## array       {rows, cols, outline_rows?}: gems in rows and columns
+## groups      {groups, size}: equal groups of gems, each in its own ring
+## pairs       {count, show_pairs?}: gems lined up two by two; show_pairs rings each pair
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs"]
+const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 
 var skill_id: StringName = &""
 ## The seed that produced this problem; the same seed always gives the same problem.
@@ -42,7 +71,31 @@ var meta: Dictionary = {}
 ## True if `given` is the right answer. Comparison is canonical: 34 and 34.0 match,
 ## StringName and String match, and the order of an Array matters.
 func is_correct(given: Variant) -> bool:
-	return canonical(given) == canonical(answer)
+	return same(given, answer)
+
+
+## True when two answers are the same in canonical form. Values of different kinds (a number and
+## a truth value, say) are never the same; Godot would raise an error comparing them with ==.
+static func same(a: Variant, b: Variant) -> bool:
+	var x: Variant = canonical(a)
+	var y: Variant = canonical(b)
+	if typeof(x) != typeof(y):
+		return false
+	if x is Array:
+		if x.size() != y.size():
+			return false
+		for index: int in x.size():
+			if not same(x[index], y[index]):
+				return false
+		return true
+	if x is Dictionary:
+		if x.size() != y.size():
+			return false
+		for key: Variant in x:
+			if not y.has(key) or not same(x[key], y[key]):
+				return false
+		return true
+	return x == y
 
 
 ## The values of the distractors, in order.
@@ -84,6 +137,24 @@ func to_json() -> Dictionary:
 		"params": canonical(params),
 		"meta": canonical(meta),
 	}
+
+
+## The key a value has in meta.label_lines: "true" / "false" for a bool, the text of anything else.
+static func label_key(value: Variant) -> String:
+	if value is bool:
+		return "true" if value else "false"
+	return str(canonical(value))
+
+
+## The order an unordered tile answer is kept in: numbers ascending, text in code-point order.
+## Generators sort with this, and the tile board sorts what the child built the same way.
+static func sorted_values(values: Array) -> Array:
+	var items: Array = canonical(values)
+	items.sort_custom(func(x: Variant, y: Variant) -> bool:
+		if typeof(x) == typeof(y):
+			return x < y
+		return typeof(x) < typeof(y))
+	return items
 
 
 ## A JSON-friendly deep copy: StringName becomes String, whole floats become ints, containers are

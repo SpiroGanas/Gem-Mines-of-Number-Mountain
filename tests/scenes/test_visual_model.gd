@@ -181,3 +181,69 @@ func test_each_kind_of_picture_is_sized_to_its_content() -> void:
 	var line: VisualModel = _model({"type": "number_line", "min": 0, "max": 30, "labeled_every": 10, "markers": [], "blanks": []})
 	var piles: VisualModel = _model({"type": "gem_piles", "piles": [_pile(0, 0, 5)]})
 	assert_float(piles.custom_minimum_size.y).is_greater(line.custom_minimum_size.y)
+
+
+# --- Zone 2 and 3 pictures (Sprint 7) ---------------------------------------------------------
+
+
+func test_the_new_picture_types_draw_without_errors() -> void:
+	for visual: Dictionary in [
+		{"type": "ten_frame", "count": 8, "second": 5, "frames": 2},
+		{"type": "number_line", "min": 0, "max": 20, "labeled_every": 5, "markers": [], "blanks": [], "jumps": [{"from": 8, "to": 10}, {"from": 10, "to": 13}]},
+		{"type": "number_line", "min": 0, "max": 10, "labeled_every": 1, "markers": [], "blanks": [], "jumps": [{"from": 9, "to": 5}]},
+		{"type": "balance", "left": [3, 4], "right": [5, 2], "tilt": "level"},
+		{"type": "balance", "left": [9], "right": [4, 4], "tilt": "left"},
+		{"type": "balance", "left": [3, 4], "right": [8], "tilt": "unknown"},
+		{"type": "array", "rows": 3, "cols": 4, "outline_rows": true},
+		{"type": "groups", "groups": 7, "size": 5},
+		{"type": "pairs", "count": 7, "show_pairs": true},
+		{"type": "pairs", "count": 0},
+	]:
+		var model: VisualModel = _model(visual)
+		await get_tree().process_frame
+		assert_str(model.visual_type()).is_equal(visual["type"])
+
+
+func test_array_cells_are_square_inside_the_area_and_in_reading_order() -> void:
+	var cells: Array[Rect2] = VisualModel.array_cells(3, 4, BOX)
+	assert_int(cells.size()).is_equal(12)
+	for cell: Rect2 in cells:
+		assert_bool(BOX.grow(0.01).encloses(cell)).is_true()
+		assert_float(cell.size.x).is_equal_approx(cell.size.y, 0.001)
+	assert_float(cells[1].position.x).is_greater(cells[0].position.x) # across a row first
+	assert_float(cells[4].position.y).is_greater(cells[0].position.y)
+
+
+func test_groups_wrap_after_five_and_never_overlap() -> void:
+	var boxes: Array[Rect2] = VisualModel.group_boxes(7, Rect2(0, 0, 900, 400))
+	assert_int(boxes.size()).is_equal(7)
+	assert_float(boxes[5].position.y).is_greater(boxes[0].position.y)
+	for a: int in boxes.size():
+		assert_bool(Rect2(0, 0, 900, 400).grow(0.01).encloses(boxes[a])).is_true()
+		for b: int in range(a + 1, boxes.size()):
+			assert_bool(boxes[a].intersects(boxes[b])).override_failure_message("rings %d and %d overlap" % [a, b]).is_false()
+
+
+func test_pairs_stack_two_to_a_column_and_an_odd_one_sits_alone() -> void:
+	var cells: Array[Rect2] = VisualModel.pair_cells(7, BOX)
+	assert_int(cells.size()).is_equal(7)
+	assert_float(cells[0].position.x).is_equal_approx(cells[1].position.x, 0.001) # a pair shares a column
+	assert_float(cells[1].position.y).is_greater(cells[0].position.y)
+	assert_float(cells[6].position.x).is_greater(cells[5].position.x) # the leftover starts a new column
+
+
+func test_the_beam_leans_toward_the_heavier_pan_and_stays_level_otherwise() -> void:
+	assert_float(VisualModel.beam_angle("left")).is_less(0.0)
+	assert_float(VisualModel.beam_angle("right")).is_greater(0.0)
+	assert_float(VisualModel.beam_angle("level")).is_equal(0.0)
+	assert_float(VisualModel.beam_angle("unknown")).is_equal(0.0)
+
+
+func test_a_compact_picture_is_shorter() -> void:
+	var normal: VisualModel = _model({"type": "array", "rows": 2, "cols": 3})
+	var small: VisualModel = load("res://scenes/mine/visual_model.tscn").instantiate()
+	small.compact = true
+	add_child(small)
+	auto_free(small)
+	small.show_visual({"type": "array", "rows": 2, "cols": 3})
+	assert_float(small.custom_minimum_size.y).is_less(normal.custom_minimum_size.y)

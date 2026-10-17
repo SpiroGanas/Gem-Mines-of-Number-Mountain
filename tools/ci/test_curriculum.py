@@ -183,3 +183,8 @@ def test_vocabulary_check_requires_lines_in_the_text_table() -> None:
 def test_misconception_names_must_be_snake_case_with_descriptions() -> None:
     errors = cc.check_misconceptions({"Bad Name": "ok", "good_name": ""})
     assert len(errors) == 2
+
+
+def test_every_misconception_needs_bolts_hint_line() -> None:
+    errors = cc.check_misconceptions({"digit_swap": "Swapped the digits.", "new_mistake": "Something new."}, {"bolt.misconception.digit_swap"})
+    assert errors == ["misconceptions: 'new_mistake' has no hint line bolt.misconception.new_mistake in text/lines.csv"]

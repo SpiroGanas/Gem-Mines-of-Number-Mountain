@@ -48,11 +48,10 @@ static func add_distractor(problem: Problem, skill: Skill, value: Variant, misco
 	assert(skill.misconceptions.has(misconception), "%s is not a misconception of %s" % [misconception, skill.id])
 	if value is int and value < 0:
 		return
-	var canon: Variant = Problem.canonical(value)
-	if canon == Problem.canonical(problem.answer):
+	if Problem.same(value, problem.answer):
 		return
 	for existing: Dictionary in problem.distractors:
-		if Problem.canonical(existing["value"]) == canon:
+		if Problem.same(existing["value"], value):
 			return
 	problem.distractors.append({"value": value, "misconception": misconception})
 
@@ -132,6 +131,20 @@ static func shuffled_ints(values: Array[int], rng: RandomNumberGenerator) -> Arr
 	return items
 
 
+## The tile pool for a tile-board answer: every number in the answer and the distractors, once each,
+## in a fixed scrambled order (so the pool never spells out the answer and no rng draw is needed).
+static func tile_pool(problem: Problem) -> Array[int]:
+	var values: Array[int] = []
+	var answers: Array = [problem.answer]
+	answers.append_array(problem.distractor_values())
+	for answer: Variant in answers:
+		for item: Variant in answer:
+			if not values.has(int(item)):
+				values.append(int(item))
+	values.sort_custom(func(x: int, y: int) -> bool: return [(x * 7919) % 101, x] < [(y * 7919) % 101, y])
+	return values
+
+
 # --- Hints -----------------------------------------------------------------------------------
 
 
@@ -180,7 +193,7 @@ static func make_example(make: Callable, problem: Problem, rng: RandomNumberGene
 			and candidate.prompt_params == problem.prompt_params and candidate.visual == problem.visual
 		if identical:
 			continue
-		if Problem.canonical(candidate.answer) != Problem.canonical(problem.answer):
+		if not Problem.same(candidate.answer, problem.answer):
 			return candidate
 		if same_answer == null:
 			same_answer = candidate

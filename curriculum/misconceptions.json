@@ -25,6 +25,7 @@
     "off_by_one": "The answer is one more or one less than it should be.",
     "off_by_row": "Counted one row too many or too few in an array.",
     "off_by_two": "The answer is two more or two less than it should be.",
+    "parity_swapped": "Mixed up even and odd.",
     "picked_smaller": "Chose the pile with the opposite size (the smaller pile when asked for more, or the larger when asked for fewer).",
     "reversed_order": "Put the numbers in the opposite order (greatest to least instead of least to greatest).",
     "reversed_symbol": "Used the symbol that points the wrong way (< for > or > for <).",

@@ -7,8 +7,8 @@ plus the `ffmpeg` command for the OGG step. Output is deterministic: the same co
 writes the same samples. Every sound is short, soft and never startling (GDD section 8);
 the "soft_miss" sound for a not-quite answer is neutral, never a buzzer.
 
-These are project-made stand-ins. Sprint 10 replaces them with a licensed CC0 pack
-(see assets/CREDITS.md).
+These are project-made stand-ins (assets/CREDITS.md). The CC0 pack the plan names could not be
+reached from the build environment, so Sprint 10 added the remaining sounds here instead.
 """
 from __future__ import annotations
 
@@ -104,10 +104,20 @@ def synthesize(name: str) -> list[float]:
         return _finish(_tone(294, 0.22, 11, vibrato=0.01), gain=0.6)
     if name == "fanfare":
         return _finish(_mix(_tone(523, 0.3, 7), _delay(_tone(659, 0.3, 7), 0.12), _delay(_tone(784, 0.5, 6), 0.24)))
+    if name == "sparkle":
+        # A skill mastered: a quick rising shimmer of four bell notes.
+        notes = [1047, 1319, 1568, 2093]
+        return _finish(_mix(*[_delay(_tone(f, 0.3, 12), 0.06 * i) for i, f in enumerate(notes)]))
+    if name == "lantern":
+        # The electric lantern switching on: a soft click, then a warm hum that fades.
+        return _finish(_mix(_noise(rng, 0.02, 120, 0.4), _delay(_tone(330, 0.45, 6, vibrato=0.005), 0.02), _delay(_tone(495, 0.45, 7), 0.02)), gain=0.8)
+    if name == "buy":
+        # A garage purchase: two bright notes, like a till without the bell.
+        return _finish(_mix(_tone(784, 0.12, 20), _delay(_tone(1175, 0.2, 14), 0.08)))
     raise KeyError(name)
 
 
-SOUND_NAMES = ("tap", "select", "place", "wobble", "crack", "gem", "coin", "soft_miss", "fanfare")
+SOUND_NAMES = ("tap", "select", "place", "wobble", "crack", "gem", "coin", "soft_miss", "fanfare", "sparkle", "lantern", "buy")
 
 
 def write_wav(path: Path, samples: list[float]) -> None:

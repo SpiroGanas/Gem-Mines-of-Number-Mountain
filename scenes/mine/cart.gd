@@ -13,6 +13,8 @@ const BODY_RIM: Color = Color("#5E4A2F")
 const WHEEL: Color = Color("#2B3145")
 
 var speed_scale: float = 1.0
+## The big pickaxe makes the cart bounce harder when a gem lands.
+var strong: bool = false
 
 var _art: Control
 var _coins_label: Label
@@ -79,7 +81,8 @@ func _on_gem_arrived(flying: GemArt, gem_type: StringName) -> void:
 	_art.scale = Vector2.ONE
 	_tween = create_tween()
 	_tween.set_speed_scale(speed_scale)
-	_tween.tween_property(_art, "scale", Vector2(1.1, 0.92), BOUNCE_SECONDS * 0.5)
+	var bounce: Vector2 = Vector2(1.18, 0.86) if strong else Vector2(1.1, 0.92)
+	_tween.tween_property(_art, "scale", bounce, BOUNCE_SECONDS * 0.5)
 	_tween.tween_property(_art, "scale", Vector2.ONE, BOUNCE_SECONDS * 0.5)
 	gem_landed.emit(gem_type)
 

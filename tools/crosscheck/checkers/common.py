@@ -7,7 +7,8 @@ REQUIRED_KEYS = (
     "answer_modes", "distractors", "visual", "hint_steps", "params", "meta",
 )
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
-VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line")
+VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs")
+TILTS = ("unknown", "level", "left", "right")
 
 
 def is_int(value: object) -> bool:
@@ -48,6 +49,7 @@ def check_structure(problem: dict, skill: dict, allowed_names: set[str]) -> list
     errors += _check_distractors(problem, skill, allowed_names)
     errors += _check_hints(problem)
     errors += check_visual(problem["visual"], "visual")
+    errors += check_input_meta(problem)
     return errors
 
 
@@ -112,8 +114,9 @@ def check_visual(visual: dict, where: str) -> list[str]:
                 if not is_int(pile.get(key)) or pile[key] < 0:
                     errors.append(f"{where}: pile {key} must be a whole number of at least 0")
     elif kind == "ten_frame":
-        if not 0 <= visual["count"] <= 10 * visual["frames"]:
-            errors.append(f"{where}: count {visual['count']} does not fit {visual['frames']} frame(s)")
+        second = visual.get("second", 0)
+        if visual["count"] < 0 or second < 0 or visual["count"] + second > 10 * visual["frames"]:
+            errors.append(f"{where}: count {visual['count']} + {second} does not fit {visual['frames']} frame(s)")
     elif kind == "number_line":
         low, high = visual["min"], visual["max"]
         if low >= high:
@@ -123,4 +126,84 @@ def check_visual(visual: dict, where: str) -> list[str]:
                 errors.append(f"{where}: value {value} is off the line {low}..{high}")
         if visual["labeled_every"] < 1:
             errors.append(f"{where}: labeled_every must be at least 1")
+        for jump in visual.get("jumps", []):
+            for end in ("from", "to"):
+                if not is_int(jump.get(end)) or not low <= jump[end] <= high:
+                    errors.append(f"{where}: jump {end} {jump.get(end)!r} is off the line {low}..{high}")
+    elif kind == "balance":
+        totals = []
+        for side in ("left", "right"):
+            terms = visual.get(side)
+            if not isinstance(terms, list) or not 1 <= len(terms) <= 3 or not all(is_int(t) and t >= 0 for t in terms):
+                return errors + [f"{where}: the {side} pan needs 1 to 3 whole numbers, got {terms!r}"]
+            totals.append(sum(terms))
+        tilt = visual.get("tilt")
+        if tilt not in TILTS:
+            errors.append(f"{where}: unknown tilt {tilt!r}")
+        elif tilt != "unknown":
+            expected = "level" if totals[0] == totals[1] else ("left" if totals[0] > totals[1] else "right")
+            if tilt != expected:
+                errors.append(f"{where}: pans of {totals[0]} and {totals[1]} should tilt {expected}, not {tilt}")
+    elif kind == "array":
+        for key in ("rows", "cols"):
+            if not is_int(visual.get(key)) or not 1 <= visual[key] <= 10:
+                errors.append(f"{where}: array {key} must be 1 to 10")
+    elif kind == "groups":
+        for key in ("groups", "size"):
+            if not is_int(visual.get(key)) or not 1 <= visual[key] <= 10:
+                errors.append(f"{where}: {key} must be 1 to 10")
+    elif kind == "pairs":
+        if not is_int(visual.get("count")) or not 0 <= visual["count"] <= 40:
+            errors.append(f"{where}: pairs count must be 0 to 40")
+    return errors
+
+
+def label_key(value: object) -> str:
+    """The key an answer value has in meta.label_lines (see Problem.label_key in GDScript)."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
+def sort_key(value: object) -> tuple:
+    """Numbers before text, each in natural order: the order of an unordered tile answer."""
+    return (0, value, "") if is_int(value) else (1, 0, str(value))
+
+
+def check_input_meta(problem: dict) -> list[str]:
+    """The meta keys that pick the answer input must agree with the answer and distractors."""
+    errors: list[str] = []
+    meta = problem["meta"]
+    values = [problem["answer"]] + [entry["value"] for entry in problem["distractors"]]
+    board = meta.get("tile_board")
+    if board is not None:
+        tiles, slots = board.get("tiles", []), board.get("slots")
+        if not is_int(slots) or not slots <= len(tiles) <= 8:
+            errors.append(f"tile board: {len(tiles)} tiles for {slots} slots (needs slots..8)")
+        if len(tiles) != len({repr(t) for t in tiles}):
+            errors.append("tile board: a tile is listed twice")
+        for value in values:
+            if not isinstance(value, list) or len(value) != slots:
+                errors.append(f"tile board: {value!r} must fill exactly {slots} slots")
+                continue
+            spare = list(tiles)
+            for item in value:
+                if item in spare:
+                    spare.remove(item)
+                else:
+                    errors.append(f"tile board: {value!r} needs a tile {item!r} that is not on the board")
+            if not board.get("ordered", True) and value != sorted(value, key=sort_key):
+                errors.append(f"tile board: unordered answer {value!r} is not sorted")
+    builder = meta.get("array_builder")
+    if builder is not None:
+        for value in values:
+            if not isinstance(value, dict) or set(value) != {"rows", "cols"}:
+                errors.append(f"array builder: {value!r} must be {{rows, cols}}")
+            elif not (1 <= value["rows"] <= builder["max_rows"] and 1 <= value["cols"] <= builder["max_cols"]):
+                errors.append(f"array builder: {value!r} does not fit {builder['max_rows']}x{builder['max_cols']}")
+    labels = meta.get("label_lines")
+    if labels is not None:
+        for value in values:
+            if label_key(value) not in labels:
+                errors.append(f"no label line for answer {label_key(value)!r}")
     return errors
