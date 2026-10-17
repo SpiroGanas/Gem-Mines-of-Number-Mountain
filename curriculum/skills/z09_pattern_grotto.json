@@ -1,0 +1,23 @@
+{
+  "zone": 9,
+  "zone_id": "z09_pattern_grotto",
+  "name": "Pattern Grotto",
+  "status": "outline",
+  "skills": [
+    {"id": "seq.arith.next_term", "name": "Next term of an arithmetic sequence"},
+    {"id": "seq.arith.missing_term", "name": "Missing term of an arithmetic sequence"},
+    {"id": "seq.arith.rule_describe", "name": "Describe the rule of a sequence"},
+    {"id": "seq.geom.next_term", "name": "Next term of a geometric sequence"},
+    {"id": "seq.arith_vs_geom.classify", "name": "Arithmetic or geometric?"},
+    {"id": "fig.triangular.build", "name": "Triangular numbers"},
+    {"id": "fig.square.build", "name": "Square numbers as shapes"},
+    {"id": "fig.two_triangles.square", "name": "Two triangles make a square"},
+    {"id": "fib.sequence.next_term", "name": "Next Fibonacci number"},
+    {"id": "fib.sequence.missing_term", "name": "Missing Fibonacci number"},
+    {"id": "fib.ratio.converge", "name": "Fibonacci ratios and the golden ratio"},
+    {"id": "gauss.sum.pairing", "name": "Gauss's pairing trick"},
+    {"id": "gauss.sum.formula", "name": "Gauss's sum formula"},
+    {"id": "proof.words.match", "name": "Proof without words"},
+    {"id": "fib.poem.syllables", "name": "Fib poem syllables"}
+  ]
+}

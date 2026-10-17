@@ -1,0 +1,23 @@
+{
+  "zone": 10,
+  "zone_id": "z10_clockwork_depths",
+  "name": "Clockwork Depths",
+  "status": "outline",
+  "skills": [
+    {"id": "mod.remainder.find", "name": "Find a remainder"},
+    {"id": "mod.track.stop", "name": "Where does the cart stop on a circular track?"},
+    {"id": "mod.track.backward", "name": "Move backward on a circular track"},
+    {"id": "mod.congruence.check", "name": "Check congruence"},
+    {"id": "mod.congruence.notation", "name": "Congruence notation"},
+    {"id": "mod.add.wrap", "name": "Add with wrap-around"},
+    {"id": "mod.mul.wrap", "name": "Multiply with wrap-around"},
+    {"id": "group.identity.find", "name": "Find the identity"},
+    {"id": "group.inverse.find", "name": "Find an inverse"},
+    {"id": "group.closure.verify", "name": "Verify closure"},
+    {"id": "group.table.complete", "name": "Complete a group table"},
+    {"id": "group.cyclic.generate", "name": "Generate a cyclic group"},
+    {"id": "div.rule.explain_3_9", "name": "Why the rules for 3 and 9 work"},
+    {"id": "div.rule.explain_2_5_10", "name": "Why the rules for 2, 5 and 10 work"},
+    {"id": "div.rule.explain_4_8", "name": "Why the rules for 4 and 8 work"}
+  ]
+}

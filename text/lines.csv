@@ -1,1 +1,43 @@
 id,text,context,voice_version
+vocab.digit.term,digit,Word Gem term,0
+vocab.digit.definition,A digit is one number symbol. We build every number from ten digits.,Word Gem kid-sized definition,0
+vocab.numeral.term,numeral,Word Gem term,0
+vocab.numeral.definition,A numeral is a number written with digits.,Word Gem kid-sized definition,0
+vocab.tens.term,tens,Word Gem term,0
+vocab.tens.definition,The tens place shows how many groups of ten. A ten-bar is the same as ten ones.,Word Gem kid-sized definition,0
+vocab.ones.term,ones,Word Gem term,0
+vocab.ones.definition,The ones place shows how many single gems are left over.,Word Gem kid-sized definition,0
+vocab.hundred.term,hundred,Word Gem term,0
+vocab.hundred.definition,A hundred is ten tens. A hundred-block is made of ten ten-bars.,Word Gem kid-sized definition,0
+vocab.regrouping.term,regrouping,Word Gem term,0
+vocab.regrouping.definition,"When we swap ten ones for one ten, that's called regrouping.",Word Gem kid-sized definition,0
+vocab.greater_than.term,greater than,Word Gem term,0
+vocab.greater_than.definition,Greater than means bigger. The pointy end faces the smaller number.,Word Gem kid-sized definition,0
+vocab.less_than.term,less than,Word Gem term,0
+vocab.less_than.definition,Less than means smaller. The pointy end faces the smaller number.,Word Gem kid-sized definition,0
+vocab.equal.term,equal,Word Gem term,0
+vocab.equal.definition,Equal means exactly the same amount. Both sides of an equals sign match.,Word Gem kid-sized definition,0
+vocab.sum.term,sum,Word Gem term,0
+vocab.sum.definition,The sum is the answer when we add.,Word Gem kid-sized definition,0
+vocab.difference.term,difference,Word Gem term,0
+vocab.difference.definition,The difference is the answer when we subtract.,Word Gem kid-sized definition,0
+vocab.fact_family.term,fact family,Word Gem term,0
+vocab.fact_family.definition,A fact family uses the same three numbers. Add and subtract facts live together.,Word Gem kid-sized definition,0
+vocab.inverse.term,inverse,Word Gem term,0
+vocab.inverse.definition,Inverse means opposite. Adding and subtracting undo each other.,Word Gem kid-sized definition,0
+vocab.even.term,even,Word Gem term,0
+vocab.even.definition,An even number can make pairs with none left over.,Word Gem kid-sized definition,0
+vocab.odd.term,odd,Word Gem term,0
+vocab.odd.definition,An odd number has one left over when we make pairs.,Word Gem kid-sized definition,0
+vocab.array.term,array,Word Gem term,0
+vocab.array.definition,An array is a set of objects in rows and columns.,Word Gem kid-sized definition,0
+vocab.row.term,row,Word Gem term,0
+vocab.row.definition,"A row goes across, from side to side.",Word Gem kid-sized definition,0
+vocab.column.term,column,Word Gem term,0
+vocab.column.definition,A column goes up and down.,Word Gem kid-sized definition,0
+vocab.equal_groups.term,equal groups,Word Gem term,0
+vocab.equal_groups.definition,Equal groups have the same number of items in each group.,Word Gem kid-sized definition,0
+vocab.multiply.term,multiply,Word Gem term,0
+vocab.multiply.definition,"To multiply means to add equal groups, but faster.",Word Gem kid-sized definition,0
+vocab.commutative.term,commutative,Word Gem term,0
+vocab.commutative.definition,Commutative means the order does not change the answer.,Word Gem kid-sized definition,0

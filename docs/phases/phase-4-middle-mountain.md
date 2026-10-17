@@ -164,7 +164,7 @@ Electric motors drive the gears (no steam, no smoke). Gear sound is a soft elect
 
 | Skill ID | Prereqs | Generator | Key params | Representations | Named distractors |
 |---|---|---|---|---|---|
-| `fraction.unit.identify` | `div.as_sharing` (Zone 4) | `FractionGenerator.unit_fraction` | `max_den: 12` | concrete (crystal split into shards), pictorial | `counted_shaded_as_denominator`, `inverted` |
+| `fraction.unit.identify` | `div.sharing.equal_shares` (Zone 4) | `FractionGenerator.unit_fraction` | `max_den: 12` | concrete (crystal split into shards), pictorial | `counted_shaded_as_denominator`, `inverted` |
 | `fraction.part.of_whole` | `fraction.unit.identify` | `FractionGenerator.part_of_whole` | `max_den: 12` | concrete, pictorial, abstract | `inverted`, `unshaded_count`, `off_by_one_numerator` |
 | `fraction.number_line.place` | `fraction.part.of_whole` | `FractionGenerator.number_line` | `max_den: 8` | pictorial (number line with tick marks) | `counted_ticks_not_gaps`, `inverted` |
 | `fraction.equivalent.build` | `fraction.part.of_whole`, `simplify.fraction.gcf` | `FractionGenerator.equivalent` | `max_den: 24` | pictorial (two crystals), abstract | `added_to_both`, `scaled_numerator_only` |

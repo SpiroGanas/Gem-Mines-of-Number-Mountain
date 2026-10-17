@@ -1,0 +1,19 @@
+{
+  "zone": 5,
+  "zone_id": "z05_prime_caverns",
+  "name": "Prime Caverns",
+  "status": "outline",
+  "skills": [
+    {"id": "sieve.mark.multiples_of", "name": "Cross out multiples (sieve)"},
+    {"id": "sieve.find.primes_to_50", "name": "Find the primes to 50"},
+    {"id": "sieve.find.primes_to_100", "name": "Find the primes to 100"},
+    {"id": "pf.tree.build", "name": "Build a factor tree"},
+    {"id": "pf.list.write", "name": "Write a prime factorization"},
+    {"id": "pf.check.equal_products", "name": "Check a factorization"},
+    {"id": "div.rule.2_5_10", "name": "Divisibility rules for 2, 5 and 10"},
+    {"id": "div.rule.3_9", "name": "Divisibility rules for 3 and 9"},
+    {"id": "div.rule.4_6", "name": "Divisibility rules for 4 and 6"},
+    {"id": "div.rule.mixed", "name": "Mixed divisibility rules"},
+    {"id": "pf.fta.unique", "name": "Every number has one prime factorization"}
+  ]
+}

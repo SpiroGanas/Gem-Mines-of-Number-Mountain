@@ -1,0 +1,19 @@
+{
+  "zone": 12,
+  "zone_id": "z12_infinite_core",
+  "name": "The Infinite Core",
+  "status": "outline",
+  "skills": [
+    {"id": "proof.parts.identify", "name": "Identify the parts of a proof"},
+    {"id": "proof.order.chain", "name": "Put proof steps in order"},
+    {"id": "proof.justify.step", "name": "Justify a proof step"},
+    {"id": "proof.euclid.infinite_primes", "name": "Euclid: there are infinitely many primes"},
+    {"id": "proof.contradiction.recognize", "name": "Recognize proof by contradiction"},
+    {"id": "proof.sqrt2.irrational", "name": "Prove that the square root of 2 is irrational"},
+    {"id": "sets.integer.classify", "name": "Classify integers"},
+    {"id": "sets.rational.classify", "name": "Classify rational numbers"},
+    {"id": "sets.real.classify", "name": "Classify real numbers"},
+    {"id": "mystery.goldbach.find_pair", "name": "Goldbach: find a prime pair"},
+    {"id": "mystery.twin.next_pair", "name": "Twin primes: find the next pair"}
+  ]
+}

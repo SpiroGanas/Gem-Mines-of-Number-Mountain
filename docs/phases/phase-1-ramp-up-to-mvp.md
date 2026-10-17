@@ -239,10 +239,10 @@ Rules: distractors never equal the answer and have no duplicates; each distracto
 | `parity.even_odd.pairs` | 3 | `skip.by_2.to_40` | parity `{max: 20, mode: pairs}` | concrete | bool | `leftover_miscounted` |
 | `parity.even_odd.rule` | 3 | `parity.even_odd.pairs`, `pv.tens_ones.read` | parity `{max: 100, mode: last_digit}` | abstract | bool | `used_tens_digit` |
 | `arr.rows_cols.count` | 3 | `skip.by_2.to_40`, `skip.by_5.to_100` | arrays `{max_rows: 5, max_cols: 5}` | concrete | int | `rows_plus_cols`, `off_by_row` |
-| `arr.build` | 3 | `arr.rows_cols.count` | arrays `{mode: build}` | concrete (drag) | `{rows, cols}` | `rows_cols_swapped` |
+| `arr.rows_cols.build` | 3 | `arr.rows_cols.count` | arrays `{mode: build}` | concrete (drag) | `{rows, cols}` | `rows_cols_swapped` |
 | `mult.repeated_add.to_sum` | 3 | `arr.rows_cols.count`, `add.three_addends.to_20` | multiplication `{mode: repeated_add}` | pictorial | int | `counted_groups`, `off_by_group` |
 | `mult.equal_groups.total` | 3 | `mult.repeated_add.to_sum` | multiplication `{mode: equal_groups, max: 25}` | concrete | int | `rows_plus_cols`, `counted_groups` |
-| `mult.commutative.match` | 3 | `mult.equal_groups.total`, `arr.build` | multiplication `{mode: commutative}` | pictorial | StringName | `rows_cols_swapped_wrong` |
+| `mult.commutative.match` | 3 | `mult.equal_groups.total`, `arr.rows_cols.build` | multiplication `{mode: commutative}` | pictorial | StringName | `rows_cols_swapped_wrong` |
 | `mult.facts.2_5_10` | 3 | `mult.equal_groups.total`, `skip.by_5.to_100` | multiplication `{tables: [2, 5, 10]}` | abstract | int | `off_by_group`, `wrong_table` |
 
 Word Gems introduced (recorded in `curriculum/vocabulary.json`): digit, numeral, tens, ones, hundred, regrouping ("trade ten"), greater than, less than, equal, sum, difference, fact family, inverse, even, odd, array, row, column, equal groups, multiply, commutative.
