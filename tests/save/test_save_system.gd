@@ -99,7 +99,10 @@ func test_the_v1_fixture_loads_through_the_whole_system() -> void:
 	assert_str(system.data()["child"]["nickname"]).is_equal("Charlie")
 	assert_int(system.data()["rewards"]["coins"]).is_equal(120)
 	assert_bool(system.last_load_report["recovered"]).is_false()
-	assert_bool(system.last_load_report["migrated"]).is_false()
+	assert_bool(system.last_load_report["migrated"]).is_true() # version 1 is migrated to version 2
+	assert_int(system.last_load_report["from_version"]).is_equal(1)
+	assert_int(system.data()["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
+	assert_dict(system.data()["workshop"]["builds"]).is_empty()
 
 
 func test_missing_keys_in_an_old_save_are_filled_with_defaults() -> void:

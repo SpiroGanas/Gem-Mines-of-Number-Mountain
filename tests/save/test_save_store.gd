@@ -53,7 +53,7 @@ func test_write_then_read_round_trips_and_keeps_integers() -> void:
 	assert_bool(read["recovered"]).is_false()
 	assert_bool(read["data"]["rewards"]["coins"] is int).is_true()
 	assert_int(read["data"]["rewards"]["coins"]).is_equal(42)
-	assert_int(read["data"]["schema_version"]).is_equal(1)
+	assert_int(read["data"]["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
 
 
 func test_a_second_write_keeps_the_first_as_backup() -> void:
