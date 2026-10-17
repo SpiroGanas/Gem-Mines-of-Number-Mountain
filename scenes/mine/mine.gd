@@ -103,6 +103,7 @@ func _ready() -> void:
 	_wind_down.head_up_requested.connect(_on_wind_down_head_up)
 	_word_gem_card = WordGemCard.new()
 	add_child(_word_gem_card) # last: drawn over everything
+	_word_gem_card.closed.connect(_on_word_gem_closed)
 	_bolt.term_tapped.connect(_on_term_tapped)
 	Rewards.skill_celebrated.connect(_on_skill_celebrated)
 	Rewards.mineral_found.connect(_on_mineral_found)
@@ -214,7 +215,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 		DigFlow.State.AWAIT_ANSWER:
 			_answer_opened_ms = Time.get_ticks_msec()
 			if _panel != null:
-				_panel.set_enabled(true)
+				_panel.set_enabled(not _word_gem_card.visible) # a card that is up keeps the panel asleep
 		DigFlow.State.CRACK:
 			_panel.set_enabled(false)
 			_bolt.note(&"bolt.feedback.correct" if flow.wrong_count() == 0 else &"bolt.feedback.correct_hint")
@@ -223,6 +224,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			rock.crack_finished.connect(flow.crack_finished, CONNECT_ONE_SHOT)
 			rock.play_crack(GemArt.gem_for_zone(zone_of(current_problem())), Rewards.pickaxe() == &"pickaxe_t2")
 		DigFlow.State.GEM_DROP:
+			_pay_rock() # the reward is earned the moment the rock cracks, whatever happens next
 			_sfx.play(&"gem")
 			var rock: Rock = _wall.rock(flow.current_rock())
 			_cart.receive_gem(rock.gem_type(), rock.gem_center(), _fx_layer)
@@ -245,14 +247,19 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			wall_cleared.emit()
 
 
-func _on_gem_landed(_gem_type: StringName) -> void:
-	_sfx.play(&"coin")
+## Pays the cracked rock (coins, the zone's gem, today's lantern) and saves, before the gem flies.
+## Leaving the mine while the gem is still in the air then loses nothing the child earned.
+func _pay_rock() -> void:
 	var paid: Dictionary = Rewards.pay_rock(zone_of(current_problem()), flow.wrong_count() == 0)
 	if paid["lantern_lit"]:
 		_pending_celebrations.append({"line_id": &"bolt.celebrate.lantern", "lantern": true})
+	SaveSystem.save_now() # save point: after every rock
+
+
+func _on_gem_landed(_gem_type: StringName) -> void:
+	_sfx.play(&"coin")
 	_cart.set_totals(Rewards.coins(), flow.gems)
 	var finished: int = flow.current_rock()
-	SaveSystem.save_now() # save point: after every rock
 	flow.gem_dropped()
 	rock_finished.emit(finished)
 	if _pending_celebrations.is_empty():
@@ -377,9 +384,18 @@ func _remove_panel() -> void:
 		_panel = null
 
 
+## The Word Gem card covers the answer area, but InputRouter reports every tap to the drag boards
+## underneath whatever is drawn over them, so the panel sleeps while the card is up.
 func _on_term_tapped(term_id: StringName) -> void:
 	_sfx.play(&"select")
 	_word_gem_card.show_term(term_id)
+	if _word_gem_card.visible and _panel != null:
+		_panel.set_enabled(false)
+
+
+func _on_word_gem_closed() -> void:
+	if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER:
+		_panel.set_enabled(true)
 
 
 func _on_placement_finished(_passed: Array[StringName]) -> void:

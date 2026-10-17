@@ -66,6 +66,17 @@ func _exit_tree() -> void:
 		router.pointer_up.disconnect(_on_pointer_up)
 
 
+## A paused game (the pause menu) ends the press in progress; see BuildBoard.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PAUSED:
+		_pressing = false
+
+
+## True while the builder may react to the pointer: shown on screen and not paused.
+func _accepts_pointer() -> bool:
+	return is_visible_in_tree() and can_process()
+
+
 func answer() -> Dictionary:
 	return {"rows": _rows, "cols": _cols}
 
@@ -114,7 +125,7 @@ func _cell_at(pos: Vector2) -> Vector2i:
 
 
 func _on_pointer_down(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) -> void:
-	if not _enabled:
+	if not _enabled or not _accepts_pointer():
 		return
 	var hit: Vector2i = _cell_at(pos)
 	if hit.x < 0:
@@ -124,7 +135,7 @@ func _on_pointer_down(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) 
 
 
 func _on_pointer_move(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) -> void:
-	if not _pressing:
+	if not _pressing or not _accepts_pointer():
 		return
 	var hit: Vector2i = _cell_at(pos)
 	if hit.x >= 0:

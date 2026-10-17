@@ -18,6 +18,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	get_tree().paused = false
 	SaveSystem.use_directory(SaveSystem.DEFAULT_DIR)
 	TestWindow.restore(get_window())
 
@@ -544,3 +545,64 @@ func test_after_the_soft_limit_the_wind_down_waits_for_the_rock_to_finish() -> v
 	assert_array(requested).contains_exactly([&"hub"])
 	assert_bool(Adaptive.has_session()).is_false()
 	Adaptive.use_clock(GameClock.new())
+
+
+# --- Input under overlays, and paying the rock (peer review 01) --------------------------------
+
+
+func _click_at(pos: Vector2) -> InputEventMouseButton:
+	var click: InputEventMouseButton = InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = pos
+	return click
+
+
+func test_a_tap_that_closes_the_word_gem_card_never_reaches_the_board() -> void:
+	await _open(0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var board: BuildBoard = _mine.board()
+	_mine.bolt().term_chips()[0].pressed.emit() # the card opens over the board
+	assert_bool(_mine.word_gem_card().visible).is_true()
+	# The child closes the card by tapping outside it, right where the pile of ten-bars sits.
+	# The router sees every tap before the GUI does, so the board must not treat it as its own.
+	var pile: Vector2 = board.source(DragItem.TEN).get_global_rect().get_center()
+	InputSim.tap(InputRouter, pile)
+	_mine.word_gem_card()._on_dimmer_input(_click_at(pile))
+	assert_bool(_mine.word_gem_card().visible).is_false()
+	assert_dict(board.answer()).is_equal({"tens": 0, "ones": 0})
+	assert_int(_mine.flow.state).is_equal(DigFlow.State.AWAIT_ANSWER)
+	InputSim.tap(InputRouter, pile) # with the card closed the pile works again
+	assert_dict(board.answer()).is_equal({"tens": 1, "ones": 0})
+
+
+func test_a_tap_on_the_pause_menu_never_reaches_the_board() -> void:
+	await _open(0)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var board: BuildBoard = _mine.board()
+	var pile: Vector2 = board.source(DragItem.ONE).get_global_rect().get_center()
+	get_tree().paused = true # the Shell pauses the tree while the pause menu is up
+	InputSim.tap(InputRouter, pile)
+	get_tree().paused = false
+	assert_dict(board.answer()).is_equal({"tens": 0, "ones": 0})
+	InputSim.tap(InputRouter, pile)
+	assert_dict(board.answer()).is_equal({"tens": 0, "ones": 1})
+
+
+func test_a_cracked_rock_is_paid_and_saved_before_its_gem_lands() -> void:
+	# Leaving the mine while the gem is still flying to the cart must never lose the reward the
+	# child already earned: the rock pays out the moment it cracks.
+	_mine.cart().speed_scale = 0.01 # a very slow flight, so the gem is in the air for a while
+	await _open(0)
+	_answer(true)
+	await _wait_state(DigFlow.State.GEM_DROP)
+	assert_int(Rewards.coins()).is_equal(DigFlow.COINS_FIRST_TRY)
+	assert_int(Rewards.gem_count(&"quartz")).is_equal(1)
+	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()
+	assert_bool(on_disk["ok"]).override_failure_message("the rock was not saved when it cracked").is_true()
+	assert_int(on_disk["data"]["rewards"]["coins"]).is_equal(DigFlow.COINS_FIRST_TRY)
+	_mine.queue_free() # back to the workshop mid-flight
+	await get_tree().process_frame
+	assert_int(Rewards.coins()).is_equal(DigFlow.COINS_FIRST_TRY) # paid once, never twice

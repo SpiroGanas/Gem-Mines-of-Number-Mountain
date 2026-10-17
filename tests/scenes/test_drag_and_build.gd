@@ -39,6 +39,7 @@ func _drag_from_pile(kind: StringName) -> void:
 
 
 func after_test() -> void:
+	get_tree().paused = false
 	TestWindow.restore(get_window())
 
 
@@ -322,3 +323,22 @@ func test_a_gem_next_to_a_ten_bar_keeps_its_own_square_size() -> void:
 		if item.kind == DragItem.ONE:
 			assert_float(item.size.y).is_equal_approx(item.custom_minimum_size.y, 1.0)
 			assert_float(item.size.y).is_equal_approx(item.size.x, 1.0)
+
+
+# --- A paused game (peer review 01) --------------------------------------------------------
+
+
+func test_a_paused_board_ignores_taps_and_drops_the_piece_it_was_dragging() -> void:
+	# The pause menu pauses the tree, but the router keeps translating events (Escape must still
+	# work) and signals reach paused nodes. The board must not act on them.
+	InputSim.touch(_router, _center(_board.source(DragItem.TEN)), true)
+	InputSim.drag(_router, _center(_board.tray()))
+	assert_bool(_board.is_dragging()).is_true()
+	get_tree().paused = true
+	assert_bool(_board.is_dragging()).is_false() # the half-finished drag is dropped, not kept
+	InputSim.touch(_router, _center(_board.tray()), false)
+	InputSim.tap(_router, _center(_board.source(DragItem.ONE)))
+	get_tree().paused = false
+	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 0})
+	InputSim.tap(_router, _center(_board.source(DragItem.ONE))) # input works again once unpaused
+	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 1})

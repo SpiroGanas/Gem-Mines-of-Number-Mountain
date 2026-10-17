@@ -17,10 +17,15 @@ var _last_event: String = "(none yet)"
 
 func _ready() -> void:
 	visible = OS.is_debug_build()
+	# Describing every input event allocates a string; only do it while the overlay can be seen
+	# (F3 hides it, and a release build never shows it, so a release build never pays for it).
+	visibility_changed.connect(_on_visibility_changed)
+	_on_visibility_changed()
 	_timer.wait_time = REFRESH_SECONDS
-	_timer.timeout.connect(refresh)
 	if not OS.is_debug_build():
 		_timer.stop() # a release build never shows it, so it never builds its text either
+		return
+	_timer.timeout.connect(refresh)
 	InputRouter.device_kind_changed.connect(func(_kind: InputRouter.DeviceKind) -> void: refresh())
 	InputRouter.posture_changed.connect(func(_size: Vector2i) -> void: refresh())
 	refresh()
@@ -35,6 +40,10 @@ func _input(event: InputEvent) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3 and OS.is_debug_build():
 		visible = not visible
+
+
+func _on_visibility_changed() -> void:
+	set_process_input(is_visible_in_tree())
 
 
 func refresh() -> void:
