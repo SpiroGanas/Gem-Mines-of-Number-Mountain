@@ -65,6 +65,6 @@ func test_an_unknown_skill_is_null() -> void:
 
 func test_misconception_names_load_from_the_curriculum_file() -> void:
 	var names: Array[StringName] = SkillCatalog.misconception_names()
-	assert_int(names.size()).is_equal(42)
+	assert_int(names.size()).is_equal(43)
 	assert_bool(names.has(&"digit_swap")).is_true()
 	assert_bool(names.has(&"thought_equal")).is_true()

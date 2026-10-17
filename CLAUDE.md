@@ -64,11 +64,11 @@ Apply to all art, narration, story, examples, word problems and minerals:
 |---|---|
 | Engine | Godot **4.7.x**, standard build (not .NET). The pinned version is in `.godot-version`. Don't upgrade without asking. |
 | Language | **GDScript, statically typed** |
-| Android plugin | Kotlin (`android/plugins/digit_ink/`) for handwriting recognition via LiteRT |
+| Handwriting recognition | A small network trained offline with PyTorch (`tools/handwriting/`) and run **in GDScript** (`scripts/input/`, weights in `assets/handwriting/digit_net.json`). No Android plugin, no LiteRT, no ML Kit (`docs/decisions.md`, Sprint 13). |
 | Android | Target SDK **36**, ABIs **arm64-v8a + x86_64**, landscape only, AAB for Play, APK for local testing |
 | Java | JDK 17 (Temurin) |
 | Tests | GdUnit4 (Godot), pytest (Python tools) |
-| Offline tools | Python 3.12 in `tools/` (voice pipeline, cross-checker, BKT fitting, handwriting model training) |
+| Offline tools | Python 3.12 in `tools/` (voice pipeline, cross-checker, BKT fitting, handwriting model training with PyTorch and numpy, which are build-time only and listed in `docs/sdk-audit.md`) |
 | Dev machine | Windows. Use forward slashes in scripts, and keep shell commands working in Git Bash. |
 
 ### Godot 4 syntax only
@@ -118,8 +118,8 @@ text/
 narration/
   audio/             # Phase 3. GENERATED. Never hand-edit.
 assets/              # art, fonts (Andika), sfx, music. Every file needs a LICENSE entry in assets/CREDITS.md.
-addons/              # gdUnit4, digit_ink (built AAR)
-android/plugins/digit_ink/   # Kotlin plugin source (Gradle project)
+addons/              # gdUnit4
+android/plugins/digit_ink/   # EMPTY placeholder: recognition runs in GDScript, not in a plugin (README explains)
 tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
   voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/
@@ -163,9 +163,14 @@ python tools/ci/lint_content.py
 # Static performance check: no allocations in _process, OGG audio, exported-size budget
 python tools/ci/perf_check.py
 
-# Build the Kotlin handwriting plugin and copy the AAR into addons/digit_ink/bin/
-cd android/plugins/digit_ink && ./gradlew assembleRelease && cd -
-python tools/ci/copy_plugin.py
+# Handwriting network (build time only; needs `pip install -r tools/handwriting/requirements.txt`)
+python tools/handwriting/train.py                # writes assets/handwriting/digit_net.json
+python tools/handwriting/evaluate.py             # accuracy per test set and the confidence sweep
+python tools/handwriting/make_fixtures.py        # regenerate the GDScript parity fixtures after retraining
+
+# Fit BKT parameters from a parent-exported bundle; the decision-gate numbers from the same bundle
+python tools/bkt/fit.py path/to/bundle.json
+python tools/bkt/gate_report.py path/to/bundle.json --since 2027-01-29
 
 # Debug APK for local install / release AAB for Play (release needs keystore env vars)
 "$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
@@ -232,12 +237,14 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
   - A random guesser never masters anything.
   - A fast learner can test out of a skill via the Challenge Door.
 
-### Handwriting (`scenes/input/ChalkSlate`, `addons/digit_ink`)
+### Handwriting (`scenes/input/chalk_slate/`, `scripts/input/`)
 
-- **One digit per box.** The plugin returns `{digit: int, confidence: float}` per box.
-- **Confidence below threshold:** Bolt confirms ("Did you write 7?").
-- **Plugin unavailable** (desktop editor, mouse-only device): fall back to `NumberPad` automatically.
-- In the editor, use the `FakeRecognizer` stub so the game runs on Windows without Android.
+- **One digit per box**, as many boxes as the answer has digits. A `Recognizer` returns `{digit, confidence, mirrored, mirrored_confidence}` per box (`digit` -1 means nothing to read).
+- **Confidence below the slate's threshold (0.9):** Bolt confirms ("Did you write 47?"). "Try again" is logged as `low_confidence_rejected` and is **never** an incorrect attempt: `Adaptive.record` returns before BKT.
+- **Recognition runs in GDScript** (`StrokeRaster` makes the 28x28 picture, `DigitNet` reads it). `tools/handwriting/raster.py` and `stroke_raster.gd` must stay identical in behavior; the fixtures in `tests/handwriting/fixtures/` check it. Retrain with `tools/handwriting/train.py`, then rerun `make_fixtures.py`.
+- **Unavailable** (no touch screen, weights missing, or switched off in the parent area): `AnswerPanel` shows the `NumberPad` instead, silently. `FakeRecognizer` is the stub for tests.
+- **Strokes** live in memory only while the child can see them and are discarded on submit or erase. Nothing saves a stroke except the debug-build capture screen (parent area, `StrokeCapture`), which writes stroke JSON to `user://capture/` for measuring the network.
+- **Palm rejection** lives only in `InputRouter` (`stroke_*` signals, `pen_stroke_active`).
 
 ### Save system
 

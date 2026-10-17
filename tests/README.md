@@ -11,6 +11,8 @@ GdUnit4 suites mirroring `autoload/`, `scripts/` and `scenes/`. GdUnit4 6.2.2 is
 | `adaptive/` | BKT, skill records, the scheduler, placement, the hint ladder, the engine, and the simulated learners (random guesser never masters; fast learner tests out) |
 | `save/` | schema, migrator, store (atomic write, crash recovery) and the `SaveSystem` autoload; `save/fixtures/` holds one save file from every past schema version |
 | `scenes/` | screen flow, the mine, every input widget, the visual model, the answer panel (every MVP skill through its widget), Word Gems, the workshop screens, the parent area, the readability audit and `test_hardening.gd` (posture change mid-rock, close and restart, update over an old save, a long dig through every hint rung) |
+| `input/` | the chalk slate (`DigitBox`, `ChalkSlate`, `StrokeDemo`), `SlateReader`, `NumeralCoach` and the debug `StrokeCapture` |
+| `handwriting/` | `StrokeRaster` and `DigitNet` against the fixtures the Python tools write (`fixtures/`), the recognizers and `DigitInk` |
 | `ui/` | the Explorer theme (contrast, sizes) |
 | `helpers/` | `InputSim` builds synthetic touch/mouse/key events and feeds them to an `InputRouter`; `TestWindow` gives layout tests a 1920x1080 window (GdUnit4's headless window is only 64x64, which wrecks every size measured in dp); `PanelDriver` plays an `AnswerPanel` through a problem; `FakeClock` moves days forward for the adaptive engine and rewards |
 
