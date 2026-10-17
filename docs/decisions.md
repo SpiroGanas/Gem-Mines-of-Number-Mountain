@@ -37,6 +37,20 @@ One entry per decision: date, decision, why, alternatives considered. Newest at 
 - **Decision:** `default_bus_layout.tres` defines `Music`, `SFX` and `Voice` sending to `Master`.
 - **Why:** the parent settings and the Phase 3 `Narration` autoload need independent volume control. Naming the buses now keeps every `AudioStreamPlayer` pointed at the right bus from the first scene.
 
+## 2026-10-17: GdUnit4 6.2.2 installed as the Godot test framework (approved by Spiro)
+
+- **Decision:** `addons/gdUnit4/` holds GdUnit4 v6.2.2 (MIT), copied from the `v6.2.2` tag with its own self-test folder (`addons/gdUnit4/test/`) removed. The plugin is enabled in `project.godot`. Headless runs need `--headless --ignoreHeadlessMode` (GdUnit4 refuses plain headless mode because `InputEvent`s are not delivered there); the editor and the Windows dev PC run it without those flags.
+- **Why:** the plan and CLAUDE.md name GdUnit4. v6.2.x lists Godot 4.5–4.7.1 as supported, and the smoke suite passes on 4.7.2 headless. The self-test folder is 2.4 MB of framework tests that would be imported on every clone for no benefit.
+- **Alternatives:** GUT (less active typed-GDScript support); Godot's built-in `--script` runner with hand-rolled assertions (no reports, no scene runner).
+- **Consequence:** scene tests that need real input events (drag, tap) must simulate them through `InputRouter` helpers rather than rely on engine-delivered `InputEvent`s in CI.
+
+## 2026-10-17: Android export presets "Android" (APK) and "Android AAB" (approved by Spiro)
+
+- **Decision:** `export_presets.cfg` holds two Android presets with identical settings except the output format: **Android** (`gradle_build/export_format=0`, APK, runnable, for `adb install` and the emulator) and **Android AAB** (`export_format=1`, for Google Play). Both: Gradle build on, target SDK 36, min SDK left at Godot's default, ABIs `arm64-v8a` and `x86_64`, landscape handled by the project setting, immersive mode, `permissions/internet=false`, no custom permissions, `user_data_backup/allow=false`, package id `com.numbermountain.gemmines`, version `0.1.0` code 1. `android/`, `tools/`, `tests/`, `docs/`, `private/` and Markdown files are excluded from the export.
+- **Why:** Godot refuses to write an `.aab` from a preset whose format is APK and vice versa, so one preset cannot serve both of CLAUDE.md's export commands. Keeping the two presets identical apart from the format keeps the permission surface (no `INTERNET`) in one reviewable file. Release signing comes from the `GODOT_ANDROID_KEYSTORE_RELEASE_*` environment variables, so no secrets live in the file.
+- **Open:** the package id is a placeholder until the developer account and name are final; changing it before the first Play upload costs nothing, changing it after is impossible. Launcher icons are empty until the icon is drawn (Sprint 10).
+- **Verified:** Godot 4.7.2 headless loads both presets and reports only the missing export templates and Android SDK on the CI container, which are installed on the dev PC in Sprint 1.
+
 ## 2026-10-17: Development plan lives at `docs/development-plan.md`
 
 - **Decision:** the plan was moved from `project_plan/` to the path CLAUDE.md names. Phase breakdowns live in `docs/phases/`.

@@ -6,7 +6,7 @@ The game was designed for Charlie, a gifted first grader, with a public release 
 
 ## Status
 
-**Pre-development.** This repository holds the plan, the conventions and an empty Godot project scaffold. Phase 1 (Sprint 1) starts **November 2, 2026**. No gameplay code exists yet.
+**Pre-development.** This repository holds the plan, the conventions, an empty Godot project scaffold with GdUnit4 and the Android export presets. Phase 1 (Sprint 1) starts **November 2, 2026**. No gameplay code exists yet.
 
 | Milestone | Target |
 |---|---|
@@ -70,15 +70,22 @@ Set `GODOT` to your Godot 4.7.2 executable (for example `export GODOT="/c/Tools/
 # Import assets (after a fresh clone or a new asset; required before headless tests)
 "$GODOT" --headless --path . --import
 
-# Run the main scene headless for a few frames (what CI does today)
+# Run the main scene headless for a few frames
 "$GODOT" --headless --path . --quit-after 3
+
+# Run the GdUnit4 test suites (drop the two headless flags when a display is available)
+GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -a res://tests
+
+# Export a debug APK or a release AAB (needs the Android export templates, SDK and JDK 17; the AAB also needs the release keystore env vars)
+"$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
+"$GODOT" --headless --path . --export-release "Android AAB" build/gem-mines.aab
 ```
 
-Commands that arrive with Phase 1 (GdUnit4 tests, the Python cross-check, the content lint, Android export) are listed in `CLAUDE.md` under **Commands**.
+The Python cross-check and the content lint arrive in Phase 1; every command is listed in `CLAUDE.md` under **Commands**.
 
 ### Continuous integration
 
-`.github/workflows/ci.yml` runs on every push to `main` and every pull request. Today it checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless and runs the main scene for three frames. Phase 1 adds GdUnit4, pytest, the content lint and a debug Android build.
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request. Today it checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless, runs the main scene for three frames and runs the GdUnit4 suites (reports are uploaded as a build artifact). Phase 1 adds pytest, the content lint and a debug Android build.
 
 ## Repository layout
 
@@ -103,9 +110,9 @@ curriculum/              skill graph JSON (one file per zone), vocabulary.json, 
 text/lines.csv           every child-facing line: id, text, context, voice_version
 narration/audio/         generated narration (Phase 3); never hand-edited
 assets/                  art, fonts, sfx, music; every file credited in assets/CREDITS.md
-addons/                  GdUnit4 (Sprint 3), digit_ink (Phase 2)
+addons/                  gdUnit4 (installed), digit_ink (Phase 2)
 android/plugins/digit_ink/   Kotlin handwriting-recognition plugin (Phase 2)
-tests/                   GdUnit4 suites mirroring scripts/ and scenes/
+tests/                   GdUnit4 suites mirroring scripts/ and scenes/ (one scene smoke test today)
 tools/                   Python: crosscheck/, ci/, bkt/, handwriting/, voice/
 docs/                    development-plan.md, phases/, decisions.md, sdk-audit.md, gdd.md
 private/                 gitignored: exported play logs and handwriting samples; never committed

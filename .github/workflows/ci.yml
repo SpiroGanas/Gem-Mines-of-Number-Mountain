@@ -32,5 +32,16 @@ jobs:
       - name: Run main scene for a few frames
         run: '"$GODOT" --headless --path . --quit-after 3'
 
-      # Phase 1, Sprint 3 adds: GdUnit4 suites, pytest for tools/, tools/ci/lint_content.py.
+      - name: Run GdUnit4 suites
+        run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -a res://tests
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdunit4-reports
+          path: reports/
+          if-no-files-found: ignore
+
+      # Phase 1, Sprint 3 adds: pytest for tools/, tools/ci/lint_content.py.
       # Phase 1, Sprint 11 adds: Friday Android build to the internal testing track.

@@ -21,6 +21,10 @@ config/icon="res://icon.svg"
 
 gdscript/warnings/untyped_declaration=2
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
 [display]
 
 window/size/viewport_width=1920

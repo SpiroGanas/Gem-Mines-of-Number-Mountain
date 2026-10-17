@@ -26,7 +26,7 @@ Before Sprint 1 starts on Nov 2:
 2. **Devices ordered:** the ARM 2-in-1 Chromebook with stylus and the Android tablet, both needed in hand by Sprint 3 (Nov 16). The emulator covers Sprints 1–2 if either is late.
 3. **Charlie's Google account (Family Link)** ready to add as an internal tester.
 4. **Defaults agreed:** session length (suggested 20 minutes) and what the family reward points will eventually buy (the points feature itself is Phase 2).
-5. **Repository state:** this scaffold merged (`project.godot` pinned to 4.7.2, directory layout, CI import check, `docs/` files, `text/lines.csv` header).
+5. **Repository state:** this scaffold merged (`project.godot` pinned to 4.7.2, directory layout, GdUnit4 in CI, Android export presets, `docs/` files, `text/lines.csv` header).
 
 ## Architecture and design
 
@@ -334,7 +334,7 @@ Goal: tools installed, Godot basics learned, and a "hello rock" build installed 
 | P1-S01-02 | — | Install Godot 4.7.2 (matches `.godot-version`), Android Studio + SDK for API 36, JDK 17 Temurin, Android export templates for 4.7.2 | `"$GODOT" --headless --path . --import` runs on the dev PC |
 | P1-S01-03 | — | Godot ramp-up: "Your first 2D game", GDScript reference, Android export guide (~12 h); game-feel study (~3 h) | Notes in `docs/gdd.md` "Game feel" section |
 | P1-S01-04 | `feat/hello-rock` | Hello rock: one tappable rock (TextureButton) that wobbles then cracks with a sound; shows device kind and window size on screen | Runs in editor and on Android |
-| P1-S01-05 | `chore/android-export-preset` | Android export preset: landscape, arm64-v8a + x86_64, target SDK 36, Gradle build, **no INTERNET permission**, debug keystore; commit `export_presets.cfg` without secrets (ask Spiro before changing any permission) | Debug APK installs with `adb` |
+| P1-S01-05 | `chore/android-export-preset` | Verify the committed `export_presets.cfg` (presets "Android" APK and "Android AAB", arm64-v8a + x86_64, target SDK 36, Gradle build, **no INTERNET permission**, approved 2026-10-17) on the dev PC with the templates and SDK installed; confirm the package id before the first Play upload | Debug APK installs with `adb` |
 | P1-S01-06 | — | Internal testing track: upload the AAB, add Spiro's and Charlie's accounts | Installs from Play on both devices (or emulator if a device is late) |
 | P1-S01-07 | `docs/device-findings` | Device test: touch, stylus (pen vs touch events, pressure), trackpad, keyboard, fullscreen, landscape lock in tablet posture, posture switching mid-run | Findings recorded in `docs/decisions.md` |
 
@@ -360,7 +360,7 @@ Goal: the game shell, input router, number pad, text system, save system v1, and
 
 | ID | Branch | Item | Done when |
 |---|---|---|---|
-| P1-S03-01 | `chore/gdunit4` | Install GdUnit4 (approved in `docs/sdk-audit.md`), add `runtest.sh` to CI, one smoke test | CI `gdunit` job green |
+| P1-S03-01 | `chore/gdunit4` | GdUnit4 6.2.2 is installed and in CI with one smoke test (scaffold PR); add the `tests/helpers/` input simulation and the first real suites | CI `gdunit` step green with Sprint 3 suites |
 | P1-S03-02 | `feat/shell` | `shell.tscn` with ScreenHost, overlays, transitions; title, hub (stub), settings, pause; set as main scene; delete `title.tscn` placeholder text in favor of a logo texture (or allowlist it) | Screens switch with fade; Escape pauses |
 | P1-S03-03 | `feat/text-autoload` | `Text` autoload, CSV loader, placeholder fill, `missing_line` signal; first ~40 UI lines | Unit tests for fill and missing params |
 | P1-S03-04 | `feat/input-router` | `InputRouter` and `UI` autoloads; `min_target_px()`; theme `assets/themes/explorer.tres` | Debug overlay shows kind and posture; resize re-lays out |
