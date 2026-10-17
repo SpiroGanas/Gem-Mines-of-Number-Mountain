@@ -134,18 +134,26 @@ jobs:
 
       # --install-android-build-template only works together with an export flag; it puts the
       # Gradle build template in android/build (gitignored) before the export uses it.
+      # Godot 4.7.2 can abort while shutting down after that export (its file-system scan of the
+      # new template is cut short, exit 134), when the APK is already written. So the exit code
+      # is reported, not trusted: the APK itself is checked here and in the next step.
       - name: Install the Gradle build template and export the debug APK
         run: |
           mkdir -p build
-          "$GODOT" --headless --path . --install-android-build-template --export-debug "Android" build/gem-mines-debug.apk
+          status=0
+          "$GODOT" --headless --path . --install-android-build-template --export-debug "Android" build/gem-mines-debug.apk || status=$?
+          echo "Godot exited with status $status"
           test -s build/gem-mines-debug.apk
+          unzip -l build/gem-mines-debug.apk | grep -q "classes.dex"
 
       # CLAUDE.md rule 1: the app never asks for the network. The preset test checks the
       # setting; this checks the APK that was actually built.
       - name: The APK asks for no INTERNET permission
         run: |
           AAPT2="$ANDROID_SDK_ROOT/build-tools/36.0.0/aapt2"
-          "$AAPT2" dump permissions build/gem-mines-debug.apk | tee permissions.txt
+          "$AAPT2" dump permissions build/gem-mines-debug.apk > permissions.txt
+          cat permissions.txt
+          grep -q "com.spiroganas.gemmine" permissions.txt # aapt2 really read the APK
           ! grep -q "android.permission.INTERNET" permissions.txt
 
       - name: Upload the debug APK
