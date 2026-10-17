@@ -21,6 +21,10 @@ Fails (exit code 1) on the project's non-negotiable content rules (CLAUDE.md):
      ENet classes, no OS.shell_open and no web addresses in scenes/, scripts/ or autoload/. The
      export preset's missing INTERNET permission is the backstop; this keeps the code honest too.
 
+  10. Every file under assets/ has a row in assets/CREDITS.md (its path in backticks), so no art,
+     sound or font is ever shipped without its source and license on record. Godot's `.import`
+     and `.uid` files and CREDITS.md itself are exempt.
+
 Each rule is a function returning Finding objects, so each is unit-tested in test_lint_content.py.
 The banned-word list is the plan's list plus a few obvious variants (smoky, smoker, cigarette,
 beehive, kittens, puppies).
@@ -314,6 +318,31 @@ def check_no_network(root: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Rule 10: every asset has a credit
+# ---------------------------------------------------------------------------
+
+CREDITS_PATH = "assets/CREDITS.md"
+CREDIT_EXEMPT_SUFFIXES = (".import", ".uid")
+
+
+def check_asset_credits(root: Path) -> list[Finding]:
+    assets = root / "assets"
+    if not assets.is_dir():
+        return []
+    credits_file = root / CREDITS_PATH
+    credits = credits_file.read_text(encoding="utf-8") if credits_file.is_file() else ""
+    listed = set(re.findall(r"`([^`]+)`", credits))
+    findings: list[Finding] = []
+    for path in sorted(assets.rglob("*")):
+        if not path.is_file() or path.suffix in CREDIT_EXEMPT_SUFFIXES or _rel(path, root) == CREDITS_PATH:
+            continue
+        rel = _rel(path, root)
+        if rel not in listed:
+            findings.append(Finding("10", rel, 0, f"no row for this file in {CREDITS_PATH} (source, author, license)"))
+    return findings
+
+
+# ---------------------------------------------------------------------------
 
 
 RULES = (
@@ -325,6 +354,7 @@ RULES = (
     check_curriculum,
     check_line_references,
     check_no_network,
+    check_asset_credits,
 )
 
 

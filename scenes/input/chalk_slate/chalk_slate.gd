@@ -28,7 +28,7 @@ const PLACE_LINES: Array[StringName] = [&"input.slate.place_ones", &"input.slate
 
 ## Below this confidence a reading is confirmed with the child. Tuned from the evaluation sweep
 ## (tools/handwriting/evaluate.py; docs/decisions.md, Sprint 14).
-@export var confidence_threshold: float = 0.85
+@export var confidence_threshold: float = 0.9
 
 ## The stroke source handed to every box. Defaults to the InputRouter autoload; tests inject theirs.
 var router: Node

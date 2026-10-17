@@ -311,3 +311,33 @@ def test_rule9_ignores_comments_and_code_outside_the_game(tmp_path: Path) -> Non
 def test_rule9_flags_a_network_node_in_a_scene(tmp_path: Path) -> None:
     root = make_tree(tmp_path, {"scenes/a.tscn": '[node name="Fetch" type="HTTPRequest" parent="."]\n'})
     assert messages(lint.check_no_network(root)) == ["9:scenes/a.tscn:1"]
+
+
+# ---------------------------------------------------------------------------
+# Rule 10: every asset has a credit
+# ---------------------------------------------------------------------------
+
+
+def credit_findings(tmp_path: Path, files: dict[str, str]) -> list[lint.Finding]:
+    return lint.check_asset_credits(make_tree(tmp_path, files))
+
+
+def test_rule10_flags_an_asset_with_no_credit_row(tmp_path: Path) -> None:
+    found = credit_findings(tmp_path, {"assets/art/rock.png": "x", "assets/CREDITS.md": "| `assets/art/other.png` | y |\n"})
+    assert [f.path for f in found] == ["assets/art/rock.png"]
+    assert found[0].rule == "10"
+
+
+def test_rule10_passes_when_every_file_has_a_row_and_ignores_import_sidecars(tmp_path: Path) -> None:
+    found = credit_findings(tmp_path, {
+        "assets/art/rock.png": "x", "assets/art/rock.png.import": "i", "assets/art/rock.png.uid": "u",
+        "assets/CREDITS.md": "| `assets/art/rock.png` | Kenney, CC0 |\n"})
+    assert found == []
+
+
+def test_rule10_needs_a_credits_file_when_there_are_assets(tmp_path: Path) -> None:
+    assert [f.path for f in credit_findings(tmp_path, {"assets/art/rock.png": "x"})] == ["assets/art/rock.png"]
+
+
+def test_rule10_is_silent_with_no_assets_folder(tmp_path: Path) -> None:
+    assert lint.check_asset_credits(tmp_path) == []
