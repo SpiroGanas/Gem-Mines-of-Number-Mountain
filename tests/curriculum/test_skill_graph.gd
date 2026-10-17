@@ -3,7 +3,7 @@
 class_name SkillGraphTest
 extends GdUnitTestSuite
 
-## Generators the plan schedules for later sprints. Every MVP generator (Zones 1-3) is built, so the
+## Generators the plan schedules for later sprints. Every generator of Zones 1-4 is built, so the
 ## list is empty; a later zone's skill added before its generator goes here until it is built.
 const NOT_BUILT_YET: Array[StringName] = []
 
@@ -66,8 +66,8 @@ func test_every_generator_resolves_or_is_scheduled_for_a_later_sprint() -> void:
 			assert_bool(NOT_BUILT_YET.has(skill.generator)).override_failure_message("%s uses unknown generator %s" % [id, skill.generator]).is_true()
 
 
-func test_all_of_zones_1_to_3_is_playable() -> void:
-	for zone: int in [1, 2, 3]:
+func test_all_of_zones_1_to_4_is_playable() -> void:
+	for zone: int in [1, 2, 3, 4]:
 		for skill: Skill in _catalog.skills_in_zone(zone):
 			assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).override_failure_message(skill.id + " has no generator").is_true()
 

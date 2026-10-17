@@ -25,13 +25,14 @@ SKILL_ID_RE = re.compile(r"^[a-z][a-z0-9]*\.[a-z0-9_]+\.[a-z0-9_]+$")
 SNAKE_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 ZONE_FILE_RE = re.compile(r"^z(\d{2})_([a-z0-9_]+)\.json$")
 
-# String check only (Sprint 2): the generator classes planned for Zones 1-3.
+# String check only (Sprint 2): the generator classes planned for Zones 1-4.
 # tests/curriculum/test_skill_graph.gd checks real resolution from Sprint 5 on.
 KNOWN_GENERATORS = frozenset({
     "CountingGenerator", "CompareGenerator", "PlaceValueGenerator", "RegroupGenerator",
     "AdditionGenerator", "SubtractionGenerator", "FactFamilyGenerator",
     "MissingPartGenerator", "BalanceGenerator",
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
+    "MultFactsGenerator", "DivFactsGenerator", "FactorsGenerator", "MultiplesGenerator", "PrimeCompositeGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).

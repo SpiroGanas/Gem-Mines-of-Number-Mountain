@@ -9,11 +9,20 @@ func before() -> void:
 	_catalog = SkillCatalog.load_all()
 
 
-func test_every_mvp_skill_has_a_generator() -> void:
-	for zone: int in [1, 2, 3]:
+func test_every_skill_of_zones_1_to_4_has_a_generator() -> void:
+	for zone: int in [1, 2, 3, 4]:
 		for skill: Skill in _catalog.skills_in_zone(zone):
 			assert_bool(GeneratorRegistry.has_generator(skill.generator)).override_failure_message("no generator for " + skill.id).is_true()
 			assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_true()
+
+
+func test_zone_4_has_its_fifteen_skills_and_five_generators() -> void:
+	var zone: Array[Skill] = _catalog.skills_in_zone(4)
+	assert_int(zone.size()).is_equal(15)
+	var names: Dictionary = {}
+	for skill: Skill in zone:
+		names[skill.generator] = true
+	assert_array(names.keys()).contains_exactly_in_any_order([&"MultFactsGenerator", &"DivFactsGenerator", &"FactorsGenerator", &"MultiplesGenerator", &"PrimeCompositeGenerator"])
 
 
 func test_a_skill_without_a_built_generator_gets_an_invalid_callable() -> void:

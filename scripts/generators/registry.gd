@@ -26,6 +26,11 @@ static func table() -> Dictionary:
 		&"ParityGenerator": ParityGenerator.generate,
 		&"ArraysGenerator": ArraysGenerator.generate,
 		&"MultiplicationGenerator": MultiplicationGenerator.generate,
+		&"MultFactsGenerator": MultFactsGenerator.generate,
+		&"DivFactsGenerator": DivFactsGenerator.generate,
+		&"FactorsGenerator": FactorsGenerator.generate,
+		&"MultiplesGenerator": MultiplesGenerator.generate,
+		&"PrimeCompositeGenerator": PrimeCompositeGenerator.generate,
 	}
 
 
