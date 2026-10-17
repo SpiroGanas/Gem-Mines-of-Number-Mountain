@@ -5,7 +5,7 @@ Human-readable skill graph and vocabulary, checked by the math reviewer without 
 | File | What it holds |
 |---|---|
 | `skills/zNN_<zone>.json` | One file per zone (12 files). `"status": "detailed"` zones carry full skill records; `"status": "outline"` zones carry only `id` and `name` until their sprint. Zones 1-3 are detailed (45 skills, the MVP). |
-| `vocabulary.json` | Word Gems: every math term, the zone that introduces it, and the line ids of its name and kid-sized definition in `text/lines.csv`. `picture` is `null` until Sprint 7. |
+| `vocabulary.json` | Word Gems: every math term, the zone that introduces it, and the line ids of its name and kid-sized definition in `text/lines.csv`. `visual` is the small picture on the Word Gem card (a problem visual, drawn by the mine's visual model); `picture` stays `null` until commissioned art. |
 | `misconceptions.json` | The allowed names for problem distractors, each with a parent-facing description. Generators and tests reject any other name. |
 | `bkt_defaults.json` | Bayesian Knowledge Tracing parameters per skill type, plus `hint_weight` and the fact-skill `fluency_ms`. **Do not change without asking Spiro.** |
 
@@ -33,7 +33,8 @@ The comments above are for explanation only; JSON files contain none.
 
 - Prerequisites form a DAG, only point at the same or an earlier zone, and never at an outline-only skill. `python -m pytest tools` enforces this (`tools/ci/curriculum_check.py`).
 - A term may not be used by a skill in an earlier zone than the one that introduces it.
-- A skill's `generator` must be in `GeneratorRegistry.table()` (scripts/generators/registry.gd) or be one of the generators still listed as not built in `tests/curriculum/test_skill_graph.gd`. The four Zone 1 generators are built; Zone 2 arrives in Sprint 7 and Zone 3 in Sprint 9.
+- A skill's `generator` must be in `GeneratorRegistry.table()` (scripts/generators/registry.gd) or be listed as not built in `tests/curriculum/test_skill_graph.gd`. Every Zone 1–3 generator is built.
+- Every misconception name needs Bolt's targeted hint line, `bolt.misconception.<name>`, in `text/lines.csv`.
 - The generator's `params` are merged with per-problem overrides (`representation`, `difficulty`); a generator never reads anything else.
 - Changing prerequisites or removing a skill needs Spiro's sign-off; note it in `docs/decisions.md`.
 - Child-facing words (including Word Gem definitions) live in `text/lines.csv`, never here.

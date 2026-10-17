@@ -17,6 +17,9 @@ Fails (exit code 1) on the project's non-negotiable content rules (CLAUDE.md):
   6-7. The curriculum is consistent: Word Gem terms exist, the prerequisite graph is acyclic and
      all other checks in curriculum_check.py.
   8. Every line id used in code (Text.get_line(&"id")) exists in text/lines.csv.
+  9. No network code in the game (rule 1 of CLAUDE.md): no HTTP, TCP, UDP, WebSocket, WebRTC or
+     ENet classes, no OS.shell_open and no web addresses in scenes/, scripts/ or autoload/. The
+     export preset's missing INTERNET permission is the backstop; this keeps the code honest too.
 
 Each rule is a function returning Finding objects, so each is unit-tested in test_lint_content.py.
 The banned-word list is the plan's list plus a few obvious variants (smoky, smoker, cigarette,
@@ -69,6 +72,13 @@ _TSCN_TEXT_RE = re.compile(r"""^\s*(?:text|tooltip_text|placeholder_text|title|d
 _TSCN_FIELD_RE = re.compile(r'type="(%s)"' % "|".join(_TEXT_FIELD_TYPES))
 _GD_FIELD_RE = re.compile(r"\b(%s)\b" % "|".join(_TEXT_FIELD_TYPES))
 _GET_LINE_RE = re.compile(r"""get_line\(\s*&?["']([a-z0-9_.]+)["']""")
+NETWORK_CLASSES = (
+    "HTTPRequest", "HTTPClient", "StreamPeerTCP", "StreamPeerTLS", "TCPServer", "UDPServer",
+    "PacketPeerUDP", "PacketPeerDTLS", "DTLSServer", "WebSocketPeer", "WebSocketMultiplayerPeer",
+    "WebRTCPeerConnection", "WebRTCMultiplayerPeer", "WebRTCDataChannel", "ENetMultiplayerPeer",
+    "ENetConnection", "ENetPacketPeer", "JavaScriptBridge",
+)
+_NETWORK_RE = re.compile(r"\b(%s|OS\.shell_open|https?://)" % "|".join(NETWORK_CLASSES))
 
 
 @dataclass(frozen=True)
@@ -284,6 +294,23 @@ def check_line_references(root: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Rule 9: no network code in the game
+# ---------------------------------------------------------------------------
+
+
+def check_no_network(root: Path) -> list[Finding]:
+    findings: list[Finding] = []
+    for path in _code_files(root, (".gd", ".tscn")):
+        rel = _rel(path, root)
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            text = line if path.suffix == ".tscn" else _strip_gd_comment(line)
+            hit = _NETWORK_RE.search(text)
+            if hit:
+                findings.append(Finding("9", rel, number, f"{hit.group(1)}: the game never uses the network (CLAUDE.md rule 1)"))
+    return findings
+
+
+# ---------------------------------------------------------------------------
 
 
 RULES = (
@@ -294,6 +321,7 @@ RULES = (
     check_sentence_length,
     check_curriculum,
     check_line_references,
+    check_no_network,
 )
 
 

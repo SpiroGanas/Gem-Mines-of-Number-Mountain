@@ -6,7 +6,7 @@ The game was designed for Charlie, a gifted first grader, with a public release 
 
 ## Status
 
-**Phase 1, Sprint 5 done.** The game shell (title, workshop, settings, pause), the save system, the number pad, the drag board and the dig loop exist, and every Zone 1 problem type is generated, checked by an independent Python cross-check and playable in the mine. Not built yet: the adaptive engine that picks the next problem (Sprint 6), Zones 2 and 3 (Sprints 7 and 9), the hint screens, rewards and parent dashboard, and the real art and sound. Open items for the product owner are marked "Needs Spiro" in [`docs/decisions.md`](docs/decisions.md).
+**Phase 1, Sprints 1–11 programmed (MVP feature-complete in code).** All 45 skills of Zones 1–3 are generated, checked by an independent Python cross-check (10,000 problems each) and playable in the mine through tap, drag, tiles, the number pad and the array builder. The BKT adaptive engine picks each rock's problem, runs the placement quest, mastery, spaced review and the four-rung hint ladder. Rewards v1 (coins, gems, the lantern streak, the Gem Museum, Bolt's Garage), Word Gems, first run, placeholder art and music, the parent gate and dashboard (time limit, progress, export/import) are in. Still to do on the devices: the bug bash, profiler captures, the release AAB and Charlie's first full session. Open items for the product owner are marked "Needs Spiro" in [`docs/decisions.md`](docs/decisions.md).
 
 | Milestone | Target |
 |---|---|
@@ -90,7 +90,7 @@ Every command is listed in `CLAUDE.md` under **Commands**. `tools/crosscheck/run
 
 ### Continuous integration
 
-`.github/workflows/ci.yml` runs on every push to `main` and every pull request. The `godot-import` job checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless, runs the main scene for three frames, runs the GdUnit4 suites and then the Python cross-check of the problem generators (test reports are uploaded as a build artifact). The `python` job runs pytest (curriculum, lint rules, export permissions, cross-check checkers) and the content lint. Sprint 11 adds a debug Android build.
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request. The `godot-import` job checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless, runs the main scene for three frames, runs the GdUnit4 suites and then the Python cross-check of the problem generators (test reports are uploaded as a build artifact). The `python` job runs pytest (curriculum, lint rules, export permissions, cross-check checkers), the content lint and the static performance check. The `android-debug` job builds a debug APK on every merge to `main` (or on demand), checks it asks for no `INTERNET` permission and uploads it as an artifact; the release AAB stays a local step because it needs the upload keystore.
 
 ## Repository layout
 
@@ -99,18 +99,18 @@ project.godot            Godot project (4.7, GL Compatibility, 1920x1080 landsca
 .godot-version           Pinned engine version (4.7.2-stable)
 default_bus_layout.tres  Audio buses: Master, Music, SFX, Voice
 icon.svg                 Placeholder app icon
-autoload/                Singletons: Text, UI, InputRouter, SaveSystem (built); Adaptive, Rewards (Sprints 6 and 8); Narration, Profiles (Phase 3)
+autoload/                Singletons: Text, UI, InputRouter, SaveSystem, Adaptive, Rewards; Narration, Profiles (Phase 3)
 scenes/
-  shell/                 Shell, title, hub (workshop), pause, settings, debug overlay; parent_area/ (Sprint 9)
+  shell/                 Shell, title, first run, hub (workshop), pause, settings, debug overlay; parent_area/ (gate, dashboard)
   mine/                  mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
-  input/                 NumberPad, BuildBoard, DragTarget, DragItem, ChoiceButtons; ChalkSlate (Phase 2)
-  workshop/              crafting, museum, builds/
+  input/                 NumberPad, BuildBoard, DragTarget, DragItem, ChoiceButtons, TileBoard, ArrayBuilder; ChalkSlate (Phase 2)
+  workshop/              Gem Museum, Bolt's Garage; crafting, builds/ (Phase 2)
   zones/                 z01_pebble_meadow … z12_infinite_core
 scripts/
-  generators/            one file per skill family (counting, compare, place_value, regroup built); pure logic, no nodes
-  adaptive/              bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd (Sprint 6)
+  generators/            one file per skill family (13 for Zones 1–3); pure logic, no nodes
+  adaptive/              bkt.gd, skill_record.gd, scheduler.gd, placement.gd, hint_ladder.gd, adaptive_engine.gd
   save/                  schema, migrator, store, migrations/
-  core/                  Problem, Skill, SkillCatalog, Attempt, DigFlow, ProblemSource, JsonUtil, SfxBank
+  core/                  Problem, Skill, SkillCatalog, Attempt, DigFlow, GameClock, RewardsRules, ProgressReport, ParentGateRules, DeviceSettings, JsonUtil, SfxBank
   ui/                    ExplorerTheme (the theme is built in code)
 curriculum/              skill graph JSON (one file per zone), vocabulary.json, misconceptions.json, bkt_defaults.json
 text/lines.csv           every child-facing line: id, text, context, voice_version
@@ -119,7 +119,7 @@ assets/                  art, fonts, sfx, music; every file credited in assets/C
 addons/                  gdUnit4 (installed), digit_ink (Phase 2)
 android/plugins/digit_ink/   Kotlin handwriting-recognition plugin (Phase 2)
 tests/                   GdUnit4 suites mirroring autoload/, scripts/ and scenes/, plus helpers/ (synthetic input, test window)
-tools/                   Python: crosscheck/, ci/, sfx/ (built); bkt/, handwriting/, voice/ (later phases)
+tools/                   Python: crosscheck/, ci/, sfx/, music/ (built); bkt/, handwriting/, voice/ (later phases)
 docs/                    development-plan.md, phases/, decisions.md, sdk-audit.md, gdd.md
 private/                 gitignored: exported play logs and handwriting samples; never committed
 ```
