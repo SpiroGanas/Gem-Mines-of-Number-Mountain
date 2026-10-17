@@ -113,3 +113,30 @@ One entry per decision: date, decision, why, alternatives considered. Newest at 
 
 - **Decision:** the Settings screen has the read-aloud toggle (stored in `settings.read_aloud`, no effect until Phase 3) and a Back button. Volume controls arrive in Sprint 10 with the sound pass. The pause menu offers Keep digging, Back to the workshop and Settings; Settings' Back button always returns to the workshop.
 - **Why:** schema v1 has no volume fields, and adding them is a save-schema change that needs Spiro's sign-off. The toggle exercises the whole read-modify-save path through the UI.
+
+## 2026-10-17: Dig loop is a pure state machine; the mine scene only presents it (Sprint 4)
+
+- **Decision:** `scripts/core/dig_flow.gd` (`DigFlow`) holds the loop's states (`PICK_ROCK, SHOW_PROBLEM, AWAIT_ANSWER, CRACK, GEM_DROP, WOBBLE, HINT, WALL_CLEAR`), the per-wall coin/gem tally and the hint rung. `scenes/mine/mine.gd` calls it as animations finish and draws what it reports. Out-of-order calls return false and change nothing (a double tap cannot pay twice). The tally follows Rewards v1 (1 coin per rock, 2 on the first try, 1 gem); Sprint 8 moves persistent totals into the `Rewards` autoload.
+- **Why:** CLAUDE.md keeps game logic out of scene scripts. As a plain object it is unit-tested, including "wrong answers never cost anything" (twelve misses in a row change no tally and lock nothing) and a hand-run mutation check (deducting a coin on a miss fails two tests).
+- **Stand-in:** `scripts/core/gray_box_problem.gd` is the single hard-coded `pv.tens_ones.build` problem. Sprint 5 replaces it with the real `Problem` and registry and deletes the file.
+
+## 2026-10-17: Placeholder art is drawn in code and placeholder sounds are synthesized (Sprint 4)
+
+- **Decision:** rocks, gems, the cart, Bolt and the drag pieces are drawn with `_draw()` (`GemArt` holds the gem shapes: quartz is a crystal point, garnet round, pyrite a cube, amethyst a prism). The nine sound effects come from `tools/sfx/generate_placeholder_sfx.py` (standard library plus `ffmpeg`; deterministic). The Sprint 1 hello-rock scene, its SVGs and its sound are deleted as `decisions.md` planned.
+- **Why:** the plan said "licensed pack, credited", but the build environment cannot reach kenney.nl and an unreviewed download would need a credit and a license check per file. Project-made stand-ins keep `assets/CREDITS.md` simple and every action still has a sound. The Sprint 10 art pass swaps both for the CC0 packs.
+- **Ported before deleting:** the stylus diagnostic line (event class, pressure, tilt, pen flag, device id) moved from the hello rock into the debug overlay, so the Sprint 1 device test can still be read on a device build.
+
+## 2026-10-17: Drag and drop runs on InputRouter pointer signals; piles also accept a tap (Sprint 4)
+
+- **Decision:** `BuildBoard` listens to `InputRouter.pointer_down/move/up` (the router is injectable for tests), never to Godot's built-in drag and drop. Drag from a pile into the tray to add a piece, drag a piece out and drop it anywhere else to remove it, and tapping a pile adds one piece without dragging. `DragItem` is at least one 64 dp target wide.
+- **Why:** finger, stylus and mouse then share one code path, which the tests prove with synthetic events (touch, mouse and pen-with-pressure all give the same result). The tap-to-add shortcut helps small hands and trackpads; dragging remains the main interaction.
+
+## 2026-10-17: The pause button is on screen, and Bolt's feedback never hides the problem (Sprint 4)
+
+- **Decision:** `ShellScreen.pause_requested` lets any screen ask the Shell to pause; the mine has a Pause button (tablet posture has no Escape key). Bolt's bubble has a main line (the problem) and a note under it (feedback: "Not quite. Let's look again.", "That's it! Nice work."). The praise stays up after a rock until the next rock opens.
+- **Why:** a first rendering of the screen showed the not-quite line *replacing* the prompt, so the child could no longer see which number to build. Found by rendering screenshots under a virtual display, not by a test; the regression is now a test.
+
+## 2026-10-17: Layout tests run in a 1920x1080 window (Sprint 4)
+
+- **Decision:** `tests/helpers/test_window.gd` (`TestWindow`) sets the root window to the design size for tests that check positions or hit areas, and restores it afterwards.
+- **Why:** GdUnit4's headless runner opens a 64x64 window, so `UI.scale_factor()` is about 0.03 and every 64 dp target measures about 1,900 canvas pixels there. Relative checks (`>= UI.min_target_px()`) still pass in that window, but anything geometric is wrong.

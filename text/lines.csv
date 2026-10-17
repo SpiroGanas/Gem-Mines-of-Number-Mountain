@@ -75,3 +75,9 @@ ui.mine.head_up,Head up to the surface,Mine: leave after the wall is clear,0
 ui.mine.dig_more,Dig more,Mine: start another wall,0
 ui.mine.coins,Coins: {n},Cart coin counter,0
 ui.mine.gems,Gems: {n},Cart gem counter,0
+ui.common.pause,Pause,Pause button on the mine screen (tablet posture has no Escape key),0
+ui.mine.done,Done,Mine: submit a built answer,0
+z1.dig.prompt_build_number,Build {n} with ten-bars and one-gems.,Zone 1 prompt: build a number with tens and ones,0
+z1.build.source_ten,Ten-bar,Label on the pile of ten-bars,0
+z1.build.source_one,One-gem,Label on the pile of one-gems,0
+z1.build.tray,Drop them here,Hint on the empty cart tray,0

@@ -9,6 +9,7 @@ var _dir: String
 
 
 func before_test() -> void:
+	TestWindow.use_design_size(get_window()) # the headless window is 64x64; see TestWindow
 	# Point the real SaveSystem at a temp folder so tests never touch the real save.
 	_dir = create_temp_dir("shell_" + str(Time.get_ticks_usec()))
 	SaveSystem.use_directory(_dir)
@@ -19,6 +20,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	TestWindow.restore(get_window())
 	get_tree().paused = false
 	SaveSystem.use_directory(SaveSystem.DEFAULT_DIR)
 
@@ -92,12 +94,22 @@ func test_the_settings_back_target_comes_from_the_request() -> void:
 	await _until_screen(&"title")
 
 
-func test_dig_has_no_screen_yet_so_it_is_ignored() -> void:
+func test_dig_opens_the_mine_and_head_up_style_requests_return_to_the_hub() -> void:
 	_press("PlayButton")
 	await _until_screen(&"hub")
 	_press("DigButton")
-	await get_tree().process_frame
-	assert_str(_shell.current_screen_id()).is_equal(&"hub")
+	await _until_screen(&"mine")
+	assert_object(_shell.current_screen()).is_instanceof(MineScreen)
+	_shell.current_screen().request_screen.emit(&"hub", {})
+	await _until_screen(&"hub")
+
+
+func test_the_pause_button_on_the_mine_opens_the_pause_menu() -> void:
+	_shell.change_screen(&"mine")
+	await _until_screen(&"mine")
+	_press("PauseButton")
+	assert_bool(_shell.is_paused()).is_true()
+	assert_bool(get_tree().paused).is_true()
 
 
 # --- Pause ----------------------------------------------------------------------------
@@ -181,7 +193,7 @@ func test_toggling_read_aloud_persists_to_the_save() -> void:
 
 
 func test_every_button_on_every_screen_is_a_full_size_touch_target() -> void:
-	for screen_id: StringName in [&"title", &"hub", &"settings"]:
+	for screen_id: StringName in [&"title", &"hub", &"settings", &"mine"]:
 		_shell.change_screen(screen_id, {})
 		await _until_screen(screen_id)
 		for node: Node in _all_buttons(_shell.current_screen()):
@@ -194,7 +206,7 @@ func test_every_button_on_every_screen_is_a_full_size_touch_target() -> void:
 
 
 func test_no_screen_contains_a_text_field() -> void:
-	for screen_id: StringName in [&"title", &"hub", &"settings"]:
+	for screen_id: StringName in [&"title", &"hub", &"settings", &"mine"]:
 		_shell.change_screen(screen_id, {})
 		await _until_screen(screen_id)
 		for forbidden: String in ["LineEdit", "TextEdit", "SpinBox"]:
@@ -202,7 +214,7 @@ func test_no_screen_contains_a_text_field() -> void:
 
 
 func test_every_label_and_button_text_comes_from_the_text_table() -> void:
-	for screen_id: StringName in [&"title", &"hub", &"settings"]:
+	for screen_id: StringName in [&"title", &"hub", &"settings", &"mine"]:
 		_shell.change_screen(screen_id, {})
 		await _until_screen(screen_id)
 		for node: Node in _shell.current_screen().find_children("*", "", true, false):

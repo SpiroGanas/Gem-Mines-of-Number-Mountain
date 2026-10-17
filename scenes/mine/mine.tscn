@@ -1,0 +1,98 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/mine/mine.gd" id="1_mine"]
+[ext_resource type="PackedScene" path="res://scenes/mine/rock_wall.tscn" id="2_wall"]
+[ext_resource type="PackedScene" path="res://scenes/mine/cart.tscn" id="3_cart"]
+[ext_resource type="PackedScene" path="res://scenes/mine/bolt.tscn" id="4_bolt"]
+[ext_resource type="Script" path="res://scripts/core/sfx_bank.gd" id="5_sfx"]
+
+[node name="Mine" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mine")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="Columns" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 48
+
+[node name="LeftColumn" type="VBoxContainer" parent="Margin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+theme_override_constants/separation = 24
+
+[node name="Header" type="HBoxContainer" parent="Margin/Columns/LeftColumn"]
+layout_mode = 2
+
+[node name="PauseButton" type="Button" parent="Margin/Columns/LeftColumn/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RockWall" parent="Margin/Columns/LeftColumn" instance=ExtResource("2_wall")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Cart" parent="Margin/Columns/LeftColumn" instance=ExtResource("3_cart")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RightColumn" type="VBoxContainer" parent="Margin/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+theme_override_constants/separation = 24
+
+[node name="Bolt" parent="Margin/Columns/RightColumn" instance=ExtResource("4_bolt")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AnswerHost" type="Control" parent="Margin/Columns/RightColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="WallClear" type="VBoxContainer" parent="Margin/Columns/RightColumn"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeadUpButton" type="Button" parent="Margin/Columns/RightColumn/WallClear"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"GoButton"
+
+[node name="DigMoreButton" type="Button" parent="Margin/Columns/RightColumn/WallClear"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="FxLayer" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SfxBank" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("5_sfx")

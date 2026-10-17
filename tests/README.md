@@ -5,13 +5,13 @@ GdUnit4 suites mirroring `autoload/`, `scripts/` and `scenes/`. GdUnit4 6.2.2 is
 | Folder | What it covers |
 |---|---|
 | `autoload/` | `Text`, `UI` and `InputRouter` autoloads (a fresh instance per test; events are synthetic) |
-| `core/` | small shared helpers such as `JsonUtil` |
+| `core/` | `DigFlow` (the dig loop's rules), `JsonUtil`, `SfxBank`, the gray-box problem |
 | `generators/` | seeded tests per problem generator (10,000-problem runs, edge cases, distractor rules) |
 | `adaptive/` | BKT unit tests and simulated-learner suites (random guesser never masters; fast learner tests out) |
 | `save/` | schema, migrator, store (atomic write, crash recovery) and the `SaveSystem` autoload; `save/fixtures/` holds one save file from every past schema version |
 | `scenes/` | scene-loading, input-mode and screen-flow tests |
 | `ui/` | the Explorer theme (contrast, sizes) |
-| `helpers/` | `InputSim`: builds synthetic touch/mouse/key events and feeds them to an `InputRouter` |
+| `helpers/` | `InputSim` builds synthetic touch/mouse/key events and feeds them to an `InputRouter`; `TestWindow` gives layout tests a 1920x1080 window (GdUnit4's headless window is only 64x64, which wrecks every size measured in dp) |
 
 Run everything (the Godot 4.7.2 binary path goes in `GODOT`; drop the two headless flags when a display is available):
 

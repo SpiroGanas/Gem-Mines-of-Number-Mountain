@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/mine/cart.gd" id="1_cart"]
+
+[node name="Cart" type="HBoxContainer"]
+script = ExtResource("1_cart")

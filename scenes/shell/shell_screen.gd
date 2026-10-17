@@ -11,6 +11,8 @@ extends Control
 
 ## Ask the Shell to show another screen. `args` is passed to that screen's setup().
 signal request_screen(screen_id: StringName, args: Dictionary)
+## Ask the Shell to open the pause menu (the on-screen pause button; tablet posture has no Escape).
+signal pause_requested
 
 
 func _ready() -> void:

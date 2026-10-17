@@ -18,6 +18,7 @@ const SCREEN_PATHS: Dictionary = {
 	&"title": "res://scenes/shell/title.tscn",
 	&"hub": "res://scenes/shell/hub.tscn",
 	&"settings": "res://scenes/shell/settings.tscn",
+	&"mine": "res://scenes/mine/mine.tscn",
 }
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing (there is nothing to pause).
@@ -122,6 +123,7 @@ func _swap_screen(screen_id: StringName, args: Dictionary) -> void:
 	var screen: ShellScreen = scene.instantiate()
 	screen.setup(args)
 	screen.request_screen.connect(change_screen)
+	screen.pause_requested.connect(pause)
 	_screen_host.add_child(screen)
 	_current = screen
 	_current_id = screen_id

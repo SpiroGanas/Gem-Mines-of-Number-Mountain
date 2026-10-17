@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/mine/rock_wall.gd" id="1_wall"]
+
+[node name="RockWall" type="GridContainer"]
+script = ExtResource("1_wall")
