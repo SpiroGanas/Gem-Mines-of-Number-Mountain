@@ -1,0 +1,8 @@
+{
+  "_comment": "Bayesian Knowledge Tracing defaults per skill bkt_type. Literature-typical starting values, to be fitted offline by tools/bkt/fit.py in Phase 2. Do not change without asking Spiro. fluency_ms applies only to fact skills and is never shown to the child.",
+  "default": {"prior": 0.30, "learn": 0.20, "guess": 0.20, "slip": 0.10},
+  "fact": {"prior": 0.25, "learn": 0.25, "guess": 0.15, "slip": 0.10, "fluency_ms": 8000},
+  "procedure": {"prior": 0.20, "learn": 0.15, "guess": 0.10, "slip": 0.15},
+  "concept": {"prior": 0.30, "learn": 0.15, "guess": 0.25, "slip": 0.10},
+  "hint_weight": 0.5
+}

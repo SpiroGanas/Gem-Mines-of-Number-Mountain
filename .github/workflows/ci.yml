@@ -32,8 +32,17 @@ jobs:
       - name: Run main scene for a few frames
         run: '"$GODOT" --headless --path . --quit-after 3'
 
+      # -c keeps going after a failure; GdUnit4 stops a suite at the first failure by default,
+      # which would hide every later failure behind the first one.
       - name: Run GdUnit4 suites
-        run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -a res://tests
+        run: GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -c -a res://tests
+
+      # Godot exports 10,000 seeded problems per built generator as JSON lines and the Python
+      # checkers (tools/crosscheck/checkers/, which share no code with the generators)
+      # recompute every answer and distractor from that JSON. Exit code 3 means Godot has not
+      # built the project yet, so it must come after the import step above.
+      - name: Cross-check problem generators in Python
+        run: python3 tools/crosscheck/run.py --all --n 10000
 
       - name: Upload test reports
         if: always()
@@ -43,5 +52,19 @@ jobs:
           path: reports/
           if-no-files-found: ignore
 
-      # Phase 1, Sprint 3 adds: pytest for tools/, tools/ci/lint_content.py.
       # Phase 1, Sprint 11 adds: Friday Android build to the internal testing track.
+
+  python:
+    name: Python tools, content lint and curriculum checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pytest
+        run: python3 -m pip install -r tools/requirements.txt
+
+      - name: pytest (curriculum, lint rules, export permissions)
+        run: python3 -m pytest tools -q
+
+      - name: Content lint (hard-coded text, text fields, banned words, text table, curriculum)
+        run: python3 tools/ci/lint_content.py

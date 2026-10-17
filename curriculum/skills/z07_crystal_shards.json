@@ -1,0 +1,28 @@
+{
+  "zone": 7,
+  "zone_id": "z07_crystal_shards",
+  "name": "Crystal Shards",
+  "status": "outline",
+  "skills": [
+    {"id": "fraction.unit.identify", "name": "Name a unit fraction"},
+    {"id": "fraction.part.of_whole", "name": "Fractions as parts of a whole"},
+    {"id": "fraction.number_line.place", "name": "Place fractions on a number line"},
+    {"id": "fraction.equivalent.build", "name": "Build equivalent fractions"},
+    {"id": "fraction.compare.like_den", "name": "Compare fractions with the same denominator"},
+    {"id": "fraction.compare.unlike_den", "name": "Compare fractions with different denominators"},
+    {"id": "fraction.add.like_den", "name": "Add fractions with the same denominator"},
+    {"id": "fraction.add.unlike_den", "name": "Add fractions with different denominators"},
+    {"id": "fraction.mixed.convert", "name": "Mixed numbers and improper fractions"},
+    {"id": "decimal.tenths.read", "name": "Read tenths"},
+    {"id": "decimal.hundredths.read", "name": "Read hundredths"},
+    {"id": "decimal.fraction.convert", "name": "Decimals and fractions"},
+    {"id": "decimal.compare.order", "name": "Compare and order decimals"},
+    {"id": "percent.of_hundred.read", "name": "Percent means out of 100"},
+    {"id": "percent.fraction.convert", "name": "Percents and fractions"},
+    {"id": "ratio.describe.part_part", "name": "Describe a ratio"},
+    {"id": "ratio.scale.alloy", "name": "Scale a ratio (mix an alloy)"},
+    {"id": "negative.depth.read", "name": "Read depths below zero"},
+    {"id": "negative.depth.compare", "name": "Compare depths"},
+    {"id": "negative.depth.move", "name": "Move up and down in depth"}
+  ]
+}

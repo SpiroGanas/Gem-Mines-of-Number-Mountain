@@ -1,0 +1,23 @@
+{
+  "zone": 4,
+  "zone_id": "z04_factor_workshop",
+  "name": "Factor Workshop",
+  "status": "outline",
+  "skills": [
+    {"id": "mult.facts.0_5", "name": "Multiplication facts 0 to 5"},
+    {"id": "mult.facts.6_10", "name": "Multiplication facts 6 to 10"},
+    {"id": "mult.facts.mixed", "name": "Mixed multiplication facts"},
+    {"id": "div.facts.by_2_5", "name": "Division facts by 2 to 5"},
+    {"id": "div.facts.by_6_10", "name": "Division facts by 6 to 10"},
+    {"id": "div.sharing.equal_shares", "name": "Division as fair sharing"},
+    {"id": "fac.list.find_all", "name": "List all factors of a number"},
+    {"id": "fac.pairs.rectangles", "name": "Factor pairs as rectangles"},
+    {"id": "fac.check.is_factor", "name": "Is it a factor?"},
+    {"id": "mul.list.first_k", "name": "List the first multiples"},
+    {"id": "mul.check.is_multiple", "name": "Is it a multiple?"},
+    {"id": "mul.common.first", "name": "First common multiple"},
+    {"id": "prime.classify.single", "name": "Prime or composite?"},
+    {"id": "prime.classify.set", "name": "Sort primes and composites"},
+    {"id": "prime.explain.factor_pairs", "name": "Explain primes with factor pairs"}
+  ]
+}

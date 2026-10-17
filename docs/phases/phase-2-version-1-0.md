@@ -144,7 +144,7 @@ Generators live in `scripts/generators/`, one file per skill family, as pure sta
 | Generator file | Skills (IDs) | Problem shape | Answer modes | Distractor misconceptions |
 |---|---|---|---|---|
 | `mult_facts.gd` | `mult.facts.0_5`, `mult.facts.6_10`, `mult.facts.mixed` | `{a} × {b} = ?` with an array picture in the concrete representation | tap (choices), number pad, handwriting | `off_by_one_group` (a×(b±1)), `added_instead` (a+b), `digit_swap` |
-| `div_facts.gd` | `div.facts.by_2_5`, `div.facts.by_6_10`, `div.as_sharing` | `{n} ÷ {b} = ?` as sharing gems into equal carts | tap, number pad, handwriting | `multiplied_instead`, `off_by_one`, `remainder_ignored` (for later skills only) |
+| `div_facts.gd` | `div.facts.by_2_5`, `div.facts.by_6_10`, `div.sharing.equal_shares` | `{n} ÷ {b} = ?` as sharing gems into equal carts | tap, number pad, handwriting | `multiplied_instead`, `off_by_one`, `remainder_ignored` (for later skills only) |
 | `factors.gd` | `fac.list.find_all`, `fac.pairs.rectangles`, `fac.check.is_factor` | "Which numbers are factors of {n}?" (tap all), "Build every rectangle with {n} blocks" (drag) | tap-multi, drag | `multiple_not_factor`, `missing_one_and_n`, `skip_middle_pair` |
 | `multiples.gd` | `mul.list.first_k`, `mul.check.is_multiple`, `mul.common.first` | "Load the cart with the next 3 multiples of {b}" | drag, tap | `off_by_b`, `factor_not_multiple` |
 | `prime_composite.gd` | `prime.classify.single`, `prime.classify.set`, `prime.explain.factor_pairs` | "Is {n} unbreakable?" (prime) or "Which of these rocks are unbreakable?" | tap, tap-multi | `odd_means_prime`, `one_is_prime`, `two_is_not_prime`, `square_is_prime` |

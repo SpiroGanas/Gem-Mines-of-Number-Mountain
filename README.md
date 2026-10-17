@@ -6,7 +6,7 @@ The game was designed for Charlie, a gifted first grader, with a public release 
 
 ## Status
 
-**Pre-development.** This repository holds the plan, the conventions, an empty Godot project scaffold with GdUnit4 and the Android export presets. Phase 1 (Sprint 1) starts **November 2, 2026**. No gameplay code exists yet.
+**Phase 1, Sprint 5 done.** The game shell (title, workshop, settings, pause), the save system, the number pad, the drag board and the dig loop exist, and every Zone 1 problem type is generated, checked by an independent Python cross-check and playable in the mine. Not built yet: the adaptive engine that picks the next problem (Sprint 6), Zones 2 and 3 (Sprints 7 and 9), the hint screens, rewards and parent dashboard, and the real art and sound. Open items for the product owner are marked "Needs Spiro" in [`docs/decisions.md`](docs/decisions.md).
 
 | Milestone | Target |
 |---|---|
@@ -29,7 +29,7 @@ The game was designed for Charlie, a gifted first grader, with a public release 
 | [`CLAUDE.md`](CLAUDE.md) | Conventions for the AI coding assistant and for humans: non-negotiable rules, content rules, tech stack, repository layout, commands, architecture, workflow, current phase. |
 | [`docs/decisions.md`](docs/decisions.md) | Architecture decision log (date, decision, why, alternatives). |
 | [`docs/sdk-audit.md`](docs/sdk-audit.md) | Every dependency, plugin and SDK, for Google Play's Families Policy review. |
-| [`docs/gdd.md`](docs/gdd.md) | Game design document (stub until Sprint 2). |
+| [`docs/gdd.md`](docs/gdd.md) | Game design document: loop, zones, feedback and reward rules, art direction, paper-prototype protocol and playtest templates. |
 
 Each phase document has the same shape: overview and dates, entry criteria, architecture and design (file paths, GDScript signatures, data schemas, scene trees), a sprint-by-sprint backlog with branch names and "done when" criteria, testing, exit criteria, risks, decisions for the product owner, and a hand-off to the next phase. They are written so that an experienced developer working with an AI coding agent can implement each phase.
 
@@ -60,7 +60,7 @@ The full list is in `CLAUDE.md`. The ones that shape everything:
 
 1. Clone the repository.
 2. Open Godot 4.7.2, choose **Import**, and select `project.godot`.
-3. Press **F5** (Run Project). You should see the placeholder title screen. That is the whole game today.
+3. Press **F5** (Run Project). You get the title screen, then the workshop, where the Dig button starts a wall of rocks. Tap a rock, answer, and the rock cracks. F3 shows the developer overlay in a debug build.
 
 ### Headless commands
 
@@ -73,19 +73,24 @@ Set `GODOT` to your Godot 4.7.2 executable (for example `export GODOT="/c/Tools/
 # Run the main scene headless for a few frames
 "$GODOT" --headless --path . --quit-after 3
 
-# Run the GdUnit4 test suites (drop the two headless flags when a display is available)
-GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -a res://tests
+# Run the GdUnit4 test suites (drop the two headless flags when a display is available; -c keeps going after a failure)
+GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -c -a res://tests
+
+# Python tool tests, content lint, and the independent math cross-check (10,000 problems per generator)
+python -m pytest tools
+python tools/ci/lint_content.py
+python tools/crosscheck/run.py --all --n 10000
 
 # Export a debug APK or a release AAB (needs the Android export templates, SDK and JDK 17; the AAB also needs the release keystore env vars)
 "$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
 "$GODOT" --headless --path . --export-release "Android AAB" build/gem-mines.aab
 ```
 
-The Python cross-check and the content lint arrive in Phase 1; every command is listed in `CLAUDE.md` under **Commands**.
+Every command is listed in `CLAUDE.md` under **Commands**. `tools/crosscheck/run.py` needs `GODOT` set and the project imported once.
 
 ### Continuous integration
 
-`.github/workflows/ci.yml` runs on every push to `main` and every pull request. Today it checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless, runs the main scene for three frames and runs the GdUnit4 suites (reports are uploaded as a build artifact). Phase 1 adds pytest, the content lint and a debug Android build.
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request. The `godot-import` job checks that `.godot-version` matches the CI version, downloads Godot 4.7.2, imports the project headless, runs the main scene for three frames, runs the GdUnit4 suites and then the Python cross-check of the problem generators (test reports are uploaded as a build artifact). The `python` job runs pytest (curriculum, lint rules, export permissions, cross-check checkers) and the content lint. Sprint 11 adds a debug Android build.
 
 ## Repository layout
 
@@ -94,38 +99,39 @@ project.godot            Godot project (4.7, GL Compatibility, 1920x1080 landsca
 .godot-version           Pinned engine version (4.7.2-stable)
 default_bus_layout.tres  Audio buses: Master, Music, SFX, Voice
 icon.svg                 Placeholder app icon
-autoload/                Singletons: Text, SaveSystem, Adaptive, Rewards, InputRouter, UI (Phase 1); Narration, Profiles (Phase 3)
+autoload/                Singletons: Text, UI, InputRouter, SaveSystem (built); Adaptive, Rewards (Sprints 6 and 8); Narration, Profiles (Phase 3)
 scenes/
-  shell/                 title, hub, pause, settings, parent_area/      (title.tscn placeholder exists)
-  mine/                  rock wall, rock, cart, Bolt
-  input/                 NumberPad, ChalkSlate, DragTarget
+  shell/                 Shell, title, hub (workshop), pause, settings, debug overlay; parent_area/ (Sprint 9)
+  mine/                  mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
+  input/                 NumberPad, BuildBoard, DragTarget, DragItem, ChoiceButtons; ChalkSlate (Phase 2)
   workshop/              crafting, museum, builds/
   zones/                 z01_pebble_meadow … z12_infinite_core
 scripts/
-  generators/            one file per skill family; pure logic, no nodes
-  adaptive/              bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd
-  save/                  save_system.gd, migrations/
-  core/                  Problem, Skill, Attempt resource classes
-curriculum/              skill graph JSON (one file per zone), vocabulary.json, bkt_defaults.json
+  generators/            one file per skill family (counting, compare, place_value, regroup built); pure logic, no nodes
+  adaptive/              bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd (Sprint 6)
+  save/                  schema, migrator, store, migrations/
+  core/                  Problem, Skill, SkillCatalog, Attempt, DigFlow, ProblemSource, JsonUtil, SfxBank
+  ui/                    ExplorerTheme (the theme is built in code)
+curriculum/              skill graph JSON (one file per zone), vocabulary.json, misconceptions.json, bkt_defaults.json
 text/lines.csv           every child-facing line: id, text, context, voice_version
 narration/audio/         generated narration (Phase 3); never hand-edited
 assets/                  art, fonts, sfx, music; every file credited in assets/CREDITS.md
 addons/                  gdUnit4 (installed), digit_ink (Phase 2)
 android/plugins/digit_ink/   Kotlin handwriting-recognition plugin (Phase 2)
-tests/                   GdUnit4 suites mirroring scripts/ and scenes/ (one scene smoke test today)
-tools/                   Python: crosscheck/, ci/, bkt/, handwriting/, voice/
+tests/                   GdUnit4 suites mirroring autoload/, scripts/ and scenes/, plus helpers/ (synthetic input, test window)
+tools/                   Python: crosscheck/, ci/, sfx/ (built); bkt/, handwriting/, voice/ (later phases)
 docs/                    development-plan.md, phases/, decisions.md, sdk-audit.md, gdd.md
 private/                 gitignored: exported play logs and handwriting samples; never committed
 ```
 
-Folders that are empty today hold a `.gitkeep` so the layout from `CLAUDE.md` exists from the first commit.
+Folders that are still empty hold a `.gitkeep` so the layout from `CLAUDE.md` exists from the first commit.
 
 ## How to work on it
 
 - Read `CLAUDE.md` first, then the current phase document and the relevant section of `docs/development-plan.md`.
 - One backlog item per branch, named `type/scope-summary` (for example `feat/z1-regrouping-generator`). Commit messages use `type(scope): summary`.
 - Generators, the adaptive engine and save migrations are written test-first.
-- Before calling a task done: the relevant GdUnit4 suites, the cross-check for any generator touched, and `python tools/ci/lint_content.py` (all arrive in Phase 1).
+- Before calling a task done: the relevant GdUnit4 suites, the cross-check for any generator touched, and `python tools/ci/lint_content.py`.
 - Architecture choices go in `docs/decisions.md`. New dependencies, save-schema changes, BKT threshold changes, curriculum prerequisite changes, export or permission changes, paid API calls and Godot upgrades all need the product owner's approval first.
 
 ## License

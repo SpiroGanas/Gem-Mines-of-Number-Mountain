@@ -1,0 +1,20 @@
+{
+  "zone": 6,
+  "zone_id": "z06_gear_works",
+  "name": "Gear Works",
+  "status": "outline",
+  "skills": [
+    {"id": "gcf.list.common_factors", "name": "List common factors"},
+    {"id": "gcf.find.by_listing", "name": "Greatest common factor by listing"},
+    {"id": "gcf.find.by_factor_tree", "name": "Greatest common factor by factor trees"},
+    {"id": "gcf.coprime.identify", "name": "Spot numbers with no common factor"},
+    {"id": "lcm.list.common_multiples", "name": "List common multiples"},
+    {"id": "lcm.find.by_listing", "name": "Least common multiple by listing"},
+    {"id": "lcm.find.by_factorization", "name": "Least common multiple by factorization"},
+    {"id": "lcm.relation.gcf_times_lcm", "name": "GCF times LCM"},
+    {"id": "gear.ratio.teeth", "name": "Gear ratios from teeth"},
+    {"id": "gear.sync.turns_to_align", "name": "Turns until gears line up"},
+    {"id": "simplify.fraction.gcf", "name": "Simplify a fraction"},
+    {"id": "simplify.ratio.gcf", "name": "Simplify a ratio"}
+  ]
+}

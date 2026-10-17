@@ -1,0 +1,24 @@
+{
+  "zone": 8,
+  "zone_id": "z08_power_tower",
+  "name": "Power Tower",
+  "status": "outline",
+  "skills": [
+    {"id": "exp.repeated_mult.read", "name": "Read repeated multiplication"},
+    {"id": "exp.evaluate.small", "name": "Evaluate small exponents"},
+    {"id": "exp.square.numbers", "name": "Square numbers"},
+    {"id": "exp.cube.numbers", "name": "Cube numbers"},
+    {"id": "root.square.perfect", "name": "Square roots of perfect squares"},
+    {"id": "exp.powers_of_two.list", "name": "Powers of 2"},
+    {"id": "exp.powers_of_ten.list", "name": "Powers of 10"},
+    {"id": "exp.zero_one.rules", "name": "Zero and one as exponents"},
+    {"id": "base.binary.to_decimal", "name": "Binary to decimal"},
+    {"id": "base.binary.from_decimal", "name": "Decimal to binary"},
+    {"id": "base.binary.add", "name": "Add in binary"},
+    {"id": "base.other.to_decimal", "name": "Other bases to decimal"},
+    {"id": "base.other.from_decimal", "name": "Decimal to other bases"},
+    {"id": "sci.notation.read", "name": "Read scientific notation"},
+    {"id": "sci.notation.write", "name": "Write scientific notation"},
+    {"id": "lever.counterweight.balance", "name": "Balance a lever with powers"}
+  ]
+}

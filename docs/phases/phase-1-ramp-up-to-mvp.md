@@ -190,7 +190,7 @@ static func generate(skill: Skill, params: Dictionary, rng: RandomNumberGenerato
 
 Rules: distractors never equal the answer and have no duplicates; each distractor names its misconception; the generator fills `hint_steps` for the four ladder rungs; the same seed always yields the same problem.
 
-- `scripts/generators/registry.gd` (`class_name GeneratorRegistry`) resolves a skill's `generator` string (`"CountingGenerator"` or `"Class.method"`) to a `Callable` once at load time, so later zones add generators as data plus one file. Verify in Godot docs how to obtain a static `Callable` from a `class_name` script in 4.7.
+- `scripts/generators/registry.gd` (`class_name GeneratorRegistry`) maps a skill's `generator` string (`"CountingGenerator"`) to the generator's static `generate` function as a `Callable`, through a table written as `CountingGenerator.generate` (a compile-checked reference), so later zones add one generator file and one table line. As built in Sprint 5 only the class-name form exists, not `"Class.method"`; `GeneratorRegistry.make_problem(skill, seed, overrides)` is the reproducible entry point. See `docs/decisions.md`.
 - `curriculum/misconceptions.json` is the allowed list of distractor misconception names with a one-line parent-facing description each; tests and lint rule 6 reject unknown names.
 - `tests/curriculum/test_skill_graph.gd` mirrors the Python DAG check in GdUnit4 (Sprint 5), so the Godot side also fails on a cycle, a missing prerequisite or an unresolvable generator.
 - Test helpers (`tests/helpers/input_sim.gd`, Sprint 4): `InputRouter.simulate_tap(pos)` and `InputRouter.simulate_drag(from, to)` feed synthetic `InputEventScreenTouch` / `InputEventScreenDrag` events so scene tests run headless.
@@ -239,10 +239,10 @@ Rules: distractors never equal the answer and have no duplicates; each distracto
 | `parity.even_odd.pairs` | 3 | `skip.by_2.to_40` | parity `{max: 20, mode: pairs}` | concrete | bool | `leftover_miscounted` |
 | `parity.even_odd.rule` | 3 | `parity.even_odd.pairs`, `pv.tens_ones.read` | parity `{max: 100, mode: last_digit}` | abstract | bool | `used_tens_digit` |
 | `arr.rows_cols.count` | 3 | `skip.by_2.to_40`, `skip.by_5.to_100` | arrays `{max_rows: 5, max_cols: 5}` | concrete | int | `rows_plus_cols`, `off_by_row` |
-| `arr.build` | 3 | `arr.rows_cols.count` | arrays `{mode: build}` | concrete (drag) | `{rows, cols}` | `rows_cols_swapped` |
+| `arr.rows_cols.build` | 3 | `arr.rows_cols.count` | arrays `{mode: build}` | concrete (drag) | `{rows, cols}` | `rows_cols_swapped` |
 | `mult.repeated_add.to_sum` | 3 | `arr.rows_cols.count`, `add.three_addends.to_20` | multiplication `{mode: repeated_add}` | pictorial | int | `counted_groups`, `off_by_group` |
 | `mult.equal_groups.total` | 3 | `mult.repeated_add.to_sum` | multiplication `{mode: equal_groups, max: 25}` | concrete | int | `rows_plus_cols`, `counted_groups` |
-| `mult.commutative.match` | 3 | `mult.equal_groups.total`, `arr.build` | multiplication `{mode: commutative}` | pictorial | StringName | `rows_cols_swapped_wrong` |
+| `mult.commutative.match` | 3 | `mult.equal_groups.total`, `arr.rows_cols.build` | multiplication `{mode: commutative}` | pictorial | StringName | `rows_cols_swapped_wrong` |
 | `mult.facts.2_5_10` | 3 | `mult.equal_groups.total`, `skip.by_5.to_100` | multiplication `{tables: [2, 5, 10]}` | abstract | int | `off_by_group`, `wrong_table` |
 
 Word Gems introduced (recorded in `curriculum/vocabulary.json`): digit, numeral, tens, ones, hundred, regrouping ("trade ten"), greater than, less than, equal, sum, difference, fact family, inverse, even, odd, array, row, column, equal groups, multiply, commutative.

@@ -1,0 +1,23 @@
+{
+  "zone": 11,
+  "zone_id": "z11_cipher_vault",
+  "name": "Cipher Vault",
+  "status": "outline",
+  "skills": [
+    {"id": "cipher.caesar.encode", "name": "Caesar cipher: encode"},
+    {"id": "cipher.caesar.decode", "name": "Caesar cipher: decode"},
+    {"id": "cipher.caesar.crack", "name": "Caesar cipher: crack"},
+    {"id": "cipher.affine.encode", "name": "Affine cipher: encode"},
+    {"id": "cipher.affine.decode", "name": "Affine cipher: decode"},
+    {"id": "modinv.exists.decide", "name": "Does a modular inverse exist?"},
+    {"id": "modinv.find.small", "name": "Find a modular inverse"},
+    {"id": "euclid.basic.gcd", "name": "Euclidean algorithm"},
+    {"id": "euclid.steps.count", "name": "Count Euclidean steps"},
+    {"id": "euclid.extended.coeffs", "name": "Extended Euclidean coefficients"},
+    {"id": "dioph.linear.solve", "name": "Solve a linear Diophantine equation"},
+    {"id": "dioph.linear.decide", "name": "Does a Diophantine equation have a solution?"},
+    {"id": "rsa.toy.keygen", "name": "Toy RSA: make keys"},
+    {"id": "rsa.toy.encrypt", "name": "Toy RSA: encrypt"},
+    {"id": "rsa.toy.decrypt", "name": "Toy RSA: decrypt"}
+  ]
+}
