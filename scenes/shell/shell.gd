@@ -13,7 +13,7 @@ extends Control
 ## A screen is now the current one (after the swap, as the fade-in starts).
 signal screen_changed(screen_id: StringName)
 
-## Screen id -> scene path. Later sprints add the mine, museum, garage and parent area.
+## Screen id -> scene path.
 const SCREEN_PATHS: Dictionary = {
 	&"title": "res://scenes/shell/title.tscn",
 	&"hub": "res://scenes/shell/hub.tscn",
@@ -31,6 +31,11 @@ const NON_PAUSABLE: Array[StringName] = [&"title", &"parent_gate", &"dashboard"]
 
 @export var fade_seconds: float = 0.2
 
+## Which music loop plays on which screen; screens not listed keep the workshop music.
+const MUSIC_FOR_SCREEN: Dictionary = {&"mine": &"mine"}
+const MUSIC_DIR: String = "res://assets/music/placeholder"
+const MUSIC_FADE_SECONDS: float = 0.8
+
 var _current_id: StringName = &""
 var _current: ShellScreen
 var _changing: bool = false
@@ -42,9 +47,17 @@ var _queued_args: Dictionary = {}
 @onready var _transition: ColorRect = %Transition
 @onready var _debug_overlay: DebugOverlay = %DebugOverlay
 
+var _music: AudioStreamPlayer
+var _music_id: StringName = &""
+
 
 func _ready() -> void:
 	theme = UI.theme()
+	DeviceSettings.shared().apply()
+	_music = AudioStreamPlayer.new()
+	_music.bus = &"Music"
+	_music.process_mode = Node.PROCESS_MODE_ALWAYS # the music keeps playing under the pause menu
+	add_child(_music)
 	_pause_menu.resume_requested.connect(resume)
 	_pause_menu.hub_requested.connect(_on_pause_hub_requested)
 	_pause_menu.settings_requested.connect(_on_pause_settings_requested)
@@ -91,6 +104,27 @@ func change_screen(screen_id: StringName, args: Dictionary = {}) -> void:
 		change_screen(next_id, next_args)
 
 
+## Starts a music loop (assets/music/placeholder/<id>.ogg) unless it is already playing.
+func play_music(music_id: StringName) -> void:
+	if music_id == _music_id:
+		return
+	var stream: AudioStream = load("%s/%s.ogg" % [MUSIC_DIR, music_id])
+	if stream == null:
+		return
+	if stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	_music_id = music_id
+	_music.stream = stream
+	_music.volume_db = -30.0
+	_music.play()
+	var fade: Tween = create_tween()
+	fade.tween_property(_music, "volume_db", 0.0, MUSIC_FADE_SECONDS)
+
+
+func current_music() -> StringName:
+	return _music_id
+
+
 func toggle_pause() -> void:
 	if is_paused():
 		resume()
@@ -133,6 +167,7 @@ func _swap_screen(screen_id: StringName, args: Dictionary) -> void:
 	_current = screen
 	_current_id = screen_id
 	_debug_overlay.screen_name = screen_id
+	play_music(MUSIC_FOR_SCREEN.get(screen_id, &"hub"))
 	screen_changed.emit(screen_id)
 
 

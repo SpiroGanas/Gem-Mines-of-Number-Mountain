@@ -246,7 +246,8 @@ func _on_gem_landed(_gem_type: StringName) -> void:
 	if _pending_celebrations.is_empty():
 		_after_rock()
 	else:
-		_sfx.play(&"fanfare")
+		var lantern_only: bool = _pending_celebrations.size() == 1 and _pending_celebrations[0].get("lantern", false)
+		_sfx.play(&"lantern" if lantern_only else &"sparkle")
 		_celebration.celebrate(_pending_celebrations.duplicate())
 		_pending_celebrations.clear()
 

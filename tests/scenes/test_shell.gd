@@ -13,6 +13,7 @@ func before_test() -> void:
 	# Point the real SaveSystem at a temp folder so tests never touch the real save.
 	_dir = create_temp_dir("shell_" + str(Time.get_ticks_usec()))
 	SaveSystem.use_directory(_dir)
+	DeviceSettings.use_shared(DeviceSettings.new(_dir.path_join("device_settings.cfg")))
 	_shell = load(SHELL_SCENE).instantiate()
 	_shell.fade_seconds = 0.0 # no animation waits in tests
 	add_child(_shell)
@@ -20,6 +21,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	DeviceSettings.use_shared(null)
 	TestWindow.restore(get_window())
 	get_tree().paused = false
 	SaveSystem.use_directory(SaveSystem.DEFAULT_DIR)
@@ -290,3 +292,24 @@ func test_grown_ups_go_through_the_gate_and_the_parent_area_cannot_be_paused() -
 	await _until_screen(&"dashboard")
 	_shell.toggle_pause()
 	assert_bool(_shell.is_paused()).is_false()
+
+
+func test_the_mine_has_its_own_music_and_the_workshop_screens_share_one() -> void:
+	_shell.change_screen(&"hub")
+	await _until_screen(&"hub")
+	assert_str(_shell.current_music()).is_equal("hub")
+	_shell.change_screen(&"mine")
+	await _until_screen(&"mine")
+	assert_str(_shell.current_music()).is_equal("mine")
+
+
+func test_settings_turn_the_music_and_sounds_up_and_down() -> void:
+	_shell.change_screen(&"settings")
+	await _until_screen(&"settings")
+	var settings: SettingsScreen = _shell.current_screen()
+	var start: int = DeviceSettings.shared().level("music")
+	settings.find_child("MusicRow", true, false).find_child("Less", true, false).pressed.emit()
+	assert_int(DeviceSettings.shared().level("music")).is_equal(maxi(start - 1, 0))
+	assert_int(settings.volume_level("music")).is_equal(DeviceSettings.shared().level("music"))
+	settings.find_child("MusicRow", true, false).find_child("More", true, false).pressed.emit()
+	assert_int(DeviceSettings.shared().level("music")).is_equal(start)

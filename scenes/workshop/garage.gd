@@ -16,10 +16,13 @@ var _bolt: Bolt
 var _coins_label: Label
 var _buttons: Dictionary[StringName, Button] = {}
 var _back_button: Button
+var _sfx: SfxBank
 
 
 func _ready() -> void:
 	super()
+	_sfx = SfxBank.new()
+	add_child(_sfx)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
@@ -128,9 +131,10 @@ func _show_price(button: Button, id: StringName) -> void:
 
 func _on_item_pressed(item: Dictionary) -> void:
 	if item.has("lamp") and RewardsRules.has_headlamp(Rewards.data(), item["lamp"]):
+		_sfx.play(&"tap")
 		Rewards.set_headlamp(item["lamp"])
-	else:
-		Rewards.buy(item["id"])
+	elif Rewards.buy(item["id"]):
+		_sfx.play(&"buy")
 	_refresh()
 
 

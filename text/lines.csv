@@ -259,3 +259,5 @@ parent.dash.export_failed,The progress file could not be saved.,Parent dashboard
 parent.dash.imported,Progress imported.,Parent dashboard: the imported progress was newer and replaced this device's,0
 parent.dash.import_kept,"This device's progress is newer, so it was kept. The answers were added.",Parent dashboard: newest wins,0
 parent.dash.import_failed,That file could not be imported.,Parent dashboard,0
+ui.settings.music,Music,Settings: music volume,0
+ui.settings.sounds,Sounds,Settings: sound effects volume,0

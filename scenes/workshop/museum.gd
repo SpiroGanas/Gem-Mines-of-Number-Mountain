@@ -21,10 +21,13 @@ var _detail_text: Label
 var _detail_gem: GemArt
 var _back_button: Button
 var _selected: StringName = &""
+var _sfx: SfxBank
 
 
 func _ready() -> void:
 	super()
+	_sfx = SfxBank.new()
+	add_child(_sfx)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
@@ -103,6 +106,8 @@ func detail_name() -> String:
 ## Shows a case's card: its name and fact if open, or how to find it if not.
 func select(mineral: StringName) -> void:
 	_selected = mineral
+	if _sfx != null:
+		_sfx.play(&"select")
 	_detail_gem.visible = true
 	_detail_gem.gem_type = mineral
 	if is_open(mineral):
