@@ -10,6 +10,9 @@
 ##   rectangles   "Build a rectangle with {rows} rows and {n} gems in all." on the array builder
 ##                (answer: {rows, cols}). Wrong answers swap rows and columns or are one column off.
 ##   check        "Is {d} a factor of {n}?" Yes or no.
+##   split        "Split {n} so one piece is {a}." Drag the pickaxe to a split point on the boulder's
+##                factor rail (BoulderSplit; answer: [smaller, larger]). The wrong answers are the
+##                boulder's other factor pairs (wrong_split). n has at least two pairs.
 class_name FactorsGenerator
 extends RefCounted
 
@@ -26,6 +29,9 @@ const BIGGEST_MULTIPLE: int = 100
 const PROMPT_LIST: StringName = &"z4.fac.prompt_list"
 const PROMPT_RECTANGLE: StringName = &"z4.fac.prompt_rectangle"
 const PROMPT_CHECK: StringName = &"z4.fac.prompt_check"
+const PROMPT_SPLIT: StringName = &"z4.fac.prompt_split"
+## The boulder splits a number of at least this size and with two or more factor pairs.
+const SPLIT_FIRST: int = 8
 
 
 static func generate(skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Problem:
@@ -47,6 +53,9 @@ static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, 
 		"check":
 			model = _check(problem, skill, params, rng)
 			example_line = _check_line_of
+		"split":
+			model = _split(problem, skill, params, rng)
+			example_line = _split_line_of
 		_:
 			push_error("FactorsGenerator: unknown mode '%s'" % mode)
 			return problem
@@ -194,6 +203,53 @@ static func _rectangle_line_of(example: Problem) -> Dictionary:
 	var rows: int = example.answer["rows"]
 	var cols: int = example.answer["cols"]
 	return {"line_id": &"z4.hint.example_rectangle", "params": {"rows": rows, "cols": cols, "n": rows * cols}}
+
+
+# --- split -----------------------------------------------------------------------------------
+
+
+## The factor pairs a x b = n with 2 <= a <= b, smallest first.
+static func _pairs_of(n: int) -> Array[Vector2i]:
+	var pairs: Array[Vector2i] = []
+	var a: int = 2
+	while a * a <= n:
+		if n % a == 0:
+			pairs.append(Vector2i(a, _exact_div(n, a)))
+		a += 1
+	return pairs
+
+
+## "Split {n} so one piece is {a}." The boulder's rail has every factor pair of n; the right one has
+## {a} in it. The other pairs are the wrong answers (wrong_split).
+static func _split(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	var top: int = GeneratorKit.eased_max(SPLIT_FIRST + 4, int(params.get("max", 36)), GeneratorKit.difficulty_of(params))
+	var n: int = 12
+	for attempt: int in 200:
+		var candidate: int = rng.randi_range(SPLIT_FIRST, top)
+		if _pairs_of(candidate).size() >= 2:
+			n = candidate
+			break
+	var pairs: Array[Vector2i] = _pairs_of(n)
+	var chosen: Vector2i = pairs[rng.randi_range(0, pairs.size() - 1)]
+	var shown: int = chosen.x if rng.randi_range(0, 1) == 0 else chosen.y
+	problem.prompt_line_id = PROMPT_SPLIT
+	problem.prompt_params = {"n": n, "a": shown}
+	problem.answer = [chosen.x, chosen.y]
+	var factors: Array[int] = []
+	for pair: Vector2i in pairs:
+		factors.append(pair.x)
+		if pair.y != pair.x:
+			factors.append(pair.y)
+	factors.sort()
+	problem.meta = {"boulder_split": {"value": n, "factors": factors}}
+	for pair: Vector2i in pairs:
+		if pair != chosen:
+			GeneratorKit.add_distractor(problem, skill, [pair.x, pair.y], &"wrong_split")
+	return _hops_to(chosen.x, n, [n])
+
+
+static func _split_line_of(example: Problem) -> Dictionary:
+	return {"line_id": &"z4.hint.example_split", "params": {"n": example.prompt_params["n"], "a": example.answer[0], "b": example.answer[1]}}
 
 
 # --- check -----------------------------------------------------------------------------------

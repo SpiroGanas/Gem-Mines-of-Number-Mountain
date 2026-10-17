@@ -18,7 +18,7 @@ LABELS = {"true": "ui.common.yes", "false": "ui.common.no"}
 
 def check(problem: dict) -> list[str]:
     mode = problem["params"]["mode"]
-    handler = {"list": _list, "rectangles": _rectangles, "check": _check}.get(mode)
+    handler = {"list": _list, "rectangles": _rectangles, "check": _check, "split": _split}.get(mode)
     if handler is None:
         return [f"unknown factors mode {mode!r}"]
     return handler(problem)
@@ -144,6 +144,53 @@ def _rectangles(problem: dict) -> list[str]:
     if example["answer_line_id"] != "z4.hint.example_rectangle" \
             or example["answer_params"] != {"rows": e_rows, "cols": e_cols, "n": product(e_rows, e_cols)}:
         errors.append("the worked example does not state its own gem count")
+    return errors
+
+
+# --- split -----------------------------------------------------------------------------------
+
+
+def _pairs(n: int) -> list[tuple[int, int]]:
+    """Every a x b = n with 2 <= a <= b, found by trying each a."""
+    return [(a, n // a) for a in range(2, n) if a <= n // a and a * (n // a) == n]
+
+
+def _split(problem: dict) -> list[str]:
+    errors: list[str] = []
+    prompt = problem["prompt_params"]
+    if problem["prompt_line_id"] != "z4.fac.prompt_split" or set(prompt) != {"n", "a"}:
+        return ["a split problem should use z4.fac.prompt_split with {n} and {a}"]
+    n, shown = prompt["n"], prompt["a"]
+    pairs = _pairs(n)
+    answer = problem["answer"]
+    if len(pairs) < 2:
+        errors.append(f"{n} has fewer than two factor pairs, so there is nothing to choose between")
+    if n < 8 or n > problem["params"]["max"]:
+        errors.append(f"{n} is outside 8..{problem['params']['max']}")
+    if not isinstance(answer, list) or len(answer) != 2 or tuple(answer) not in pairs:
+        errors.append(f"the answer {answer!r} is not a factor pair of {n} (smaller number first)")
+    elif shown not in answer:
+        errors.append(f"the pair {answer!r} does not have the {shown} the prompt asks for")
+    spec = problem["meta"].get("boulder_split")
+    wanted = sorted({x for pair in pairs for x in pair})
+    if not isinstance(spec, dict) or spec.get("value") != n or spec.get("factors") != wanted:
+        errors.append(f"the boulder should be {n} with the rail factors {wanted}, got {spec!r}")
+    wrong = [entry["value"] for entry in problem["distractors"]]
+    if any(entry["misconception"] != "wrong_split" for entry in problem["distractors"]):
+        errors.append("every wrong pair is named wrong_split")
+    expected_wrong = [list(pair) for pair in pairs if list(pair) != answer]
+    if sorted(wrong) != sorted(expected_wrong):
+        errors.append(f"the wrong answers should be the other pairs {expected_wrong}, got {wrong}")
+    if problem["visual"]:
+        errors.append("the boulder is the picture, so the problem draws none")
+    if isinstance(answer, list) and len(answer) == 2 and problem["hint_steps"][1]["visual"] != hops_to(answer[0], n, [n]):
+        errors.append(f"the rung 2 picture should be hops of {answer[0]} to {n}")
+    example = problem["hint_steps"][2]["example"]
+    ex_n, ex_a = example["prompt_params"]["n"], example["prompt_params"]["a"]
+    ex_answer = example["answer"]
+    if tuple(ex_answer) not in _pairs(ex_n) or ex_a not in ex_answer or example["answer_line_id"] != "z4.hint.example_split" \
+            or example["answer_params"] != {"n": ex_n, "a": ex_answer[0], "b": ex_answer[1]}:
+        errors.append("the worked example does not split its own boulder correctly")
     return errors
 
 

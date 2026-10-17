@@ -401,3 +401,6 @@ bolt.misconception.skip_middle_pair,Try each small number in turn. Did you miss 
 bolt.misconception.square_is_prime,Squares break into equal rows and columns.,Targeted hint after the square_is_prime mistake,0
 bolt.misconception.two_is_not_prime,Two only has the factors one and two. It will not break.,Targeted hint after the two_is_not_prime mistake,0
 bolt.misconception.used_the_product,Count up by both numbers. Where do they meet first?,Targeted hint after the used_the_product mistake,0
+bolt.misconception.wrong_split,Which pair has the number we asked for?,Targeted hint after the wrong_split mistake,0
+z4.fac.prompt_split,Split {n} so one piece is {a}.,Zone 4: split the boulder (drag the pickaxe to a factor pair),0
+z4.hint.example_split,"{a} × {b} = {n}, so {n} splits into {a} and {b}.",Worked example: a boulder split,0

@@ -233,8 +233,8 @@ def test_a_malformed_export_is_a_failure_not_a_crash() -> None:
 
 
 def test_runner_knows_the_skills_and_misconceptions() -> None:
-    assert len(SKILLS) == 60 # Zones 1-4
-    assert len(ALLOWED) == 57
+    assert len(SKILLS) == 61 # Zones 1-4
+    assert len(ALLOWED) == 58
     assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every generator has a checker
 
 
@@ -282,5 +282,5 @@ def test_end_to_end_one_skill(tmp_path: Path) -> None:
 def test_end_to_end_every_skill(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert run.main(["--all", "--n", "120", "--godot", GODOT, "--out", str(tmp_path)]) == 0
     output = capsys.readouterr().out
-    assert output.count("ok     ") == 60 # Zones 1-4, every skill
+    assert output.count("ok     ") == 61 # Zones 1-4, every skill
     assert "generator not built yet" not in output

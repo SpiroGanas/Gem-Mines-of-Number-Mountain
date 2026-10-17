@@ -180,6 +180,41 @@ func test_a_rectangle_holds_exactly_n_gems() -> void:
 	assert_int(seen.size()).is_equal(30) # rows 2 to 6 by columns 1 to 6
 
 
+func test_a_split_problem_asks_for_a_factor_pair_that_has_the_shown_number() -> void:
+	var seen: Dictionary = {}
+	for problem: Problem in _problems(&"fac.split.pair"):
+		var n: int = problem.prompt_params["n"]
+		var shown: int = problem.prompt_params["a"]
+		assert_str(problem.prompt_line_id).is_equal("z4.fac.prompt_split")
+		var pair: Array = problem.answer
+		assert_int(pair.size()).is_equal(2)
+		assert_int(pair[0] * pair[1]).is_equal(n)
+		assert_int(pair[0]).is_between(2, pair[1])
+		assert_bool(pair.has(shown)).is_true()
+		assert_int(n).is_between(8, 36)
+		var spec: Dictionary = problem.meta["boulder_split"]
+		assert_int(spec["value"]).is_equal(n)
+		for factor: int in spec["factors"]:
+			assert_int(n % factor).is_equal(0)
+			assert_int(factor).is_between(2, n / 2)
+		# every other factor pair is a wrong answer, named wrong_split, and none repeats the answer
+		var others: Array = _by_name(problem, "wrong_split")
+		assert_int(others.size()).is_equal(problem.distractors.size())
+		assert_int(others.size()).is_greater_equal(1)
+		for other: Array in others:
+			assert_int(other[0] * other[1]).is_equal(n)
+			assert_bool(other == pair).is_false()
+		assert_bool(problem.visual.is_empty()).is_true()
+		seen[n] = true
+	assert_int(seen.size()).is_equal(9) # 12, 16, 18, 20, 24, 28, 30, 32 and 36 are the numbers in 8..36 with two factor pairs
+
+
+func test_a_split_problem_has_a_boulder_input_and_a_real_chance_of_a_wrong_pick() -> void:
+	var problem: Problem = GeneratorRegistry.make_problem(_catalog.skill(&"fac.split.pair"), 5)
+	assert_int(AnswerPanel.choose_input(problem)).is_equal(AnswerPanel.InputKind.SPLIT)
+	assert_float(AnswerPanel.chance_for(problem)).is_less_equal(0.5)
+
+
 func test_wrong_rectangles_are_swapped_or_one_column_off() -> void:
 	var swapped: int = 0
 	var off: int = 0

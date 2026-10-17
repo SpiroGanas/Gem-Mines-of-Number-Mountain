@@ -82,7 +82,7 @@ func test_only_whole_numbers_of_one_to_three_digits_fit_the_slate() -> void:
 
 func test_every_handwriting_skill_makes_whole_numbers_that_fit() -> void:
 	var count: int = 0
-	for skill: Skill in _catalog.skills_in_zone(1) + _catalog.skills_in_zone(2) + _catalog.skills_in_zone(3):
+	for skill: Skill in _catalog.skills_in_zone(1) + _catalog.skills_in_zone(2) + _catalog.skills_in_zone(3) + _catalog.skills_in_zone(4):
 		if not skill.answer_modes.has(&"handwriting"):
 			continue
 		count += 1
@@ -90,7 +90,7 @@ func test_every_handwriting_skill_makes_whole_numbers_that_fit() -> void:
 		for seed_value: int in range(1, 301):
 			var problem: Problem = GeneratorRegistry.make_problem(skill, seed_value)
 			assert_bool(AnswerPanel.slate_fits(problem)).override_failure_message("%s seed %d: answer %s" % [skill.id, seed_value, problem.answer]).is_true()
-	assert_int(count).is_equal(24)
+	assert_int(count).is_equal(31)
 
 
 func test_the_attempt_log_calls_the_slate_handwriting() -> void:

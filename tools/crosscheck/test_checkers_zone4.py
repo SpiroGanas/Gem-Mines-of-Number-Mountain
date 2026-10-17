@@ -105,6 +105,10 @@ def good_problems() -> dict[str, dict]:
                               meta={"array_builder": {"max_rows": 6, "max_cols": 6}}, model=arr(3, 4, True),
                               example=example("z4.fac.prompt_rectangle", {"rows": 2, "n": 10}, {"rows": 2, "cols": 5},
                                               "z4.hint.example_rectangle", {"rows": 2, "cols": 5, "n": 10})),
+        "fac_split": make("fac.split.pair", "z4.fac.prompt_split", {"n": 12, "a": 3}, [3, 4], [("wrong_split", [2, 6])],
+                          meta={"boulder_split": {"value": 12, "factors": [2, 3, 4, 6]}},
+                          model=numbers.number_line(0, 12, 3, [12], [(0, 3), (3, 6), (6, 9), (9, 12)]),
+                          example=example("z4.fac.prompt_split", {"n": 16, "a": 8}, [2, 8], "z4.hint.example_split", {"n": 16, "a": 2, "b": 8})),
         # A square has no swapped rectangle, and 1 column cannot be one fewer.
         "fac_rectangle_square": make("fac.pairs.rectangles", "z4.fac.prompt_rectangle", {"rows": 4, "n": 4}, {"rows": 4, "cols": 1},
                                      [("rows_cols_swapped", {"rows": 1, "cols": 4}), ("off_by_one", {"rows": 4, "cols": 2})],
@@ -211,7 +215,7 @@ def test_a_correct_problem_passes(name: str) -> None:
 
 def test_every_zone_4_skill_has_a_good_problem_and_a_checker() -> None:
     assert {problem["skill_id"] for problem in GOOD.values()} == set(ZONE4)
-    assert len(ZONE4) == 15
+    assert len(ZONE4) == 16
     for skill_id in ZONE4:
         assert SKILLS[skill_id]["generator"] in run.CHECKERS
 
@@ -290,6 +294,14 @@ TAMPERS = [
     ("fac_list", _set(["hint_steps", 2, "example", "answer_params", "a"], 5), "worked example"),
     ("fac_list_square", _distractor(2, [1, 9, 27]), "multiple_not_factor"),
     ("fac_list_square", _distractor(1, [1, 2, 3]), "skip_middle_pair"),
+    # Factors: split the boulder
+    ("fac_split", _set(["answer"], [2, 5]), "not a factor pair"),
+    ("fac_split", _set(["answer"], [2, 6]), "does not have the 3"),
+    ("fac_split", _set(["meta", "boulder_split", "factors"], [2, 3, 4]), "rail factors"),
+    ("fac_split", lambda p: p["distractors"].clear(), "other pairs"),
+    ("fac_split", _distractor(0, [3, 4]), "other pairs"),
+    ("fac_split", _set(["distractors", 0, "misconception"], "no_check_made"), "wrong_split"),
+    ("fac_split", _set(["hint_steps", 2, "example", "answer"], [3, 5]), "worked example"),
     # Factors: rectangles
     ("fac_rectangle", _set(["answer"], {"rows": 3, "cols": 5}), "rows of 5 make 15"),
     ("fac_rectangle", _set(["answer"], {"rows": 2, "cols": 6}), "keep the prompt's 3 rows"),

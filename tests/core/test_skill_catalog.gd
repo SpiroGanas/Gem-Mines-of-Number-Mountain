@@ -10,11 +10,11 @@ func before() -> void:
 
 
 func test_the_catalog_holds_the_60_skills_of_zones_1_to_4_and_skips_outline_zones() -> void:
-	assert_int(_catalog.count()).is_equal(60)
+	assert_int(_catalog.count()).is_equal(61)
 	assert_int(_catalog.skills_in_zone(1).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(2).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(3).size()).is_equal(11)
-	assert_int(_catalog.skills_in_zone(4).size()).is_equal(15)
+	assert_int(_catalog.skills_in_zone(4).size()).is_equal(16)
 	assert_int(_catalog.skills_in_zone(5).size()).is_equal(0)
 	assert_bool(_catalog.has_skill(&"fac.list.find_all")).is_true()
 	assert_bool(_catalog.has_skill(&"sieve.mark.multiples_of")).is_false() # a Zone 5 outline skill
@@ -67,6 +67,6 @@ func test_an_unknown_skill_is_null() -> void:
 
 func test_misconception_names_load_from_the_curriculum_file() -> void:
 	var names: Array[StringName] = SkillCatalog.misconception_names()
-	assert_int(names.size()).is_equal(57)
+	assert_int(names.size()).is_equal(58)
 	assert_bool(names.has(&"digit_swap")).is_true()
 	assert_bool(names.has(&"thought_equal")).is_true()

@@ -16,9 +16,9 @@ func test_every_skill_of_zones_1_to_4_has_a_generator() -> void:
 			assert_bool(GeneratorRegistry.callable_for(skill).is_valid()).is_true()
 
 
-func test_zone_4_has_its_fifteen_skills_and_five_generators() -> void:
+func test_zone_4_has_its_sixteen_skills_and_five_generators() -> void:
 	var zone: Array[Skill] = _catalog.skills_in_zone(4)
-	assert_int(zone.size()).is_equal(15)
+	assert_int(zone.size()).is_equal(16)
 	var names: Dictionary = {}
 	for skill: Skill in zone:
 		names[skill.generator] = true

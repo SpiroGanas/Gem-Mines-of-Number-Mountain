@@ -301,14 +301,14 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 
 ## Current phase
 
-**Phase 1: Ramp-up to MVP** (Sprints 1–11, Nov 2, 2026 – Jan 29, 2027). MVP scope:
+**Phase 2: Version 1.0** (Sprints 12-21, Feb 1 - Apr 9, 2027; `docs/phases/phase-2-version-1-0.md`). Sprints 12-15 are built in code:
 
-- Zones 1–3: counting, place value, regrouping, addition and subtraction within 100, skip counting, even/odd, arrays.
-- Dig loop, BKT engine, kid-friendly text, rewards v1, parent dashboard v1.
-- Tap, drag and number-pad input.
+- **Sprint 12:** BKT fit pipeline (`tools/bkt/fit.py`, `curriculum/bkt_fitted.json`, used from 30 first tries), the decision-gate report, a better `eq.inverse.check`, the debug-build stroke capture screen.
+- **Sprint 13-14:** handwriting. The digit network (trained with PyTorch, run in GDScript, `scripts/input/`, `assets/handwriting/`), `ChalkSlate` and `DigitBox`, palm rejection in `InputRouter`, "Did you write 47?" confirmation, rejected readings that never reach BKT, numeral coaching, parent switches. 31 skills accept handwriting.
+- **Sprint 15:** Zone 4 (16 skills, five generators, independent checkers, `MathUtil`), the `BoulderSplit` widget and its skill, rare gems from rare numbers (`RewardsRules.gem_for_value`), `docs/art/bolt-brief.md`, and the asset-credits lint rule.
 
-**Built so far (Sprints 1–11 in code):** shell and screens (title, first run, workshop, museum, garage, settings, pause, parent gate and dashboard), all six autoloads (`Text`, `UI`, `InputRouter`, `SaveSystem`, `Adaptive`, `Rewards`), every MVP input (`NumberPad`, drag board, tiles, array builder, choices, tap piles), the dig loop with Word Gems and the four-rung hint ladder, the BKT engine with placement and spaced review, Rewards v1, the MVP art and sound (Kenney CC0 packs plus code-drawn gems and scenery, synthesized music), and generators for all 45 Zone 1–3 skills with their Python cross-checks. Left for the devices: the bug bash, profiler captures, the release AAB and Charlie's first session (`docs/decisions.md`, Sprint 11). Decisions waiting on Spiro are marked "Needs Spiro" in `docs/decisions.md`.
+Left for Spiro and the devices (`docs/decisions.md`, Sprints 12-15): Charlie's play logs (first BKT fit, difficulty tuning, the decision gate on Feb 19), capturing his digits and measuring the network against the 97% bar, the stylus and palm test on the 2-in-1, `DisplayServer.is_touchscreen_available()` on ChromeOS, sending the artist brief, the MNIST licence question, and sign-off on the Zone 4 prerequisites. Decisions waiting on Spiro are marked "Needs Spiro".
 
-**Out of scope until after the MVP:** narration and the voice pipeline (Phase 3), handwriting, crafting, Zones 4–12, cross-device sync, profiles, public release. Don't build ahead of the current sprint; add ideas to the backlog instead.
+**Next:** Sprint 16 (crafting and engineering projects), then cross-device progress, Zone 5, long-term motivation, art and polish. Narration, profiles, Zones 6-12 and public release stay out of scope until their phases. Don't build ahead of the current sprint; add ideas to the backlog instead.
 
 Update this section at the start of each phase.
