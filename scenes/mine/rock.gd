@@ -197,7 +197,7 @@ class _RockOverlay extends Control:
 	func _init(rock: Rock) -> void:
 		_rock = rock
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		set_anchors_preset(Control.PRESET_FULL_RECT)
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	func _draw() -> void:
 		_rock.draw_overlay(self)

@@ -40,6 +40,8 @@ const RING_COLOR: Color = Color("#F5F7FF")
 ## How far the beam leans when one pan is heavier (radians).
 const TILT_ANGLE: float = 0.22
 const COMPACT_SCALE: float = 0.6
+## Below this many pixels a side the model is not laid out yet, so _draw() draws nothing.
+const MIN_DRAW_SIDE: float = 32.0
 
 var visual: Dictionary = {}
 var tappable: bool = false
@@ -235,6 +237,8 @@ static func beam_angle(tilt: String) -> float:
 
 
 func _draw() -> void:
+	if size.x < MIN_DRAW_SIDE or size.y < MIN_DRAW_SIDE:
+		return # not laid out yet (or hidden by a tiny container): nothing sensible to draw
 	match visual_type():
 		&"gem_piles":
 			_draw_piles()

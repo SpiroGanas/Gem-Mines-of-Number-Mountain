@@ -40,6 +40,7 @@ func _ready() -> void:
 	add_theme_constant_override(&"separation", 0)
 	var figure: Control = _BoltArt.new()
 	UI.make_touch_target(figure, 2.2, 2.2) # the right part of it is the bubble's tail
+	figure.size_flags_vertical = Control.SIZE_SHRINK_BEGIN # stays square when the bubble grows
 	add_child(figure)
 	_figure = figure
 	Rewards.headlamp_changed.connect(func(_color: String) -> void: _figure.queue_redraw())

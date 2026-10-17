@@ -75,6 +75,10 @@ func _ready() -> void:
 		_rng.seed = seed_value
 	else:
 		_rng.randomize()
+	var backdrop: Backdrop = Backdrop.new()
+	backdrop.palette = Backdrop.palette_for_zone(deepest_zone())
+	add_child(backdrop)
+	move_child(backdrop, 0)
 	_wall.speed_scale = animation_speed
 	_cart.speed_scale = animation_speed
 	_pause_button.text = Text.get_line(&"ui.common.pause")
@@ -138,6 +142,14 @@ func celebration() -> Celebration:
 
 func wind_down() -> WindDown:
 	return _wind_down
+
+
+## The deepest zone the child can dig in now (the backdrop's tint): the highest zone on the frontier.
+func deepest_zone() -> int:
+	var deepest: int = 1
+	for id: StringName in Adaptive.frontier():
+		deepest = maxi(deepest, Adaptive.catalog().skill(id).zone)
+	return deepest
 
 
 ## The zone a problem's skill belongs to (it decides the gem: quartz, garnet or pyrite).
@@ -319,10 +331,13 @@ func _show_hint(rung: HintLadder.Rung) -> void:
 		return
 	_bolt.say(problem.prompt_line_id, problem.prompt_params, false, problem.prompt_params.keys())
 	_bolt.note(&"bolt.feedback.not_quite")
+	# Two lines at most, so the bubble never pushes the answer board off the screen: a named
+	# mistake's targeted line says the most, otherwise the rung's line says what changed.
 	var targeted: StringName = StringName("bolt.misconception.%s" % _last_misconception)
 	if _last_misconception != &"" and Text.has_line(targeted):
 		_bolt.add_note(targeted)
-	_bolt.add_note(HintLadder.line_for(rung))
+	else:
+		_bolt.add_note(HintLadder.line_for(rung))
 	_panel.show_hint(rung)
 
 
@@ -344,7 +359,7 @@ func _ease_problem(problem: Problem) -> void:
 func _show_panel(problem: Problem) -> void:
 	_remove_panel()
 	_panel = PANEL_SCENE.instantiate()
-	_panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_answer_host.add_child(_panel)
 	_panel.setup(problem, _rng)
 	_panel.set_enabled(false) # enabled once the problem is on screen

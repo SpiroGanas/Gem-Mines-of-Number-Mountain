@@ -14,6 +14,7 @@ func before_test() -> void:
 	_dir = create_temp_dir("shell_" + str(Time.get_ticks_usec()))
 	SaveSystem.use_directory(_dir)
 	DeviceSettings.use_shared(DeviceSettings.new(_dir.path_join("device_settings.cfg")))
+	SaveSystem.data()["child"]["nickname"] = "Charlie" # has met Bolt; the first-run tests clear it
 	_shell = load(SHELL_SCENE).instantiate()
 	_shell.fade_seconds = 0.0 # no animation waits in tests
 	add_child(_shell)
@@ -313,3 +314,33 @@ func test_settings_turn_the_music_and_sounds_up_and_down() -> void:
 	assert_int(settings.volume_level("music")).is_equal(DeviceSettings.shared().level("music"))
 	settings.find_child("MusicRow", true, false).find_child("More", true, false).pressed.emit()
 	assert_int(DeviceSettings.shared().level("music")).is_equal(start)
+
+
+func test_a_new_miner_meets_bolt_picks_a_name_and_starts_the_placement_quest_alone() -> void:
+	SaveSystem.data()["child"]["nickname"] = ""
+	_shell.change_screen(&"title")
+	await _until_screen(&"title")
+	_press("PlayButton")
+	await _until_screen(&"first_run")
+	var first_run: FirstRunScreen = _shell.current_screen()
+	assert_str(first_run.bolt().current_line_id()).is_equal("bolt.first_run.hello")
+	first_run.next_button().pressed.emit()
+	assert_int(first_run.step).is_equal(FirstRunScreen.Step.NAME)
+	var names: Array[Button] = first_run.name_buttons()
+	assert_int(names.size()).is_equal(FirstRunScreen.NAME_LINES.size())
+	for button: Button in names:
+		assert_float(button.custom_minimum_size.y).is_greater_equal(float(UI.min_target_px()))
+	names[2].pressed.emit()
+	assert_str(SaveSystem.data()["child"]["nickname"]).is_equal(Text.get_line(&"firstrun.name.comet"))
+	assert_str(first_run.bolt().current_line_id()).is_equal("bolt.first_run.ready")
+	first_run.next_button().pressed.emit()
+	await _until_screen(&"mine")
+	assert_bool(Adaptive.placement_active()).is_true()
+	assert_str(_shell.current_screen().bolt().current_line_id()).is_equal("bolt.placement.intro")
+
+
+func test_a_miner_who_has_a_name_goes_straight_to_the_workshop() -> void:
+	_shell.change_screen(&"title")
+	await _until_screen(&"title")
+	_press("PlayButton")
+	await _until_screen(&"hub")

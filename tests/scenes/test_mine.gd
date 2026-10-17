@@ -440,7 +440,7 @@ func test_a_named_mistake_gets_bolts_targeted_hint() -> void:
 	_build(swapped["tens"], swapped["ones"])
 	_mine.board().done_button().pressed.emit()
 	await _wait_state(DigFlow.State.AWAIT_ANSWER)
-	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.\nCheck the order of your digits.\nHere it is again. Look at these words.")
+	assert_str(_mine.bolt().note_text()).is_equal("Not quite. Let's look again.\nCheck the order of your digits.")
 
 
 func test_misconception_of_finds_the_distractor_that_was_given() -> void:
@@ -502,6 +502,16 @@ func test_a_cracked_rock_pays_the_zone_gem_into_the_save_and_lights_todays_lante
 	assert_bool(_mine.celebration().visible).is_false()
 	await _solve(1)
 	assert_bool(_mine.celebration().visible).is_false() # once a day
+
+
+func test_the_overlays_cover_the_whole_mine() -> void:
+	await _open(0)
+	_mine.word_gem_card().show_term(&"regrouping")
+	await get_tree().process_frame
+	# Each overlay fills the screen, so its card sits in the middle and its dimmer catches taps.
+	for overlay: Control in [_mine.word_gem_card(), _mine.celebration(), _mine.wind_down()]:
+		assert_vector(overlay.size).override_failure_message(overlay.get_class()).is_equal(_mine.size)
+		assert_vector(overlay.position).is_equal(Vector2.ZERO)
 
 
 func test_mastering_a_skill_is_celebrated_with_an_amethyst() -> void:

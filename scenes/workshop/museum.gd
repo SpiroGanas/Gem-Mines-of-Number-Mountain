@@ -28,8 +28,9 @@ func _ready() -> void:
 	super()
 	_sfx = SfxBank.new()
 	add_child(_sfx)
+	add_child(Backdrop.new())
 	var margin: MarginContainer = MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
 		margin.add_theme_constant_override(side, 40)
 	add_child(margin)
@@ -137,7 +138,7 @@ func _make_case(mineral: StringName) -> Button:
 	UI.make_touch_target(button, CASE_WIDTH_MULTIPLE, CASE_HEIGHT_MULTIPLE)
 	var gem: GemArt = GemArt.new()
 	gem.gem_type = mineral
-	gem.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gem.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	gem.offset_left = 20
 	gem.offset_top = 20
 	gem.offset_right = -20

@@ -1,6 +1,7 @@
 ## The answer area for "build a number with tens and ones" (skill pv.tens_ones.build).
 ##
-## Two piles to take from (ten-bars and one-gems), a tray to drop them in, and a Done button.
+## Two piles to take from (ten-bars and one-gems), a tray to drop them in, and a Done button
+## beside the piles.
 ## Everything is driven by InputRouter pointer signals, so a finger, a stylus and a mouse behave
 ## the same:
 ##   - drag from a pile into the tray to add a piece;
@@ -59,10 +60,10 @@ func _ready() -> void:
 	_done_button = Button.new()
 	_done_button.text = Text.get_line(&"ui.mine.done")
 	_done_button.theme_type_variation = &"GoButton"
-	_done_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_done_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	UI.make_touch_target(_done_button, 3.0, 1.5)
 	_done_button.pressed.connect(submit)
-	add_child(_done_button)
+	sources.add_child(_done_button) # beside the piles, so a worked example above still leaves room
 	_drag_layer = Control.new()
 	_drag_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_drag_layer)

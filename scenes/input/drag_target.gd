@@ -32,7 +32,7 @@ func _ready() -> void:
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(_hint)
 	_flow = HFlowContainer.new()
-	_flow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_flow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_flow.add_theme_constant_override(&"h_separation", 12)
 	_flow.add_theme_constant_override(&"v_separation", 12)
 	_flow.mouse_filter = Control.MOUSE_FILTER_IGNORE

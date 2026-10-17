@@ -201,6 +201,8 @@ func show_hint(rung: HintLadder.Rung) -> VisualModel:
 		_show_example()
 		if _hint_visual != null and _hint_visual != _visual:
 			_hint_visual.visible = false
+		if input_kind == InputKind.TILES and _visual != null and _example != null:
+			_visual.visible = false # the tile strip still shows the problem; the card needs the room
 	return shown
 
 

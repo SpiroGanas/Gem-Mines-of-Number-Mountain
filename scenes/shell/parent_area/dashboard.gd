@@ -21,7 +21,7 @@ var _file_dialog: FileDialog
 func _ready() -> void:
 	super()
 	var margin: MarginContainer = MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
 		margin.add_theme_constant_override(side, 40)
 	add_child(margin)

@@ -261,3 +261,17 @@ parent.dash.import_kept,"This device's progress is newer, so it was kept. The an
 parent.dash.import_failed,That file could not be imported.,Parent dashboard,0
 ui.settings.music,Music,Settings: music volume,0
 ui.settings.sounds,Sounds,Settings: sound effects volume,0
+bolt.first_run.hello,"Hi! I'm Bolt, a mining robot.",First run: Bolt says hello,0
+bolt.first_run.lamp,My headlamp lights the way in the mine.,First run: Bolt's electric headlamp,0
+bolt.first_run.name,What should I call you?,First run: pick a miner name,0
+bolt.first_run.grownup,A grown-up can type your real name later.,First run: the real name is entered in the parent area,0
+bolt.first_run.ready,Nice to meet you! Let's explore the mountain together.,First run: hand-off to the placement quest,0
+ui.first_run.start,Let's dig!,First run: start the placement quest,0
+firstrun.name.spark,Spark,Preset miner name,0
+firstrun.name.pebble,Pebble,Preset miner name,0
+firstrun.name.comet,Comet,Preset miner name,0
+firstrun.name.nova,Nova,Preset miner name,0
+firstrun.name.crystal,Crystal,Preset miner name,0
+firstrun.name.digger,Digger,Preset miner name,0
+firstrun.name.rocket,Rocket,Preset miner name,0
+firstrun.name.echo,Echo,Preset miner name,0

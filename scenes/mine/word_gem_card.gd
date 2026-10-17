@@ -20,17 +20,17 @@ var _ok_button: Button
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
 	var dimmer: ColorRect = ColorRect.new()
 	dimmer.color = DIM
-	dimmer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dimmer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dimmer.mouse_filter = Control.MOUSE_FILTER_STOP
 	dimmer.gui_input.connect(_on_dimmer_input)
 	add_child(dimmer)
 	var center: CenterContainer = CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	var card: PanelContainer = PanelContainer.new()

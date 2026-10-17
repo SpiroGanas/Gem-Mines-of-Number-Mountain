@@ -1,6 +1,6 @@
 ## Hub: the surface workshop (GDD section 3). Bolt's greeting, the big Dig button, then Museum,
-## Garage and Settings, and the lantern streak and coins. Every button has a short label; the art
-## pass (Sprint 10) adds a picture to each. Grown-ups (small, in the corner) opens the parent gate.
+## Garage and Settings, and the lantern streak and coins. Every button has a picture (IconArt) and
+## a short label. Grown-ups (small, in the corner) opens the parent gate.
 class_name HubScreen
 extends ShellScreen
 
@@ -34,6 +34,11 @@ func _ready() -> void:
 	for button: Button in [_museum_button, _garage_button, _settings_button]:
 		UI.make_touch_target(button, BUTTON_WIDTH_MULTIPLE, BUTTON_HEIGHT_MULTIPLE)
 	UI.make_touch_target(_lantern, 1.4, 1.7)
+	var backdrop: Backdrop = Backdrop.new()
+	add_child(backdrop)
+	move_child(backdrop, 0)
+	for pair: Array in [[_dig_button, &"dig"], [_museum_button, &"museum"], [_garage_button, &"garage"], [_settings_button, &"settings"], [_grownups_button, &"grownups"]]:
+		IconArt.attach(pair[0], pair[1])
 	_dig_button.pressed.connect(_on_dig_pressed)
 	_museum_button.pressed.connect(request_screen.emit.bind(&"museum", {}))
 	_garage_button.pressed.connect(request_screen.emit.bind(&"garage", {}))
