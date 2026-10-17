@@ -227,7 +227,7 @@ The MVP uses **placeholder art** that is coherent, not final. Commissioned art (
   The museum minerals (calcite, topaz, malachite, fluorite, hematite, obsidian) follow the same rule; their shapes and colors live in `scenes/mine/gem_art.gd`.
 
 - **Bolt (placeholder):** a rounded grey-blue robot with a lamp on its head and two simple eyes. Expressions: neutral, happy, thinking. No mouth movement is needed in the text-only MVP.
-- **Typography:** **Andika** (SIL Open Font License), a font designed for early readers, at large sizes. Selected; import is pending Spiro's approval in `docs/sdk-audit.md` (see section 11). Until it is imported the engine's default font is used.
+- **Typography:** **Andika** (SIL Open Font License), a font designed for early readers, at large sizes. Imported (Andika 6.200 Regular and Bold in `assets/fonts/andika/`) and set as the theme's default font; approved in `docs/sdk-audit.md` on 2026-10-17.
 
 ### Asset sources (see `assets/CREDITS.md`)
 
@@ -320,8 +320,8 @@ _Spiro's notes from the game-feel study (P1-S01-03):_ _(to be added)_
 
 | Question | Owner | When needed |
 |---|---|---|
-| Approve Andika (SIL OFL) in `docs/sdk-audit.md` and import it into `assets/fonts/` | Spiro | Before Sprint 7 (Explorer theme) |
-| Confirm the Kenney (CC0) packs to import for rocks, gems, UI and sound, then credit each file | Spiro | Sprint 10 art pass |
+| Approve Andika (SIL OFL) in `docs/sdk-audit.md` and import it into `assets/fonts/` | Spiro | Done 2026-10-17 |
+| Confirm the Kenney (CC0) packs to import for rocks, gems, UI and sound, then credit each file | Spiro | Approved 2026-10-17; the zips must be downloaded on the dev PC (the build environment cannot reach kenney.nl), then the pass runs |
 | Paper prototype results and the "trade ten" wording | Spiro and Charlie | Before the Zone 1 lines are final (Sprint 5–7) |
 | Math reviewer for Zones 1–3 | Spiro | Before Sprint 6 (the engine consumes the prerequisites) |
 | Pen as touch for all MVP interactions (recommended) vs. separate pen handling | Spiro | After the Sprint 1 device test |

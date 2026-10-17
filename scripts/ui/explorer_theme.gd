@@ -18,6 +18,11 @@ const NUMBER_SIZE: int = 96
 
 const CORNER_RADIUS: int = 28
 const BORDER_WIDTH: int = 4
+## Andika (SIL International, SIL Open Font License 1.1): drawn for beginning readers, with
+## unambiguous letter shapes. Regular for everything, Bold for the highlighted numbers in Bolt's
+## bubble. See docs/sdk-audit.md and assets/CREDITS.md.
+const FONT_REGULAR_PATH: String = "res://assets/fonts/andika/Andika-Regular.ttf"
+const FONT_BOLD_PATH: String = "res://assets/fonts/andika/Andika-Bold.ttf"
 ## Smallest acceptable contrast between text and its background (WCAG AAA for normal text).
 const MIN_TEXT_CONTRAST: float = 7.0
 
@@ -45,6 +50,16 @@ const FOCUS_OUTLINE: Color = Color("#FFFFFF")
 static func build(target_px: int) -> Theme:
 	var theme: Theme = Theme.new()
 	theme.default_font_size = BODY_SIZE
+	var regular: Font = load(FONT_REGULAR_PATH)
+	var bold: Font = load(FONT_BOLD_PATH)
+	if regular == null or bold == null:
+		push_warning("ExplorerTheme: the Andika font is missing; using the engine font")
+	else:
+		theme.default_font = regular # every Label and Button reads in Andika
+		theme.set_font(&"normal_font", &"RichTextLabel", regular)
+		theme.set_font(&"bold_font", &"RichTextLabel", bold)
+		theme.set_font(&"italics_font", &"RichTextLabel", regular)
+		theme.set_font(&"bold_italics_font", &"RichTextLabel", bold)
 
 	theme.set_font_size(&"font_size", &"Label", BODY_SIZE)
 	theme.set_color(&"font_color", &"Label", OFF_WHITE)

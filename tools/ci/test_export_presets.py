@@ -11,8 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PRESETS = ROOT / "export_presets.cfg"
 
-# Folders that must never be packed into the app.
-MUST_EXCLUDE = ("android/*", "tools/*", "tests/*", "docs/*", "private/*")
+# Folders that must never be packed into the app. The test framework is dev-only too: it holds
+# TCP/HTTP editor-integration code that a children's-app review would otherwise have to explain.
+MUST_EXCLUDE = ("android/*", "tools/*", "tests/*", "docs/*", "private/*", "addons/gdUnit4/*")
 
 
 def parse_presets() -> dict[str, dict[str, object]]:

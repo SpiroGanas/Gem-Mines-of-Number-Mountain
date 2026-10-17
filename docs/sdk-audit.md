@@ -5,8 +5,8 @@ Every third-party dependency, plugin or SDK in the shipped app or the build must
 | Name | Version | Where used | Ships in app? | Network? | Data handled | License | Approved by | Date |
 |---|---|---|---|---|---|---|---|---|
 | Godot Engine | 4.7.2-stable | Engine | Yes | No | None | MIT | Spiro | 2026-10-17 |
-| Andika font (SIL) | TBD (Sprint 7) | `assets/fonts/` | Yes | No | None | SIL Open Font License 1.1 | Pending | |
-| GdUnit4 | 6.2.2 | `addons/gdUnit4/`, tests only. The export presets' `exclude_filter` does not yet exclude `addons/gdUnit4/*`, so the framework files are packed into the APK although nothing runs them (see `docs/decisions.md`, Sprint 11, "Needs Spiro") | Yes, as unused files, until the preset excludes it | No (its TCP/HTTP editor-integration code is never run and the app has no `INTERNET` permission) | None | MIT | Spiro | 2026-10-17 |
+| Andika font (SIL International) | 6.200 (Regular and Bold) | `assets/fonts/andika/`, loaded by `ExplorerTheme` as the default font | Yes | No | None | SIL Open Font License 1.1 (`assets/fonts/andika/OFL.txt` ships with the fonts) | Spiro | 2026-10-17 |
+| GdUnit4 | 6.2.2 | `addons/gdUnit4/`, tests only; excluded from both export presets (`addons/gdUnit4/*` in `exclude_filter`, enforced by `tools/ci/test_export_presets.py`) | No (dev/CI only) | No | None | MIT | Spiro | 2026-10-17 |
 | digit_ink (own Kotlin plugin, LiteRT runtime) | TBD (Sprint 13) | `addons/digit_ink/`, `android/plugins/digit_ink/` | Yes (Phase 2) | No | Stroke points in memory only, discarded after recognition | Project / Apache-2.0 (LiteRT) | Pending | |
 
 **Rejected or deferred:**

@@ -67,3 +67,20 @@ func test_bolts_bubble_text_and_word_gem_chips_are_styled() -> void:
 	assert_int(theme.get_font_size(&"bold_font_size", &"RichTextLabel")).is_equal(ExplorerTheme.BODY_SIZE)
 	assert_str(String(theme.get_type_variation_base(&"WordGemButton"))).is_equal("Button")
 	assert_int(theme.get_font_size(&"font_size", &"WordGemButton")).is_equal(ExplorerTheme.WORD_GEM_SIZE)
+
+
+func test_every_screen_reads_in_andika_with_a_real_bold_for_highlights() -> void:
+	# Andika (SIL OFL) is the plan's font for beginning readers; the engine font was a stand-in.
+	var theme: Theme = ExplorerTheme.build(64)
+	assert_object(theme.default_font).is_not_null()
+	assert_str(theme.default_font.get_font_name()).is_equal("Andika")
+	assert_str(theme.default_font.get_font_style_name()).is_equal("Regular")
+	assert_str(theme.get_font(&"normal_font", &"RichTextLabel").get_font_name()).is_equal("Andika")
+	assert_str(theme.get_font(&"bold_font", &"RichTextLabel").get_font_style_name()).is_equal("Bold")
+
+
+func test_the_font_files_ship_with_their_license() -> void:
+	assert_bool(FileAccess.file_exists(ExplorerTheme.FONT_REGULAR_PATH)).is_true()
+	assert_bool(FileAccess.file_exists(ExplorerTheme.FONT_BOLD_PATH)).is_true()
+	var license_text: String = FileAccess.get_file_as_string("res://assets/fonts/andika/OFL.txt")
+	assert_str(license_text).contains("SIL OPEN FONT LICENSE Version 1.1")

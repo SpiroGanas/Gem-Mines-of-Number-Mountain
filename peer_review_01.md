@@ -226,3 +226,14 @@ All commands were run on the pinned Godot 4.7.2-stable Linux build after a clean
 The 15 pytest cases skipped in the baseline are the cross-check runner tests that need the `GODOT` environment variable; they were run with it set afterwards (see below). The cross-check was run once after the fixes (no generator was changed by this review), which is the state the table reports.
 
 Files changed by this review: `autoload/save_system.gd`, `scenes/input/{build_board,tile_board,array_builder}.gd`, `scenes/mine/{mine,celebration}.gd`, `scenes/shell/{shell,debug_overlay}.gd`, the matching suites under `tests/`, `docs/sdk-audit.md`, `docs/decisions.md` and this report. No generator, curriculum file, text line, save schema, export setting or BKT value was changed.
+
+---
+
+## 6. Follow-up (same day)
+
+Spiro reviewed section 4 and decided: exclude the test framework from the export, import Andika, run the Kenney CC0 art pass, and accept every other recommendation as written. Done in this branch after the review:
+
+- `addons/gdUnit4/*` is excluded from both export presets, enforced by `tools/ci/test_export_presets.py` (debt item 2 closed).
+- Andika 6.200 Regular and Bold are imported with their OFL license, set as the theme's default font and the bubble's bold font, approved in `docs/sdk-audit.md` and credited (debt item 4, font half, closed). `test_explorer_theme.gd` checks the font and the license ship.
+- The Kenney pass is approved but could not be run here: the build environment's network policy denies kenney.nl, itch.io and opengameart.org. It needs the pack zips on the dev PC or the host allowed, and the rule that gems differ by shape as well as color still applies to any sprite that replaces a code-drawn gem.
+- The decisions on the engine numbers, the save fields, rule 5, the skill-map edits, the extra rock and the `eq.inverse.check` fix (Sprint 12) are recorded in `docs/decisions.md` (debt item 3 closed).
