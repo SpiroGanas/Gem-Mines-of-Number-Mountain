@@ -138,7 +138,7 @@ func test_term_definition_returns_the_word_gem_text() -> void:
 
 func test_every_vocabulary_term_resolves_to_real_lines() -> void:
 	var vocabulary: Dictionary = JsonUtil.parse_file("res://curriculum/vocabulary.json")
-	assert_int(vocabulary["terms"].size()).is_equal(25)
+	assert_int(vocabulary["terms"].size()).is_equal(29)
 	for entry: Dictionary in vocabulary["terms"]:
 		assert_bool(Text.has_line(StringName(entry["term_line_id"]))).override_failure_message("missing " + entry["term_line_id"]).is_true()
 		assert_bool(Text.has_line(StringName(entry["definition_line_id"]))).override_failure_message("missing " + entry["definition_line_id"]).is_true()

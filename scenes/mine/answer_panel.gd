@@ -9,6 +9,10 @@
 ##   TILES       drag tiles into slots on the TileBoard (number strips, ordering, fact families)
 ##   ARRAY       drag or tap out rows and columns on the ArrayBuilder (build an array)
 ##   SPLIT       drag the pickaxe to a split point on the BoulderSplit rail (Zone 4, meta.boulder_split)
+##   SIEVE       tap rocks on the Sieve of Eratosthenes grid to cross them out, then Done (Zone 5,
+##               meta.sieve_grid)
+##   TREE        build a factor tree by splitting pieces with the pickaxe, then Done (Zone 5,
+##               meta.factor_tree)
 ##   SLATE       write the number with a finger or stylus on the ChalkSlate (Phase 2), one digit per
 ##               box. Takes the number pad's place when the skill lists the `handwriting` mode, the
 ##               device can read handwriting (DigitInk.is_available), a grown-up has not turned it off
@@ -27,7 +31,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
@@ -35,6 +39,8 @@ const PAD_SCENE: PackedScene = preload("res://scenes/input/number_pad.tscn")
 const TILES_SCENE: PackedScene = preload("res://scenes/input/tile_board.tscn")
 const ARRAY_SCENE: PackedScene = preload("res://scenes/input/array_builder.tscn")
 const SPLIT_SCENE: PackedScene = preload("res://scenes/mine/boulder_split/boulder_split.tscn")
+const SIEVE_SCENE: PackedScene = preload("res://scenes/zones/z05_prime_caverns/sieve_grid.tscn")
+const TREE_SCENE: PackedScene = preload("res://scenes/zones/z05_prime_caverns/factor_tree.tscn")
 const SLATE_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/chalk_slate.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
@@ -62,6 +68,8 @@ var _tiles: TileBoard
 var _array: ArrayBuilder
 var _slate: ChalkSlate
 var _split: BoulderSplit
+var _sieve: SieveGrid
+var _tree: FactorTree
 var _example: PanelContainer
 var _enabled: bool = false
 
@@ -93,6 +101,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 		&"tap":
 			if for_problem.meta.get("tap_target") == "pile":
 				return InputKind.TAP_PILE
+			if for_problem.meta.has("sieve_grid"):
+				return InputKind.SIEVE
 			if not for_problem.distractors.is_empty():
 				return InputKind.CHOICES
 		&"drag":
@@ -104,6 +114,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.ARRAY
 			if for_problem.meta.has("boulder_split"):
 				return InputKind.SPLIT
+			if for_problem.meta.has("factor_tree"):
+				return InputKind.TREE
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
@@ -159,7 +171,7 @@ static func answer_mode_for(for_problem: Problem) -> StringName:
 ## The attempt log's answer_mode for an input: tap, drag, number_pad or handwriting.
 static func answer_mode_for_kind(kind: InputKind) -> StringName:
 	match kind:
-		InputKind.TAP_PILE, InputKind.CHOICES:
+		InputKind.TAP_PILE, InputKind.CHOICES, InputKind.SIEVE:
 			return &"tap"
 		InputKind.NUMBER_PAD:
 			return &"number_pad"
@@ -214,6 +226,10 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_split()
 		InputKind.SLATE:
 			_add_slate()
+		InputKind.SIEVE:
+			_add_sieve()
+		InputKind.TREE:
+			_add_tree()
 	set_enabled(_enabled)
 
 
@@ -233,6 +249,10 @@ func set_enabled(enabled: bool) -> void:
 		_slate.set_enabled(enabled)
 	if _split != null:
 		_split.set_enabled(enabled)
+	if _sieve != null:
+		_sieve.set_enabled(enabled)
+	if _tree != null:
+		_tree.set_enabled(enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
 		for button: Button in _visual.pile_buttons():
 			button.disabled = not enabled
@@ -355,6 +375,14 @@ func boulder_split() -> BoulderSplit:
 	return _split
 
 
+func sieve_grid() -> SieveGrid:
+	return _sieve
+
+
+func factor_tree() -> FactorTree:
+	return _tree
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -369,6 +397,8 @@ func _clear() -> void:
 	_array = null
 	_slate = null
 	_split = null
+	_sieve = null
+	_tree = null
 	_example = null
 
 
@@ -469,6 +499,25 @@ func _add_split() -> void:
 	_split.setup(int(spec["value"]), factors)
 	_split.split_chosen.connect(func(_value: int, factor_a: int, factor_b: int) -> void: _on_value_given([factor_a, factor_b]))
 	_split.prime_declared.connect(func(prime: int) -> void: _on_value_given([prime]))
+
+
+## The sieve grid (meta.sieve_grid = {size, cols, precrossed}); Done gives every crossed rock.
+func _add_sieve() -> void:
+	var spec: Dictionary = problem.meta["sieve_grid"]
+	_sieve = SIEVE_SCENE.instantiate()
+	_sieve.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_sieve)
+	_sieve.setup(int(spec["size"]), int(spec.get("cols", 10)), spec.get("precrossed", []))
+	_sieve.submitted.connect(_on_value_given)
+
+
+## The factor tree (meta.factor_tree = {value}); Done, or a finished tree, gives the leaves.
+func _add_tree() -> void:
+	_tree = TREE_SCENE.instantiate()
+	_tree.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_tree)
+	_tree.setup(int(problem.meta["factor_tree"]["value"]))
+	_tree.submitted.connect(_on_value_given)
 
 
 ## The slate sits beside the picture, where the number pad would. If it cannot read (no
