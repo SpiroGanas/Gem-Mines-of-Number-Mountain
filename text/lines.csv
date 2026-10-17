@@ -41,3 +41,37 @@ vocab.multiply.term,multiply,Word Gem term,0
 vocab.multiply.definition,"To multiply means to add equal groups, but faster.",Word Gem kid-sized definition,0
 vocab.commutative.term,commutative,Word Gem term,0
 vocab.commutative.definition,Commutative means the order does not change the answer.,Word Gem kid-sized definition,0
+ui.title.name,Gem Mines of Number Mountain,Game title on the title screen,0
+ui.title.play,Play,Title screen button,0
+bolt.hub.greeting,"Hi, miner! Ready to dig?",Bolt greets the child in the workshop,0
+ui.hub.dig,Dig,Workshop button: go to the mine,0
+ui.hub.settings,Settings,Workshop button,0
+ui.pause.title,Paused,Pause menu heading,0
+ui.pause.resume,Keep digging,Pause menu: close the menu,0
+ui.pause.to_hub,Back to the workshop,Pause menu: leave the mine,0
+ui.pause.settings,Settings,Pause menu button,0
+ui.settings.title,Settings,Settings heading,0
+ui.settings.read_aloud,Read aloud: {state},Settings toggle; {state} is the On or Off line (voice arrives in a later phase),0
+ui.settings.on,On,Toggle state,0
+ui.settings.off,Off,Toggle state,0
+ui.settings.back,Back,Settings: return to the workshop,0
+ui.numpad.go,Go,Number pad: submit the answer,0
+ui.numpad.erase,Erase,Number pad: remove the last digit,0
+ui.common.ok,OK,Generic confirm button,0
+ui.common.yes,Yes,Generic button,0
+ui.common.no,No,Generic button,0
+ui.common.back,Back,Generic back button,0
+ui.common.next,Next,Generic next button,0
+bolt.feedback.correct,That's it! Nice work.,Bolt: correct on the first try,0
+bolt.feedback.correct_hint,You figured it out.,Bolt: correct after a hint,0
+bolt.feedback.not_quite,Not quite. Let's look again.,Bolt: stock line for a missed answer,0
+bolt.hint.look_again,Here it is again. Look at these words.,Hint rung 1,0
+bolt.hint.show_model,A picture can help. Let's use it.,Hint rung 2,0
+bolt.hint.worked_example,Let's try a friend of this problem.,Hint rung 3,0
+bolt.hint.easier,Let's try a smaller one first.,Hint rung 4,0
+bolt.mine.pick_rock,Pick a rock to crack.,Mine: prompt before a rock is chosen,0
+bolt.mine.wall_clear,The wall is clear! Great digging.,Mine: all rocks cracked,0
+ui.mine.head_up,Head up to the surface,Mine: leave after the wall is clear,0
+ui.mine.dig_more,Dig more,Mine: start another wall,0
+ui.mine.coins,Coins: {n},Cart coin counter,0
+ui.mine.gems,Gems: {n},Cart gem counter,0
