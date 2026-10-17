@@ -35,11 +35,16 @@ from checkers import (  # noqa: E402
     common,
     compare,
     counting,
+    div_facts,
     fact_family,
+    factors,
     missing_part,
+    mult_facts,
+    multiples,
     multiplication,
     parity,
     place_value,
+    prime_composite,
     regroup,
     skip_count,
     subtraction,
@@ -59,6 +64,11 @@ CHECKERS = {
     "ParityGenerator": parity.check,
     "ArraysGenerator": arrays.check,
     "MultiplicationGenerator": multiplication.check,
+    "MultFactsGenerator": mult_facts.check,
+    "DivFactsGenerator": div_facts.check,
+    "FactorsGenerator": factors.check,
+    "MultiplesGenerator": multiples.check,
+    "PrimeCompositeGenerator": prime_composite.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10
