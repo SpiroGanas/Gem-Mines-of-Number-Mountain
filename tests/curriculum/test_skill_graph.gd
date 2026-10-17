@@ -6,8 +6,8 @@ extends GdUnitTestSuite
 ## Generators the plan schedules for later sprints (Zone 2: Sprint 7, Zone 3: Sprint 9). When one is
 ## built it must be removed from this list, so the test keeps proving the rest still resolve.
 const NOT_BUILT_YET: Array[StringName] = [
-	&"AdditionGenerator", &"SubtractionGenerator", &"FactFamilyGenerator", &"MissingPartGenerator",
-	&"BalanceGenerator", &"SkipCountGenerator", &"ParityGenerator", &"ArraysGenerator", &"MultiplicationGenerator",
+	&"AdditionGenerator", &"SubtractionGenerator", &"SkipCountGenerator", &"ParityGenerator", &"ArraysGenerator",
+	&"MultiplicationGenerator",
 ]
 
 var _catalog: SkillCatalog

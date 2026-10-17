@@ -119,7 +119,7 @@
       "terms": ["equal"],
       "bkt_type": "concept",
       "is_fact_skill": false,
-      "misconceptions": ["left_side_only"]
+      "misconceptions": ["left_side_only", "thought_equal", "thought_unequal"]
     },
     {
       "id": "eq.inverse.check",

@@ -28,13 +28,16 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-from checkers import common, compare, counting, place_value, regroup  # noqa: E402
+from checkers import balance, common, compare, counting, fact_family, missing_part, place_value, regroup  # noqa: E402
 
 CHECKERS = {
     "CountingGenerator": counting.check,
     "CompareGenerator": compare.check,
     "PlaceValueGenerator": place_value.check,
     "RegroupGenerator": regroup.check,
+    "FactFamilyGenerator": fact_family.check,
+    "MissingPartGenerator": missing_part.check,
+    "BalanceGenerator": balance.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

@@ -153,3 +153,19 @@ bolt.misconception.wrong_operation,Check the sign. Do we add or take away?,Targe
 bolt.misconception.wrong_place,Look at which digit the question asks about.,Targeted hint after the wrong_place mistake,0
 bolt.misconception.wrong_step,Check the jump size between the numbers.,Targeted hint after the wrong_step mistake,0
 bolt.misconception.wrong_table,Check which number we are counting by.,Targeted hint after the wrong_table mistake,0
+z2.eq.prompt_fact_family,"Build the fact family for {a}, {b} and {c}.",Zone 2: drag the four facts that use the same three numbers,0
+z2.eq.prompt_inverse_add,{a} + {b} = {c}. Which fact checks it with the inverse?,Zone 2: pick the subtraction that undoes an addition,0
+z2.eq.prompt_inverse_sub,{c} - {b} = {a}. Which fact checks it with the inverse?,Zone 2: pick the addition that undoes a subtraction,0
+z2.eq.prompt_missing_addend,{a} + ? = {c}. What number is missing?,Zone 2: missing addend,0
+z2.eq.prompt_missing_subtrahend,{c} - ? = {a}. What number is missing?,Zone 2: missing number in a subtraction,0
+z2.eq.prompt_balance_two_two,{a} + {b} = {c} + {d}. Is this true or false?,Zone 2: true or false with two numbers on each side,0
+z2.eq.prompt_balance_two_one,{a} + {b} = {c}. Is this true or false?,Zone 2: true or false with one number on the right,0
+z2.eq.prompt_balance_one_two,{c} = {a} + {b}. Is this true or false?,Zone 2: true or false with one number on the left,0
+z2.hint.example_family,The family is {list}.,"Worked example: the four facts of a family, joined by semicolons",0
+z2.hint.example_check,{fact} checks it. The inverse undoes the first fact.,Worked example: the fact that checks with the inverse,0
+z2.hint.example_missing_addend,{a} + {n} = {c}. So the missing number is {n}.,Worked example: missing addend,0
+z2.hint.example_missing_subtrahend,{c} - {n} = {a}. So the missing number is {n}.,Worked example: missing number in a subtraction,0
+z2.hint.example_true,Both sides make {n}. So it is true.,Worked example: a true equation,0
+z2.hint.example_false,The left side makes {left}. The right side makes {right}. So it is false.,Worked example: a false equation,0
+ui.answer.true,True,Answer button: the equation is true,0
+ui.answer.false,False,Answer button: the equation is false,0
