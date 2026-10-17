@@ -66,3 +66,22 @@ One entry per decision: date, decision, why, alternatives considered. Newest at 
 
 - **Decision:** `run/main_scene` points at `scenes/mine/hello_rock.tscn` so the Sprint 1 APK opens straight into the device test. Sprint 3's shell replaces it, and Sprint 4 deletes the hello rock scene, script, test and placeholder assets.
 - **Why:** the Sprint 1 goal is confirming touch, stylus, trackpad, window and orientation behaviour on the real devices, and the overlay on this scene is where those findings are read. Record them under a new entry here (pen as mouse-with-pressure vs touch, DPI values, orientation codes).
+
+## 2026-10-17: Skill map v1 file format, and two skill IDs renamed to three parts (Sprint 2)
+
+- **Decision:** `curriculum/skills/zNN_<zone>.json` holds `{zone, zone_id, name, status, skills}`. Zones 1-3 are `"status": "detailed"` with full records (`id, name, prereqs, generator, params, representations, answer_modes, terms, bkt_type, is_fact_skill, misconceptions`); Zones 4-12 are `"status": "outline"` with only `id` and `name`, using the IDs from the Phase 2, 4 and 5 plans (175 skills in total). Two IDs that broke the `topic.subtopic.action` rule were renamed: `arr.build` is now `arr.rows_cols.build` (Zone 3) and `div.as_sharing` is now `div.sharing.equal_shares` (Zone 4). The plan documents were updated to match.
+- **Why:** the format is what the math reviewer, the Godot `Skill` loader (Sprint 5) and the Python checks all read. The `misconceptions` field lists which named distractors a skill's generator may use, so a typo is caught by `tools/ci/curriculum_check.py` instead of at runtime. The rename is done now because no save file or code refers to either ID yet; skill IDs stored in saves cannot change later.
+- **Alternatives:** relax the ID rule to allow two parts (rejected: CLAUDE.md states the three-part format and later tooling splits on it); keep outlines in a separate file (rejected: one file per zone is simpler to review).
+- **Needs Spiro:** sign-off on the two renames and on the Zone 1-3 skill map (math reviewer).
+
+## 2026-10-17: Word Gem text lives in `text/lines.csv`; `vocabulary.json` holds only line IDs
+
+- **Decision:** the 21 Zone 1-3 terms each have two lines, `vocab.<term>.term` and `vocab.<term>.definition`, in the text table. `curriculum/vocabulary.json` maps each term id to those line IDs plus the zone that introduces it and a `picture` slot (null until Sprint 7).
+- **Why:** rule 4 forbids child-facing text outside the text table, and a Word Gem definition is child-facing. Writing the 42 lines in Sprint 2 lets the math reviewer check the definitions together with the skill map.
+- **Alternatives:** definitions inside `vocabulary.json` (breaks rule 4 and would not be narrated in Phase 3).
+
+## 2026-10-17: BKT defaults and the allowed-misconceptions list (Sprint 2)
+
+- **Decision:** `curriculum/bkt_defaults.json` holds literature-typical starting values for four skill types (`default`, `fact`, `procedure`, `concept`), `hint_weight` 0.5 and a fact-skill `fluency_ms` of 8000. `curriculum/misconceptions.json` names the 41 distractor misconceptions the Zone 1-3 skills use, each with a parent-facing description. Two names beyond the plan's table were added for symbol comparison (`thought_equal`, `thought_unequal`) so the "=" button can have honest distractors.
+- **Why:** the Sprint 6 engine and Sprint 5 generators need these files to exist; the checks make sure every name used is in the list. Values are starting points to be fitted from Charlie's logs in Phase 2.
+- **Needs Spiro:** the BKT values and the 8-second fluency threshold are new numbers; CLAUDE.md says not to change mastery thresholds without asking, so please review them before Sprint 6 consumes them.
