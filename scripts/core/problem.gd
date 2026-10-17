@@ -22,10 +22,15 @@
 ##   array_builder  {max_rows: int, max_cols: int}: drag or tap out an array; answer {rows, cols}
 ##   label_lines    {label_key: line id}: answer buttons whose labels are words ("True", "Even")
 ##                  instead of numerals. Keys come from Problem.label_key(value).
-##   array_label    "sum": an Array answer reads "30 + 4" instead of "30, 4"
+##   array_label    "sum": an Array answer reads "30 + 4" instead of "30, 4"; "product": "2 × 2 × 3"
 ##   strip          [int]: the whole number strip, blanks included, when the picture is not a
 ##                  number line (counting by twos shows pairs); the tile board draws the strip
 ##                  around its slots from it. The blanks are the answer's values.
+##   sieve_grid     {size, cols, precrossed: [int]}: the Sieve of Eratosthenes grid (Zone 5). The
+##                  child crosses out rocks and presses Done; the answer is every crossed rock,
+##                  smallest first. The precrossed rocks are crossed from the start and stay so.
+##   factor_tree    {value}: build the factor tree of value by splitting pieces with the pickaxe
+##                  (Zone 5); the answer is the leaves, smallest first.
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -41,7 +46,10 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## array       {rows, cols, outline_rows?}: gems in rows and columns
 ## groups      {groups, size}: equal groups of gems, each in its own ring
 ## pairs       {count, show_pairs?}: gems lined up two by two; show_pairs rings each pair
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs"]
+## digits      {digits: [int], focus: "last" | "last_two" | "sum" | "sum_and_last" | "recipe",
+##             recipe?: [int]}: a number's digits with the part a divisibility rule looks at lit up,
+##             plus "1 + 2 + 6 = 9" under a digit sum or "= 2 × 2 × 3" under a recipe (Zone 5)
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 
 var skill_id: StringName = &""

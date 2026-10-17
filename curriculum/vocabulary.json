@@ -26,6 +26,10 @@
     {"id": "multiple", "zone": 4, "term_line_id": "vocab.multiple.term", "definition_line_id": "vocab.multiple.definition", "picture": null, "visual": {"type": "number_line", "min": 0, "max": 12, "labeled_every": 3, "markers": [], "blanks": [], "jumps": [{"from": 0, "to": 3}, {"from": 3, "to": 6}, {"from": 6, "to": 9}, {"from": 9, "to": 12}]}},
     {"id": "prime", "zone": 4, "term_line_id": "vocab.prime.term", "definition_line_id": "vocab.prime.definition", "picture": null, "visual": {"type": "array", "rows": 1, "cols": 7}},
     {"id": "composite", "zone": 4, "term_line_id": "vocab.composite.term", "definition_line_id": "vocab.composite.definition", "picture": null, "visual": {"type": "array", "rows": 2, "cols": 6}},
-    {"id": "recipe", "zone": 3, "taught_by": "workshop", "term_line_id": "vocab.recipe.term", "definition_line_id": "vocab.recipe.definition", "picture": null, "visual": {"type": "groups", "groups": 3, "size": 4}}
+    {"id": "recipe", "zone": 3, "taught_by": "workshop", "term_line_id": "vocab.recipe.term", "definition_line_id": "vocab.recipe.definition", "picture": null, "visual": {"type": "groups", "groups": 3, "size": 4}},
+    {"id": "sieve", "zone": 5, "term_line_id": "vocab.sieve.term", "definition_line_id": "vocab.sieve.definition", "picture": null, "visual": {"type": "number_line", "min": 0, "max": 12, "labeled_every": 2, "markers": [2], "blanks": [], "jumps": [{"from": 2, "to": 4}, {"from": 4, "to": 6}, {"from": 6, "to": 8}, {"from": 8, "to": 10}, {"from": 10, "to": 12}]}},
+    {"id": "prime_factorization", "zone": 5, "term_line_id": "vocab.prime_factorization.term", "definition_line_id": "vocab.prime_factorization.definition", "picture": null, "visual": {"type": "array", "rows": 2, "cols": 6, "outline_rows": true}},
+    {"id": "divisible", "zone": 5, "term_line_id": "vocab.divisible.term", "definition_line_id": "vocab.divisible.definition", "picture": null, "visual": {"type": "groups", "groups": 3, "size": 4}},
+    {"id": "fundamental_theorem", "zone": 5, "term_line_id": "vocab.fundamental_theorem.term", "definition_line_id": "vocab.fundamental_theorem.definition", "picture": null, "visual": {"type": "digits", "digits": [1, 2], "focus": "recipe", "recipe": [2, 2, 3]}}
   ]
 }

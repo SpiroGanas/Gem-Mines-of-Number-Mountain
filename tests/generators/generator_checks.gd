@@ -192,6 +192,16 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 		&"pairs":
 			if not visual.get("count") is int or visual["count"] < 0 or visual["count"] > 40:
 				errors.append("%s: pairs count must be 0 to 40" % where)
+		&"digits":
+			var digits: Variant = visual.get("digits")
+			if not digits is Array or digits.is_empty() or digits.size() > 4:
+				errors.append("%s: digits needs 1 to 4 digits" % where)
+				return errors
+			for digit: Variant in digits:
+				if not digit is int or digit < 0 or digit > 9:
+					errors.append("%s: %s is not a digit" % [where, digit])
+			if not ["last", "last_two", "sum", "sum_and_last", "recipe"].has(str(visual.get("focus", ""))):
+				errors.append("%s: unknown digits focus '%s'" % [where, visual.get("focus")])
 	return errors
 
 
@@ -230,6 +240,27 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 				errors.append("%s: an array answer must be {rows, cols}" % where)
 			elif value["rows"] < 1 or value["cols"] < 1 or value["rows"] > limits["max_rows"] or value["cols"] > limits["max_cols"]:
 				errors.append("%s: %s does not fit the %dx%d builder" % [where, value, limits["max_rows"], limits["max_cols"]])
+	if meta.has("sieve_grid"):
+		var grid: Dictionary = meta["sieve_grid"]
+		var size: int = int(grid.get("size", 0))
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is Array or Problem.canonical(value) != Problem.sorted_values(value):
+				errors.append("%s: a sieve answer must be a sorted list, got %s" % [where, value])
+				continue
+			for crossed: Variant in grid.get("precrossed", []):
+				if not value.has(crossed):
+					errors.append("%s: %s un-crosses the precrossed rock %s" % [where, value, crossed])
+			for item: Variant in value:
+				if int(item) < 1 or int(item) > size:
+					errors.append("%s: %s is off the %d-rock grid" % [where, item, size])
+	if meta.has("factor_tree"):
+		var product: int = 1
+		for leaf: Variant in problem.answer:
+			product *= int(leaf)
+		if product != int(meta["factor_tree"]["value"]):
+			errors.append("%s: the tree's leaves do not multiply to its value" % where)
 	if meta.has("label_lines"):
 		var labels: Dictionary = meta["label_lines"]
 		var values: Array = [problem.answer]

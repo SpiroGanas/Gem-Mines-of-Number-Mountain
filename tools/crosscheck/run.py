@@ -36,7 +36,9 @@ from checkers import (  # noqa: E402
     compare,
     counting,
     div_facts,
+    divisibility,
     fact_family,
+    factor_tree,
     factors,
     missing_part,
     mult_facts,
@@ -46,6 +48,7 @@ from checkers import (  # noqa: E402
     place_value,
     prime_composite,
     regroup,
+    sieve,
     skip_count,
     subtraction,
 )
@@ -69,6 +72,10 @@ CHECKERS = {
     "FactorsGenerator": factors.check,
     "MultiplesGenerator": multiples.check,
     "PrimeCompositeGenerator": prime_composite.check,
+    "SieveGenerator": sieve.check,
+    "DivisibilityGenerator": divisibility.check,
+    "FactorTreeGenerator": factor_tree.check,
+    "FtaGenerator": factor_tree.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

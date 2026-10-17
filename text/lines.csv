@@ -537,3 +537,61 @@ parent.map.practicing,Practicing,Skill map legend,0
 parent.map.needs_review,Needs review,Skill map legend: a missed review or a skill flagged by the fourth hint,0
 parent.map.not_started,Not started,Skill map legend,0
 parent.map.detail,{skill}: {state},Skill map: the tapped skill and its state,0
+z5.sieve.prompt_multiples,Cross out every multiple of {p}. Keep {p} itself.,Zone 5: sieve: cross out the multiples of a prime on the grid,0
+z5.sieve.prompt_primes,Cross out every rock that is not a prime.,Zone 5: sieve: finish the sieve (some rocks are crossed out already),0
+z5.sieve.done,Done,Zone 5: sieve: button that hands in the grid,0
+z5.sieve.tap_to_cross,Tap a rock to cross it out. Tap again to bring it back.,Zone 5: sieve: how the grid works,0
+z5.hint.example_sieve_multiples,"Multiples of {p} are {a}, {b}, {c} and more.",Worked example: multiples to cross out in the sieve,0
+z5.hint.example_sieve_primes,{n} is {a} × {b}. So {n} gets crossed out.,Worked example: a composite on the sieve grid,0
+z5.tree.prompt,Split {n} until every piece is a prime gem.,Zone 5: build a factor tree (split pieces with the pickaxe),0
+z5.tree.pick_piece,Tap a rock in the tree to split it.,Zone 5: factor tree: instruction,0
+z5.tree.done,Done,Zone 5: factor tree: button that hands in the tree,0
+z5.tree.all_gems,Every piece is a prime gem!,Zone 5: factor tree: the tree is finished,0
+z5.pf.prompt_write,Which is the prime recipe for {n}?,Zone 5: pick the prime factorization (answer buttons such as 2 × 2 × 3),0
+z5.pf.prompt_check_2,Is {a} × {b} the prime recipe for {n}?,Zone 5: check a factorization of two numbers (yes or no),0
+z5.pf.prompt_check_3,Is {a} × {b} × {c} the prime recipe for {n}?,Zone 5: check a factorization of three numbers (yes or no),0
+z5.pf.prompt_check_4,Look at {a} × {b} × {c} × {d}. Is it the prime recipe for {n}?,Zone 5: check a factorization of four numbers (yes or no),0
+z5.pf.recipe_means,A prime recipe uses only primes. They multiply to make the number.,Teaching line: what a prime recipe (prime factorization) is,0
+z5.hint.example_recipe_1,{n} is a prime. Its recipe is just {a}.,Worked example: the prime recipe of a prime,0
+z5.hint.example_recipe_2,The prime recipe for {n} is {a} × {b}.,Worked example: a prime recipe of two primes,0
+z5.hint.example_recipe_3,The prime recipe for {n} is {a} × {b} × {c}.,Worked example: a prime recipe of three primes,0
+z5.hint.example_recipe_4,{n} has the prime recipe {a} × {b} × {c} × {d}.,Worked example: a prime recipe of four primes,0
+z5.fta.prompt,Three miners made recipes for {n}. Which one is right?,Zone 5: who is right? (Fundamental Theorem of Arithmetic),0
+z5.fta.theorem,Every number has exactly one prime recipe. That's the Fundamental Theorem of Arithmetic.,Teaching line: the Fundamental Theorem of Arithmetic,0
+z5.div.prompt,Is {n} divisible by {d}?,Zone 5: divisibility rules (yes or no),0
+z5.hint.example_div_yes,{n} ÷ {d} = {q}. Nothing is left over.,Worked example: a number that is divisible,0
+z5.hint.example_div_no,{n} ÷ {d} = {q} with {r} left over.,Worked example: a number that is not divisible,0
+z5.div.rule_last_digit,Look at the last digit.,Zone 5: divisibility rule hint for 2 and 5 and 10,0
+z5.div.rule_digit_sum,Add up the digits.,Zone 5: divisibility rule hint for 3 and 9,0
+bolt.misconception.crossed_p_itself,Keep the prime itself. Cross out only its multiples.,Targeted hint after the crossed_p_itself mistake,0
+bolt.misconception.missed_p_squared,Check the first multiple that is not crossed yet.,Targeted hint after the missed_p_squared mistake,0
+bolt.misconception.missed_last_multiple,Keep going all the way to the end.,Targeted hint after the missed_last_multiple mistake,0
+bolt.misconception.mixed_up_5_and_10,Tens always end in zero. Look at the last digit.,Targeted hint after the mixed_up_5_and_10 mistake,0
+bolt.misconception.last_digit_only_for_3,The last digit is not enough here. Add up all the digits.,Targeted hint after the last_digit_only_for_3 mistake,0
+bolt.misconception.three_means_nine,Some numbers share by three but not by nine. Add the digits.,Targeted hint after the three_means_nine mistake,0
+bolt.misconception.even_means_div_by_4,Not every even number shares by four. Look at the last two digits.,Targeted hint after the even_means_div_by_4 mistake,0
+bolt.misconception.only_one_rule_for_6,Six needs two checks. Check for two and check for three.,Targeted hint after the only_one_rule_for_6 mistake,0
+bolt.misconception.stopped_at_composite,One piece can still break. Split it again.,Targeted hint after the stopped_at_composite mistake,0
+bolt.misconception.missing_repeated_factor,A prime can come more than once. Count every gem.,Targeted hint after the missing_repeated_factor mistake,0
+bolt.misconception.product_mismatch,Multiply the primes. Do they make the number?,Targeted hint after the product_mismatch mistake,0
+bolt.misconception.tree_with_composite_leaf,Look for a piece that can still break.,Targeted hint after the tree_with_composite_leaf mistake,0
+vocab.sieve.term,sieve,Word Gem term,0
+vocab.sieve.definition,A sieve lets some things through. Our sieve keeps only the primes.,Word Gem kid-sized definition,0
+vocab.prime_factorization.term,prime factorization,Word Gem term,0
+vocab.prime_factorization.definition,A prime factorization is a number's prime recipe. Its primes multiply to make the number.,Word Gem kid-sized definition,0
+vocab.divisible.term,divisible,Word Gem term,0
+vocab.divisible.definition,A number is divisible by another when it shares evenly. Nothing is left over.,Word Gem kid-sized definition,0
+vocab.fundamental_theorem.term,Fundamental Theorem of Arithmetic,Word Gem term,0
+vocab.fundamental_theorem.definition,Every number has exactly one prime recipe. That's the Fundamental Theorem of Arithmetic.,Word Gem kid-sized definition,0
+hub.museum.prime_gem_name,Prime Gem,Mineral name (rare-number gem),0
+hub.museum.twin_gem_name,Twin Gems,Mineral name (rare-number gem),0
+hub.museum.mersenne_gem_name,Mersenne Gem,Mineral name (rare-number gem),0
+hub.museum.square_gem_name,Square Gem,Mineral name (rare-number gem),0
+hub.museum.prime_gem_fact,A prime gem comes from a prime rock. Primes never break.,Museum fact (rare-number gem),0
+hub.museum.twin_gem_fact,Twin primes are two primes just two apart. Twin gems come in pairs.,Museum fact (rare-number gem),0
+hub.museum.mersenne_gem_fact,Double two again and again. Then take away one. Some answers are very rare primes.,Museum fact (rare-number gem: Mersenne primes),0
+hub.museum.square_gem_fact,A square number makes a square array. Its rows match its columns.,Museum fact (rare-number gem),0
+hub.museum.prime_gem_how,Dig a rock with a prime number to find it.,Museum: how to earn the prime gem,0
+hub.museum.twin_gem_how,Dig a prime with another prime two away.,Museum: how to earn twin gems,0
+hub.museum.mersenne_gem_how,Dig one of the rarest primes to find it.,Museum: how to earn the Mersenne gem,0
+hub.museum.square_gem_how,Dig a rock with a square number to find it.,Museum: how to earn the square gem,0

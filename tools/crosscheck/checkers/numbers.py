@@ -83,3 +83,26 @@ def number_line(low: int, high: int, every: int, markers: list[int] | None = Non
 def hops(groups: int, size: int, markers: list[int] | None = None) -> dict:
     """A line from 0 to groups x size with one hop of `size` per group."""
     return number_line(0, groups * size, size, markers, [(i * size, (i + 1) * size) for i in range(groups)])
+
+
+def prime_recipe(n: int) -> list[int]:
+    """The primes that multiply to n, smallest first, found by dividing out the smallest divisor above
+    one again and again (12 gives [2, 2, 3]; 1 gives [])."""
+    found: list[int] = []
+    while n > 1:
+        d = smallest_divisor_above_one(n)
+        found.append(d)
+        n //= d
+    return found
+
+
+def multiply_all(values: list[int]) -> int:
+    total = 1
+    for value in values:
+        total = product(total, value) if value >= 0 else total * value
+    return total
+
+
+def digits_of(n: int) -> list[int]:
+    """The decimal digits of n, read from its text."""
+    return [int(character) for character in str(n)]
