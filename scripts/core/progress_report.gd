@@ -42,6 +42,8 @@ static func sessions(entries: Array, offset_minutes: int = 0) -> Array[Dictionar
 			by_id[id]["seconds"] += clampi(unix - int(last_unix[id]), 0, IDLE_CAP_SECONDS)
 		last_unix[id] = unix
 		var session: Dictionary = by_id[id]
+		if bool(entry.get("low_confidence_rejected", false)):
+			continue # "Try again" to a handwriting question: time was spent, but it is not an answer
 		session["answers"] += 1
 		if bool(entry.get("correct", false)):
 			session["rocks"] += 1

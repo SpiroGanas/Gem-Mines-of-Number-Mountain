@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/input/chalk_slate/confirm_bubble.gd" id="1_bubble"]
+
+[node name="ConfirmBubble" type="PanelContainer"]
+script = ExtResource("1_bubble")

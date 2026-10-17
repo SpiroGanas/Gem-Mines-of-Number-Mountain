@@ -68,6 +68,12 @@ var params: Dictionary = {}
 var meta: Dictionary = {}
 
 
+## How many digits the answer has when it is a whole number (the chalk slate makes one box per
+## digit), else 0. Derived from the answer, so it is not saved or exported.
+func answer_digits() -> int:
+	return str(answer).length() if answer is int and answer >= 0 else 0
+
+
 ## True if `given` is the right answer. Comparison is canonical: 34 and 34.0 match,
 ## StringName and String match, and the order of an Array matters.
 func is_correct(given: Variant) -> bool:

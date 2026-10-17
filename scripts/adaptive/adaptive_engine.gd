@@ -182,6 +182,8 @@ func mastered() -> Array[StringName]:
 func struggling(recent: Array) -> Array[StringName]:
 	var firsts: Dictionary = {}
 	for entry: Dictionary in recent:
+		if bool(entry.get("low_confidence_rejected", false)):
+			continue # a rejected handwriting reading is not a miss
 		if int(entry.get("hints_used", 0)) == 0:
 			var id: String = str(entry.get("skill_id", ""))
 			if not firsts.has(id):

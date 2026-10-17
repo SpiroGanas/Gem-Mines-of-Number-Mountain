@@ -313,3 +313,40 @@ z3.hint.example_array_shape,The array has {rows} rows and {cols} columns.,Worked
 z3.hint.example_groups_total,{groups} groups of {size} make {total}.,Worked example: the total of equal groups,0
 z3.hint.example_commutative,{rows} × {cols} and {cols} × {rows} both make {total}.,Worked example: turning an array keeps the total,0
 z3.hint.example_fact,{a} × {b} = {product}.,Worked example: a times fact,0
+input.slate.prompt,Write your answer in the boxes.,Slate: instruction above the boxes,0
+input.slate.place_ones,ones,Slate: caption under the ones box,0
+input.slate.place_tens,tens,Slate: caption under the tens box,0
+input.slate.place_hundreds,hundreds,Slate: caption under the hundreds box,0
+input.slate.clear,Erase all,Slate: wipe every box,0
+input.slate.done,Done,Slate: read what was written,0
+input.slate.confirm,Did you write {n}?,Slate: Bolt checks an unsure reading,0
+input.slate.yes,Yes,Slate: the reading is right,0
+input.slate.try_again,Try again,Slate: write that box again,0
+input.slate.write_first,Write your answer first.,Slate: Done pressed with empty boxes,0
+input.slate.fill_boxes,Write a number in every box.,Slate: a box after the first number is empty,0
+input.slate.unreadable,I can't read that one. Try again!,Slate: a box has marks that are not a digit,0
+input.slate.coach_title,Here is how to write {n}.,Slate: stroke-order demo after a backwards digit,0
+input.slate.coach_close,Got it,Slate: close the stroke-order demo,0
+parent.dash.handwriting,Write answers with a pen or finger,Parent area: handwriting switch label,0
+parent.dash.coaching,Show how to write a backwards number,Parent area: numeral coaching switch label,0
+parent.dash.on,On,Parent area: switch is on,0
+parent.dash.off,Off,Parent area: switch is off,0
+parent.capture.title,Handwriting samples,Parent area: debug capture screen heading,0
+parent.capture.back,Back,Parent area: capture screen back button,0
+parent.capture.write,Write the number {n},Parent area: which digit to write,0
+parent.capture.erase,Erase,Parent area: capture screen wipe the box,0
+parent.capture.save,Save and next,Parent area: capture screen save the digit,0
+parent.capture.skip,Skip,Parent area: capture screen ask for another digit,0
+parent.capture.export,Copy samples to a folder,Parent area: capture screen export,0
+parent.capture.clear_all,Delete saved samples,Parent area: capture screen delete,0
+parent.capture.saved,"Saved on this device: pen {pen}, finger {touch}, mouse {mouse}",Parent area: capture counts,0
+parent.capture.empty,Write the number first.,Parent area: Save pressed with an empty box,0
+parent.capture.failed,The sample could not be saved.,Parent area: capture write error,0
+parent.capture.exported,Copied {n} samples to {path},Parent area: capture export done,0
+parent.dash.capture,Handwriting samples (testing builds only),Parent area: opens the capture screen,0
+z4.split.prompt,Drag the pickaxe to a split point.,Zone 4: split the boulder: instruction,0
+z4.split.pair,{a} × {b},Zone 4: split the boulder: a split point on the rail,0
+z4.split.prime_bounce,{n} is a prime. It won't break!,Zone 4: the pickaxe bounces off a prime boulder,0
+z4.split.done,{n} cracked into {a} and {b}!,Zone 4: a boulder split in two,0
+z4.split.piece_prime,{n} is a prime.,Zone 4: a piece that cannot be split again,0
+z4.split.piece_rock,{n} can split again.,Zone 4: a piece that can be split again,0

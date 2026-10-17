@@ -209,6 +209,7 @@ def read_lines(root: Path) -> tuple[list[str], list[tuple[int, dict[str, str]]]]
             if not row:
                 continue
             record = dict(zip(header, row))
+            record["_columns"] = str(len(row))
             rows.append((reader.line_num, record))
     return header, rows
 
@@ -223,6 +224,8 @@ def check_line_table(root: Path) -> list[Finding]:
     seen: dict[str, int] = {}
     for number, row in rows:
         line_id = row["id"]
+        if row.get("_columns") != str(len(EXPECTED_HEADER)):
+            findings.append(Finding("4", LINES_CSV, number, f"line '{line_id}' has {row.get('_columns')} columns, expected {len(EXPECTED_HEADER)} (put text with a comma in double quotes)"))
         if not LINE_ID_RE.match(line_id):
             findings.append(Finding("4", LINES_CSV, number, f"id '{line_id}' must look like zone.context.purpose (lowercase)"))
         if line_id in seen:

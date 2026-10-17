@@ -101,6 +101,8 @@ func easier_problem(problem: Problem, rng: RandomNumberGenerator) -> Problem:
 
 ## Logs one answer to attempts.jsonl and learns from it. `chance` is how likely a blind guess was
 ## to be right (AnswerPanel.chance_for). Returns the engine's {mastered, first_time, lapsed}.
+## An attempt flagged low_confidence_rejected (a handwriting reading the child turned down) is only
+## logged: it changes nothing the engine knows.
 func record(attempt: Attempt, chance: float) -> Dictionary:
 	if not has_session():
 		start_session()
@@ -110,6 +112,10 @@ func record(attempt: Attempt, chance: float) -> Dictionary:
 		attempt.ts = clock.now_iso()
 	SaveSystem.append_attempt(attempt)
 	_last_activity_unix = clock.now_unix()
+	if attempt.low_confidence_rejected:
+		# "Try again" to the slate's "Did you write 47?": logged for the dashboard, but it is not an
+		# answer, so it never reaches BKT, the placement quest or the guessing guard (CLAUDE.md).
+		return {"mastered": false, "first_time": false, "lapsed": false}
 	_session_skills[attempt.skill_id] = true
 	if placement_active() and attempt.skill_id == _placement.current_skill() and attempt.hints_used == 0:
 		_placement.record(attempt.correct)

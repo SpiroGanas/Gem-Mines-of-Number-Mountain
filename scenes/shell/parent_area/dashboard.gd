@@ -106,6 +106,12 @@ func refresh() -> void:
 	_nickname.text_submitted.connect(set_nickname)
 	_nickname.focus_exited.connect(func() -> void: set_nickname(_nickname.text))
 	name_row.add_child(_nickname)
+	_content.add_child(_switch_row(&"HandwritingSwitch", &"parent.dash.handwriting", DeviceSettings.shared().handwriting_enabled(), toggle_handwriting))
+	_content.add_child(_switch_row(&"CoachingSwitch", &"parent.dash.coaching", bool(SaveSystem.data()["settings"].get("handwriting_coaching", false)), toggle_coaching))
+	if StrokeCapture.is_enabled():
+		var capture: Button = _button(&"parent.dash.capture", func() -> void: request_screen.emit(&"capture", {}))
+		capture.name = "CaptureButton"
+		_content.add_child(capture)
 	var rerun: Button = _button(&"parent.dash.rerun", rerun_placement)
 	rerun.name = "RerunButton"
 	_content.add_child(rerun)
@@ -141,6 +147,22 @@ func change_session_minutes(delta: int) -> void:
 	_refresh_session_label()
 
 
+## Handwriting answers on or off for this device (the child then uses the number pad).
+func toggle_handwriting() -> void:
+	var settings: DeviceSettings = DeviceSettings.shared()
+	settings.set_handwriting_enabled(not settings.handwriting_enabled())
+	refresh()
+
+
+## Numeral coaching on or off for this child (Bolt shows how to write a digit they keep writing
+## backwards). Kept in the save's settings.handwriting_coaching, which schema v1 already has.
+func toggle_coaching() -> void:
+	var settings: Dictionary = SaveSystem.data()["settings"]
+	settings["handwriting_coaching"] = not bool(settings.get("handwriting_coaching", false))
+	SaveSystem.save_now()
+	refresh()
+
+
 func set_nickname(nickname: String) -> void:
 	var cleaned: String = nickname.strip_edges().left(20)
 	if cleaned == str(SaveSystem.data()["child"].get("nickname", "")):
@@ -170,6 +192,20 @@ func import_from(path: String) -> Error:
 	refresh()
 	_status.text = Text.get_line(line)
 	return error
+
+
+## A label with an On / Off button that flips it.
+func _switch_row(node_name: StringName, line_id: StringName, is_on: bool, action: Callable) -> HBoxContainer:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = node_name
+	row.add_theme_constant_override(&"separation", 16)
+	var label: Label = _label(line_id)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	var button: Button = _button(&"parent.dash.on" if is_on else &"parent.dash.off", action)
+	button.name = "Button"
+	row.add_child(button)
+	return row
 
 
 func _refresh_session_label() -> void:

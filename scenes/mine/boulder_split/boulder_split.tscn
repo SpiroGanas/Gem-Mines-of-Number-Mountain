@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/mine/boulder_split/boulder_split.gd" id="1_split"]
+
+[node name="BoulderSplit" type="VBoxContainer"]
+script = ExtResource("1_split")

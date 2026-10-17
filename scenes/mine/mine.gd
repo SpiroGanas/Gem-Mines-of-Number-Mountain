@@ -25,6 +25,7 @@ signal rock_finished(index: int)
 signal wall_cleared
 
 const PANEL_SCENE: PackedScene = preload("res://scenes/mine/answer_panel.tscn")
+const DEMO_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/stroke_demo.tscn")
 
 ## 1.0 is normal speed. Tests raise it so animations finish quickly.
 @export var animation_speed: float = 1.0
@@ -56,6 +57,9 @@ var _celebration: Celebration
 var _wind_down: WindDown
 var _pending_celebrations: Array[Dictionary] = []
 var _rocks_since_limit: int = 0
+## Counts backwards digits for numeral coaching, for this visit to the mine.
+var _coach: NumeralCoach = NumeralCoach.new()
+var _stroke_demo: StrokeDemo
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -309,7 +313,7 @@ func _on_answered(given: Variant) -> void:
 	attempt.skill_id = problem.skill_id
 	attempt.problem_seed = problem.seed
 	attempt.representation = problem.representation
-	attempt.answer_mode = AnswerPanel.answer_mode_for(problem)
+	attempt.answer_mode = AnswerPanel.answer_mode_for_kind(_panel.input_kind)
 	attempt.correct = correct
 	attempt.hints_used = flow.wrong_count()
 	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
@@ -318,6 +322,58 @@ func _on_answered(given: Variant) -> void:
 		_misses_on_problem += 1
 		_last_misconception = misconception_of(problem, given)
 	flow.submit_answer(correct)
+
+
+## The child said "Try again" to the slate's "Did you write 47?". That is logged apart, as a rejected
+## reading, and changes nothing: no hint, no miss, no learning evidence.
+func _on_slate_rejected() -> void:
+	if flow.state != DigFlow.State.AWAIT_ANSWER:
+		return
+	var problem: Problem = current_problem()
+	var attempt: Attempt = Attempt.new()
+	attempt.skill_id = problem.skill_id
+	attempt.problem_seed = problem.seed
+	attempt.representation = problem.representation
+	attempt.answer_mode = AnswerPanel.answer_mode_for_kind(_panel.input_kind)
+	attempt.correct = false
+	attempt.low_confidence_rejected = true
+	attempt.hints_used = flow.wrong_count()
+	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
+	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))
+
+
+## A digit was accepted from the slate. With numeral coaching on (the save's settings.handwriting_coaching,
+## a grown-up's switch in the parent area, off by default), the third backwards writing of a
+## digit brings Bolt's stroke-order demonstration, once per digit per visit to the mine.
+func _on_digit_written(digit: int, mirrored: bool) -> void:
+	if _coach.note(digit, mirrored, bool(SaveSystem.data()["settings"].get("handwriting_coaching", false))):
+		_show_stroke_demo(digit)
+
+
+func _show_stroke_demo(digit: int) -> void:
+	var overlay: Control = Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var dimmer: ColorRect = ColorRect.new()
+	dimmer.color = Color(0.06, 0.08, 0.14, 0.72)
+	dimmer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(dimmer)
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(center)
+	var demo: StrokeDemo = DEMO_SCENE.instantiate()
+	demo.speed_scale = animation_speed
+	center.add_child(demo)
+	add_child(overlay)
+	if _panel != null:
+		_panel.set_enabled(false)
+	demo.closed.connect(func() -> void:
+		overlay.queue_free()
+		if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER and not _word_gem_card.visible:
+			_panel.set_enabled(true))
+	demo.play(digit)
+	_stroke_demo = demo
 
 
 ## The named misconception whose distractor equals `given`, or &"" (GDD section 5: the targeted
@@ -371,6 +427,8 @@ func _show_panel(problem: Problem) -> void:
 	_panel.setup(problem, _rng)
 	_panel.set_enabled(false) # enabled once the problem is on screen
 	_panel.answered.connect(_on_answered)
+	_panel.rejected.connect(_on_slate_rejected)
+	_panel.digit_written.connect(_on_digit_written)
 	var board: BuildBoard = _panel.board()
 	if board != null:
 		board.item_placed.connect(func(_kind: StringName) -> void: _sfx.play(&"place"))

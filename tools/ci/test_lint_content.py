@@ -222,6 +222,12 @@ def test_rule4_rejects_empty_text_bad_voice_version_and_bad_braces(tmp_path: Pat
     assert "must be lowercase" in text
 
 
+def test_rule4_rejects_a_row_whose_unquoted_comma_adds_a_column(tmp_path: Path) -> None:
+    found = lines_findings(tmp_path, GOOD_LINES + "a.b.c,Pen 1, finger 2,ctx,0\n" + 'd.e.f,"Pen 1, finger 2",ctx,0\n')
+    columns = [f for f in found if "columns" in f.message]
+    assert len(columns) == 1 and "a.b.c" in columns[0].message
+
+
 # ---------------------------------------------------------------------------
 # Rule 5: sentence length (warning)
 # ---------------------------------------------------------------------------

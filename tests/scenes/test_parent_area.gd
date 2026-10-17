@@ -98,6 +98,24 @@ func test_settings_change_the_save() -> void:
 	assert_str(dashboard.status_text()).is_equal(Text.get_line(&"parent.dash.rerun_done"))
 
 
+func test_the_device_switches_for_handwriting_and_coaching() -> void:
+	DeviceSettings.use_shared(DeviceSettings.new(_dir + "/device_settings.cfg"))
+	var dash: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn") as DashboardScreen
+	assert_bool(DeviceSettings.shared().handwriting_enabled()).is_true() # on by default
+	assert_bool(SaveSystem.data()["settings"]["handwriting_coaching"]).is_false() # off by default
+	dash.toggle_handwriting()
+	dash.toggle_coaching()
+	assert_bool(DeviceSettings.shared().handwriting_enabled()).is_false()
+	assert_bool(SaveSystem.data()["settings"]["handwriting_coaching"]).is_true()
+	# handwriting is a device choice (device file); coaching is the child's (their save)
+	assert_bool(DeviceSettings.new(_dir + "/device_settings.cfg").handwriting_enabled()).is_false()
+	assert_str(FileAccess.get_file_as_string(_dir + "/profile.json")).contains("\"handwriting_coaching\": true")
+	var row: Button = dash.find_child("HandwritingSwitch", true, false).get_node("Button") as Button
+	assert_str(row.text).is_equal(Text.get_line(&"parent.dash.off"))
+	assert_float(row.custom_minimum_size.y).is_greater_equal(float(UI.min_target_px()))
+	DeviceSettings.use_shared(null)
+
+
 func test_export_and_import_from_the_dashboard() -> void:
 	SaveSystem.data()["rewards"]["coins"] = 31
 	var dashboard: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn")
