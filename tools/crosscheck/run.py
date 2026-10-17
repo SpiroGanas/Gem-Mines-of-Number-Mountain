@@ -28,7 +28,22 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-from checkers import addition, balance, common, compare, counting, fact_family, missing_part, place_value, regroup, subtraction  # noqa: E402
+from checkers import (  # noqa: E402
+    addition,
+    arrays,
+    balance,
+    common,
+    compare,
+    counting,
+    fact_family,
+    missing_part,
+    multiplication,
+    parity,
+    place_value,
+    regroup,
+    skip_count,
+    subtraction,
+)
 
 CHECKERS = {
     "CountingGenerator": counting.check,
@@ -40,6 +55,10 @@ CHECKERS = {
     "BalanceGenerator": balance.check,
     "AdditionGenerator": addition.check,
     "SubtractionGenerator": subtraction.check,
+    "SkipCountGenerator": skip_count.check,
+    "ParityGenerator": parity.check,
+    "ArraysGenerator": arrays.check,
+    "MultiplicationGenerator": multiplication.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

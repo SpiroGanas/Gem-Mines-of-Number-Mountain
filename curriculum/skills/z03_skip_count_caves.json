@@ -54,7 +54,7 @@
       "terms": ["even", "odd"],
       "bkt_type": "concept",
       "is_fact_skill": false,
-      "misconceptions": ["leftover_miscounted"]
+      "misconceptions": ["leftover_miscounted", "parity_swapped"]
     },
     {
       "id": "parity.even_odd.rule",
@@ -67,7 +67,7 @@
       "terms": ["even", "odd", "digit"],
       "bkt_type": "concept",
       "is_fact_skill": false,
-      "misconceptions": ["used_tens_digit"]
+      "misconceptions": ["used_tens_digit", "parity_swapped"]
     },
     {
       "id": "arr.rows_cols.count",

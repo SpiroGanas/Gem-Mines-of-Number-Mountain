@@ -285,3 +285,29 @@ z2.hint.example_add,So {a} + {b} = {sum}.,Worked example: an addition fact,0
 z2.hint.example_add_three,So {a} + {b} + {c} = {sum}.,Worked example: adding three numbers,0
 z2.hint.example_make_ten,{a} + {fill} = {ten}. Then {ten} + {rest} = {sum}.,Worked example: make a ten then add the rest,0
 z2.hint.example_sub,So {a} - {b} = {diff}.,Worked example: a subtraction fact,0
+ui.answer.even,Even,Answer button label: an even number,0
+ui.answer.odd,Odd,Answer button label: an odd number,0
+z3.skip.prompt_by_10,Count by tens. Fill in the missing numbers.,Zone 3: number strip counting by 10,0
+z3.skip.prompt_by_5,Count by fives. Fill in the missing numbers.,Zone 3: number strip counting by 5,0
+z3.skip.prompt_by_2,Count by twos. Fill in the missing numbers.,Zone 3: number strip counting by 2,0
+z3.parity.prompt_pairs,Make pairs. Is the number of gems even or odd?,Zone 3: even or odd by pairing gems,0
+z3.parity.prompt_rule,Is {n} even or odd?,Zone 3: even or odd from the number,0
+z3.arr.prompt_count,How many gems are in this array?,Zone 3: count the gems in an array,0
+z3.arr.prompt_build,Build an array with {rows} rows and {cols} columns.,Zone 3: build an array,0
+z3.mult.prompt_repeated_2,What is {n} + {n}?,Zone 3: repeated addition with 2 groups,0
+z3.mult.prompt_repeated_3,What is {n} + {n} + {n}?,Zone 3: repeated addition with 3 groups,0
+z3.mult.prompt_repeated_4,What is {n} + {n} + {n} + {n}?,Zone 3: repeated addition with 4 groups,0
+z3.mult.prompt_repeated_5,What is {n} + {n} + {n} + {n} + {n}?,Zone 3: repeated addition with 5 groups,0
+z3.mult.prompt_equal_groups,There are {groups} groups of {size} gems. How many in all?,Zone 3: total of equal groups,0
+z3.mult.prompt_commutative,This array shows {rows} × {cols}. Which shows the same total?,Zone 3: commutative property; the answer buttons show facts such as 5 × 3,0
+z3.mult.prompt_fact,What is {a} × {b}?,"Zone 3: times tables for 2, 5 and 10",0
+z3.hint.example_blanks,The missing numbers are {a} and {b}.,Worked example: the two blanks of a number strip,0
+z3.hint.example_pairs_even,{n} gems make pairs with none left over. So {n} is even.,Worked example: even by pairing,0
+z3.hint.example_pairs_odd,{n} gems make pairs with one left over. So {n} is odd.,Worked example: odd by pairing,0
+z3.hint.example_rule_even,{n} ends in {digit}. So {n} is even.,Worked example: even from the ones digit,0
+z3.hint.example_rule_odd,{n} ends in {digit}. So {n} is odd.,Worked example: odd from the ones digit,0
+z3.hint.example_array_total,{rows} rows of {cols} gems make {total}.,Worked example: the total of an array,0
+z3.hint.example_array_shape,The array has {rows} rows and {cols} columns.,Worked example: the shape of an array,0
+z3.hint.example_groups_total,{groups} groups of {size} make {total}.,Worked example: the total of equal groups,0
+z3.hint.example_commutative,{rows} × {cols} and {cols} × {rows} both make {total}.,Worked example: turning an array keeps the total,0
+z3.hint.example_fact,{a} × {b} = {product}.,Worked example: a times fact,0

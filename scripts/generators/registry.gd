@@ -22,6 +22,10 @@ static func table() -> Dictionary:
 		&"BalanceGenerator": BalanceGenerator.generate,
 		&"AdditionGenerator": AdditionGenerator.generate,
 		&"SubtractionGenerator": SubtractionGenerator.generate,
+		&"SkipCountGenerator": SkipCountGenerator.generate,
+		&"ParityGenerator": ParityGenerator.generate,
+		&"ArraysGenerator": ArraysGenerator.generate,
+		&"MultiplicationGenerator": MultiplicationGenerator.generate,
 	}
 
 
