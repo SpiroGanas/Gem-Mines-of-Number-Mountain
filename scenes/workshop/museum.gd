@@ -56,9 +56,10 @@ func _ready() -> void:
 		var door: Button = Button.new()
 		door.name = pair[0]
 		door.text = Text.get_line(pair[1])
-		UI.make_touch_target(door, 3.0, 1.2)
+		UI.make_touch_target(door, 3.4, 1.2)
 		door.pressed.connect(request_screen.emit.bind(pair[2], {}))
 		header.add_child(door)
+		IconArt.attach(door, pair[2])
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)

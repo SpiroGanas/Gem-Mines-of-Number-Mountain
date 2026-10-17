@@ -6,7 +6,7 @@
 class_name IconArt
 extends Control
 
-const KINDS: Array[StringName] = [&"dig", &"museum", &"garage", &"settings", &"grownups", &"back", &"workshop", &"build"]
+const KINDS: Array[StringName] = [&"dig", &"museum", &"garage", &"settings", &"grownups", &"back", &"workshop", &"build", &"badges", &"glossary"]
 const INK: Color = Color("#1F2945")
 ## Kenney Game Icons (assets/CREDITS.md) for the kinds the pack covers.
 const TEXTURE_PATHS: Dictionary = {
@@ -14,6 +14,8 @@ const TEXTURE_PATHS: Dictionary = {
 	&"grownups": "res://assets/art/kenney/icons/locked.png",
 	&"garage": "res://assets/art/kenney/icons/wrench.png",
 	&"back": "res://assets/art/kenney/icons/return.png",
+	&"badges": "res://assets/art/kenney/icons/trophy.png",
+	&"glossary": "res://assets/art/kenney/icons/information.png",
 }
 
 static var _textures: Dictionary = {}

@@ -63,8 +63,10 @@ func _ready() -> void:
 	_particles.gravity = Vector2(0, 500)
 	_particles.initial_velocity_min = 220.0
 	_particles.initial_velocity_max = 480.0
-	_particles.scale_amount_min = 5.0
-	_particles.scale_amount_max = 11.0
+	# Kenney's CC0 twinkle (Sprint 20); 128 px, so these scales give stars of about 13 to 28 px.
+	_particles.texture = load("res://assets/art/kenney/particles/twinkle.png")
+	_particles.scale_amount_min = 0.1
+	_particles.scale_amount_max = 0.22
 	add_child(_particles)
 
 

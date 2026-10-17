@@ -139,7 +139,7 @@ func _on_solved(_problem: Problem) -> void:
 	var id: StringName = _crafting
 	_crafting = &""
 	if Rewards.craft(id):
-		sfx.play(&"sparkle")
+		sfx.play(&"craft")
 		var recipe: Recipe = Rewards.recipe(id)
 		celebration.celebrate([{"line_id": &"ws.craft.done", "gem": recipe.inputs[0]["gem"]}])
 	else:

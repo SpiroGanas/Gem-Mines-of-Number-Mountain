@@ -25,3 +25,8 @@ func _ready() -> void:
 ## Called by the Shell with the arguments of change_screen(), before the screen is shown.
 func setup(_args: Dictionary) -> void:
 	pass
+
+
+## The music loop this screen wants, or &"" for the Shell's default for its id (Shell.MUSIC_FOR_SCREEN).
+func music_id() -> StringName:
+	return &""

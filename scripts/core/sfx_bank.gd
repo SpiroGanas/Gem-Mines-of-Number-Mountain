@@ -18,7 +18,7 @@ signal played(sfx_id: StringName)
 const SOUND_DIR: String = "res://assets/sfx/kenney"
 const BUS: StringName = &"SFX"
 const VOICES: int = 4
-const SOUND_IDS: Array[StringName] = [&"tap", &"select", &"place", &"wobble", &"crack", &"gem", &"coin", &"soft_miss", &"fanfare", &"sparkle", &"lantern", &"buy"]
+const SOUND_IDS: Array[StringName] = [&"tap", &"select", &"place", &"wobble", &"crack", &"gem", &"coin", &"soft_miss", &"fanfare", &"sparkle", &"lantern", &"buy", &"split", &"sieve_mark", &"craft", &"build_step", &"badge"]
 
 var _streams: Dictionary[StringName, AudioStream] = {}
 var _players: Array[AudioStreamPlayer] = []

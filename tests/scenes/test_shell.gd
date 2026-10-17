@@ -324,6 +324,23 @@ func test_the_mine_has_its_own_music_and_the_workshop_screens_share_one() -> voi
 	assert_str(_shell.current_music()).is_equal("mine")
 
 
+func test_the_build_screens_have_build_music_and_zone_4_has_its_own_mine_tune() -> void:
+	_shell.change_screen(&"build_site")
+	await _until_screen(&"build_site")
+	assert_str(_shell.current_music()).is_equal("build")
+	for id: StringName in Adaptive.catalog().ids():
+		if Adaptive.catalog().skill(id).zone <= 3:
+			var record: Dictionary = SkillRecord.fresh(0.97)
+			record["mastered_at"] = "2027-01-01T00:00:00Z"
+			SaveSystem.data()["skills"][String(id)] = record
+	SaveSystem.data()["workshop"]["builds"]["balance_elevator"] = {"step": 3, "done": true}
+	SaveSystem.data()["placement"]["done"] = true
+	_shell.change_screen(&"mine")
+	await _until_screen(&"mine")
+	assert_str(_shell.current_music()).is_equal("mine_z4")
+	assert_str((_shell.current_screen() as MineScreen).zone_banner().text()).is_equal(Text.get_line(&"z4.zone.name"))
+
+
 func test_settings_turn_the_music_and_sounds_up_and_down() -> void:
 	_shell.change_screen(&"settings")
 	await _until_screen(&"settings")

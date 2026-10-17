@@ -47,6 +47,7 @@ var speed_scale: float = 1.0
 
 var _gem: GemArt
 var _particles: CPUParticles2D
+const SPARKLE_TEXTURE_PATH: String = "res://assets/art/kenney/particles/sparkle.png"
 var _overlay: Control
 var _tween: Tween
 
@@ -74,8 +75,11 @@ func _ready() -> void:
 	_particles.gravity = Vector2(0, 700)
 	_particles.initial_velocity_min = 160.0
 	_particles.initial_velocity_max = 360.0
-	_particles.scale_amount_min = 4.0
-	_particles.scale_amount_max = 9.0
+	# Kenney's CC0 sparkle (Sprint 20), tinted by the gem's color; 128 px, so these scales give
+	# sparks of about 10 to 22 px.
+	_particles.texture = load(SPARKLE_TEXTURE_PATH)
+	_particles.scale_amount_min = 0.08
+	_particles.scale_amount_max = 0.17
 	add_child(_particles)
 	resized.connect(_on_resized)
 	mouse_entered.connect(_overlay.queue_redraw)

@@ -67,10 +67,13 @@ func receive_gem(gem_type: StringName, from_center: Vector2, fx_layer: Control) 
 	flying.size = UI.target_size(0.9, 0.9)
 	fx_layer.add_child(flying)
 	flying.global_position = from_center - flying.size * 0.5
+	var start: Vector2 = flying.global_position
 	var end: Vector2 = landing_point() - flying.size * 0.5
+	# An arc, not a straight line (Sprint 20): a curve through a point above the middle of the way.
+	var peak: Vector2 = (start + end) * 0.5 + Vector2(0, -absf(end.x - start.x) * 0.35 - flying.size.y * 2.0)
 	var flight: Tween = create_tween()
 	flight.set_speed_scale(speed_scale)
-	flight.tween_property(flying, "global_position", end, FLIGHT_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	flight.tween_method(func(t: float) -> void: flying.global_position = start.lerp(peak, t).lerp(peak.lerp(end, t), t), 0.0, 1.0, FLIGHT_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	flight.tween_callback(_on_gem_arrived.bind(flying, gem_type))
 
 

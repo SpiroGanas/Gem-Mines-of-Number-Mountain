@@ -523,3 +523,8 @@ family.screen.not_enough,Needs {n} more,Parent area: not enough points yet,0
 family.screen.remove,Remove,Parent area: remove a goal,0
 family.screen.none,No goals yet.,Parent area: no goals,0
 parent.dash.family,Family rewards,Parent dashboard button,0
+z1.zone.name,Pebble Meadow,Zone 1 name on its banner (Sprint 20),0
+z2.zone.name,Quarry of Tens,Zone 2 name on its banner,0
+z3.zone.name,Skip-Count Caves,Zone 3 name on its banner,0
+z4.zone.name,Factor Workshop,Zone 4 name on its banner,0
+z5.zone.name,Prime Caverns,Zone 5 name on its banner,0

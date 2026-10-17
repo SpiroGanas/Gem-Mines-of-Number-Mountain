@@ -47,7 +47,7 @@ func _make_badge(badge: Dictionary) -> Control:
 	var art: BadgeArt = BadgeArt.new()
 	art.emblem = StringName(str(badge.get("emblem", "pairs")))
 	art.earned = earned
-	art.custom_minimum_size = UI.target_size(2.0, 2.0)
+	art.custom_minimum_size = UI.target_size(2.6, 2.6)
 	art.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(art)
 	var name_label: Label = Label.new()

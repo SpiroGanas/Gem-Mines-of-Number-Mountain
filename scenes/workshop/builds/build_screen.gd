@@ -89,7 +89,7 @@ func _start_step() -> void:
 
 func _on_step_completed() -> void:
 	var done: bool = Rewards.finish_build_step(build_id)
-	sfx.play(&"place")
+	sfx.play(&"build_step")
 	if done:
 		var items: Array[Dictionary] = [{"line_id": _build.reward_line_id, "gem": GemArt.gem_for_zone(_build.zone_unlocks), "params": {"n": _build.zone_unlocks}}]
 		celebration.celebrate(items)

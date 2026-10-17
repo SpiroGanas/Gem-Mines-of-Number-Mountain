@@ -70,6 +70,7 @@ var _deep_queue: Array[Problem] = []
 ## The Challenge Door button shown after a wall when a frontier skill can be tested out (Sprint 19).
 var _door_button: Button
 var _door_skill: StringName = &""
+var _banner: ZoneBanner
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -98,7 +99,12 @@ func _ready() -> void:
 	backdrop.palette = Backdrop.palette_for_zone(deepest_zone())
 	add_child(backdrop)
 	move_child(backdrop, 0)
+	_banner = ZoneBanner.new()
+	_banner.name = "ZoneBanner"
+	_banner.zone = deepest_zone()
+	_pause_button.get_parent().add_child(_banner)
 	_wall.speed_scale = animation_speed
+	_bolt.speed_scale = animation_speed
 	_cart.speed_scale = animation_speed
 	_pause_button.text = Text.get_line(&"ui.common.pause")
 	_head_up_button.text = Text.get_line(&"ui.mine.head_up")
@@ -185,6 +191,16 @@ func deepest_zone() -> int:
 	return deepest
 
 
+## Each zone group has its own loop (Sprint 20): Zones 1-3 share the first mine tune.
+func music_id() -> StringName:
+	match deepest_zone():
+		4:
+			return &"mine_z4"
+		5:
+			return &"mine_z5"
+	return &"mine"
+
+
 ## The zone a problem's skill belongs to (it decides the gem: quartz, garnet or pyrite).
 func zone_of(problem: Problem) -> int:
 	return Adaptive.catalog().skill(problem.skill_id).zone
@@ -209,6 +225,10 @@ func problem_for(index: int) -> Problem:
 ## True while a Deep Dig is under way (its problems are not all dug yet).
 func deep_dig_left() -> int:
 	return _deep_queue.size() if deep_dig else 0
+
+
+func zone_banner() -> ZoneBanner:
+	return _banner
 
 
 func door_button() -> Button:
@@ -255,6 +275,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			var problem: Problem = current_problem()
 			_bolt.set_terms(Adaptive.catalog().skill(problem.skill_id).terms)
 			_bolt.say(problem.prompt_line_id, problem.prompt_params)
+			_bolt.set_pose(&"point")
 			_show_panel(problem)
 			flow.problem_shown.call_deferred()
 		DigFlow.State.AWAIT_ANSWER:
@@ -264,6 +285,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 		DigFlow.State.CRACK:
 			_panel.set_enabled(false)
 			_bolt.note(&"bolt.feedback.correct" if flow.wrong_count() == 0 else &"bolt.feedback.correct_hint")
+			_bolt.set_pose(&"cheer")
 			_sfx.play(&"crack")
 			var rock: Rock = _wall.rock(flow.current_rock())
 			rock.crack_finished.connect(flow.crack_finished, CONNECT_ONE_SHOT)
@@ -278,10 +300,12 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_panel.set_enabled(false)
 			_sfx.play(&"wobble")
 			_sfx.play(&"soft_miss")
+			_bolt.set_pose(&"not_quite")
 			var open_rock: Rock = _wall.rock(flow.current_rock())
 			open_rock.wobble_finished.connect(flow.wobble_finished, CONNECT_ONE_SHOT)
 			open_rock.play_wobble()
 		DigFlow.State.HINT:
+			_bolt.set_pose(&"think")
 			_show_hint(HintLadder.next_rung(flow.wrong_count()))
 			flow.hint_shown.call_deferred()
 		DigFlow.State.WALL_CLEAR:
@@ -329,7 +353,8 @@ func _on_gem_landed(_gem_type: StringName) -> void:
 		_after_rock()
 	else:
 		var lantern_only: bool = _pending_celebrations.size() == 1 and _pending_celebrations[0].get("lantern", false)
-		_sfx.play(&"lantern" if lantern_only else &"sparkle")
+		var has_badge: bool = _pending_celebrations.any(func(item: Dictionary) -> bool: return item.has("badge"))
+		_sfx.play(&"badge" if has_badge else (&"lantern" if lantern_only else &"sparkle"))
 		_celebration.celebrate(_pending_celebrations.duplicate())
 		_pending_celebrations.clear()
 
@@ -516,6 +541,9 @@ func _show_panel(problem: Problem) -> void:
 	_panel.answered.connect(_on_answered)
 	_panel.rejected.connect(_on_slate_rejected)
 	_panel.digit_written.connect(_on_digit_written)
+	var split: BoulderSplit = _panel.boulder_split()
+	if split != null:
+		split.split_chosen.connect(func(_value: int, _a: int, _b: int) -> void: _sfx.play(&"split"))
 	var board: BuildBoard = _panel.board()
 	if board != null:
 		board.item_placed.connect(func(_kind: StringName) -> void: _sfx.play(&"place"))

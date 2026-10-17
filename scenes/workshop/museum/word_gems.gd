@@ -26,15 +26,16 @@ func _ready() -> void:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	body.add_child(scroll)
-	var grid: GridContainer = GridContainer.new()
-	grid.columns = 4
+	# A flow, not a fixed grid, so the gems wrap to fit 16:9 down to 4:3 (seen in the Sprint 20 captures).
+	var grid: HFlowContainer = HFlowContainer.new()
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override(&"h_separation", 16)
 	grid.add_theme_constant_override(&"v_separation", 16)
 	scroll.add_child(grid)
 	for term: StringName in terms:
 		var button: Button = Button.new()
 		button.name = "Term_%s" % term
-		UI.make_touch_target(button, 3.0, 1.1)
+		UI.make_touch_target(button, 2.6, 1.1)
 		if Rewards.has_word_gem(term):
 			button.text = Text.term_definition(term)["term"]
 			button.theme_type_variation = &"WordGemButton"

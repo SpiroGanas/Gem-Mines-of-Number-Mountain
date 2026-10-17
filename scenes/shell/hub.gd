@@ -32,6 +32,7 @@ var _machine_loop: Tween
 func _ready() -> void:
 	super()
 	_bolt.say(&"bolt.hub.greeting")
+	_bolt.set_pose.call_deferred(&"wave")
 	_dig_button.text = Text.get_line(&"ui.hub.dig")
 	_museum_button.text = Text.get_line(&"ui.hub.museum")
 	_garage_button.text = Text.get_line(&"ui.hub.garage")
@@ -44,6 +45,7 @@ func _ready() -> void:
 		UI.make_touch_target(button, BUTTON_WIDTH_MULTIPLE, BUTTON_HEIGHT_MULTIPLE)
 	UI.make_touch_target(_lantern, 1.4, 1.7)
 	var backdrop: Backdrop = Backdrop.new()
+	backdrop.key_art = true
 	add_child(backdrop)
 	move_child(backdrop, 0)
 	for pair: Array in [[_dig_button, &"dig"], [_museum_button, &"museum"], [_garage_button, &"garage"], [_settings_button, &"settings"], [_grownups_button, &"grownups"]]:
@@ -129,10 +131,10 @@ func _add_machine_shelf() -> void:
 	column.move_child(_shelf, 1)
 	for build: BuildProject in Rewards.builds():
 		if Rewards.is_built(build.id):
-			_add_to_shelf(build.id, BuildSiteScreen.finished_params(build.id), Vector2(3.0, 1.4))
+			_add_to_shelf(build.id, BuildSiteScreen.finished_params(build.id), Vector2(4.0, 1.8))
 	for recipe: Recipe in Rewards.recipes():
 		if recipe.output_type == "decor" and Rewards.owns(recipe.output_id):
-			_add_to_shelf(recipe.output_id, {}, Vector2(2.4 if recipe.output_id == &"hub_lanterns" else 1.2, 1.2))
+			_add_to_shelf(recipe.output_id, {}, Vector2(3.0 if recipe.output_id == &"hub_lanterns" else 1.6, 1.6))
 	_shelf.visible = _shelf.get_child_count() > 0
 	_start_machines()
 
