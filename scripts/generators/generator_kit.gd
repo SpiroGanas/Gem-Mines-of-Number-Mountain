@@ -29,7 +29,7 @@ static func eased_max(low: int, high: int, difficulty: int, minimum_span: int = 
 	if difficulty >= 0:
 		return high
 	var scaled: int = int(round(float(high) * pow(EASIER_FACTOR, float(-difficulty))))
-	return clampi(scaled, low + minimum_span, high)
+	return clampi(scaled, mini(low + minimum_span, high), high) # a floor above `high` would win in clampi
 
 
 ## A problem with the fields every generator sets.

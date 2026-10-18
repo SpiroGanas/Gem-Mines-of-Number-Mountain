@@ -99,3 +99,16 @@ func test_the_mine_layout_at_4_to_3_keeps_full_size_rocks() -> void:
 	var side: float = float(UI.min_target_px())
 	assert_bool(grid.cell(100).get_global_rect().size.x >= side).is_true()
 	assert_bool(grid.scroll().get_combined_minimum_size().x <= 730.0).is_true()
+
+
+func test_rocks_are_touch_targets_that_follow_a_posture_change() -> void:
+	var grid: SieveGrid = await _make(30, [1])
+	var before: float = float(UI.min_target_px())
+	for number: int in range(1, 31):
+		assert_bool(grid.cell(number).is_in_group(UI.TARGET_GROUP)).is_true()
+	get_window().size = get_window().size / 2 # a posture change: a smaller window means bigger canvas pixels per dp
+	await await_idle_frame()
+	var after: float = float(UI.min_target_px())
+	assert_float(after).is_greater(before)
+	assert_float(grid.cell(9).custom_minimum_size.x).is_equal(after)
+	assert_float((grid.find_child("Scroll", true, false) as Control).custom_minimum_size.x).is_equal(10 * after + 9 * SieveGrid.GAP)

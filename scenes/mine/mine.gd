@@ -64,6 +64,8 @@ var _rocks_since_limit: int = 0
 ## Counts backwards digits for numeral coaching, for this visit to the mine.
 var _coach: NumeralCoach = NumeralCoach.new()
 var _stroke_demo: StrokeDemo
+## The dimmer under the stroke demo while it is up (null otherwise); the panel sleeps under it.
+var _demo_overlay: Control
 ## The weekly Deep Dig (Sprint 19): its problems wait here and fill the rocks as they are picked.
 var deep_dig: bool = false
 var _deep_queue: Array[Problem] = []
@@ -281,7 +283,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 		DigFlow.State.AWAIT_ANSWER:
 			_answer_opened_ms = Time.get_ticks_msec()
 			if _panel != null:
-				_panel.set_enabled(not _word_gem_card.visible) # a card that is up keeps the panel asleep
+				_panel.set_enabled(not _overlay_up()) # a card or demo that is up keeps the panel asleep
 		DigFlow.State.CRACK:
 			_panel.set_enabled(false)
 			_bolt.note(&"bolt.feedback.correct" if flow.wrong_count() == 0 else &"bolt.feedback.correct_hint")
@@ -381,7 +383,9 @@ func _deep_dig_wall_done() -> void:
 	_dig_more_button.visible = false
 	deep_dig = false
 	if Rewards.finish_deep_dig():
-		_celebration.celebrate([{"line_id": &"deepdig.mine.done", "gem": MotivationRules.DEEP_DIG_GEM}])
+		# Queued, not shown here: this runs inside _on_gem_landed, which shows every celebration the
+		# last rock earned in one card (a lantern or a badge would otherwise replace the geode's).
+		_pending_celebrations.append({"line_id": &"deepdig.mine.done", "gem": MotivationRules.DEEP_DIG_GEM})
 
 
 func _on_door_pressed() -> void:
@@ -479,14 +483,22 @@ func _show_stroke_demo(digit: int) -> void:
 	demo.speed_scale = animation_speed
 	center.add_child(demo)
 	add_child(overlay)
+	_demo_overlay = overlay
 	if _panel != null:
 		_panel.set_enabled(false)
 	demo.closed.connect(func() -> void:
 		overlay.queue_free()
-		if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER and not _word_gem_card.visible:
+		_demo_overlay = null
+		if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER and not _overlay_up():
 			_panel.set_enabled(true))
 	demo.play(digit)
 	_stroke_demo = demo
+
+
+## True while something sits over the answer panel (the Word Gem card or the stroke demo), so the
+## panel must not take answers or strokes.
+func _overlay_up() -> bool:
+	return _word_gem_card.visible or _demo_overlay != null
 
 
 ## The named misconception whose distractor equals `given`, or &"" (GDD section 5: the targeted
@@ -574,7 +586,7 @@ func _on_term_tapped(term_id: StringName) -> void:
 
 
 func _on_word_gem_closed() -> void:
-	if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER:
+	if _panel != null and flow.state == DigFlow.State.AWAIT_ANSWER and not _overlay_up():
 		_panel.set_enabled(true)
 
 

@@ -108,7 +108,8 @@ func test_the_mine_offers_the_door_after_a_wall_for_a_practised_frontier_skill()
 	assert_that(Adaptive.challenge_candidate()).is_not_equal(&"count.to_20.objects")
 
 
-func _play_deep_dig(mine: MineScreen) -> void:
+## Plays every Deep Dig rock. `before_last` runs once, just before the last rock is picked.
+func _play_deep_dig(mine: MineScreen, before_last: Callable = Callable()) -> void:
 	var guard: int = 0
 	while guard < 40 and not (mine.flow.state == DigFlow.State.WALL_CLEAR and mine.deep_dig_left() == 0):
 		guard += 1
@@ -118,6 +119,10 @@ func _play_deep_dig(mine: MineScreen) -> void:
 			continue
 		if mine.celebration().visible:
 			mine.celebration().close()
+		# A rock gets its problem when it is picked, so before the last pick one problem is still queued.
+		if before_last.is_valid() and mine.flow.state == DigFlow.State.PICK_ROCK and mine.flow.rocks_left() == 1 and mine.deep_dig_left() <= 1:
+			before_last.call()
+			before_last = Callable()
 		var index: int = -1
 		for rock: int in mine.wall().rock_count():
 			if not mine.flow.is_cracked(rock):
@@ -175,3 +180,19 @@ func test_the_hub_shows_family_points_but_no_way_to_claim() -> void:
 	assert_str(label.text).is_equal(Text.get_line(&"family.hub.points", {"n": 12}))
 	for node: Node in hub.find_children("*", "Button", true, false):
 		assert_str((node as Button).text).is_not_equal(Text.get_line(&"family.screen.claim"))
+
+
+func test_the_geode_joins_the_last_rocks_celebration_instead_of_replacing_it() -> void:
+	for id: StringName in [&"add.to_10.sums", &"sub.to_10.diff", &"count.to_120.next", &"pv.tens_ones.read"]:
+		_master(id)
+	SaveSystem.data()["placement"]["done"] = true
+	var mine: MineScreen = _screen("res://scenes/mine/mine.tscn", {"deep_dig": true}, func(screen: MineScreen) -> void:
+		screen.animation_speed = 25.0
+		screen.seed_value = 4)
+	# A new day before the last rock: that rock lights a lantern, so it has a celebration of its own
+	# that the geode must join, not lose.
+	await _play_deep_dig(mine, func() -> void: _clock.unix += GameClock.SECONDS_PER_DAY)
+	assert_int(Rewards.streak()).is_equal(2) # the last rock lit the second day's lantern
+	assert_int(Rewards.gem_count(MotivationRules.DEEP_DIG_GEM)).is_equal(1)
+	assert_bool(mine.celebration().visible).is_true()
+	assert_array(mine.celebration().line_ids()).contains([&"bolt.celebrate.lantern", &"deepdig.mine.done"])

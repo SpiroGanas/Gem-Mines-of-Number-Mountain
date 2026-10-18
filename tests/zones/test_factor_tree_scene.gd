@@ -143,3 +143,16 @@ func test_the_tree_and_its_pieces_fit_for_n_up_to_100() -> void:
 			assert_bool(area.encloses(rect)).override_failure_message("%d: piece %d at %s outside %s" % [n, index, rect, area]).is_true()
 		assert_array(_completed).is_equal(MathUtil.prime_factorization(n))
 		_tree.queue_free()
+
+
+func test_no_rock_can_be_picked_during_the_pause_after_a_split() -> void:
+	var tree: FactorTree = await _make(30)
+	tree.pause_seconds = 10.0 # at speed 50: 0.2 s, the crack is still showing
+	assert_bool(tree.boulder_split().choose_pair(5)).is_true() # 5 and 6
+	var six: int = tree.leaf_order()[1]
+	assert_bool(tree.pick(six)).is_false() # a tap on a new piece mid-crack changes nothing
+	assert_int(tree.picked()).is_equal(0)
+	await get_tree().create_timer(0.5).timeout
+	assert_int(tree.picked()).is_equal(tree.leaf_order()[0]) # the pause over, the first piece comes up
+	assert_int(tree.boulder_split().value).is_equal(5)
+	assert_bool(tree.pick(six)).is_true() # and the child may choose again

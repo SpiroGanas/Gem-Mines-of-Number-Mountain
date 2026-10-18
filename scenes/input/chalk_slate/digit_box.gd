@@ -28,6 +28,8 @@ const BOARD: Color = Color("#2B3A42")
 const BOARD_EDGE: Color = Color("#4A5D68")
 const CHALK: Color = Color("#F5F7FF")
 const GUIDE: Color = Color(1, 1, 1, 0.22)
+## Where the guide lines sit (fractions of the box's height): the top, the middle and the baseline.
+const GUIDE_FRACTIONS: PackedFloat32Array = [0.2, 0.5, 0.8]
 const FLAGGED_EDGE: Color = Color("#FFD166")
 
 ## The stroke source. Defaults to the InputRouter autoload; tests inject their own.
@@ -191,7 +193,7 @@ func _draw() -> void:
 	_board_style.border_color = FLAGGED_EDGE if _flagged else BOARD_EDGE
 	draw_style_box(_board_style, Rect2(Vector2.ZERO, size))
 	# guide lines: where the digit sits (top, middle and bottom), dashed so they are not ink
-	for fraction: float in [0.2, 0.5, 0.8]:
+	for fraction: float in GUIDE_FRACTIONS:
 		draw_dashed_line(Vector2(size.x * 0.1, size.y * fraction), Vector2(size.x * 0.9, size.y * fraction), GUIDE, 2.0, 10.0)
 	var width: float = maxf(6.0, size.y * 0.035)
 	for stroke: PackedVector2Array in _strokes:

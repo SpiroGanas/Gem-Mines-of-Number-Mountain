@@ -107,3 +107,13 @@ func test_a_child_already_digging_in_zone_4_keeps_it() -> void:
 	var builds: Array[BuildProject] = [_elevator]
 	var in_zone_4: Callable = func(zone: int) -> bool: return zone == 4
 	assert_array(WorkshopRules.locked_zones(save, builds, in_zone_4)).is_empty()
+
+
+func test_a_record_at_the_last_step_counts_as_built_even_without_done() -> void:
+	# A build whose step list shrank, or an edited save: the build screen must never index past the steps.
+	var save: Dictionary = SaveSchema.new_profile("t")
+	save["workshop"]["builds"]["cart_track"] = {"step": _track.step_count(), "done": false}
+	assert_bool(WorkshopRules.is_built(save, _track)).is_true()
+	assert_bool(WorkshopRules.finish_step(save, _track)).is_false()
+	save["workshop"]["builds"]["cart_track"] = {"step": _track.step_count() + 5, "done": false}
+	assert_dict(WorkshopRules.build_state(save, _track)).is_equal({"step": _track.step_count(), "done": true})

@@ -2,7 +2,7 @@
 
 **Read this first in every session.** It is the one-page handoff: where the project is, what changed recently, and what to do next. `CLAUDE.md` holds the rules; this file holds the state. Keep it short and keep it current (see "Maintaining this file" at the end).
 
-**Last updated:** 2026-10-18 · **Branch at update:** `main` @ `578d083` (PR #8 merged) · **Phase:** 2 done in code, Phase 3 next
+**Last updated:** 2026-10-18 · **Branch at update:** `claude/focused-clarke-j5z84i` on `main` @ `2ad7fc4` (peer review 02, this PR) · **Phase:** 2 done in code, Phase 3 next
 
 ---
 
@@ -35,6 +35,7 @@ Out of scope until Phase 4: Zones 6-12, Scholar mode, web export, live TTS, any 
 
 ## 4. Recent changes (newest first)
 
+- **Peer review 02 (`peer_review_02.md`, Phase 2 audit):** 13 defects fixed with regression tests, none blocking. The two child-visible ones: a handwritten answer was dropped when the numeral-coaching demo fired on submit; Word Gems of an MVP save were never collected at a real app start (the v1→v2 catch-up ran only in tests). Also: a palm the pen took over from read as a tap on drag boards (new `InputRouter.pointer_cancelled`), the parent gate's lock reset by leaving the gate, the Deep Dig geode card replaced by the same rock's lantern card, sieve rocks not following a posture change, a factor-tree pick mid-crack, a build record past its step list, `eased_max` above the authored limit, an inert cross-check guard, per-frame allocations in three draw paths. The cross-check gained `--difficulty` (every skill at −1 passed). Open items in section 5 are unchanged.
 - **PR #8 (Phase 2, Sprints 16-21):** save schema v2; workshop crafting/builds and balance elevator (opens Zone 4); cross-device `SaveMerge` with backups, checksum and log; Zone 5 (11 skills, sieve, factor tree, rare-gem museum); badges, Word Gems glossary, Deep Dig, Challenge Door, family points; Bolt's six poses, per-zone music cross-fade, aspect-ratio screenshots; dashboard v2; math review packet; release checklist; Phase 3 hand-off docs.
 - **PR #7 (Sprints 12-15):** BKT refit, GDScript digit network, `ChalkSlate`, Zone 4 (16 skills, `BoulderSplit`), rare gems from rare numbers, `MathUtil`.
 - **Earlier:** Phase 1 MVP (Zones 1-3) and `peer_review_01.md` (7 defects fixed; Spiro resolved all open items).
@@ -59,12 +60,13 @@ Start of Phase 3, Sprint 22 (`docs/phases/phase-3-public-release-readiness.md`, 
 3. **P3-S22-02** `feat/voice-pipeline`: build `tools/voice/` (segmenter, numbers, postprocess, timing, manifest, `generate.py --dry-run`) with pytest. `--dry-run` must list every Zone 1-5 line and a cost estimate.
 4. **P3-S22-04** `feat/narration-manager`: `autoload/narration.gd` against a fixture manifest and silent OGG stubs in `tests/fixtures/narration/`; `speak()` is a no-op when `read_aloud = false`.
 5. Add the `text_hash` column to `text/lines.csv` per plan section 3.1.
+6. Small CI follow-ups from peer review 02 (section 4 of `peer_review_02.md`): run the cross-check at `--difficulty -1` in `ci.yml`; extend `perf_check.py` to `_draw` bodies; a startup-order test for the autoload chain before `Narration` and `Profiles` join it.
 
 **Stop and ask Spiro before:** any paid voice API call (P3-S22-03, -06), adding a provider SDK as a dependency, the v2→v3 save migration design (Sprint 23), and any export/permission change.
 
 ## 7. Health check (last known)
 
-- All GdUnit4 suites, pytest, the 72-skill crosscheck, `lint_content.py`, `curriculum_check.py` and `perf_check.py` were green at the end of PR #8.
+- Peer review 02 (2026-10-18, headless Linux): 1051 GdUnit4 tests in 96 suites, 841 pytest (34 skipped by design), the 72-skill crosscheck at 10,000 and at difficulty −1 (2,000), `lint_content.py`, `curriculum_check.py` and `perf_check.py` all green after the fixes; the headless startup run is clean apart from a benign exit-time audio report (`peer_review_02.md`, note A).
 - Not verified in a cloud session: anything needing a device, a renderer or the keystore.
 - If a fresh session finds something red, record it here under a "Known issues" heading.
 

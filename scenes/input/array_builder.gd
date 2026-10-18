@@ -56,6 +56,7 @@ func _ready() -> void:
 	router.pointer_down.connect(_on_pointer_down)
 	router.pointer_move.connect(_on_pointer_move)
 	router.pointer_up.connect(_on_pointer_up)
+	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	_refresh()
 
 
@@ -64,12 +65,18 @@ func _exit_tree() -> void:
 		router.pointer_down.disconnect(_on_pointer_down)
 		router.pointer_move.disconnect(_on_pointer_move)
 		router.pointer_up.disconnect(_on_pointer_up)
+		router.pointer_cancelled.disconnect(_on_pointer_cancelled)
 
 
 ## A paused game (the pause menu) ends the press in progress; see BuildBoard.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PAUSED:
 		_pressing = false
+
+
+## The press was a resting palm the pen took over from: it ends without a tap.
+func _on_pointer_cancelled(_index: int) -> void:
+	_pressing = false
 
 
 ## True while the builder may react to the pointer: shown on screen and not paused.

@@ -85,3 +85,17 @@ func test_a_new_session_clears_the_tally_but_never_the_totals() -> void:
 	Adaptive.start_session()
 	assert_int(Rewards.session_summary()["rocks"]).is_equal(0)
 	assert_int(Rewards.coins()).is_equal(2)
+
+
+func test_word_gems_of_an_older_save_are_collected_when_the_autoload_starts() -> void:
+	# At app start SaveSystem loads the save before Rewards exists, so the profile_loaded it emits
+	# then reaches nobody: Rewards must catch up in its own _ready (a save from before Sprint 19 has
+	# mastered skills but no Word Gems; the v1 to v2 migration relies on this).
+	var record: Dictionary = SkillRecord.fresh(0.97)
+	record["mastered_at"] = "2026-12-01T00:00:00Z"
+	SaveSystem.data()["skills"]["parity.even_odd.pairs"] = record
+	SaveSystem.data()["motivation"]["word_gems"] = []
+	assert_bool(Rewards.has_word_gem(&"even")).is_false()
+	var fresh: Node = auto_free(load("res://autoload/rewards.gd").new())
+	add_child(fresh) # its _ready runs with the save already loaded, exactly as at startup
+	assert_bool(Rewards.has_word_gem(&"even")).is_true()

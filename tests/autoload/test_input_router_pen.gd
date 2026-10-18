@@ -16,6 +16,7 @@ func before_test() -> void:
 	add_child(_router)
 	_router.pointer_down.connect(func(pos: Vector2, kind: int, index: int) -> void: _log.append("down %d %d" % [kind, index]))
 	_router.pointer_up.connect(func(pos: Vector2, kind: int, index: int) -> void: _log.append("up %d %d" % [kind, index]))
+	_router.pointer_cancelled.connect(func(index: int) -> void: _log.append("dropped %d" % index))
 	_router.stroke_started.connect(func(pos: Vector2, pressure: float, is_pen: bool) -> void: _log.append("start %s %s" % [pos, is_pen]))
 	_router.stroke_moved.connect(func(pos: Vector2, pressure: float) -> void: _log.append("stroke %s %.2f" % [pos, pressure]))
 	_router.stroke_ended.connect(func() -> void: _log.append("end"))
@@ -63,7 +64,9 @@ func test_a_pen_that_arrives_after_a_resting_palm_takes_the_stroke_over() -> voi
 		"start (300.0, 300.0) false", "stroke (302.0, 301.0) 1.00",
 		"cancel", "start (40.0, 40.0) true", "stroke (50.0, 40.0) 0.50",
 	])
-	assert_array(_log).contains(["up 0 0", "down 1 1"]) # the palm is let go (TOUCH, index 0); the pen goes down (PEN, index 1)
+	# the palm is cancelled, never lifted (a lift would be a tap or a drop on a drag board); the pen goes down (PEN, index 1)
+	assert_array(_log).contains(["dropped 0", "down 1 1"])
+	assert_array(_log).not_contains(["up 0 0"])
 	# the palm's later movement and lift change nothing
 	var count: int = _log.size()
 	InputSim.drag(_router, Vector2(305, 303), 0, 1.0)

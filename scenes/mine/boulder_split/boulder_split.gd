@@ -89,6 +89,7 @@ func _ready() -> void:
 	router.pointer_down.connect(_on_pointer_down)
 	router.pointer_move.connect(_on_pointer_move)
 	router.pointer_up.connect(_on_pointer_up)
+	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	resized.connect(_layout)
 	sort_children.connect(_layout)
 
@@ -98,11 +99,18 @@ func _exit_tree() -> void:
 		router.pointer_down.disconnect(_on_pointer_down)
 		router.pointer_move.disconnect(_on_pointer_move)
 		router.pointer_up.disconnect(_on_pointer_up)
+		router.pointer_cancelled.disconnect(_on_pointer_cancelled)
 
 
 ## A paused game ends a drag in progress (the pause menu is on top); see BuildBoard.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PAUSED and _dragging:
+		_drop_pickaxe_back()
+
+
+## A resting palm the pen took over from was holding the pickaxe: it goes back, no split is made.
+func _on_pointer_cancelled(_index: int) -> void:
+	if _dragging:
 		_drop_pickaxe_back()
 
 

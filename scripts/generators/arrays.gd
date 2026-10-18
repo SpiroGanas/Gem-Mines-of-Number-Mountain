@@ -78,9 +78,10 @@ static func _count(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 static func _build(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
 	var difficulty: int = GeneratorKit.difficulty_of(params)
 	var builder_rows: int = mini(int(params.get("max_rows", 5)), MAX_SIDE)
-	var builder_cols: int = mini(int(params.get("max_cols", 5)), MAX_SIDE)
+	# At least MIN_SIDE + 1 columns, so a column count other than `rows` always exists.
+	var builder_cols: int = clampi(int(params.get("max_cols", 5)), MIN_SIDE + 1, MAX_SIDE)
 	var rows_limit: int = _side_limit(builder_rows, difficulty)
-	var cols_limit: int = _side_limit(builder_cols, difficulty)
+	var cols_limit: int = maxi(_side_limit(builder_cols, difficulty), MIN_SIDE + 1)
 	var rows: int = rng.randi_range(MIN_SIDE, rows_limit)
 	var cols: int
 	if rows <= cols_limit:

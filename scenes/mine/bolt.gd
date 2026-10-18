@@ -49,7 +49,7 @@ var _links: Dictionary = {}
 var _label: RichTextLabel
 var _note_label: Label
 var _chips: HFlowContainer
-var _figure: Control
+var _figure: _BoltArt
 var _pose: StringName = &"idle"
 var _pose_tween: Tween
 ## 1.0 is normal speed; the mine raises it with its animation speed (tests).
@@ -58,12 +58,15 @@ var speed_scale: float = 1.0
 
 func _ready() -> void:
 	add_theme_constant_override(&"separation", 0)
-	var figure: Control = _BoltArt.new()
+	var figure: _BoltArt = _BoltArt.new()
 	UI.make_touch_target(figure, 2.2, 2.2) # the right part of it is the bubble's tail
 	figure.size_flags_vertical = Control.SIZE_SHRINK_BEGIN # stays square when the bubble grows
+	figure.lamp = Bolt.lamp_color(Rewards.headlamp())
 	add_child(figure)
 	_figure = figure
-	Rewards.headlamp_changed.connect(func(_color: String) -> void: _figure.queue_redraw())
+	# A method, not a lambda over `figure`: a lambda that captures no `self` is not disconnected when this
+	# Bolt is freed, and the autoload's signal would later call it with a freed capture.
+	Rewards.headlamp_changed.connect(_on_headlamp_changed)
 	var bubble: PanelContainer = PanelContainer.new()
 	bubble.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bubble.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -94,6 +97,11 @@ func _ready() -> void:
 
 
 ## Bolt takes a pose (POSES). Every pose but think eases back to idle on its own.
+## The garage (or the crafted white lamp) changed the headlamp: the figure recolors it.
+func _on_headlamp_changed(color: String) -> void:
+	_figure.lamp = Bolt.lamp_color(color)
+
+
 func set_pose(new_pose: StringName) -> void:
 	if not POSES.has(new_pose):
 		return
@@ -281,6 +289,11 @@ class _BoltArt extends Control:
 		set(value):
 			frame = value
 			queue_redraw()
+	## The headlamp's color (Bolt's Garage), set by Bolt so the per-frame draw looks nothing up.
+	var lamp: Color = Color.WHITE:
+		set(value):
+			lamp = value
+			queue_redraw()
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -321,7 +334,6 @@ class _BoltArt extends Control:
 		draw_texture_rect(body_texture, body_rect, false)
 		# The electric headlamp, in the color from Bolt's Garage, with a soft glow.
 		var lamp_center: Vector2 = Vector2(body_rect.position.x + body_size.x * 0.3, body_rect.position.y)
-		var lamp: Color = Bolt.lamp_color(Rewards.headlamp())
 		draw_circle(lamp_center, lamp_radius * 1.9, Color(lamp, 0.3))
 		draw_circle(lamp_center, lamp_radius, lamp)
 		draw_circle(lamp_center, lamp_radius, Bolt.OUTLINE_COLOR, false, 2.0, true)

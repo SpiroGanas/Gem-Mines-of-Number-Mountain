@@ -40,6 +40,9 @@ func _ready() -> void:
 	Adaptive.session_started.connect(func(_id: String) -> void: reset_session())
 	SaveSystem.profile_loaded.connect(reset_session)
 	reset_session()
+	# SaveSystem loaded the save in its own _ready, before this autoload existed, so the profile_loaded
+	# it emitted then reached nobody: the catch-up for a save from before Sprint 19 runs here too.
+	sync_word_gems()
 
 
 func data() -> Dictionary:

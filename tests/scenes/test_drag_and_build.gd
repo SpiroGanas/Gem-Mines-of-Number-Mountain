@@ -342,3 +342,20 @@ func test_a_paused_board_ignores_taps_and_drops_the_piece_it_was_dragging() -> v
 	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 0})
 	InputSim.tap(_router, _center(_board.source(DragItem.ONE))) # input works again once unpaused
 	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 1})
+
+
+func test_a_palm_resting_on_a_placed_piece_is_not_a_tap_when_the_pen_takes_over() -> void:
+	_drag_from_pile(DragItem.ONE)
+	await get_tree().process_frame
+	var removed: Array[StringName] = []
+	_board.item_removed.connect(func(kind: StringName) -> void: removed.append(kind))
+	var piece: DragItem = _board.tray().items()[0]
+	InputSim.touch(_router, piece.get_global_rect().get_center(), true, 0) # the palm rests on the piece
+	InputSim.touch(_router, OUTSIDE, true, 1) # the pen comes down elsewhere
+	InputSim.drag(_router, OUTSIDE + Vector2(5, 0), 1, 0.5, Vector2(0.2, 0.1)) # and proves to be a pen
+	await get_tree().process_frame
+	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 1}) # the piece is back in the tray
+	assert_array(removed).is_empty()
+	assert_bool(_board.is_dragging()).is_false()
+	InputSim.touch(_router, OUTSIDE + Vector2(5, 0), false, 1)
+	assert_dict(_board.answer()).is_equal({"tens": 0, "ones": 1})

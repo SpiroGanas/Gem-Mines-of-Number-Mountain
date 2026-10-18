@@ -4,6 +4,11 @@
 class_name ParentGateScreen
 extends ShellScreen
 
+## The lock and the miss count outlive the screen: Back and then "Grown-ups" again make a new
+## screen, and the 30 seconds (and the three tries) must not start over.
+static var _remembered_locked_until_ms: int = 0
+static var _remembered_misses: int = 0
+
 var rules: ParentGateRules
 ## Milliseconds now; tests replace it to move time.
 var now_ms: Callable = func() -> int: return Time.get_ticks_msec()
@@ -20,6 +25,8 @@ func _ready() -> void:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.randomize()
 	rules = ParentGateRules.new(rng)
+	rules.locked_until_ms = _remembered_locked_until_ms
+	rules.misses = _remembered_misses
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
@@ -56,6 +63,14 @@ func _ready() -> void:
 	_unlock_timer.timeout.connect(_on_unlocked)
 	add_child(_unlock_timer)
 	_show_question()
+	if rules.is_locked(now_ms.call()):
+		_lock_pad()
+
+
+## Forgets a lock from an earlier visit (tests).
+static func forget_lock() -> void:
+	_remembered_locked_until_ms = 0
+	_remembered_misses = 0
 
 
 func number_pad() -> NumberPad:
@@ -76,17 +91,25 @@ func _show_question() -> void:
 
 func _on_submitted(value: int) -> void:
 	_pad.clear()
-	match rules.submit(value, now_ms.call()):
+	var result: ParentGateRules.Result = rules.submit(value, now_ms.call())
+	_remembered_locked_until_ms = rules.locked_until_ms
+	_remembered_misses = rules.misses
+	match result:
 		ParentGateRules.Result.PASSED:
 			request_screen.emit(&"dashboard", {})
 		ParentGateRules.Result.MISSED:
 			_feedback.text = Text.get_line(&"parent.gate.missed")
 			_show_question()
 		ParentGateRules.Result.LOCKED:
-			_feedback.text = Text.get_line(&"parent.gate.wait")
-			_pad.set_enabled(false)
 			_show_question()
-			_unlock_timer.start(float(maxi(rules.locked_until_ms - now_ms.call(), 1)) / 1000.0)
+			_lock_pad()
+
+
+## "Wait" with the pad asleep until the lock ends; no countdown is shown.
+func _lock_pad() -> void:
+	_feedback.text = Text.get_line(&"parent.gate.wait")
+	_pad.set_enabled(false)
+	_unlock_timer.start(float(maxi(rules.locked_until_ms - now_ms.call(), 1)) / 1000.0)
 
 
 func _on_unlocked() -> void:

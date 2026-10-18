@@ -229,11 +229,14 @@ func last_answer_confirmed() -> bool:
 
 func _submit(value: int, confirmed: bool = false) -> void:
 	_last_confirmed = confirmed
-	for index: int in _readings.size():
-		if not _readings[index].is_empty():
-			digit_read.emit(int(_readings[index]["digit"]), bool(_readings[index].get("mirrored", false)))
+	var readings: Array[Dictionary] = _readings.duplicate()
 	clear() # the strokes are discarded as the answer goes
+	# The answer first: a digit_read listener may put a demonstration over the panel and disable it,
+	# and an answer that arrives at a disabled panel is dropped.
 	answer_submitted.emit(value)
+	for reading: Dictionary in readings:
+		if not reading.is_empty():
+			digit_read.emit(int(reading["digit"]), bool(reading.get("mirrored", false)))
 
 
 func _flag(indexes: Array) -> void:

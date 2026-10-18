@@ -17,7 +17,8 @@
 ## - while a pen stroke is active, every other touch is a palm and is ignored;
 ## - if a palm is already down when the pen arrives, a drag that is clearly a pen (it reports a tilt
 ##   or the eraser end) takes the stroke over: the palm's stroke is cancelled (stroke_cancelled, and
-##   pointer_up so nothing is left held) and the pen starts a fresh one.
+##   pointer_cancelled so nothing is left held and nothing is dropped or tapped) and the pen starts a
+##   fresh one.
 ## How a ChromeOS stylus arrives is still unverified on the real devices (docs/decisions.md,
 ## Sprint 1): a stylus may come as touch with pressure, or as mouse motion with pressure. Both paths
 ## are handled; the takeover needs the stronger tilt or eraser signal so a finger is never mistaken
@@ -29,6 +30,9 @@ enum DeviceKind { TOUCH, PEN, MOUSE, KEYBOARD }
 signal pointer_down(pos: Vector2, kind: DeviceKind, index: int)
 signal pointer_move(pos: Vector2, kind: DeviceKind, index: int)
 signal pointer_up(pos: Vector2, kind: DeviceKind, index: int)
+## The pointer that was down was not the child's (a resting palm the pen took over from): drop
+## whatever it was holding without acting, as if it had never come down.
+signal pointer_cancelled(index: int)
 ## The last kind of device used changed. Drives hints such as "tap" vs. "click".
 signal device_kind_changed(kind: DeviceKind)
 ## The window changed size: a posture switch on a 2-in-1, a resize on desktop.
@@ -139,7 +143,8 @@ func _handle_drag(event: InputEventScreenDrag) -> void:
 func _take_over(index: int) -> void:
 	var start: Vector2 = _waiting_touches.get(index, _active_position)
 	if _active_touch != NO_TOUCH:
-		pointer_up.emit(_active_position, DeviceKind.TOUCH, _active_touch)
+		# Not pointer_up: a palm resting on a drag board would read as a tap or a drop there.
+		pointer_cancelled.emit(_active_touch)
 		stroke_cancelled.emit()
 	_waiting_touches.erase(index)
 	_active_touch = index
