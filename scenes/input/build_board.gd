@@ -73,6 +73,7 @@ func _ready() -> void:
 	router.pointer_down.connect(_on_pointer_down)
 	router.pointer_move.connect(_on_pointer_move)
 	router.pointer_up.connect(_on_pointer_up)
+	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	_fill_tray(initial)
 	set_enabled(_enabled)
 
@@ -82,6 +83,7 @@ func _exit_tree() -> void:
 		router.pointer_down.disconnect(_on_pointer_down)
 		router.pointer_move.disconnect(_on_pointer_move)
 		router.pointer_up.disconnect(_on_pointer_up)
+		router.pointer_cancelled.disconnect(_on_pointer_cancelled)
 
 
 ## The pause menu pauses the tree, but the router keeps translating events (Escape must still
@@ -207,6 +209,18 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 		if _from_tray:
 			item_removed.emit(item.kind)
 		item.queue_free()
+
+
+## The pointer holding a piece was a resting palm the pen took over from (InputRouter): not a tap and
+## not a drop. A piece picked up from the tray goes back in; one taken from a pile goes away.
+func _on_pointer_cancelled(_index: int) -> void:
+	if _dragging == null:
+		return
+	var item: DragItem = _dragging
+	_dragging = null
+	if _from_tray and _tray.add_item(item):
+		return
+	item.queue_free()
 
 
 func _begin_drag(item: DragItem, offset: Vector2, from_tray: bool) -> void:

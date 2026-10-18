@@ -13,12 +13,23 @@ func before_test() -> void:
 	_clock = FakeClock.new()
 	_clock.unix = Time.get_unix_time_from_datetime_string("2026-12-15T20:00:00")
 	Adaptive.use_clock(_clock)
+	ParentGateScreen.forget_lock()
 
 
 func after_test() -> void:
+	ParentGateScreen.forget_lock()
 	Adaptive.use_clock(GameClock.new())
 	SaveSystem.use_directory(SaveSystem.DEFAULT_DIR)
 	TestWindow.restore(get_window())
+
+
+## A gate screen whose clock is set before _ready runs (as the lock check there needs).
+func _gate_at(ms: int) -> ParentGateScreen:
+	var gate: ParentGateScreen = load("res://scenes/shell/parent_area/parent_gate.tscn").instantiate()
+	gate.now_ms = func() -> int: return ms
+	add_child(gate)
+	auto_free(gate)
+	return gate
 
 
 func _screen(path: String) -> ShellScreen:
@@ -168,3 +179,36 @@ func test_keeping_this_devices_progress_changes_nothing() -> void:
 func test_only_the_parent_area_has_a_text_field() -> void:
 	var dashboard: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn")
 	assert_array(dashboard.find_children("*", "LineEdit", true, false)).has_size(1)
+
+
+func test_the_lock_outlives_leaving_the_gate_and_coming_back() -> void:
+	var gate: ParentGateScreen = _gate_at(0)
+	for miss: int in 3:
+		_type(gate.number_pad(), gate.rules.answer() + 1)
+	gate.queue_free() # Back to the hub...
+	await await_idle_frame()
+	var again: ParentGateScreen = _gate_at(10000) # ...and "Grown-ups" again, 10 seconds later
+	assert_str(again.feedback_text()).is_equal(Text.get_line(&"parent.gate.wait"))
+	assert_bool(again.number_pad().go_button().disabled).is_true()
+	var requested: Array[StringName] = []
+	again.request_screen.connect(func(id: StringName, _args: Dictionary) -> void: requested.append(id))
+	again.rules.submit(again.rules.answer(), 10000) # even the right answer is refused while locked
+	assert_array(requested).is_empty()
+	again.queue_free()
+	await await_idle_frame()
+	var later: ParentGateScreen = _gate_at(40000) # the 30 seconds are over
+	assert_str(later.feedback_text()).is_empty()
+	later.request_screen.connect(func(id: StringName, _args: Dictionary) -> void: requested.append(id))
+	_type(later.number_pad(), later.rules.answer())
+	assert_array(requested).contains_exactly([&"dashboard"])
+
+
+func test_misses_carry_over_when_the_gate_is_opened_again() -> void:
+	var gate: ParentGateScreen = _gate_at(0)
+	for miss: int in 2:
+		_type(gate.number_pad(), gate.rules.answer() + 1)
+	gate.queue_free()
+	await await_idle_frame()
+	var again: ParentGateScreen = _gate_at(1000)
+	_type(again.number_pad(), again.rules.answer() + 1) # the third miss, not the first of a fresh three
+	assert_str(again.feedback_text()).is_equal(Text.get_line(&"parent.gate.wait"))

@@ -77,7 +77,10 @@ static func build_state(save: Dictionary, build: BuildProject) -> Dictionary:
 	var record: Variant = workshop(save)["builds"].get(String(build.id))
 	if not record is Dictionary:
 		return {"step": 0, "done": false}
-	return {"step": clampi(int(record.get("step", 0)), 0, build.step_count()), "done": bool(record.get("done", false))}
+	var step: int = clampi(int(record.get("step", 0)), 0, build.step_count())
+	# A step at or past the last one is a finished build whatever `done` says (a build whose step list
+	# shrank, or an edited save): the build screen indexes steps[step] otherwise.
+	return {"step": step, "done": bool(record.get("done", false)) or step >= build.step_count()}
 
 
 static func is_built(save: Dictionary, build: BuildProject) -> bool:

@@ -97,6 +97,12 @@ func _draw_lanterns(count: int) -> void:
 		draw_rect(Rect2(center - Vector2(size.y * 0.07, size.y * 0.09), Vector2(size.y * 0.14, size.y * 0.18)), INK, false, 2.0)
 
 
+## The crystal's five corners and its closed outline, filled in place on every redraw: the hub tweens
+## `phase` in a loop, so this draws every frame and must not allocate.
+var _crystal: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+var _crystal_outline: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+
+
 func _draw_crystal_lamp() -> void:
 	var box: Rect2 = _box()
 	var s: float = box.size.x
@@ -104,13 +110,16 @@ func _draw_crystal_lamp() -> void:
 	draw_rect(base, STEEL)
 	var glow: float = 0.8 + 0.2 * sin(TAU * phase)
 	draw_circle(box.get_center() + Vector2(0, -s * 0.05), s * 0.38, Color(GemArt.color_for(GemArt.AMETHYST), 0.25 * glow))
-	var crystal: PackedVector2Array = PackedVector2Array([
-		box.position + Vector2(s * 0.5, s * 0.12), box.position + Vector2(s * 0.66, s * 0.4),
-		box.position + Vector2(s * 0.58, s * 0.78), box.position + Vector2(s * 0.42, s * 0.78),
-		box.position + Vector2(s * 0.34, s * 0.4),
-	])
-	draw_colored_polygon(crystal, GemArt.color_for(GemArt.AMETHYST).lightened(0.2 * glow))
-	draw_polyline(crystal + PackedVector2Array([crystal[0]]), INK, 2.0)
+	_crystal[0] = box.position + Vector2(s * 0.5, s * 0.12)
+	_crystal[1] = box.position + Vector2(s * 0.66, s * 0.4)
+	_crystal[2] = box.position + Vector2(s * 0.58, s * 0.78)
+	_crystal[3] = box.position + Vector2(s * 0.42, s * 0.78)
+	_crystal[4] = box.position + Vector2(s * 0.34, s * 0.4)
+	for index: int in 5:
+		_crystal_outline[index] = _crystal[index]
+	_crystal_outline[5] = _crystal[0]
+	draw_colored_polygon(_crystal, GemArt.color_for(GemArt.AMETHYST).lightened(0.2 * glow))
+	draw_polyline(_crystal_outline, INK, 2.0)
 
 
 ## Rails across the picture; the first `a` units are laid, the gap runs to `c`. When `filled`, a bright

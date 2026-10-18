@@ -109,8 +109,8 @@ func setup(value: int) -> void:
 
 ## Puts tree node `index` on the rail, if it is a rock still to test. Returns false otherwise.
 func pick(index: int) -> bool:
-	if index < 0 or index >= _nodes.size() or not is_leaf(index) or _nodes[index]["gem"] or _finished:
-		return false
+	if _busy or index < 0 or index >= _nodes.size() or not is_leaf(index) or _nodes[index]["gem"] or _finished:
+		return false # during the pause after a split or a bounce the next rock is chosen when it ends
 	_picked = index
 	var value: int = _nodes[index]["value"]
 	_split.setup(value, proper_factors(value))
@@ -205,8 +205,7 @@ func _on_split_chosen(value: int, factor_a: int, factor_b: int) -> void:
 		_nodes.append({"value": factor, "parent": parent, "children": [], "depth": depth, "gem": false})
 	_view.rebuild()
 	piece_split.emit(value, factor_a, factor_b)
-	await _pause()
-	_pick_next(parent)
+	_pause(_pick_next.bind(parent))
 
 
 func _on_prime_declared(value: int) -> void:
@@ -222,18 +221,24 @@ func _on_prime_declared(value: int) -> void:
 		tree_completed.emit(result)
 		submitted.emit(result)
 		return
-	await _pause()
-	_pick_next(_picked)
+	_pause(_pick_next.bind(_picked))
 
 
-## A short pause so the child sees the crack or the bounce before the next rock comes up.
-func _pause() -> void:
+## A short pause so the child sees the crack or the bounce before the next rock comes up, then `then`.
+## A signal connection rather than an await: a tree freed during the pause (hint rung 4 swaps the
+## panel) is simply never called back, instead of a coroutine resuming on a gone instance.
+func _pause(then: Callable) -> void:
 	if pause_seconds <= 0.0 or not is_inside_tree():
+		then.call()
 		return
 	_busy = true
 	_split.set_enabled(false)
-	await get_tree().create_timer(pause_seconds / maxf(speed_scale, 0.01)).timeout
+	get_tree().create_timer(pause_seconds / maxf(speed_scale, 0.01)).timeout.connect(_end_pause.bind(then), CONNECT_ONE_SHOT)
+
+
+func _end_pause(then: Callable) -> void:
 	_busy = false
+	then.call()
 
 
 ## The next rock to test: the first leaf, left to right, that is not a gem yet.

@@ -57,6 +57,24 @@ func _ready() -> void:
 	UI.make_touch_target(_done, DONE_WIDTH_MULTIPLE, DONE_HEIGHT_MULTIPLE)
 	_done.pressed.connect(submit)
 	add_child(_done)
+	UI.metrics_changed.connect(_relayout) # a posture change resizes the grid's width and digits
+
+
+## The window changed size (a posture switch): UI has re-sized the rocks themselves (touch targets);
+## the grid's width and the digits follow.
+func _relayout() -> void:
+	var side: Vector2 = UI.target_size(1.0, 1.0)
+	var columns: int = _grid.columns
+	_scroll.custom_minimum_size.x = columns * side.x + (columns - 1) * GAP
+	for cell: Button in _cells:
+		for child: Node in cell.get_children():
+			if child is _Cross:
+				(child as _Cross).font_size = _digit_size(side)
+				(child as _Cross).queue_redraw()
+
+
+static func _digit_size(side: Vector2) -> int:
+	return int(side.y * 0.42)
 
 
 ## Shows rocks 1..grid_size, `columns` to a row, with `precrossed` crossed from the start.
@@ -78,14 +96,14 @@ func setup(grid_size: int, columns: int, precrossed: Array) -> void:
 		var cell: Button = Button.new()
 		cell.name = "Rock%d" % number
 		cell.tooltip_text = str(number)
-		cell.custom_minimum_size = side
+		UI.make_touch_target(cell) # and re-sized by UI when the window (posture) changes
 		cell.focus_mode = Control.FOCUS_ALL
 		cell.clip_text = false
 		for style_name: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"focus"]:
 			cell.add_theme_stylebox_override(style_name, _cell_style(style_name))
 		var mark: _Cross = _Cross.new()
 		mark.number = number
-		mark.font_size = int(side.y * 0.42)
+		mark.font_size = _digit_size(side)
 		mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		cell.add_child(mark)
 		cell.pressed.connect(toggle.bind(number))

@@ -282,5 +282,26 @@ def test_end_to_end_one_skill(tmp_path: Path) -> None:
 def test_end_to_end_every_skill(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert run.main(["--all", "--n", "120", "--godot", GODOT, "--out", str(tmp_path)]) == 0
     output = capsys.readouterr().out
-    assert output.count("ok     ") == 61 # Zones 1-4, every skill
+    assert output.count("ok     ") == len(run.load_skills()) # every detailed skill (72 with Zone 5)
     assert "generator not built yet" not in output
+
+
+def test_the_range_guard_catches_a_too_large_answer() -> None:
+    # `not 1 <= first and answer <= 120` once parsed as `(first < 1) and ...`, so this never fired.
+    problem = copy.deepcopy(GOOD["next"])
+    problem["prompt_params"] = {"a": 198, "b": 199}
+    problem["answer"] = 200
+    assert any("within 1 to 120" in error for error in verdict(problem))
+
+
+def test_difficulty_reaches_the_exporter_and_names_the_file(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    seen: list[tuple[str, int]] = []
+
+    def fake_export(godot: str, skill_id: str, n: int, seed: int, out: Path, difficulty: int = 0) -> int:
+        seen.append((out.name, difficulty))
+        out.write_text(json.dumps(GOOD["next"]) + "\n", encoding="utf-8")
+        return 0
+
+    monkeypatch.setattr(run, "export", fake_export)
+    assert run.main(["--skill", "count.to_120.next", "--n", "1", "--godot", "/bin/true", "--out", str(tmp_path), "--difficulty", "-1"]) == 0
+    assert seen == [("count.to_120.next.d-1.jsonl", -1)]

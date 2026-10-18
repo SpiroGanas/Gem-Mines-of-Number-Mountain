@@ -36,9 +36,13 @@ func _initialize() -> void:
 		printerr("cannot write %s" % args["out"])
 		quit(2)
 		return
+	var difficulty: int = int(args.get("difficulty", "0")) # 0 is the skill's range; -1, -2 the eased problems of hint rung 4
 	for i: int in count:
 		var representation: StringName = skill.representations[i % skill.representations.size()]
-		var problem: Problem = GeneratorRegistry.make_problem(skill, first_seed + i, {"representation": representation})
+		var overrides: Dictionary = {"representation": representation}
+		if difficulty != 0:
+			overrides["difficulty"] = difficulty
+		var problem: Problem = GeneratorRegistry.make_problem(skill, first_seed + i, overrides)
 		file.store_line(JSON.stringify(problem.to_json()))
 	file.close()
 	print("exported %d problems for %s to %s" % [count, skill.id, args["out"]])

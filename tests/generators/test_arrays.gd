@@ -123,3 +123,12 @@ func test_the_same_seed_gives_the_same_problem_and_the_global_rng_is_untouched()
 	seed(777)
 	_problems(&"arr.rows_cols.count", {}, 300)
 	assert_int(randi()).is_equal(expected)
+
+
+func test_a_two_column_builder_still_makes_rows_and_columns_differ() -> void:
+	# max_cols 2 with rows 2 left no other column count: the builder is widened to three columns.
+	for problem: Problem in _problems(&"arr.rows_cols.build", {"max_rows": 2, "max_cols": 2}, 200):
+		var answer: Dictionary = problem.answer
+		assert_int(answer["rows"]).is_not_equal(answer["cols"])
+		assert_int(answer["cols"]).is_between(ArraysGenerator.MIN_SIDE, ArraysGenerator.MAX_SIDE)
+		assert_int(answer["cols"]).is_less_equal(int(problem.meta["array_builder"]["max_cols"]))

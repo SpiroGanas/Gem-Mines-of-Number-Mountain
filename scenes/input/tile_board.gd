@@ -94,6 +94,7 @@ func _ready() -> void:
 	router.pointer_down.connect(_on_pointer_down)
 	router.pointer_move.connect(_on_pointer_move)
 	router.pointer_up.connect(_on_pointer_up)
+	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	_refresh()
 
 
@@ -102,12 +103,18 @@ func _exit_tree() -> void:
 		router.pointer_down.disconnect(_on_pointer_down)
 		router.pointer_move.disconnect(_on_pointer_move)
 		router.pointer_up.disconnect(_on_pointer_up)
+		router.pointer_cancelled.disconnect(_on_pointer_cancelled)
 
 
 ## A paused game (the pause menu) drops a half-finished drag; see BuildBoard.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PAUSED:
 		_cancel_drag()
+
+
+## A resting palm the pen took over from was holding the tile: it stays where it was.
+func _on_pointer_cancelled(_index: int) -> void:
+	_cancel_drag()
 
 
 ## True while the board may react to the pointer: shown on screen and not paused.

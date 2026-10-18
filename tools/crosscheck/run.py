@@ -3,6 +3,7 @@
 
   python tools/crosscheck/run.py --all --n 10000
   python tools/crosscheck/run.py --skill pv.tens_ones.build --n 500 --seed 7
+  python tools/crosscheck/run.py --all --n 2000 --difficulty -1   # the eased problems of hint rung 4
 
 For every skill with a built generator this runs the Godot exporter (export_problems.gd) to
 write problems as JSON lines, then re-derives each answer and distractor in Python
@@ -111,13 +112,15 @@ def check_problem(problem: dict, skill: dict, allowed: set[str]) -> list[str]:
     return errors
 
 
-def export(godot: str, skill_id: str, n: int, seed: int, out: Path) -> int:
-    """Runs the Godot exporter; returns its exit code."""
+def export(godot: str, skill_id: str, n: int, seed: int, out: Path, difficulty: int = 0) -> int:
+    """Runs the Godot exporter; returns its exit code. `difficulty` below 0 exports the eased problems."""
     out.parent.mkdir(parents=True, exist_ok=True)
     command = [
         godot, "--headless", "--path", str(ROOT), "--script", "res://tools/crosscheck/export_problems.gd", "--",
         "--skill", skill_id, "--n", str(n), "--seed", str(seed), "--out", str(out),
     ]
+    if difficulty != 0:
+        command += ["--difficulty", str(difficulty)]
     return subprocess.run(command, capture_output=True, text=True, check=False).returncode
 
 
@@ -141,6 +144,8 @@ def main(argv: list[str] | None = None) -> int:
     group.add_argument("--skill", help="check one skill id")
     parser.add_argument("--n", type=int, default=10000, help="problems per skill (default 10000)")
     parser.add_argument("--seed", type=int, default=1, help="first seed (default 1)")
+    parser.add_argument("--difficulty", type=int, default=0,
+                        help="generator difficulty: 0 is each skill's full range (default); -1 and -2 are the easier problems hint rung 4 swaps in")
     parser.add_argument("--godot", default=os.environ.get("GODOT") or os.environ.get("GODOT_BIN"), help="Godot executable")
     parser.add_argument("--out", type=Path, default=ROOT / "build" / "crosscheck", help="folder for the exported files")
     parser.add_argument("--keep", action="store_true", help="keep the exported .jsonl files")
@@ -159,8 +164,9 @@ def main(argv: list[str] | None = None) -> int:
     failed = False
     checked_skills = 0
     for skill in skills:
-        path = args.out / f"{skill['id']}.jsonl"
-        code = export(args.godot, skill["id"], args.n, args.seed, path)
+        suffix = f".d{args.difficulty}" if args.difficulty != 0 else ""
+        path = args.out / f"{skill['id']}{suffix}.jsonl"
+        code = export(args.godot, skill["id"], args.n, args.seed, path, args.difficulty)
         if code == EXIT_NOT_BUILT:
             print(f"skip   {skill['id']}: generator not built yet")
             continue

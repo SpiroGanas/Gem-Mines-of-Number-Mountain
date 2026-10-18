@@ -74,7 +74,7 @@ def _next(problem: dict) -> list[str]:
         errors.append(f"the shown numbers {first}, {second} are not consecutive")
     if answer != second + 1:
         errors.append(f"answer {answer} is not the number after {second}")
-    if not 1 <= first and answer <= 120:
+    if not (1 <= first and answer <= 120):
         errors.append("numbers must stay within 1 to 120")
     for name, values in distractors_by_name(problem).items():
         for value in values:

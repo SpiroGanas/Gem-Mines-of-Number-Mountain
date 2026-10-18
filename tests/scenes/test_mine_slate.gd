@@ -161,3 +161,28 @@ func test_with_coaching_off_no_demo_ever_shows() -> void:
 		slate.done_button().pressed.emit()
 		await _until(func() -> bool: return _mine.flow.state == DigFlow.State.AWAIT_ANSWER or _mine.flow.state == DigFlow.State.PICK_ROCK)
 	assert_array(_mine.find_children("*", "StrokeDemo", true, false)).is_empty()
+
+
+func test_the_answer_that_brings_the_demo_is_still_an_answer() -> void:
+	# The slate reports the answer before the digits it read, so the demonstration (which puts the
+	# panel to sleep) never swallows the answer that brought it; the panel wakes when the demo closes.
+	SaveSystem.data()["settings"]["handwriting_coaching"] = true
+	for rock: int in 3:
+		await _open(rock)
+		_fake.queued = [{"digit": 3, "confidence": 0.99, "mirrored": true}]
+		var slate: ChalkSlate = _mine.answer_panel().chalk_slate()
+		if slate.boxes().size() != 1:
+			slate.setup(1, _fake)
+			await await_idle_frame()
+		var logged_before: int = SaveSystem.read_attempts()["entries"].size()
+		_write(slate.boxes()[0])
+		slate.done_button().pressed.emit()
+		await _until(func() -> bool: return SaveSystem.read_attempts()["entries"].size() > logged_before)
+		await _until(func() -> bool: return _mine.flow.state == DigFlow.State.AWAIT_ANSWER or _mine.flow.state == DigFlow.State.PICK_ROCK)
+	var demos: Array[Node] = _mine.find_children("*", "StrokeDemo", true, false)
+	assert_array(demos).has_size(1)
+	if _mine.flow.state == DigFlow.State.AWAIT_ANSWER:
+		assert_bool(_mine.answer_panel().is_enabled()).is_false() # asleep under the demonstration
+		(demos[0] as StrokeDemo).close()
+		await await_idle_frame()
+		assert_bool(_mine.answer_panel().is_enabled()).is_true()

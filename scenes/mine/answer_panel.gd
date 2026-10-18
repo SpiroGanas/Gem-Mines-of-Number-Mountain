@@ -233,6 +233,11 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 	set_enabled(_enabled)
 
 
+## True while the panel takes answers (false under the Word Gem card, the stroke demo or an animation).
+func is_enabled() -> bool:
+	return _enabled
+
+
 func set_enabled(enabled: bool) -> void:
 	_enabled = enabled
 	if _board != null:
