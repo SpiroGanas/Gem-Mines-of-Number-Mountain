@@ -3,7 +3,7 @@
 ## A migration is a static function taking a save Dictionary at version N and returning
 ## it at version N + 1, kept in its own file under scripts/save/migrations/ (for example
 ## v1_to_v2.gd with `static func apply(data: Dictionary) -> Dictionary`) and registered in
-## default_migrations() below. Version 1 is the baseline, so none exist yet.
+## default_migrations() below. Version 1 is the baseline (the MVP).
 ##
 ## Every migration needs a fixture of the old version in tests/save/fixtures/ and a test
 ## that loads it (tests/save/test_save_migrator.gd walks that folder).
@@ -18,7 +18,7 @@ const ERR_MISSING_MIGRATION: String = "missing_migration"
 
 ## Registered migrations: from-version (int) -> Callable(data: Dictionary) -> Dictionary.
 static func default_migrations() -> Dictionary:
-	return {}
+	return {1: SaveMigrationV1ToV2.apply}
 
 
 ## Returns {ok: bool, data: Dictionary, from_version: int, error: String}.

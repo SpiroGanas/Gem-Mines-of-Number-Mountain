@@ -1,0 +1,42 @@
+{
+  "_comment": "Workshop recipes (Sprint 16, docs/phases/phase-2-version-1-0.md section C). A recipe is crafted only when the child answers one real problem of `math.skill_id` (params from the skill, merged with `math.params`; the seed comes from the recipe id, so the same recipe asks the same kind of question). The answer goes through Adaptive like any rock. A wrong answer costs nothing: the gems stay. `unlock_after_skill`: the recipe shows once that skill opens its successors (mastered, placement-passed or secure). Output types: tool and headlamp go into rewards.inventory; decor is also an inventory item the hub draws. Gem ids are GemArt's.",
+  "schema_version": 1,
+  "recipes": [
+    {
+      "id": "tool.pickaxe.tier2",
+      "name_line_id": "ws.recipe.pickaxe_tier2.name",
+      "info_line_id": "ws.recipe.pickaxe_tier2.info",
+      "inputs": [{"gem": "garnet", "count": 12}],
+      "math": {"skill_id": "mult.equal_groups.total", "params": {}},
+      "output": {"type": "tool", "id": "pickaxe_t2"},
+      "unlock_after_skill": "mult.equal_groups.total"
+    },
+    {
+      "id": "headlamp.white",
+      "name_line_id": "ws.recipe.headlamp_white.name",
+      "info_line_id": "ws.recipe.headlamp_white.info",
+      "inputs": [{"gem": "quartz", "count": 10}],
+      "math": {"skill_id": "add.to_20.sums", "params": {}},
+      "output": {"type": "headlamp", "id": "headlamp_white"},
+      "unlock_after_skill": "add.to_10.sums"
+    },
+    {
+      "id": "decor.hub_lanterns",
+      "name_line_id": "ws.recipe.hub_lanterns.name",
+      "info_line_id": "ws.recipe.hub_lanterns.info",
+      "inputs": [{"gem": "quartz", "count": 8}, {"gem": "garnet", "count": 4}],
+      "math": {"skill_id": "add.to_100.tens", "params": {}},
+      "output": {"type": "decor", "id": "hub_lanterns"},
+      "unlock_after_skill": "pv.tens_ones.build"
+    },
+    {
+      "id": "decor.crystal_lamp",
+      "name_line_id": "ws.recipe.crystal_lamp.name",
+      "info_line_id": "ws.recipe.crystal_lamp.info",
+      "inputs": [{"gem": "pyrite", "count": 10}, {"gem": "amethyst", "count": 1}],
+      "math": {"skill_id": "mult.facts.0_5", "params": {}},
+      "output": {"type": "decor", "id": "crystal_lamp"},
+      "unlock_after_skill": "mult.facts.2_5_10"
+    }
+  ]
+}

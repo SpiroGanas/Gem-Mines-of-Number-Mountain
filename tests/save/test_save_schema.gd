@@ -85,13 +85,14 @@ func test_a_float_version_from_json_is_understood() -> void:
 func test_a_registered_migration_runs_and_bumps_the_version() -> void:
 	# Pretend version 0 existed: its migration renames a key. This proves the chain machinery
 	# that the first real migration (v1 to v2) will rely on.
-	var migrations: Dictionary = {0: func(data: Dictionary) -> Dictionary:
+	var migrations: Dictionary = SaveMigrator.default_migrations()
+	migrations[0] = func(data: Dictionary) -> Dictionary:
 		data["child"] = {"nickname": data["name"]}
 		data.erase("name")
-		return data}
+		return data
 	var result: Dictionary = SaveMigrator.migrate({"schema_version": 0, "name": "Charlie"}, migrations)
 	assert_bool(result["ok"]).is_true()
-	assert_int(result["data"]["schema_version"]).is_equal(1)
+	assert_int(result["data"]["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
 	assert_str(result["data"]["child"]["nickname"]).is_equal("Charlie")
 	assert_int(result["from_version"]).is_equal(0)
 
@@ -147,3 +148,49 @@ func test_the_v1_fixture_keeps_its_values_through_a_load() -> void:
 	assert_int(current["rewards"]["coins"]).is_equal(120)
 	assert_float(current["skills"]["pv.tens_ones.build"]["p_learned"]).is_equal(0.42)
 	assert_int(current["skills"]["pv.tens_ones.build"]["recent_latency_ms"][0]).is_equal(4200)
+
+
+# --- Version 2 (Phase 2) ----------------------------------------------------------------
+
+
+func test_v1_to_v2_adds_the_phase_2_records_and_keeps_everything_else() -> void:
+	var v1: Dictionary = JsonUtil.parse_file(FIXTURE_DIR.path_join("v1.json"))
+	var result: Dictionary = SaveMigrator.migrate(v1)
+	assert_bool(result["ok"]).is_true()
+	assert_int(result["from_version"]).is_equal(1)
+	var v2: Dictionary = result["data"]
+	assert_int(v2["schema_version"]).is_equal(2)
+	assert_str(v2["device_id"]).is_equal("")
+	assert_array(v2["workshop"]["crafted"]).is_empty()
+	assert_dict(v2["workshop"]["builds"]).is_empty()
+	assert_array(v2["motivation"]["badges"]).is_empty()
+	assert_str(v2["motivation"]["deep_dig"]["last_week"]).is_equal("")
+	assert_int(v2["family"]["points"]).is_equal(0)
+	assert_array(v2["family"]["goals"]).is_empty()
+	for key: String in v1:
+		if key != "schema_version":
+			assert_that(v2[key]).override_failure_message("v1 key changed: " + key).is_equal(v1[key])
+	assert_array(SaveSchema.validate(v2)).is_empty()
+
+
+func test_v1_to_v2_keeps_records_a_partial_save_already_has() -> void:
+	var data: Dictionary = SaveMigrationV1ToV2.apply({"family": {"points": 12}, "workshop": "broken"})
+	assert_int(data["family"]["points"]).is_equal(12)
+	assert_array(data["family"]["goals"]).is_empty()
+	assert_dict(data["workshop"]["builds"]).is_empty()
+
+
+func test_the_v2_fixture_keeps_its_values_through_a_load() -> void:
+	var data: Dictionary = JsonUtil.parse_file(FIXTURE_DIR.path_join("v2.json"))
+	var current: Dictionary = SaveSchema.with_defaults(SaveMigrator.migrate(data)["data"])
+	assert_bool(current["workshop"]["builds"]["cart_track"]["done"]).is_true()
+	assert_int(current["workshop"]["builds"]["balance_elevator"]["step"]).is_equal(1)
+	assert_array(current["motivation"]["badges"]).contains_exactly(["gauss"])
+	assert_int(current["family"]["points"]).is_equal(35)
+	assert_str(current["family"]["goals"][0]["text"]).is_equal("Pick the Saturday park")
+
+
+func test_a_v2_save_without_its_phase_2_records_is_invalid() -> void:
+	var data: Dictionary = SaveSchema.new_profile("t")
+	data.erase("workshop")
+	assert_array(SaveSchema.validate(data)).contains(["'workshop' is missing or has the wrong type"])

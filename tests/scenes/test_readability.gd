@@ -8,7 +8,7 @@
 class_name ReadabilityTest
 extends GdUnitTestSuite
 
-const PARENT_AREA: Array[StringName] = [&"parent_gate", &"dashboard"]
+const PARENT_AREA: Array[StringName] = [&"parent_gate", &"dashboard", &"family_rewards"]
 
 var _dir: String
 
@@ -68,7 +68,7 @@ func test_every_workshop_button_has_a_picture() -> void:
 	add_child(hub)
 	auto_free(hub)
 	await get_tree().process_frame
-	for name: String in ["DigButton", "MuseumButton", "GarageButton", "SettingsButton", "GrownupsButton"]:
+	for name: String in ["DigButton", "MuseumButton", "GarageButton", "SettingsButton", "GrownupsButton", "WorkshopButton", "BuildButton"]:
 		var button: Button = hub.find_child(name, true, false)
 		assert_array(button.find_children("*", "IconArt", true, false)).override_failure_message(name).has_size(1)
 

@@ -1,4 +1,5 @@
-## The Gem Museum (P1-S08-02): one display case per mineral, ten in the MVP. A case opens when the
+## The Gem Museum (P1-S08-02): one display case per mineral, ten in the MVP, plus the four rare-number
+## gems of Zones 4 and 5 (prime, twin, Mersenne, square; Sprint 18). A case opens when the
 ## child holds that mineral (Rewards.museum_open). Tapping a case shows its name and a short fact,
 ## or, while it is still closed, how to find it. Pieces are earned by digging and learning, never
 ## bought. Built in code; every word comes from the text table.
@@ -13,6 +14,9 @@ const HOW_LINES: Dictionary = {
 	&"quartz": &"hub.museum.quartz_how", &"garnet": &"hub.museum.garnet_how", &"pyrite": &"hub.museum.pyrite_how",
 	&"amethyst": &"hub.museum.amethyst_how", &"malachite": &"hub.museum.malachite_how",
 	&"fluorite": &"hub.museum.fluorite_how", &"hematite": &"hub.museum.hematite_how",
+	&"prime_gem": &"hub.museum.prime_gem_how", &"twin_gem": &"hub.museum.twin_gem_how",
+	&"mersenne_gem": &"hub.museum.mersenne_gem_how", &"square_gem": &"hub.museum.square_gem_how",
+	&"geode": &"hub.museum.geode_how",
 }
 
 var _cases: Dictionary[StringName, Button] = {}
@@ -51,6 +55,15 @@ func _ready() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_child(title)
+	# Sprint 19: the badge case and the Word Gems glossary open from the museum.
+	for pair: Array in [["BadgesButton", &"ui.museum.badges", &"badges"], ["GlossaryButton", &"ui.museum.glossary", &"glossary"]]:
+		var door: Button = Button.new()
+		door.name = pair[0]
+		door.text = Text.get_line(pair[1])
+		UI.make_touch_target(door, 3.4, 1.2)
+		door.pressed.connect(request_screen.emit.bind(pair[2], {}))
+		header.add_child(door)
+		IconArt.attach(door, pair[2])
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)
@@ -61,7 +74,9 @@ func _ready() -> void:
 	grid.add_theme_constant_override(&"v_separation", 20)
 	grid.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	body.add_child(grid)
-	for mineral: StringName in GemArt.ALL_TYPES:
+	var shown: Array[StringName] = GemArt.ALL_TYPES + GemArt.RARE_TYPES
+	shown.append(GemArt.GEODE) # the weekly Deep Dig's gem (Sprint 19)
+	for mineral: StringName in shown:
 		grid.add_child(_make_case(mineral))
 	var detail: PanelContainer = PanelContainer.new()
 	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL

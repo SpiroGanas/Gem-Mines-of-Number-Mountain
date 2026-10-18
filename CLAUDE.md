@@ -102,17 +102,18 @@ scenes/
   shell/             # title, hub, pause, settings, parent_area/
   mine/              # mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
   input/             # NumberPad, BuildBoard, DragTarget, DragItem, ChoiceButtons, ChalkSlate (Phase 2)
-  workshop/          # crafting, museum, builds/
-  zones/z01_pebble_meadow/ … z12_infinite_core/
+  workshop/          # crafting/, builds/, museum/ (badges, Word Gems), garage, museum
+  zones/common/ (Challenge Door), z05_prime_caverns/ (sieve, factor tree) … z12_infinite_core/
 scripts/
   generators/        # one file per skill family; pure logic, no nodes
   adaptive/          # bkt.gd, scheduler.gd, placement.gd, hint_ladder.gd
   save/              # schema, migrator, store, migrations/
-  core/              # Problem, Skill, SkillCatalog, Attempt, DigFlow, GameClock, RewardsRules, ProgressReport, JsonUtil, SfxBank, ...
+  core/              # Problem, Skill, SkillCatalog, Attempt, DigFlow, GameClock, RewardsRules, MotivationRules, ProgressReport, JsonUtil, SfxBank, ...
+  workshop/          # Recipe, BuildProject, WorkshopRules (Sprint 16)
   ui/                # ExplorerTheme (theme built in code)
 curriculum/
   skills/zNN_*.json  # skill graph: id, prereqs, generator, params, representations, terms
-  vocabulary.json  misconceptions.json  bkt_defaults.json
+  vocabulary.json  misconceptions.json  bkt_defaults.json  recipes.json  builds.json  badges.json  rare_numbers.json
 text/
   lines.csv          # id, text, context, voice_version (voice_version used from Phase 3)
 narration/
@@ -122,8 +123,8 @@ addons/              # gdUnit4
 android/plugins/digit_ink/   # EMPTY placeholder: recognition runs in GDScript, not in a plugin (README explains)
 tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
-  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/
-docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, privacy-policy.md
+  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/  qa/
+docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, phases/, art/, qa/ (release checklist, screenshots), reviews/
 private/             # GITIGNORED: Charlie's exported logs and handwriting samples. Never commit or upload.
 ```
 
@@ -171,6 +172,11 @@ python tools/handwriting/make_fixtures.py        # regenerate the GDScript parit
 # Fit BKT parameters from a parent-exported bundle; the decision-gate numbers from the same bundle
 python tools/bkt/fit.py path/to/bundle.json
 python tools/bkt/gate_report.py path/to/bundle.json --since 2027-01-29
+
+# QA tools (not exported): screenshots at every aspect ratio plus draw calls (needs a renderer),
+# and the math reviewer's packet (headless)
+xvfb-run -a "$GODOT" --path . --rendering-driver opengl3 res://tools/qa/capture_screens.tscn
+"$GODOT" --headless --path . res://tools/qa/math_review_packet.tscn
 
 # Debug APK for local install / release AAB for Play (release needs keystore env vars)
 "$GODOT" --headless --path . --export-debug "Android" build/gem-mines-debug.apk
@@ -251,7 +257,8 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 - Every save includes `schema_version`.
 - Any change to the saved structure needs a migration in `scripts/save/migrations/` plus a test that loads a fixture from every previous version (`tests/save/fixtures/`).
 - **Never break an existing save.**
-- **Save points:** after every rock, on posture change, and on `NOTIFICATION_APPLICATION_PAUSED` / `NOTIFICATION_WM_CLOSE_REQUEST`.
+- **Save points:** after every rock, on posture change, and on `NOTIFICATION_APPLICATION_PAUSED` / `NOTIFICATION_WM_CLOSE_REQUEST`; also after every crafted recipe and finished build step.
+- **Cross-device:** a parent exports and imports a progress file. `SaveMerge.choose` is the rule (newer wins; older asks; same moment keeps ours); an import that replaces the save writes `backups/` first (newest 5). Exports carry a checksum. Device-only state (the device id, volumes, the import/export log) stays outside the child's save.
 
 ---
 
@@ -301,14 +308,20 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 
 ## Current phase
 
-**Phase 2: Version 1.0** (Sprints 12-21, Feb 1 - Apr 9, 2027; `docs/phases/phase-2-version-1-0.md`). Sprints 12-15 are built in code:
+**Phase 2 (Version 1.0) is built in code; Phase 3 (public release readiness, Sprints 22-28, Apr 12 - May 28, 2027; `docs/phases/phase-3-public-release-readiness.md`) is next.** Phase 2 status per sprint: `docs/phases/phase-2-version-1-0.md` ("Status"); retrospective: `docs/phases/phase-2-retrospective.md`.
 
-- **Sprint 12:** BKT fit pipeline (`tools/bkt/fit.py`, `curriculum/bkt_fitted.json`, used from 30 first tries), the decision-gate report, a better `eq.inverse.check`, the debug-build stroke capture screen.
-- **Sprint 13-14:** handwriting. The digit network (trained with PyTorch, run in GDScript, `scripts/input/`, `assets/handwriting/`), `ChalkSlate` and `DigitBox`, palm rejection in `InputRouter`, "Did you write 47?" confirmation, rejected readings that never reach BKT, numeral coaching, parent switches. 31 skills accept handwriting.
-- **Sprint 15:** Zone 4 (16 skills, five generators, independent checkers, `MathUtil`), the `BoulderSplit` widget and its skill, rare gems from rare numbers (`RewardsRules.gem_for_value`), `docs/art/bolt-brief.md`, and the asset-credits lint rule.
+Built in Phase 2 (Sprints 12-21), on top of the MVP:
 
-Left for Spiro and the devices (`docs/decisions.md`, Sprints 12-15): Charlie's play logs (first BKT fit, difficulty tuning, the decision gate on Feb 19), capturing his digits and measuring the network against the 97% bar, the stylus and palm test on the 2-in-1, `DisplayServer.is_touchscreen_available()` on ChromeOS, sending the artist brief, the MNIST licence question, and sign-off on the Zone 4 prerequisites. Decisions waiting on Spiro are marked "Needs Spiro".
+- **Handwriting:** the digit network in GDScript, `ChalkSlate`, palm rejection, "Did you write 47?" (logged as `confirmed`), numeral coaching.
+- **Zones 4 and 5:** 27 skills (72 in all), every generator cross-checked; `BoulderSplit`, `SieveGrid`, `FactorTree`; rare gems from rare numbers.
+- **Workshop (Sprint 16):** crafting bench (`curriculum/recipes.json`), build site and build runner (`curriculum/builds.json`); the balance elevator opens Zone 4 (`Scheduler.locked_zones`).
+- **Cross-device (Sprint 17):** save schema **v2** (one migration for every Phase 2 record), `SaveMerge` newest-wins with backups, a checksum, a random device id and an import/export log. Parent-managed files only; no accounts.
+- **Motivation (Sprint 19):** badges (`curriculum/badges.json`), the Word Gems glossary (lint rule 11), the weekly Deep Dig, the Challenge Door, family reward points (`MotivationRules`).
+- **Art and sound (Sprint 20):** no artist (Spiro's decision): Kenney CC0 packs plus code-drawn art (`docs/art/asset-inventory.md`), Bolt's six poses (`Bolt.set_pose`), synthesized music per zone group with a cross-fade.
+- **Parent area (Sprint 21):** dashboard v2 (skill map, weekly summary), family rewards, the import/export log.
 
-**Next:** Sprint 16 (crafting and engineering projects), then cross-device progress, Zone 5, long-term motivation, art and polish. Narration, profiles, Zones 6-12 and public release stay out of scope until their phases. Don't build ahead of the current sprint; add ideas to the backlog instead.
+Left for Spiro, the devices and the math reviewer before the `v1.0.0` tag: `docs/qa/release-1.0.md` (device matrices, airplane mode, the release AAB, the Android version code and name) and `docs/reviews/2027-04-math-review.md` (human sign-off on Zones 1-5), plus the Phase 2 items marked "Needs Spiro" in `docs/decisions.md` (Charlie's logs and the decision gate, his digits, the Zone 4 and 5 prerequisites, the MNIST licence).
+
+**Next:** Sprint 22 (AI-voice narration; paid API calls need Spiro's go-ahead), then profiles and read-aloud, compliance, broad devices, the store listing and the closed test. The Phase 3 profiles change is a v2-to-v3 save migration. Zones 6-12 and Scholar mode stay out of scope until Phase 4. Don't build ahead of the current sprint; add ideas to the backlog instead.
 
 Update this section at the start of each phase.

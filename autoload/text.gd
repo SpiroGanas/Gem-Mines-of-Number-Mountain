@@ -162,6 +162,8 @@ func term_definition(term_id: StringName) -> Dictionary:
 		"text": get_line(StringName(entry["definition_line_id"])),
 		"picture": picture,
 		"visual": entry.get("visual", {}),
+		"zone": int(entry.get("zone", 0)),
+		"taught_by": str(entry.get("taught_by", "")),
 	}
 
 

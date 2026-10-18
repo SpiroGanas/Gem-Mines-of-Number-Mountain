@@ -94,3 +94,46 @@ static func first_try_percent(session: Dictionary) -> int:
 	if int(session["first_tries"]) == 0:
 		return 0
 	return roundi(100.0 * float(session["first_try_correct"]) / float(session["first_tries"]))
+
+
+## The weekly summary of dashboard v2 (Sprint 21) for the week ending on `today`:
+## {minutes, sessions, mastered (skills first mastered this week), handwriting_answers,
+##  handwriting_confirmed, handwriting_rejected, confirmation_percent}.
+## `skills` is the save's skills dictionary; `struggling` comes from the Adaptive engine.
+static func week_summary(entries: Array, skills: Dictionary, today: String, offset_minutes: int = 0) -> Dictionary:
+	var first_day: String = GameClock.add_days(today, -(DAYS_IN_WEEK - 1))
+	var session_count: int = 0
+	for session: Dictionary in sessions(entries, offset_minutes):
+		if session["day"] >= first_day and session["day"] <= today:
+			session_count += 1
+	var mastered: int = 0
+	for id: String in skills:
+		var at: Variant = skills[id].get("mastered_at")
+		if at is String:
+			var day: String = Time.get_date_string_from_unix_time(unix_of(at) + offset_minutes * 60)
+			if day >= first_day and day <= today:
+				mastered += 1
+	var written: int = 0
+	var confirmed: int = 0
+	var rejected: int = 0
+	for entry: Variant in entries:
+		if not entry is Dictionary or str(entry.get("answer_mode", "")) != "handwriting":
+			continue
+		var day: String = Time.get_date_string_from_unix_time(unix_of(str(entry.get("ts", ""))) + offset_minutes * 60)
+		if day < first_day or day > today:
+			continue
+		if bool(entry.get("low_confidence_rejected", false)):
+			rejected += 1
+			continue
+		written += 1
+		if bool(entry.get("confirmed", false)):
+			confirmed += 1
+	return {
+		"minutes": minutes(seconds_this_week(entries, today, offset_minutes)),
+		"sessions": session_count,
+		"mastered": mastered,
+		"handwriting_answers": written,
+		"handwriting_confirmed": confirmed,
+		"handwriting_rejected": rejected,
+		"confirmation_percent": roundi(100.0 * float(confirmed) / float(written)) if written > 0 else 0,
+	}

@@ -22,6 +22,13 @@ const SCREEN_PATHS: Dictionary = {
 	&"mine": "res://scenes/mine/mine.tscn",
 	&"museum": "res://scenes/workshop/museum.tscn",
 	&"garage": "res://scenes/workshop/garage.tscn",
+	&"crafting": "res://scenes/workshop/crafting/crafting.tscn",
+	&"build_site": "res://scenes/workshop/builds/build_site.tscn",
+	&"build": "res://scenes/workshop/builds/build_screen.tscn",
+	&"badges": "res://scenes/workshop/museum/badge_case.tscn",
+	&"glossary": "res://scenes/workshop/museum/word_gems.tscn",
+	&"challenge_door": "res://scenes/zones/common/challenge_door.tscn",
+	&"family_rewards": "res://scenes/shell/parent_area/family_rewards.tscn",
 	&"parent_gate": "res://scenes/shell/parent_area/parent_gate.tscn",
 	&"dashboard": "res://scenes/shell/parent_area/dashboard.tscn",
 	&"capture": "res://scenes/shell/parent_area/capture.tscn",
@@ -29,14 +36,20 @@ const SCREEN_PATHS: Dictionary = {
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing: nothing to pause there, and the parent area has no pause
 ## overlay (GDD section 3).
-const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture"]
+const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture", &"family_rewards"]
 
 @export var fade_seconds: float = 0.2
 
-## Which music loop plays on which screen; screens not listed keep the workshop music.
-const MUSIC_FOR_SCREEN: Dictionary = {&"mine": &"mine"}
+## Which music loop plays on which screen; screens not listed keep the workshop music. A screen can
+## also choose its own (ShellScreen.music_id: the mine picks its zone's loop).
+const MUSIC_FOR_SCREEN: Dictionary = {
+	&"mine": &"mine", &"challenge_door": &"mine",
+	&"crafting": &"build", &"build_site": &"build", &"build": &"build",
+}
 const MUSIC_DIR: String = "res://assets/music/placeholder"
 const MUSIC_FADE_SECONDS: float = 0.8
+## Silence for a cross-fade's quiet end (decibels).
+const MUSIC_SILENT_DB: float = -40.0
 
 var _current_id: StringName = &""
 var _current: ShellScreen
@@ -49,17 +62,18 @@ var _queued_args: Dictionary = {}
 @onready var _transition: ColorRect = %Transition
 @onready var _debug_overlay: DebugOverlay = %DebugOverlay
 
+## Two music players cross-fade (Sprint 20): the new loop rises on one while the old one falls on the
+## other, so a screen change never cuts the music off.
 var _music: AudioStreamPlayer
+var _music_out: AudioStreamPlayer
 var _music_id: StringName = &""
 
 
 func _ready() -> void:
 	theme = UI.theme()
 	DeviceSettings.shared().apply()
-	_music = AudioStreamPlayer.new()
-	_music.bus = &"Music"
-	_music.process_mode = Node.PROCESS_MODE_ALWAYS # the music keeps playing under the pause menu
-	add_child(_music)
+	_music = _make_music_player()
+	_music_out = _make_music_player()
 	_pause_menu.resume_requested.connect(resume)
 	_pause_menu.hub_requested.connect(_on_pause_hub_requested)
 	_pause_menu.settings_requested.connect(_on_pause_settings_requested)
@@ -107,21 +121,36 @@ func change_screen(screen_id: StringName, args: Dictionary = {}) -> void:
 		change_screen(next_id, next_args)
 
 
-## Starts a music loop (assets/music/placeholder/<id>.ogg) unless it is already playing.
+## Cross-fades to a music loop (assets/music/placeholder/<id>.ogg) unless it is already playing.
 func play_music(music_id: StringName) -> void:
 	if music_id == _music_id:
 		return
-	var stream: AudioStream = load("%s/%s.ogg" % [MUSIC_DIR, music_id])
-	if stream == null:
+	var path: String = "%s/%s.ogg" % [MUSIC_DIR, music_id]
+	if not ResourceLoader.exists(path):
 		return
+	var stream: AudioStream = load(path)
 	if stream is AudioStreamOggVorbis:
 		(stream as AudioStreamOggVorbis).loop = true
 	_music_id = music_id
+	var old: AudioStreamPlayer = _music
+	_music = _music_out
+	_music_out = old
 	_music.stream = stream
-	_music.volume_db = -30.0
+	_music.volume_db = MUSIC_SILENT_DB
 	_music.play()
-	var fade: Tween = create_tween()
+	var fade: Tween = create_tween().set_parallel(true)
 	fade.tween_property(_music, "volume_db", 0.0, MUSIC_FADE_SECONDS)
+	if _music_out.playing:
+		fade.tween_property(_music_out, "volume_db", MUSIC_SILENT_DB, MUSIC_FADE_SECONDS)
+		fade.chain().tween_callback(_music_out.stop)
+
+
+func _make_music_player() -> AudioStreamPlayer:
+	var player: AudioStreamPlayer = AudioStreamPlayer.new()
+	player.bus = &"Music"
+	player.process_mode = Node.PROCESS_MODE_ALWAYS # the music keeps playing under the pause menu
+	add_child(player)
+	return player
 
 
 func current_music() -> StringName:
@@ -170,7 +199,8 @@ func _swap_screen(screen_id: StringName, args: Dictionary) -> void:
 	_current = screen
 	_current_id = screen_id
 	_debug_overlay.screen_name = screen_id
-	play_music(MUSIC_FOR_SCREEN.get(screen_id, &"hub"))
+	var own: StringName = screen.music_id()
+	play_music(own if own != &"" else MUSIC_FOR_SCREEN.get(screen_id, &"hub"))
 	screen_changed.emit(screen_id)
 
 

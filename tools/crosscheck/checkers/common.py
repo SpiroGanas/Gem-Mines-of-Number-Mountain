@@ -7,7 +7,8 @@ REQUIRED_KEYS = (
     "answer_modes", "distractors", "visual", "hint_steps", "params", "meta",
 )
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
-VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs")
+VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits")
+DIGIT_FOCUS = ("last", "last_two", "sum", "sum_and_last", "recipe")
 TILTS = ("unknown", "level", "left", "right")
 
 
@@ -155,6 +156,12 @@ def check_visual(visual: dict, where: str) -> list[str]:
     elif kind == "pairs":
         if not is_int(visual.get("count")) or not 0 <= visual["count"] <= 40:
             errors.append(f"{where}: pairs count must be 0 to 40")
+    elif kind == "digits":
+        digits = visual.get("digits")
+        if not isinstance(digits, list) or not 1 <= len(digits) <= 4 or not all(is_int(d) and 0 <= d <= 9 for d in digits):
+            errors.append(f"{where}: digits must be 1 to 4 digits from 0 to 9")
+        if visual.get("focus") not in DIGIT_FOCUS:
+            errors.append(f"{where}: unknown digits focus {visual.get('focus')!r}")
     return errors
 
 
@@ -201,6 +208,16 @@ def check_input_meta(problem: dict) -> list[str]:
                 errors.append(f"array builder: {value!r} must be {{rows, cols}}")
             elif not (1 <= value["rows"] <= builder["max_rows"] and 1 <= value["cols"] <= builder["max_cols"]):
                 errors.append(f"array builder: {value!r} does not fit {builder['max_rows']}x{builder['max_cols']}")
+    grid = meta.get("sieve_grid")
+    if grid is not None:
+        for value in values:
+            if not isinstance(value, list) or not all(is_int(v) and 1 <= v <= grid.get("size", 0) for v in value):
+                errors.append(f"sieve grid: {value!r} must be rocks of the {grid.get('size')}-rock grid")
+    tree = meta.get("factor_tree")
+    if tree is not None:
+        for value in values:
+            if not isinstance(value, list) or not value or not all(is_int(v) and v >= 1 for v in value):
+                errors.append(f"factor tree: {value!r} must be a list of pieces")
     labels = meta.get("label_lines")
     if labels is not None:
         for value in values:

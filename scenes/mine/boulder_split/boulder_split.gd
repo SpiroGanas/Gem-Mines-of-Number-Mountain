@@ -31,6 +31,9 @@ const NOTCH_HOT: Color = Color("#FFD166")
 var router: Node
 ## 1.0 is normal speed; tests raise it so animations finish quickly.
 var speed_scale: float = 1.0
+## A prime piece turns into a gem as soon as the boulder cracks. Zone 5's factor tree turns this off:
+## there the child tests each piece with the pickaxe, so the split must not give the answer away.
+var reveal_primes: bool = true
 
 var value: int = 0
 var _pairs: Array[Vector2i] = []
@@ -237,10 +240,10 @@ func _crack(pair: Vector2i) -> void:
 		_stage.add_child(piece)
 		var label: Label = _label_in(piece)
 		label.text = str(number)
-		if _is_prime(number):
+		if reveal_primes and _is_prime(number):
 			piece.is_gem = true
 			label.tooltip_text = Text.get_line(&"z4.split.piece_prime", {"n": number})
-		else:
+		elif reveal_primes:
 			label.tooltip_text = Text.get_line(&"z4.split.piece_rock", {"n": number})
 		_pieces.append(piece)
 		var target: Vector2 = centre + Vector2((-1.0 if index == 0 else 1.0) * _stage.size.x * 0.22, 0.0) - piece_size / 2.0

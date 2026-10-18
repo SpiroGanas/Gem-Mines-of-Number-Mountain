@@ -146,6 +146,40 @@ func apply_placement(passed: Array[StringName]) -> void:
 		record["p_learned"] = maxf(float(record["p_learned"]), SkillRecord.PLACEMENT_P)
 
 
+## The Challenge Door was passed (three right at the skill's hardest settings, Sprint 19): the skill
+## is mastered now, without the two-day rule (Spiro approved this evidence). The record keeps
+## mastery_evidence = "challenge" so the dashboard and the fitter can tell. Spaced review starts as
+## for any mastery, so a skill that was passed by luck comes back and is caught by a missed review.
+## Returns true when this was the skill's first mastery.
+func master_by_challenge(skill_id: StringName) -> bool:
+	var record: Dictionary = record_for(skill_id)
+	if SkillRecord.is_mastered(record):
+		return false
+	var first_time: bool = record["mastered_at"] == null
+	record["p_learned"] = maxf(float(record["p_learned"]), SkillRecord.MASTERY_P)
+	if not record["correct_days"].has(clock.today()):
+		record["correct_days"].append(clock.today())
+	record["mastery_evidence"] = "challenge"
+	_master(record)
+	skill_mastered.emit(skill_id, first_time)
+	return first_time
+
+
+## Problems for the Challenge Door: at least `count` of the skill at its hardest settings (its own full
+## range, difficulty 0) in its most abstract representation, and more (up to `most`) while a blind
+## guesser could still pass them all with a chance above `max_luck`. Three four-way questions are
+## 1/64; a two-way question (even or odd) needs six. `chance_of` is how likely a blind guess is to
+## be right on one problem (AnswerPanel.chance_for).
+func challenge_problems(skill_id: StringName, rng: RandomNumberGenerator, count: int, max_luck: float, most: int, chance_of: Callable) -> Array[Problem]:
+	var problems: Array[Problem] = []
+	var luck: float = 1.0
+	while problems.size() < most and (problems.size() < count or luck > max_luck):
+		var problem: Problem = problem_for(skill_id, rng, true, {"difficulty": 0})
+		problems.append(problem)
+		luck *= clampf(float(chance_of.call(problem)), 0.0, 1.0)
+	return problems
+
+
 func _master(record: Dictionary) -> void:
 	if record["mastered_at"] == null:
 		record["mastered_at"] = clock.now_iso()

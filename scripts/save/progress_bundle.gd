@@ -4,10 +4,13 @@
 ## file work.
 ##
 ##   {"format": "gem-mines-progress", "bundle_version": 1, "exported_at": "...Z",
+##    "device_id": "...", "checksum": "sha256...",
 ##    "profile": {...the save...}, "attempts": [{...attempts.jsonl lines...}]}
 ##
-## Importing: the newer profile (by updated_at) wins and the replaced one is kept as the .bak;
-## the attempt logs are merged, each attempt once.
+## Importing: SaveMerge decides (the newer profile wins; an older one waits for the parent's choice)
+## and the replaced one is backed up; the attempt logs are merged, each attempt once. The checksum
+## (Sprint 17) catches a file changed or cut short after export; a bundle without one (exported
+## before Sprint 17) is still accepted.
 class_name ProgressBundle
 extends RefCounted
 
@@ -16,10 +19,26 @@ const VERSION: int = 1
 const ERR_NOT_A_BUNDLE: String = "not_a_bundle"
 const ERR_NEWER_BUNDLE: String = "newer_bundle"
 const ERR_BAD_PROFILE: String = "bad_profile"
+const ERR_CHECKSUM: String = "checksum"
 
 
-static func make(profile: Dictionary, attempts: Array, now_iso: String) -> Dictionary:
-	return {"format": FORMAT, "bundle_version": VERSION, "exported_at": now_iso, "profile": profile.duplicate(true), "attempts": attempts.duplicate(true)}
+static func make(profile: Dictionary, attempts: Array, now_iso: String, device_id: String = "") -> Dictionary:
+	var bundle: Dictionary = {"format": FORMAT, "bundle_version": VERSION, "exported_at": now_iso, "device_id": device_id, "profile": profile.duplicate(true), "attempts": attempts.duplicate(true)}
+	bundle["checksum"] = checksum_of(bundle)
+	return bundle
+
+
+## SHA-256 of the profile and the attempts. Both are first put through JSON and back, so the sum is
+## the same before writing (ints) and after reading (JSON numbers come back as floats).
+static func checksum_of(bundle: Dictionary) -> String:
+	var body: Variant = JSON.parse_string(JSON.stringify({"attempts": bundle.get("attempts", []), "profile": bundle.get("profile", {})}, "", false, true))
+	return JSON.stringify(body, "", true, true).sha256_text()
+
+
+## The file name an export suggests: gem-mines-progress-<device>-<yyyymmdd-hhmmss>.json.
+static func file_name(device_id: String, now_iso: String) -> String:
+	var stamp: String = now_iso.replace("-", "").replace(":", "").replace("T", "-").trim_suffix("Z")
+	return "gem-mines-progress-%s-%s.json" % [device_id.substr(0, 8), stamp]
 
 
 ## "" when the bundle can be imported, otherwise why not.
@@ -30,6 +49,8 @@ static func problem_with(bundle: Variant) -> String:
 		return ERR_NEWER_BUNDLE
 	if not bundle.get("profile") is Dictionary or not bundle.get("attempts") is Array:
 		return ERR_NOT_A_BUNDLE
+	if bundle.has("checksum") and str(bundle["checksum"]) != checksum_of(bundle):
+		return ERR_CHECKSUM
 	if not SaveSchema.validate(bundle["profile"]).is_empty():
 		return ERR_BAD_PROFILE
 	return ""

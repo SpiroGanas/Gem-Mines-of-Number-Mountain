@@ -37,6 +37,10 @@ const DEMO_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/stroke_d
 ## Rocks the child may still crack after the soft limit before the wind-down shows (0: the wind-down
 ## comes at the very next rock boundary). Needs Spiro: the plan leaves "one extra rock" open.
 const EXTRA_ROCKS_AFTER_LIMIT: int = 0
+## The Deep Dig's ten rocks come as two walls of five.
+const DEEP_DIG_WALL: int = 5
+## Heading up after this many rocks counts as a finished session for family points.
+const ROCKS_FOR_A_SESSION: int = 5
 
 var flow: DigFlow = DigFlow.new()
 
@@ -60,6 +64,13 @@ var _rocks_since_limit: int = 0
 ## Counts backwards digits for numeral coaching, for this visit to the mine.
 var _coach: NumeralCoach = NumeralCoach.new()
 var _stroke_demo: StrokeDemo
+## The weekly Deep Dig (Sprint 19): its problems wait here and fill the rocks as they are picked.
+var deep_dig: bool = false
+var _deep_queue: Array[Problem] = []
+## The Challenge Door button shown after a wall when a frontier skill can be tested out (Sprint 19).
+var _door_button: Button
+var _door_skill: StringName = &""
+var _banner: ZoneBanner
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -73,6 +84,11 @@ var _stroke_demo: StrokeDemo
 @onready var _sfx: SfxBank = %SfxBank
 
 
+## Deep Dig: {"deep_dig": true} from the hub's Deep Dig button.
+func setup(args: Dictionary) -> void:
+	deep_dig = bool(args.get("deep_dig", false))
+
+
 func _ready() -> void:
 	super()
 	if seed_value != 0:
@@ -83,7 +99,12 @@ func _ready() -> void:
 	backdrop.palette = Backdrop.palette_for_zone(deepest_zone())
 	add_child(backdrop)
 	move_child(backdrop, 0)
+	_banner = ZoneBanner.new()
+	_banner.name = "ZoneBanner"
+	_banner.zone = deepest_zone()
+	_pause_button.get_parent().add_child(_banner)
 	_wall.speed_scale = animation_speed
+	_bolt.speed_scale = animation_speed
 	_cart.speed_scale = animation_speed
 	_pause_button.text = Text.get_line(&"ui.common.pause")
 	_head_up_button.text = Text.get_line(&"ui.mine.head_up")
@@ -111,6 +132,19 @@ func _ready() -> void:
 	_bolt.term_tapped.connect(_on_term_tapped)
 	Rewards.skill_celebrated.connect(_on_skill_celebrated)
 	Rewards.mineral_found.connect(_on_mineral_found)
+	Rewards.badge_earned.connect(_on_badge_earned)
+	Rewards.word_gem_collected.connect(_on_word_gem_collected)
+	_door_button = Button.new()
+	_door_button.name = "DoorButton"
+	_door_button.text = Text.get_line(&"door.mine.offer")
+	UI.make_touch_target(_door_button, 5.0, 1.5)
+	_door_button.visible = false
+	_door_button.pressed.connect(_on_door_pressed)
+	_wall_clear_panel.add_child(_door_button)
+	if deep_dig and Rewards.deep_dig_available():
+		_deep_queue = Adaptive.build_deep_dig(_rng)
+	else:
+		deep_dig = false
 	_cart.strong = Rewards.pickaxe() == &"pickaxe_t2"
 	_cart.set_totals(Rewards.coins(), 0)
 	_start_wall()
@@ -157,6 +191,16 @@ func deepest_zone() -> int:
 	return deepest
 
 
+## Each zone group has its own loop (Sprint 20): Zones 1-3 share the first mine tune.
+func music_id() -> StringName:
+	match deepest_zone():
+		4:
+			return &"mine_z4"
+		5:
+			return &"mine_z5"
+	return &"mine"
+
+
 ## The zone a problem's skill belongs to (it decides the gem: quartz, garnet or pyrite).
 func zone_of(problem: Problem) -> int:
 	return Adaptive.catalog().skill(problem.skill_id).zone
@@ -178,9 +222,24 @@ func problem_for(index: int) -> Problem:
 	return _problems[index]
 
 
+## True while a Deep Dig is under way (its problems are not all dug yet).
+func deep_dig_left() -> int:
+	return _deep_queue.size() if deep_dig else 0
+
+
+func zone_banner() -> ZoneBanner:
+	return _banner
+
+
+func door_button() -> Button:
+	return _door_button
+
+
 func _start_wall() -> void:
 	_wall_clear_panel.visible = false
 	var count: int = _rng.randi_range(RockWall.MIN_ROCKS, RockWall.MAX_ROCKS)
+	if deep_dig:
+		count = mini(_deep_queue.size(), DEEP_DIG_WALL)
 	_problems.clear()
 	_problems.resize(count)
 	_wall.build(count)
@@ -192,7 +251,7 @@ func _on_rock_selected(index: int) -> void:
 		return
 	_sfx.play(&"select")
 	if _problems[index] == null:
-		_problems[index] = Adaptive.next_problem(_rng, skill_ids)
+		_problems[index] = _deep_queue.pop_front() if deep_dig and not _deep_queue.is_empty() else Adaptive.next_problem(_rng, skill_ids)
 	_misses_on_problem = 0
 	_eased = false
 	flow.pick_rock(index)
@@ -207,6 +266,8 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_bolt.set_terms([])
 			# After a rock, the praise stays until the child opens the next one.
 			var pick_line: StringName = &"bolt.placement.intro" if Adaptive.placement_active() and skill_ids.is_empty() else &"bolt.mine.pick_rock"
+			if deep_dig and previous != DigFlow.State.GEM_DROP:
+				pick_line = &"deepdig.mine.intro"
 			_bolt.say(pick_line, {}, previous == DigFlow.State.GEM_DROP)
 		DigFlow.State.SHOW_PROBLEM:
 			_wall.set_interactive(false)
@@ -214,6 +275,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			var problem: Problem = current_problem()
 			_bolt.set_terms(Adaptive.catalog().skill(problem.skill_id).terms)
 			_bolt.say(problem.prompt_line_id, problem.prompt_params)
+			_bolt.set_pose(&"point")
 			_show_panel(problem)
 			flow.problem_shown.call_deferred()
 		DigFlow.State.AWAIT_ANSWER:
@@ -223,6 +285,7 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 		DigFlow.State.CRACK:
 			_panel.set_enabled(false)
 			_bolt.note(&"bolt.feedback.correct" if flow.wrong_count() == 0 else &"bolt.feedback.correct_hint")
+			_bolt.set_pose(&"cheer")
 			_sfx.play(&"crack")
 			var rock: Rock = _wall.rock(flow.current_rock())
 			rock.crack_finished.connect(flow.crack_finished, CONNECT_ONE_SHOT)
@@ -237,10 +300,12 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_panel.set_enabled(false)
 			_sfx.play(&"wobble")
 			_sfx.play(&"soft_miss")
+			_bolt.set_pose(&"not_quite")
 			var open_rock: Rock = _wall.rock(flow.current_rock())
 			open_rock.wobble_finished.connect(flow.wobble_finished, CONNECT_ONE_SHOT)
 			open_rock.play_wobble()
 		DigFlow.State.HINT:
+			_bolt.set_pose(&"think")
 			_show_hint(HintLadder.next_rung(flow.wrong_count()))
 			flow.hint_shown.call_deferred()
 		DigFlow.State.WALL_CLEAR:
@@ -248,6 +313,13 @@ func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
 			_sfx.play(&"fanfare")
 			_bolt.say(&"bolt.mine.wall_clear")
 			_wall_clear_panel.visible = true
+			_dig_more_button.visible = true
+			_door_button.visible = false
+			if deep_dig:
+				_deep_dig_wall_done()
+			elif skill_ids.is_empty():
+				_door_skill = Adaptive.challenge_candidate()
+				_door_button.visible = _door_skill != &""
 			wall_cleared.emit()
 
 
@@ -281,7 +353,8 @@ func _on_gem_landed(_gem_type: StringName) -> void:
 		_after_rock()
 	else:
 		var lantern_only: bool = _pending_celebrations.size() == 1 and _pending_celebrations[0].get("lantern", false)
-		_sfx.play(&"lantern" if lantern_only else &"sparkle")
+		var has_badge: bool = _pending_celebrations.any(func(item: Dictionary) -> bool: return item.has("badge"))
+		_sfx.play(&"badge" if has_badge else (&"lantern" if lantern_only else &"sparkle"))
 		_celebration.celebrate(_pending_celebrations.duplicate())
 		_pending_celebrations.clear()
 
@@ -300,8 +373,25 @@ func _show_wind_down() -> void:
 	_wind_down.show_recap(Rewards.session_summary(), Adaptive.skills_practised(), Rewards.lit_today())
 
 
+## A Deep Dig wall is cleared: the next wall, or, after the last rock, the geode (once per week).
+func _deep_dig_wall_done() -> void:
+	if not _deep_queue.is_empty():
+		_bolt.say(&"deepdig.mine.more")
+		return
+	_dig_more_button.visible = false
+	deep_dig = false
+	if Rewards.finish_deep_dig():
+		_celebration.celebrate([{"line_id": &"deepdig.mine.done", "gem": MotivationRules.DEEP_DIG_GEM}])
+
+
+func _on_door_pressed() -> void:
+	_sfx.play(&"select")
+	request_screen.emit(&"challenge_door", {"skill_id": _door_skill})
+
+
 func _on_wind_down_head_up() -> void:
 	_sfx.play(&"tap")
+	Rewards.session_completed(Adaptive.session_id)
 	Adaptive.end_session()
 	request_screen.emit(&"hub", {})
 
@@ -312,6 +402,17 @@ func _on_skill_celebrated(_skill_id: StringName) -> void:
 
 func _on_mineral_found(gem: StringName) -> void:
 	_pending_celebrations.append({"line_id": &"bolt.celebrate.mineral", "gem": gem})
+
+
+func _on_badge_earned(badge_id: StringName) -> void:
+	for badge: Dictionary in Rewards.badges():
+		if StringName(str(badge["id"])) == badge_id:
+			var name: String = Text.get_line(StringName(str(badge["name_line_id"])))
+			_pending_celebrations.append({"line_id": &"badge.case.earned", "params": {"name": name}, "badge": StringName(str(badge.get("emblem", "pairs")))})
+
+
+func _on_word_gem_collected(term_id: StringName) -> void:
+	_pending_celebrations.append({"line_id": &"glossary.screen.found", "params": {"term": Text.term_definition(term_id).get("term", "")}, "gem": RewardsRules.MASTERY_GEM})
 
 
 func _on_answered(given: Variant) -> void:
@@ -326,6 +427,7 @@ func _on_answered(given: Variant) -> void:
 	attempt.representation = problem.representation
 	attempt.answer_mode = AnswerPanel.answer_mode_for_kind(_panel.input_kind)
 	attempt.correct = correct
+	attempt.confirmed = _panel.slate_confirmed()
 	attempt.hints_used = flow.wrong_count()
 	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
 	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))
@@ -440,6 +542,15 @@ func _show_panel(problem: Problem) -> void:
 	_panel.answered.connect(_on_answered)
 	_panel.rejected.connect(_on_slate_rejected)
 	_panel.digit_written.connect(_on_digit_written)
+	var sieve: SieveGrid = _panel.sieve_grid()
+	if sieve != null:
+		sieve.toggled.connect(func(_number: int, _crossed: bool) -> void: _sfx.play(&"sieve_mark"))
+	var tree: FactorTree = _panel.factor_tree()
+	if tree != null:
+		tree.piece_split.connect(func(_value: int, _a: int, _b: int) -> void: _sfx.play(&"split"))
+	var split: BoulderSplit = _panel.boulder_split()
+	if split != null:
+		split.split_chosen.connect(func(_value: int, _a: int, _b: int) -> void: _sfx.play(&"split"))
 	var board: BuildBoard = _panel.board()
 	if board != null:
 		board.item_placed.connect(func(_kind: StringName) -> void: _sfx.play(&"place"))
@@ -478,4 +589,6 @@ func _on_pause_pressed() -> void:
 
 func _on_head_up_pressed() -> void:
 	_sfx.play(&"tap")
+	if Rewards.session_summary()["rocks"] >= ROCKS_FOR_A_SESSION:
+		Rewards.session_completed(Adaptive.session_id)
 	request_screen.emit(&"hub", {})

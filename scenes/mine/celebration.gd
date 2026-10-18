@@ -63,13 +63,16 @@ func _ready() -> void:
 	_particles.gravity = Vector2(0, 500)
 	_particles.initial_velocity_min = 220.0
 	_particles.initial_velocity_max = 480.0
-	_particles.scale_amount_min = 5.0
-	_particles.scale_amount_max = 11.0
+	# Kenney's CC0 twinkle (Sprint 20); 128 px, so these scales give stars of about 13 to 28 px.
+	_particles.texture = load("res://assets/art/kenney/particles/twinkle.png")
+	_particles.scale_amount_min = 0.1
+	_particles.scale_amount_max = 0.22
 	add_child(_particles)
 
 
 ## Shows the card. `items` is a list of {line_id: StringName, gem: StringName} or
-## {line_id, lantern: true}: one line and one picture each.
+## {line_id, lantern: true} or {line_id, badge: emblem}: one line and one picture each. An item may add
+## `params` for its line.
 func celebrate(items: Array[Dictionary]) -> void:
 	for child: Node in _lines.get_children() + _art_row.get_children():
 		child.queue_free()
@@ -77,7 +80,7 @@ func celebrate(items: Array[Dictionary]) -> void:
 	_line_ids.clear()
 	for item: Dictionary in items:
 		var label: Label = Label.new()
-		label.text = Text.get_line(item["line_id"])
+		label.text = Text.get_line(item["line_id"], item.get("params", {}))
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_lines.add_child(label)
@@ -86,6 +89,10 @@ func celebrate(items: Array[Dictionary]) -> void:
 		if item.get("lantern", false):
 			var lantern: LanternArt = LanternArt.new()
 			art = lantern
+		elif item.has("badge"):
+			var medal: BadgeArt = BadgeArt.new()
+			medal.emblem = item["badge"]
+			art = medal
 		else:
 			var gem: GemArt = GemArt.new()
 			gem.gem_type = item.get("gem", GemArt.AMETHYST)

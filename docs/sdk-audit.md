@@ -17,3 +17,7 @@ Every third-party dependency, plugin or SDK in the shipped app or the build must
 | Google ML Kit Digital Ink Recognition | Needs a one-time ~20 MB model download (network) and is a third-party data flow to disclose. The Sprint 13 benchmark was skipped on Spiro's decision (2026-10-17); the project's own network is measured instead. |
 | Kotlin plugin with LiteRT for recognition | Replaced by running the network in GDScript (Spiro, 2026-10-17): no plugin, no extra SDK to disclose, one code path on every device. |
 | Any analytics / crash-reporting SDK | Violates rule 1. Play logs are exported by a parent instead. |
+| Google Play Games Services (cloud saves) | Sprint 17: needs a Google sign-in (an account) and a Google SDK, against rule 1 and harder for the Families Policy. Cross-device progress is a parent-exported file instead (Spiro, 2026-10-17). |
+| An Android share-sheet plugin | Sprint 17: not needed; Godot's native file dialog opens the system picker, where a parent can choose Drive. No plugin was added. |
+
+**Sprints 16 to 21 added no dependency.** The device id uses Godot's own `Crypto` class (random bytes, no network); the new art and sounds are Kenney CC0 files (assets, credited in `assets/CREDITS.md`, not code); the music is synthesized by the project's own script. `ffmpeg` (already used by `tools/sfx/`) normalized the music's loudness at build time only.

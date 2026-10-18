@@ -24,6 +24,9 @@ Fails (exit code 1) on the project's non-negotiable content rules (CLAUDE.md):
   10. Every file under assets/ has a row in assets/CREDITS.md (its path in backticks), so no art,
      sound or font is ever shipped without its source and license on record. Godot's `.import`
      and `.uid` files and CREDITS.md itself are exempt.
+  11. Every math term a child-facing line uses is a Word Gem in curriculum/vocabulary.json (Sprint 19,
+     the glossary), so the child can always tap it for a picture and a kid-sized definition (CLAUDE.md
+     rule 5). MATH_TERMS is the list of words that count as math terms and the Word Gem each needs.
 
 Each rule is a function returning Finding objects, so each is unit-tested in test_lint_content.py.
 The banned-word list is the plan's list plus a few obvious variants (smoky, smoker, cigarette,
@@ -343,6 +346,58 @@ def check_asset_credits(root: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Rule 11: every math term in a child-facing line is a Word Gem
+# ---------------------------------------------------------------------------
+
+# A math word (whole word, any case, with its plural or -ing forms) -> the Word Gem it needs.
+MATH_TERMS = {
+    r"digits?": "digit",
+    r"numerals?": "numeral",
+    r"regroup(?:s|ing|ed)?": "regrouping",
+    r"sums?": "sum",
+    r"differences?": "difference",
+    r"fact famil(?:y|ies)": "fact_family",
+    r"inverses?": "inverse",
+    r"arrays?": "array",
+    r"columns?": "column",
+    r"equal groups?": "equal_groups",
+    r"multipl(?:y|ies|ying|ication)": "multiply",
+    r"commutative": "commutative",
+    r"factors?": "factor",
+    r"multiples?": "multiple",
+    r"primes?": "prime",
+    r"composites?": "composite",
+    r"recipes?": "recipe",
+    r"sieves?": "sieve",
+    r"divisible": "divisible",
+    r"divid(?:e|es|ing)|division|÷": "divide",
+    r"prime factorizations?": "prime_factorization",
+    r"fundamental theorem": "fundamental_theorem",
+}
+# Lines for grown-ups and the Word Gem lines themselves are not checked.
+TERM_EXEMPT_PREFIXES = ("parent.", "vocab.", "debug.")
+
+
+def check_glossary_terms(root: Path) -> list[Finding]:
+    vocabulary_path = root / "curriculum" / "vocabulary.json"
+    if not vocabulary_path.is_file() or not (root / LINES_CSV).is_file():
+        return []
+    import json
+    terms = {entry["id"] for entry in json.loads(vocabulary_path.read_text(encoding="utf-8"))["terms"]}
+    _, rows = read_lines(root)
+    findings: list[Finding] = []
+    for number, row in rows:
+        line_id = row.get("id", "")
+        if line_id.startswith(TERM_EXEMPT_PREFIXES):
+            continue
+        text = re.sub(r"\{[a-z_]+\}", " ", row.get("text", ""))
+        for pattern, term in MATH_TERMS.items():
+            if term not in terms and re.search(r"(?<![A-Za-z])" + pattern + r"(?![A-Za-z])", text, re.IGNORECASE):
+                findings.append(Finding("11", LINES_CSV, number, f"'{line_id}' uses the math term '{term}', which is not a Word Gem in curriculum/vocabulary.json"))
+    return findings
+
+
+# ---------------------------------------------------------------------------
 
 
 RULES = (
@@ -355,6 +410,7 @@ RULES = (
     check_line_references,
     check_no_network,
     check_asset_credits,
+    check_glossary_terms,
 )
 
 

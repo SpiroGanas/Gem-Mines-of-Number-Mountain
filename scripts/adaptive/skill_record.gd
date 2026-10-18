@@ -7,6 +7,8 @@
 ## Sprint 6 (docs/decisions.md; absent means false / 0.0, so every v1 save still loads):
 ##   placement_passed  the placement quest showed the child already knows this skill
 ##   guess_evidence    log-likelihood ratio of first-try answers: knows it vs. only guessing
+## and one in Sprint 19 (schema v2):
+##   mastery_evidence  "" for ordinary mastery, "challenge" when the Challenge Door gave it
 class_name SkillRecord
 extends RefCounted
 
@@ -33,7 +35,7 @@ static func fresh(prior: float) -> Dictionary:
 		"p_learned": prior, "attempts": 0, "correct": 0, "correct_days": [],
 		"mastered_at": null, "review_stage": 0, "next_review_at": null,
 		"flagged_for_review": false, "recent_latency_ms": [],
-		"placement_passed": false, "guess_evidence": 0.0,
+		"placement_passed": false, "guess_evidence": 0.0, "mastery_evidence": "",
 	}
 
 

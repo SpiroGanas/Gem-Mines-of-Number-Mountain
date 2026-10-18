@@ -1,0 +1,34 @@
+{
+  "_comment": "Build projects (Sprint 16, docs/phases/phase-2-version-1-0.md section C). Each step is one real problem of `skill_id` (skill params merged with `params`), shown by the step `scene`, which knows nothing about the build. Progress is saved after every step (save.workshop.builds). `zone_unlocks`: the zone this build opens. `locks_zone`: when true, the zone's skills stay out of the dig until the build is done, unless the child already has answers in that zone (an existing save never loses a zone). `unlock_after_skill`: the build site offers the build once that skill opens its successors.",
+  "schema_version": 1,
+  "builds": [
+    {
+      "id": "cart_track",
+      "name_line_id": "build.cart_track.name",
+      "intro_line_id": "build.cart_track.intro",
+      "reward_line_id": "build.cart_track.done",
+      "zone_unlocks": 2,
+      "locks_zone": false,
+      "unlock_after_skill": "add.to_10.sums",
+      "steps": [
+        {"step_id": "gap_1", "scene": "res://scenes/workshop/builds/cart_track.tscn", "skill_id": "eq.missing_addend.to_20", "params": {"difficulty": -1}},
+        {"step_id": "gap_2", "scene": "res://scenes/workshop/builds/cart_track.tscn", "skill_id": "eq.missing_addend.to_20", "params": {}},
+        {"step_id": "gap_3", "scene": "res://scenes/workshop/builds/cart_track.tscn", "skill_id": "eq.missing_addend.to_20", "params": {}}
+      ]
+    },
+    {
+      "id": "balance_elevator",
+      "name_line_id": "build.balance_elevator.name",
+      "intro_line_id": "build.balance_elevator.intro",
+      "reward_line_id": "build.balance_elevator.done",
+      "zone_unlocks": 4,
+      "locks_zone": true,
+      "unlock_after_skill": "mult.equal_groups.total",
+      "steps": [
+        {"step_id": "weights_1", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {"difficulty": -1}},
+        {"step_id": "weights_2", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}},
+        {"step_id": "weights_3", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}}
+      ]
+    }
+  ]
+}

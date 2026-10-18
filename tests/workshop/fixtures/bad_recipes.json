@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "recipes": [
+    {"id": "dup", "name_line_id": "ws.recipe.pickaxe_tier2.name", "info_line_id": "ws.recipe.pickaxe_tier2.info", "inputs": [{"gem": "garnet", "count": 2}], "math": {"skill_id": "add.to_10.sums"}, "output": {"type": "tool", "id": "x"}},
+    {"id": "dup", "name_line_id": "ws.recipe.pickaxe_tier2.name", "info_line_id": "ws.recipe.pickaxe_tier2.info", "inputs": [{"gem": "unobtainium", "count": 0}], "math": {"skill_id": "no.such.skill"}, "output": {"type": "spaceship", "id": ""}, "unlock_after_skill": "also.not.real"},
+    {"id": "no_inputs", "name_line_id": "ws.missing.line", "info_line_id": "ws.recipe.pickaxe_tier2.info", "inputs": [], "math": {"skill_id": "add.to_10.sums"}, "output": {"type": "decor", "id": "y"}}
+  ]
+}

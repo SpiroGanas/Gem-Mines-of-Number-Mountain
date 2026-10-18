@@ -29,6 +29,8 @@ const TWIN: StringName = &"twin_gem"
 const MERSENNE: StringName = &"mersenne_gem"
 const SQUARE: StringName = &"square_gem"
 const RARE_TYPES: Array[StringName] = [PRIME, TWIN, MERSENNE, SQUARE]
+## The weekly Deep Dig's special gem (Sprint 19): a geode split open, earned by finishing the dig.
+const GEODE: StringName = &"geode"
 ## The ten Gem Museum minerals, in the museum's order.
 const ALL_TYPES: Array[StringName] = [QUARTZ, GARNET, PYRITE, AMETHYST, MALACHITE, FLUORITE, HEMATITE, CALCITE, TOPAZ, OBSIDIAN]
 const OUTLINE: Color = Color("#1F2945")
@@ -86,6 +88,14 @@ static func shape_points(type: StringName) -> PackedVector2Array:
 				var angle: float = TAU * float(i) / 24.0
 				peanut.append(Vector2(0.5 + 0.48 * cos(angle), 0.5 + 0.3 * sin(angle) * (0.55 + 0.45 * cos(angle) * cos(angle))))
 			return peanut
+		GEODE: # a geode split open: a round bottom and a jagged crystal top
+			var geode: PackedVector2Array = PackedVector2Array()
+			for i: int in 9:
+				var angle: float = PI * float(i) / 8.0
+				geode.append(Vector2(0.5 + 0.46 * cos(angle), 0.45 + 0.46 * sin(angle)))
+			for i: int in range(1, 8):
+				geode.append(Vector2(0.04 + 0.92 * float(i) / 8.0, 0.45 - (0.22 if i % 2 == 1 else 0.06)))
+			return geode
 		SQUARE: # a square cut with notched corners
 			return PackedVector2Array([Vector2(0.2, 0.08), Vector2(0.8, 0.08), Vector2(0.92, 0.2), Vector2(0.92, 0.8), Vector2(0.8, 0.92), Vector2(0.2, 0.92), Vector2(0.08, 0.8), Vector2(0.08, 0.2)])
 	return PackedVector2Array([Vector2(0.1, 0.1), Vector2(0.9, 0.1), Vector2(0.9, 0.9), Vector2(0.1, 0.9)])
@@ -131,6 +141,8 @@ static func color_for(type: StringName) -> Color:
 			return Color("#FFD84D")
 		SQUARE:
 			return Color("#7F9CF5")
+		GEODE:
+			return Color("#B98AE8")
 	return Color("#CCCCCC")
 
 

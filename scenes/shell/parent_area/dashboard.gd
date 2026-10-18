@@ -1,6 +1,9 @@
-## Parent dashboard v1 (P1-S09-04): time played today and this week, skills mastered, skills that
-## need practice (flagged, or 3 misses in the last 5 first tries), the last 7 sessions, settings
-## (session length, nickname, re-run placement) and progress export / import. Grown-ups only: it
+## Parent dashboard (v1 P1-S09-04, v2 Sprint 21): the week's summary (minutes, sessions, skills
+## mastered, skills that need help, the handwriting confirmation rate), time played today, the visual
+## skill map (SkillMap: zones as rows, skills colored and shaped by state), skills mastered, skills
+## that need practice (flagged, or 3 misses in the last 5 first tries), the last 7 sessions, settings
+## (session length, nickname, re-run placement, family rewards) and progress export / import with
+## its log. Grown-ups only: it
 ## sits behind the parent gate, and it is the one screen where a LineEdit (the nickname) is allowed.
 ## The numbers come from ProgressReport over the save and the attempt log; nothing here leaves the
 ## device unless the parent exports it.
@@ -16,6 +19,10 @@ var _status: Label
 var _session_label: Label
 var _nickname: LineEdit
 var _file_dialog: FileDialog
+## The older file waiting for the parent's choice (Sprint 17), or "".
+var _pending_older: String = ""
+var _older_row: HBoxContainer
+var _skill_map: SkillMap
 
 
 func _ready() -> void:
@@ -55,13 +62,25 @@ func refresh() -> void:
 	var entries: Array = SaveSystem.read_attempts()["entries"]
 	var today: String = Adaptive.clock.today()
 	var offset: int = Adaptive.clock.utc_offset_minutes()
+	var week: Dictionary = ProgressReport.week_summary(entries, SaveSystem.data()["skills"], today, offset)
+	var struggling: Array[StringName] = Adaptive.engine.struggling(entries)
+	_section(&"parent.week.title")
+	var summary: Label = _label(&"parent.week.summary", {"minutes": week["minutes"], "sessions": week["sessions"], "mastered": week["mastered"], "struggling": struggling.size()})
+	summary.name = "WeekSummary"
+	_content.add_child(summary)
+	var handwriting: Label = _label(&"parent.week.handwriting", {"n": week["handwriting_answers"], "confirmed": week["handwriting_confirmed"], "percent": week["confirmation_percent"], "rejected": week["handwriting_rejected"]})
+	handwriting.name = "WeekHandwriting"
+	_content.add_child(handwriting)
 	_section(&"parent.dash.time")
 	_content.add_child(_label(&"parent.dash.today", {"n": ProgressReport.minutes(ProgressReport.seconds_on(entries, today, offset))}))
 	_content.add_child(_label(&"parent.dash.week", {"n": ProgressReport.minutes(ProgressReport.seconds_this_week(entries, today, offset))}))
+	_section(&"parent.map.title")
+	_skill_map = SkillMap.new()
+	_skill_map.name = "SkillMap"
+	_content.add_child(_skill_map)
 	var mastered: Array[StringName] = Adaptive.mastered()
 	_section(&"parent.dash.mastered", {"n": mastered.size()})
 	_content.add_child(_names(mastered))
-	var struggling: Array[StringName] = Adaptive.engine.struggling(entries)
 	_section(&"parent.dash.struggling", {"n": struggling.size()})
 	for id: StringName in struggling:
 		var record: Dictionary = Adaptive.engine.scheduler.record_of(SaveSystem.data()["skills"], id)
@@ -112,6 +131,9 @@ func refresh() -> void:
 		var capture: Button = _button(&"parent.dash.capture", func() -> void: request_screen.emit(&"capture", {}))
 		capture.name = "CaptureButton"
 		_content.add_child(capture)
+	var family: Button = _button(&"parent.dash.family", func() -> void: request_screen.emit(&"family_rewards", {}))
+	family.name = "FamilyButton"
+	_content.add_child(family)
 	var rerun: Button = _button(&"parent.dash.rerun", rerun_placement)
 	rerun.name = "RerunButton"
 	_content.add_child(rerun)
@@ -128,6 +150,19 @@ func refresh() -> void:
 	_status.name = "StatusLabel"
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_content.add_child(_status)
+	_older_row = HBoxContainer.new()
+	_older_row.name = "OlderChoice"
+	_older_row.add_theme_constant_override(&"separation", 16)
+	_older_row.visible = false
+	_content.add_child(_older_row)
+	var keep: Button = _button(&"parent.dash.keep_local", keep_local_progress)
+	keep.name = "KeepLocalButton"
+	_older_row.add_child(keep)
+	var use_file: Button = _button(&"parent.dash.use_file", use_older_file)
+	use_file.name = "UseFileButton"
+	_older_row.add_child(use_file)
+	_content.add_child(_label(&"parent.dash.device_id", {"id": DeviceSettings.shared().device_id().substr(0, 8)}))
+	_add_sync_log()
 
 
 ## The parent-facing name of a skill (curriculum/skills; never shown to the child).
@@ -183,15 +218,66 @@ func export_to(path: String) -> Error:
 	return error
 
 
-## Imports a bundle from `path` and refreshes every number.
-func import_from(path: String) -> Error:
-	var error: Error = SaveSystem.import_bundle(path)
+## Imports a bundle from `path` and refreshes every number. A file older than this device's progress
+## changes nothing yet: the parent chooses "Keep this device's progress" (the default) or "Use the
+## file anyway" (Sprint 17). `use_older` is that second choice.
+func import_from(path: String, use_older: bool = false) -> Error:
+	var error: Error = SaveSystem.import_bundle(path, use_older)
+	var report: Dictionary = SaveSystem.last_import_report
 	var line: StringName = &"parent.dash.import_failed"
-	if error == OK:
-		line = &"parent.dash.imported" if SaveSystem.last_import_report["replaced"] else &"parent.dash.import_kept"
+	if error == OK and report["replaced"]:
+		line = &"parent.dash.imported"
+	elif error == OK and report["older"]:
+		line = &"parent.dash.import_older"
+	elif error == OK:
+		line = &"parent.dash.import_same"
+	elif report["error"] == ProgressBundle.ERR_CHECKSUM:
+		line = &"parent.dash.import_changed"
 	refresh()
 	_status.text = Text.get_line(line)
+	_pending_older = path if error == OK and report["older"] and not report["replaced"] else ""
+	_older_row.visible = _pending_older != ""
 	return error
+
+
+## The default answer to an older file: nothing changes (its answers were already added to the log).
+func keep_local_progress() -> void:
+	_pending_older = ""
+	_older_row.visible = false
+	_status.text = Text.get_line(&"parent.dash.import_kept")
+
+
+## The parent chose the older file anyway: it replaces this device's progress, after a backup.
+func use_older_file() -> void:
+	if _pending_older == "":
+		return
+	import_from(_pending_older, true)
+
+
+func skill_map() -> SkillMap:
+	return _skill_map
+
+
+func older_choice_visible() -> bool:
+	return _older_row.visible
+
+
+## The import/export log, newest first.
+func _add_sync_log() -> void:
+	var entries: Array = SaveSystem.sync_log()
+	_section(&"parent.dash.sync_log", {"n": entries.size()})
+	if entries.is_empty():
+		_content.add_child(_label(&"parent.dash.none"))
+	for index: int in mini(entries.size(), 10):
+		var entry: Dictionary = entries[index]
+		var row: Label = _label(&"parent.dash.sync_row", {
+			"at": str(entry.get("at", "")).replace("T", " ").trim_suffix("Z"),
+			"action": Text.get_line(StringName("parent.sync.action_%s" % entry.get("action", "import"))),
+			"file": str(entry.get("file", "")),
+			"result": Text.get_line(StringName("parent.sync.result_%s" % entry.get("result", "failed"))),
+		})
+		row.name = "SyncRow%d" % index
+		_content.add_child(row)
 
 
 ## A label with an On / Off button that flips it.
@@ -262,7 +348,7 @@ func _dialog(mode: FileDialog.FileMode) -> FileDialog:
 
 func _open_export_dialog() -> void:
 	var dialog: FileDialog = _dialog(FileDialog.FILE_MODE_SAVE_FILE)
-	dialog.current_file = "gem-mines-progress-%s.json" % Adaptive.clock.today()
+	dialog.current_file = SaveSystem.export_file_name()
 	dialog.file_selected.connect(export_to)
 	dialog.popup_centered_ratio(0.8)
 

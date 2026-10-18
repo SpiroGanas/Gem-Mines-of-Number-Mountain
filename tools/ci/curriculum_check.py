@@ -25,7 +25,7 @@ SKILL_ID_RE = re.compile(r"^[a-z][a-z0-9]*\.[a-z0-9_]+\.[a-z0-9_]+$")
 SNAKE_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 ZONE_FILE_RE = re.compile(r"^z(\d{2})_([a-z0-9_]+)\.json$")
 
-# String check only (Sprint 2): the generator classes planned for Zones 1-4.
+# String check only (Sprint 2): the generator classes planned for Zones 1-5.
 # tests/curriculum/test_skill_graph.gd checks real resolution from Sprint 5 on.
 KNOWN_GENERATORS = frozenset({
     "CountingGenerator", "CompareGenerator", "PlaceValueGenerator", "RegroupGenerator",
@@ -33,10 +33,11 @@ KNOWN_GENERATORS = frozenset({
     "MissingPartGenerator", "BalanceGenerator",
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
     "MultFactsGenerator", "DivFactsGenerator", "FactorsGenerator", "MultiplesGenerator", "PrimeCompositeGenerator",
+    "SieveGenerator", "DivisibilityGenerator", "FactorTreeGenerator", "FtaGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
-WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs"})
+WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits"})
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
 ZONE_STATUSES = frozenset({"detailed", "outline"})
@@ -294,11 +295,12 @@ def check_skill_map(
     if cycle:
         errors.append("skill map: prerequisite cycle " + " -> ".join(cycle))
 
-    # Every vocabulary term for a detailed zone should be taught by some skill.
+    # Every vocabulary term for a detailed zone should be taught by some skill, unless the term says
+    # where else it is taught ("taught_by": "workshop" for the crafting bench's "recipe").
     detailed_zones = {zone for sid, zone in skill_zone.items() if skill_status[sid] == "detailed"}
     used_terms = {t for sid, s in skills.items() if skill_status[sid] == "detailed" for t in s["terms"]}
     for term_id, term in vocabulary.items():
-        if term["zone"] in detailed_zones and term_id not in used_terms:
+        if term["zone"] in detailed_zones and term_id not in used_terms and not term.get("taught_by"):
             errors.append(f"vocabulary: '{term_id}' (zone {term['zone']}) is used by no skill")
 
     # bkt_type keys must exist in bkt_defaults.json.

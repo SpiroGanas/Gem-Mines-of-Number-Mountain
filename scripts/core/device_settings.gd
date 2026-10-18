@@ -1,5 +1,5 @@
-## Settings that belong to the device, not to the child: the music and sound volumes, and whether
-## handwriting answers are offered on this device.
+## Settings that belong to the device, not to the child: the music and sound volumes, whether
+## handwriting answers are offered on this device, and the device's random id (Sprint 17).
 ## Kept in user://device_settings.cfg (a Godot ConfigFile), apart from the child's save, so the save
 ## schema does not change and a second child on the same tablet (Phase 3 profiles) shares them.
 ## Levels run 0 (off) to LEVELS; apply() sets the Music and SFX audio buses.
@@ -57,6 +57,27 @@ func handwriting_enabled() -> bool:
 func set_handwriting_enabled(enabled: bool) -> void:
 	_config.set_value("input", "handwriting", enabled)
 	_config.save(path)
+
+
+## This device's id: a random UUID made the first time it is asked for and kept here. It is not a
+## hardware id (no serial, no advertising id): it only tells the parent which device wrote a
+## progress file, and it is not part of the child's save that travels between devices.
+func device_id() -> String:
+	var id: String = str(_config.get_value("device", "id", ""))
+	if id.length() != 36:
+		id = random_uuid()
+		_config.set_value("device", "id", id)
+		_config.save(path)
+	return id
+
+
+## A random version-4 UUID ("xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx") from the system's secure random.
+static func random_uuid() -> String:
+	var bytes: PackedByteArray = Crypto.new().generate_random_bytes(16)
+	bytes[6] = (bytes[6] & 0x0F) | 0x40
+	bytes[8] = (bytes[8] & 0x3F) | 0x80
+	var hex: String = bytes.hex_encode()
+	return "%s-%s-%s-%s-%s" % [hex.substr(0, 8), hex.substr(8, 4), hex.substr(12, 4), hex.substr(16, 4), hex.substr(20, 12)]
 
 
 ## Sets the audio buses to the saved levels.

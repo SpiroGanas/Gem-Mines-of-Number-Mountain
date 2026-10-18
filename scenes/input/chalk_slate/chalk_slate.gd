@@ -23,6 +23,8 @@ signal fell_back_to_number_pad
 signal digit_read(digit: int, mirrored: bool)
 
 const BOX_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/digit_box.tscn")
+var _last_confirmed: bool = false
+
 const BUBBLE_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/confirm_bubble.tscn")
 const PLACE_LINES: Array[StringName] = [&"input.slate.place_ones", &"input.slate.place_tens", &"input.slate.place_hundreds"]
 
@@ -201,7 +203,7 @@ func _on_confirmed() -> void:
 	_pending = {}
 	_bubble.close()
 	_show_controls(true)
-	_submit(value)
+	_submit(value, true)
 
 
 ## "Try again": only the unsure boxes are wiped; the digits already read with confidence stay.
@@ -219,7 +221,14 @@ func _on_retry() -> void:
 	answer_rejected.emit()
 
 
-func _submit(value: int) -> void:
+## True when the last submitted answer needed "Did you write 47?" and the child said Yes (the
+## dashboard's handwriting confirmation rate, Sprint 21).
+func last_answer_confirmed() -> bool:
+	return _last_confirmed
+
+
+func _submit(value: int, confirmed: bool = false) -> void:
+	_last_confirmed = confirmed
 	for index: int in _readings.size():
 		if not _readings[index].is_empty():
 			digit_read.emit(int(_readings[index]["digit"]), bool(_readings[index].get("mirrored", false)))

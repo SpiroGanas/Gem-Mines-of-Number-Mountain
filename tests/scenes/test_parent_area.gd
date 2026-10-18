@@ -129,6 +129,42 @@ func test_export_and_import_from_the_dashboard() -> void:
 	assert_str(dashboard.status_text()).is_equal(Text.get_line(&"parent.dash.imported"))
 
 
+func test_an_older_file_waits_for_the_parents_choice_and_the_log_shows_it() -> void:
+	SaveSystem.data()["rewards"]["coins"] = 7
+	var dashboard: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn")
+	var path: String = _dir.path_join("older.json")
+	dashboard.export_to(path)
+	SaveSystem.use_directory(create_temp_dir("newer_" + str(Time.get_ticks_usec())))
+	SaveSystem.data()["rewards"]["coins"] = 70
+	SaveSystem.data()["updated_at"] = "2099-01-01T00:00:00Z"
+	dashboard.refresh()
+	assert_int(dashboard.import_from(path)).is_equal(OK)
+	assert_str(dashboard.status_text()).is_equal(Text.get_line(&"parent.dash.import_older"))
+	assert_bool(dashboard.older_choice_visible()).is_true()
+	assert_int(Rewards.coins()).is_equal(70) # nothing replaced yet
+	dashboard.use_older_file()
+	assert_int(Rewards.coins()).is_equal(7)
+	assert_str(dashboard.status_text()).is_equal(Text.get_line(&"parent.dash.imported"))
+	assert_bool(dashboard.older_choice_visible()).is_false()
+	assert_int(SaveSystem.backups().size()).is_equal(1)
+	var rows: Array[Node] = dashboard.find_children("SyncRow*", "Label", true, false)
+	assert_int(rows.size()).is_equal(2) # the older-kept import, then the replacing one
+	assert_str((rows[0] as Label).text).contains(Text.get_line(&"parent.sync.result_replaced"))
+
+
+func test_keeping_this_devices_progress_changes_nothing() -> void:
+	var dashboard: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn")
+	var path: String = _dir.path_join("older.json")
+	dashboard.export_to(path)
+	SaveSystem.data()["rewards"]["coins"] = 70
+	SaveSystem.data()["updated_at"] = "2099-01-01T00:00:00Z"
+	dashboard.import_from(path)
+	dashboard.keep_local_progress()
+	assert_int(Rewards.coins()).is_equal(70)
+	assert_str(dashboard.status_text()).is_equal(Text.get_line(&"parent.dash.import_kept"))
+	assert_array(SaveSystem.backups()).is_empty()
+
+
 func test_only_the_parent_area_has_a_text_field() -> void:
 	var dashboard: DashboardScreen = _screen("res://scenes/shell/parent_area/dashboard.tscn")
 	assert_array(dashboard.find_children("*", "LineEdit", true, false)).has_size(1)

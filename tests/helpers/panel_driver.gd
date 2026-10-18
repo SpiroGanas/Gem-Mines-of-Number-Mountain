@@ -34,6 +34,15 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			return true
 		AnswerPanel.InputKind.SPLIT:
 			return panel.boulder_split().choose_pair(int(target[0])) # a split gives [smaller, larger]
+		AnswerPanel.InputKind.SIEVE:
+			var grid: SieveGrid = panel.sieve_grid()
+			for number: int in range(1, grid.size_limit + 1):
+				if grid.is_crossed(number) != target.has(number) and not grid.toggle(number):
+					return false # a rock crossed from the start cannot come back
+			grid.submit()
+			return true
+		AnswerPanel.InputKind.TREE:
+			return grow_tree(panel.factor_tree(), target)
 		AnswerPanel.InputKind.ARRAY:
 			panel.array_builder().set_array(int(target["rows"]), int(target["cols"]))
 			panel.array_builder().submit()
@@ -48,6 +57,44 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			panel.board().submit()
 			return true
 	return false
+
+
+## Builds a factor tree whose leaves are `target` (sorted): splits pieces until the leaves match, taps
+## each prime leaf with the pickaxe (it bounces and becomes a gem), and presses Done if a composite
+## leaf is left standing. Returns false if `target` cannot be grown from the tree's number.
+static func grow_tree(tree: FactorTree, target: Array) -> bool:
+	tree.pause_seconds = 0.0
+	var want: Array = target.duplicate()
+	var kept: Array[int] = []
+	for step: int in 64:
+		var next: int = -1
+		for index: int in tree.leaf_order():
+			if not bool(tree.node(index)["gem"]) and not kept.has(index):
+				next = index
+				break
+		if next < 0:
+			break
+		tree.pick(next)
+		var value: int = tree.node(next)["value"]
+		if want.has(value):
+			want.erase(value)
+			if FactorTree.proper_factors(value).is_empty():
+				tree.boulder_split().choose_pair(1) # a prime: the pickaxe bounces
+			else:
+				kept.append(next)
+			continue
+		var low: int = -1
+		for part: Variant in want:
+			if int(part) > 1 and int(part) < value and value % int(part) == 0:
+				low = mini(int(part), floori(float(value) / int(part)))
+				break
+		if low < 0 or not tree.boulder_split().choose_pair(low):
+			return false
+	if not want.is_empty():
+		return false
+	if not tree.is_complete():
+		tree.submit()
+	return true
 
 
 ## A value the widget can give that is certainly wrong for `problem`.

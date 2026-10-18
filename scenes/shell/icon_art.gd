@@ -6,7 +6,7 @@
 class_name IconArt
 extends Control
 
-const KINDS: Array[StringName] = [&"dig", &"museum", &"garage", &"settings", &"grownups", &"back"]
+const KINDS: Array[StringName] = [&"dig", &"museum", &"garage", &"settings", &"grownups", &"back", &"workshop", &"build", &"badges", &"glossary"]
 const INK: Color = Color("#1F2945")
 ## Kenney Game Icons (assets/CREDITS.md) for the kinds the pack covers.
 const TEXTURE_PATHS: Dictionary = {
@@ -14,6 +14,8 @@ const TEXTURE_PATHS: Dictionary = {
 	&"grownups": "res://assets/art/kenney/icons/locked.png",
 	&"garage": "res://assets/art/kenney/icons/wrench.png",
 	&"back": "res://assets/art/kenney/icons/return.png",
+	&"badges": "res://assets/art/kenney/icons/trophy.png",
+	&"glossary": "res://assets/art/kenney/icons/information.png",
 }
 
 static var _textures: Dictionary = {}
@@ -85,6 +87,17 @@ func _draw() -> void:
 		&"grownups": # a padlock
 			draw_rect(Rect2(Vector2(0.22, 0.45) * s, Vector2(0.56, 0.42) * s), INK)
 			draw_arc(Vector2(0.5, 0.45) * s, s.x * 0.18, PI, TAU, 12, INK, w)
+		&"workshop": # a hammer over a gem
+			draw_line(Vector2(0.2, 0.8) * s, Vector2(0.6, 0.4) * s, INK, w * 1.2)
+			draw_rect(Rect2(Vector2(0.48, 0.14) * s, Vector2(0.36, 0.2) * s), INK)
+			draw_colored_polygon(PackedVector2Array([Vector2(0.72, 0.55) * s, Vector2(0.86, 0.7) * s, Vector2(0.72, 0.88) * s, Vector2(0.58, 0.7) * s]), INK)
+		&"build": # a rail on two sleepers with a cart
+			draw_line(Vector2(0.08, 0.78) * s, Vector2(0.92, 0.78) * s, INK, w)
+			draw_line(Vector2(0.25, 0.78) * s, Vector2(0.25, 0.9) * s, INK, w)
+			draw_line(Vector2(0.75, 0.78) * s, Vector2(0.75, 0.9) * s, INK, w)
+			draw_rect(Rect2(Vector2(0.28, 0.36) * s, Vector2(0.44, 0.3) * s), INK)
+			draw_circle(Vector2(0.36, 0.7) * s, s.x * 0.06, INK)
+			draw_circle(Vector2(0.64, 0.7) * s, s.x * 0.06, INK)
 		&"back": # an arrow pointing left
 			draw_line(Vector2(0.8, 0.5) * s, Vector2(0.25, 0.5) * s, INK, w * 1.2)
 			draw_colored_polygon(PackedVector2Array([Vector2(0.15, 0.5) * s, Vector2(0.4, 0.28) * s, Vector2(0.4, 0.72) * s]), INK)
