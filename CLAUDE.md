@@ -6,6 +6,8 @@ Developer and product owner: **Spiro**, an experienced software engineer and AI 
 
 Full plan: `docs/development-plan.md`. Architecture decisions: `docs/decisions.md`. Game design: `docs/gdd.md`.
 
+**Start every session by reading `status.md`** (repo root). It is the one-page handoff: current architecture, active goals, recent changes, open items and the immediate next steps. Trust it for *state*; trust this file for *rules*. If the two disagree, or `status.md` looks stale against `git log`, say so and fix `status.md`.
+
 ---
 
 ## Non-negotiable rules
@@ -124,6 +126,7 @@ android/plugins/digit_ink/   # EMPTY placeholder: recognition runs in GDScript, 
 tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
   voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/  qa/
+status.md            # session handoff: read first, keep current
 docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, phases/, art/, qa/ (release checklist, screenshots), reviews/
 private/             # GITIGNORED: Charlie's exported logs and handwriting samples. Never commit or upload.
 ```
@@ -282,7 +285,8 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 
 ## Workflow
 
-- **Read first:** before a non-trivial change, read the relevant section of `docs/development-plan.md` and `docs/decisions.md`.
+- **Read first:** `status.md` at the start of every session; then, before a non-trivial change, the relevant section of `docs/development-plan.md` and `docs/decisions.md`.
+- **Keep `status.md` current:** update it in the same commit or PR as any change to project state (a finished backlog item, a decision, a schema bump, a closed open item, a new blocker). Refresh its header (date, branch, commit), move finished items from "Next steps" to "Recent changes", and follow the "Maintaining this file" rules at its end. Never put rules there; rules belong here, decisions in `docs/decisions.md`.
 - **Small, reviewable changes.** One backlog item per branch: `feat/z1-regrouping-generator`, `fix/slate-palm-rejection`.
 - **Commit messages:** `type(scope): summary`. Types are feat, fix, test, refactor, content, docs, chore. Example: `feat(generators): add regrouping within 100`.
 - **Test-first** for generators, the adaptive engine and save migrations.
@@ -305,6 +309,7 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
   4. Saves survive app close and update.
   5. Lint passes.
   6. Tests pass.
+  7. `status.md` reflects the change.
 
 ## Current phase
 
@@ -324,4 +329,4 @@ Left for Spiro, the devices and the math reviewer before the `v1.0.0` tag: `docs
 
 **Next:** Sprint 22 (AI-voice narration; paid API calls need Spiro's go-ahead), then profiles and read-aloud, compliance, broad devices, the store listing and the closed test. The Phase 3 profiles change is a v2-to-v3 save migration. Zones 6-12 and Scholar mode stay out of scope until Phase 4. Don't build ahead of the current sprint; add ideas to the backlog instead.
 
-Update this section at the start of each phase.
+Update this section at the start of each phase. Day-to-day state (what just landed, what is next, what is blocked) lives in `status.md`, not here.
