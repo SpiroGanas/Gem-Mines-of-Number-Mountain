@@ -43,15 +43,17 @@ static func new_problem(skill: Skill, params: Dictionary, representation: String
 
 
 ## Adds a named wrong answer unless it is invalid: equal to the answer, a repeat of an earlier
-## distractor, or a negative whole number. `skill.misconceptions` must list the name.
-static func add_distractor(problem: Problem, skill: Skill, value: Variant, misconception: StringName) -> void:
+## distractor, or a negative whole number (unless `allow_negative`, for Zone 7's depths below zero).
+## Equal means equal in value for fractions and decimals (2/4 is never a wrong answer to 1/2; see
+## Problem.same_value). `skill.misconceptions` must list the name.
+static func add_distractor(problem: Problem, skill: Skill, value: Variant, misconception: StringName, allow_negative: bool = false) -> void:
 	assert(skill.misconceptions.has(misconception), "%s is not a misconception of %s" % [misconception, skill.id])
-	if value is int and value < 0:
+	if value is int and value < 0 and not allow_negative:
 		return
-	if Problem.same(value, problem.answer):
+	if problem.is_correct(value):
 		return
 	for existing: Dictionary in problem.distractors:
-		if Problem.same(existing["value"], value):
+		if Problem.same_value(existing["value"], value):
 			return
 	problem.distractors.append({"value": value, "misconception": misconception})
 

@@ -373,6 +373,20 @@ MATH_TERMS = {
     r"divid(?:e|es|ing)|division|÷": "divide",
     r"prime factorizations?": "prime_factorization",
     r"fundamental theorem": "fundamental_theorem",
+    # Zone 7 (Phase 4)
+    r"fractions?": "fraction",
+    r"numerators?": "numerator",
+    r"denominators?": "denominator",
+    r"unit fractions?": "unit_fraction",
+    r"equivalent": "equivalent",
+    r"mixed numbers?": "mixed_number",
+    r"improper fractions?": "improper_fraction",
+    r"decimals?": "decimal",
+    r"tenths?": "tenth",
+    r"hundredths?": "hundredth",
+    r"percent": "percent",
+    r"ratios?": "ratio",
+    r"negative": "negative",
 }
 # Lines for grown-ups and the Word Gem lines themselves are not checked.
 TERM_EXEMPT_PREFIXES = ("parent.", "vocab.", "debug.")

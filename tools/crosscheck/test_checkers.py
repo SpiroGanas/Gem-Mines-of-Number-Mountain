@@ -233,8 +233,8 @@ def test_a_malformed_export_is_a_failure_not_a_crash() -> None:
 
 
 def test_runner_knows_the_skills_and_misconceptions() -> None:
-    assert len(SKILLS) == 72 # Zones 1-5
-    assert len(ALLOWED) == 70
+    assert len(SKILLS) == 92 # Zones 1-5 and Zone 7
+    assert len(ALLOWED) == 101
     assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every generator has a checker
 
 

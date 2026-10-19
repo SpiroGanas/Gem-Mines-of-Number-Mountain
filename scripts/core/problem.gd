@@ -10,6 +10,12 @@
 ##   Dictionary                 {tens, ones}, {hundreds, tens, ones} or {rows, cols}
 ##   bool                       true / false (is the scale balanced? is it even?)
 ##   String                     a fact such as "12 - 5 = 7"
+##   {num, den}                 a fraction in lowest terms, positive den (Zone 7, Rational)
+##   {whole, num, den}          a mixed number, num < den (Zone 7)
+##   {mantissa, scale}          a decimal, mantissa / 10^scale, no trailing zeros (Zone 7)
+##   {a, b}                     a ratio a : b in lowest terms (Zone 7)
+## A fraction, mixed number or decimal answer is right in any form of the same value (2/4 for 1/2,
+## 0.50 for 0.5) unless meta.simplest_form is true; see is_correct().
 ##
 ## Optional `meta` keys that pick or shape the answer input (AnswerPanel reads them):
 ##   tools          ["ten", "one"] or ["hundred", "ten", "one"]: build on the BuildBoard
@@ -31,6 +37,17 @@
 ##                  smallest first. The precrossed rocks are crossed from the start and stay so.
 ##   factor_tree    {value}: build the factor tree of value by splitting pieces with the pickaxe
 ##                  (Zone 5); the answer is the leaves, smallest first.
+##   crystal        {den, shaded?: int, match?: {num, den}}: tap shards of a crystal cut into den equal
+##                  shards to light them, then Done (Zone 7). The answer is the lit fraction, normalized.
+##                  `match` draws a second crystal with that fraction lit to copy (equivalence).
+##   alloy          {a, b, given: int, max: int}: the alloy mixer (Zone 7). The recipe is a copper to b
+##                  tin; `given` copper is in the hopper; the child sets the tin scoops (0..max) and
+##                  presses Mix. The answer is the tin count (int).
+##   depth_gauge    {min, max, start}: the depth gauge (Zone 7). The child moves the elevator cab up
+##                  and down from `start` and presses Stop; the answer is the cab's level (int).
+##   signed         true: the number pad gets a minus key (the answer may be below zero).
+##   decimal_places int: the pad or slate takes a decimal with this many places after the point.
+##   percent        true: the answer buttons read "75%" (the answer is the percent as an int).
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -49,7 +66,20 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## digits      {digits: [int], focus: "last" | "last_two" | "sum" | "sum_and_last" | "recipe",
 ##             recipe?: [int]}: a number's digits with the part a divisibility rule looks at lit up,
 ##             plus "1 + 2 + 6 = 9" under a digit sum or "= 2 × 2 × 3" under a recipe (Zone 5)
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits"]
+## The Zone 7 pictures (drawn by CrystalArt, scenes/zones/z07_crystal_shards/crystal_art.gd):
+## crystals    {crystals: [{den, lit, second?}], shape: "crystal" | "bar", wholes?: int, joiner?:
+##             "plus" | "versus"}: crystals (round, cut into den wedge shards) or bars (cut into den
+##             strips) side by side, `lit` shards lit and `second` more lit in another color; `wholes`
+##             whole crystals stand in front (mixed numbers)
+## fraction_line {den, wholes, marker: {num, den}}: a number line from 0 to `wholes` with a tick at
+##             every 1/den and a gem at the marker
+## crystal_grid {wholes, lit, cells: 10 | 100}: `wholes` full grids, then a grid of `cells` (a ten-shard
+##             strip or a 10 by 10 grid) with `lit` cells lit (tenths, hundredths, percents)
+## depth_gauge {min, max, labeled_every, markers: [int], jumps?: [{from, to}]}: the vertical depth gauge,
+##             0 at the mountain's base, cab markers, and an elevator move as a jump
+## ore_mix     {a, b, groups?: int}: a copper ores and b tin ores (round and square lumps); `groups`
+##             rings them into that many equal mixes
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 
 var skill_id: StringName = &""
@@ -82,10 +112,34 @@ func answer_digits() -> int:
 	return str(answer).length() if answer is int and answer >= 0 else 0
 
 
+## The boxes a fraction answer needs on the slate: {num: digits, den: digits} (empty when the answer
+## is not a fraction). Derived from the answer, like answer_digits().
+func fraction_digits() -> Dictionary:
+	if not Rational.is_fraction(answer) or int(answer["num"]) < 0:
+		return {}
+	return {"num": str(int(answer["num"])).length(), "den": str(int(answer["den"])).length()}
+
+
 ## True if `given` is the right answer. Comparison is canonical: 34 and 34.0 match,
-## StringName and String match, and the order of an Array matters.
+## StringName and String match, and the order of an Array matters. A fraction, mixed number, decimal
+## or ratio is right in any equal form (2/4 for 1/2) unless meta.simplest_form asks for lowest terms.
 func is_correct(given: Variant) -> bool:
-	return same(given, answer)
+	if bool(meta.get("simplest_form", false)):
+		return same(given, answer)
+	return same_value(given, answer)
+
+
+## True when two answers are equal in value: fractions, mixed numbers and decimals by their exact
+## value (1/2, 2/4, 0 1/2 and 0.50 are all equal), ratios by cross-multiplying (2 : 3 and 4 : 6),
+## anything else as same() does. Never through a float.
+static func same_value(a: Variant, b: Variant) -> bool:
+	var x: Dictionary = Rational.value_of(canonical(a))
+	var y: Dictionary = Rational.value_of(canonical(b))
+	if not x.is_empty() and not y.is_empty():
+		return x == y
+	if Rational.is_ratio(a) and Rational.is_ratio(b):
+		return int(a["a"]) * int(b["b"]) == int(b["a"]) * int(a["b"]) and (int(a["a"]) == 0) == (int(b["a"]) == 0)
+	return same(a, b)
 
 
 ## True when two answers are the same in canonical form. Values of different kinds (a number and

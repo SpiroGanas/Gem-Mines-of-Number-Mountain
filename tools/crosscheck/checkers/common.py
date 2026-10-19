@@ -2,18 +2,49 @@
 visuals). Independent of the GDScript generators; see checkers/__init__.py."""
 from __future__ import annotations
 
+from fractions import Fraction
+
 REQUIRED_KEYS = (
     "skill_id", "seed", "representation", "prompt_line_id", "prompt_params", "answer",
     "answer_modes", "distractors", "visual", "hint_steps", "params", "meta",
 )
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
-VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits")
+VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits",
+                "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix")
+TAP_SHARDS = 12  # the most shards a crystal the child taps may have (Zone 7)
 DIGIT_FOCUS = ("last", "last_two", "sum", "sum_and_last", "recipe")
 TILTS = ("unknown", "level", "left", "right")
 
 
 def is_int(value: object) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def exact_value(value: object) -> Fraction | None:
+    """The exact value of a Zone 7 answer shape (fraction, mixed number, decimal), else None. Built with
+    fractions.Fraction from the integers, never through a float."""
+    if not isinstance(value, dict):
+        return None
+    keys = set(value)
+    if keys == {"num", "den"} and is_int(value["num"]) and is_int(value["den"]) and value["den"] != 0:
+        return Fraction(value["num"], value["den"])
+    if keys == {"whole", "num", "den"} and value["den"] != 0:
+        return value["whole"] + Fraction(value["num"], value["den"])
+    if keys == {"mantissa", "scale"} and is_int(value["scale"]) and value["scale"] >= 0:
+        return Fraction(value["mantissa"], 10 ** value["scale"])
+    return None
+
+
+def same_answer(x: object, y: object, simplest_form: bool = False) -> bool:
+    """Two answers are the same: Zone 7 fractions and decimals by value (2/4 is 1/2, 0.50 is 0.5) unless
+    the problem asks for simplest form, ratios by cross-multiplying, anything else exactly."""
+    if not simplest_form:
+        ex, ey = exact_value(x), exact_value(y)
+        if ex is not None and ey is not None:
+            return ex == ey
+        if isinstance(x, dict) and isinstance(y, dict) and set(x) == set(y) == {"a", "b"}:
+            return x["a"] * y["b"] == y["a"] * x["b"]
+    return x == y
 
 
 def pile_total(pile: dict) -> int:
@@ -45,8 +76,9 @@ def check_structure(problem: dict, skill: dict, allowed_names: set[str]) -> list
     if not isinstance(problem["prompt_line_id"], str) or not problem["prompt_line_id"]:
         errors.append("prompt_line_id is empty")
     for key, value in problem["prompt_params"].items():
-        if not is_int(value):
-            errors.append(f"prompt param {key!r} is not a whole number: {value!r}")
+        # Whole numbers, or (Zone 7) an exact decimal {mantissa, scale} or fraction {num, den}.
+        if not is_int(value) and not (isinstance(value, dict) and set(value) in ({"mantissa", "scale"}, {"num", "den"}) and exact_value(value) is not None):
+            errors.append(f"prompt param {key!r} is not a whole number or an exact decimal: {value!r}")
     errors += _check_distractors(problem, skill, allowed_names)
     errors += _check_hints(problem)
     errors += check_visual(problem["visual"], "visual")
@@ -57,6 +89,7 @@ def check_structure(problem: dict, skill: dict, allowed_names: set[str]) -> list
 def _check_distractors(problem: dict, skill: dict, allowed_names: set[str]) -> list[str]:
     errors: list[str] = []
     seen: list = []
+    simplest = bool(problem["meta"].get("simplest_form", False))
     for entry in problem["distractors"]:
         if set(entry) != {"value", "misconception"}:
             errors.append(f"malformed distractor {entry!r}")
@@ -66,9 +99,9 @@ def _check_distractors(problem: dict, skill: dict, allowed_names: set[str]) -> l
             errors.append(f"unknown misconception {name!r}")
         if name not in skill["misconceptions"]:
             errors.append(f"misconception {name!r} is not listed for the skill")
-        if entry["value"] == problem["answer"]:
+        if same_answer(entry["value"], problem["answer"], simplest):
             errors.append(f"distractor equals the answer: {entry['value']!r}")
-        if entry["value"] in seen:
+        if any(same_answer(entry["value"], earlier) for earlier in seen):
             errors.append(f"duplicate distractor value {entry['value']!r}")
         seen.append(entry["value"])
     if "tap" in problem["answer_modes"] and not problem["distractors"]:
@@ -162,6 +195,53 @@ def check_visual(visual: dict, where: str) -> list[str]:
             errors.append(f"{where}: digits must be 1 to 4 digits from 0 to 9")
         if visual.get("focus") not in DIGIT_FOCUS:
             errors.append(f"{where}: unknown digits focus {visual.get('focus')!r}")
+    else:
+        errors += _check_zone7_visual(visual, where)
+    return errors
+
+
+def _check_zone7_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 7 pictures can be drawn: shard counts, lit counts, grids, the gauge and the ore mix."""
+    errors: list[str] = []
+    kind = visual["type"]
+    if kind == "crystals":
+        crystals = visual.get("crystals")
+        if not isinstance(crystals, list) or not 1 <= len(crystals) <= 2:
+            return [f"{where}: crystals needs 1 or 2 crystals"]
+        if visual.get("shape") not in ("crystal", "bar"):
+            errors.append(f"{where}: unknown crystal shape {visual.get('shape')!r}")
+        if not 0 <= visual.get("wholes", 0) <= 9:
+            errors.append(f"{where}: 0 to 9 whole crystals")
+        for crystal in crystals:
+            den, lit, second = crystal.get("den", 0), crystal.get("lit", -1), crystal.get("second", 0)
+            if not (1 <= den <= 24 and lit >= 0 and second >= 0 and lit + second <= den):
+                errors.append(f"{where}: crystal {crystal} does not fit")
+    elif kind == "fraction_line":
+        den, wholes = visual.get("den", 0), visual.get("wholes", 0)
+        marker = visual.get("marker", {})
+        if den < 2 or wholes < 1 or visual.get("ticks") != den * wholes + 1:
+            errors.append(f"{where}: a fraction line needs ticks = den * wholes + 1")
+        elif marker.get("den") != den or not 0 <= marker.get("num", -1) <= den * wholes:
+            errors.append(f"{where}: the marker {marker} is not on a tick")
+    elif kind == "crystal_grid":
+        cells = visual.get("cells")
+        grids = visual.get("grids", [])
+        if cells not in (10, 100) or not 1 <= len(grids) <= 2:
+            errors.append(f"{where}: a crystal grid has 10 or 100 cells and 1 or 2 numbers")
+        for grid in grids:
+            if not (0 <= grid.get("lit", -1) <= (cells or 0) and 0 <= grid.get("wholes", -1) <= 9):
+                errors.append(f"{where}: grid {grid} does not fit")
+    elif kind == "depth_gauge":
+        low, high = visual.get("min", 0), visual.get("max", 0)
+        if not low < 0 < high or visual.get("labeled_every", 0) < 1:
+            errors.append(f"{where}: a depth gauge runs from below 0 to above 0")
+        for value in visual.get("markers", []) + [end for jump in visual.get("jumps", []) for end in (jump.get("from"), jump.get("to"))]:
+            if not is_int(value) or not low <= value <= high:
+                errors.append(f"{where}: {value!r} is off the gauge {low}..{high}")
+    elif kind == "ore_mix":
+        a, b, groups = visual.get("a", -1), visual.get("b", -1), visual.get("groups", 1)
+        if a < 0 or b < 0 or not 1 <= a + b <= 72 or groups < 1 or a % groups or b % groups:
+            errors.append(f"{where}: ore mix {visual} does not split into its groups")
     return errors
 
 
@@ -218,6 +298,19 @@ def check_input_meta(problem: dict) -> list[str]:
         for value in values:
             if not isinstance(value, list) or not value or not all(is_int(v) and v >= 1 for v in value):
                 errors.append(f"factor tree: {value!r} must be a list of pieces")
+    crystal = meta.get("crystal")
+    if crystal is not None:
+        den = crystal.get("den", 0)
+        if not 2 <= den <= TAP_SHARDS:
+            errors.append(f"crystal: a crystal to tap has 2 to {TAP_SHARDS} shards, got {den}")
+        elif not any(same_answer({"num": lit, "den": den}, problem["answer"]) for lit in range(den + 1)):
+            errors.append("crystal: no way of lighting the shards gives the answer")
+    mixer = meta.get("alloy")
+    if mixer is not None and not (is_int(problem["answer"]) and 0 <= problem["answer"] <= mixer.get("max", -1)):
+        errors.append("alloy: the tin hopper cannot hold the answer")
+    ride = meta.get("depth_gauge")
+    if ride is not None and not (is_int(problem["answer"]) and ride["min"] <= problem["answer"] <= ride["max"] and ride["min"] <= ride["start"] <= ride["max"]):
+        errors.append("depth gauge: the cab cannot ride to the answer")
     labels = meta.get("label_lines")
     if labels is not None:
         for value in values:
