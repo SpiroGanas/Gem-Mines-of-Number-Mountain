@@ -29,6 +29,20 @@
         {"step_id": "weights_2", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}},
         {"step_id": "weights_3", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}}
       ]
+    },
+    {
+      "id": "conveyor_sync",
+      "name_line_id": "build.conveyor_sync.name",
+      "intro_line_id": "build.conveyor_sync.intro",
+      "reward_line_id": "build.conveyor_sync.done",
+      "zone_unlocks": 6,
+      "locks_zone": true,
+      "unlock_after_skill": "mul.common.first",
+      "steps": [
+        {"step_id": "belts_1", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {"difficulty": -1}},
+        {"step_id": "belts_2", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {}},
+        {"step_id": "belts_3", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {}}
+      ]
     }
   ]
 }

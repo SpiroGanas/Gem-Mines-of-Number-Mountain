@@ -7,6 +7,9 @@
 ##   cart_track         params {a, c, filled}: a rail of a units, a gap to c, filled when solved
 ##   balance_elevator   params {groups, size, balanced}: crates on one pan, the counterweight on the
 ##                      other; balanced lifts the cage
+##   conveyor_sync      params {a, b, synced}: two belts driven by gears of a and b teeth drop a gem
+##                      every a and every b ticks; synced, both drop together at their first shared
+##                      multiple and the belts run (Zone 6)
 ## `phase` (0..1) moves the machines; the hub tweens it while the machine is on screen.
 class_name WorkshopArt
 extends Control
@@ -22,6 +25,11 @@ const CRATE: Color = Color("#D9A066")
 
 var kind: StringName = &""
 var params: Dictionary = {}
+## Conveyor Sync's gears and their labels, made once in show_kind: the hub redraws it every frame.
+var _gear_top: GearArt = GearArt.new()
+var _gear_bottom: GearArt = GearArt.new()
+var _label_top: String = ""
+var _label_bottom: String = ""
 var phase: float = 0.0:
 	set(value):
 		phase = value
@@ -35,6 +43,8 @@ func _init() -> void:
 func show_kind(new_kind: StringName, new_params: Dictionary = {}) -> void:
 	kind = new_kind
 	params = new_params.duplicate()
+	_label_top = str(int(params.get("a", 2)))
+	_label_bottom = str(int(params.get("b", 3)))
 	queue_redraw()
 
 
@@ -52,6 +62,8 @@ func _draw() -> void:
 			_draw_cart_track()
 		&"balance_elevator":
 			_draw_balance_elevator()
+		&"conveyor_sync":
+			_draw_conveyor_sync()
 
 
 func _box() -> Rect2:
@@ -200,3 +212,42 @@ func _draw_dots(box: Rect2, count: int) -> void:
 	for index: int in count:
 		var spot: Vector2 = box.position + Vector2(step.x * float(index % 5 + 1), step.y * float(floori(index / 5.0) + 1))
 		draw_circle(spot, minf(step.x, step.y) * 0.3, INK)
+
+
+## The longest belt Conveyor Sync draws, in ticks (a shared multiple past this is drawn squeezed).
+const BELT_TICKS_MAX: int = 90
+
+
+## Two belts, one above the other, each with an electric motor and a gear at its left end. Gems ride
+## every `a` ticks on the top belt and every `b` ticks on the bottom one; the drop line on the right is
+## their first shared multiple. Synced, the drop line glows and the belts roll with `phase`; not yet,
+## the drop line is dim and the gems wait.
+func _draw_conveyor_sync() -> void:
+	var a: int = clampi(int(params.get("a", 2)), 1, 30)
+	var b: int = clampi(int(params.get("b", 3)), 1, 30)
+	var synced: bool = bool(params.get("synced", false))
+	var ticks: int = mini(GearTrain.first_shared_drop(a, b), BELT_TICKS_MAX)
+	var left: float = size.x * 0.24
+	var right: float = size.x * 0.9
+	var unit: float = (right - left) / float(maxi(ticks, 1))
+	var belt: float = maxf(size.y * 0.07, 6.0)
+	var gem: float = minf(belt * 1.1, unit * maxf(minf(a, b), 1.0) * 0.8)
+	draw_line(Vector2(right, size.y * 0.12), Vector2(right, size.y * 0.92), GOOD if synced else Color(STEEL, 0.4), 4.0 if synced else 2.0)
+	for row: int in 2:
+		var every: int = a if row == 0 else b
+		var y: float = size.y * (0.34 if row == 0 else 0.72)
+		var art: GearArt = _gear_top if row == 0 else _gear_bottom
+		draw_rect(Rect2(size.x * 0.01, y - size.y * 0.09, size.x * 0.06, size.y * 0.18), STEEL)
+		draw_rect(Rect2(size.x * 0.01, y - size.y * 0.09, size.x * 0.06, size.y * 0.18), INK, false, 2.0)
+		draw_circle(Vector2(size.x * 0.04, y), size.y * 0.03, LIGHT if synced else Color(LIGHT, 0.4)) # the motor's power light
+		draw_rect(Rect2(left, y - belt * 0.5, right - left, belt), Color("#3A4466"))
+		draw_rect(Rect2(left, y - belt * 0.5, right - left, belt), RAIL, false, 2.0)
+		var rolled: float = fmod(phase * float(ticks), float(every)) if synced else 0.0
+		var spot: float = float(every) - rolled
+		while spot <= float(ticks) + 0.01:
+			var x: float = left + spot * unit
+			draw_circle(Vector2(x, y - belt * 0.5 - gem * 0.5), gem * 0.5, GemArt.color_for(GemArt.QUARTZ))
+			draw_arc(Vector2(x, y - belt * 0.5 - gem * 0.5), gem * 0.5, 0.0, TAU, 12, INK, 1.5)
+			spot += float(every)
+		var turn: float = TAU * phase * float(ticks) / float(every) * (1.0 if synced else 0.0)
+		art.draw(self, Vector2(size.x * 0.15, y), size.y * 0.14, every, turn, _label_top if row == 0 else _label_bottom)

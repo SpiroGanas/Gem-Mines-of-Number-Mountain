@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z06_gear_works/gear.gd" id="1_gear"]
+
+[node name="Gear" type="Control"]
+mouse_filter = 2
+script = ExtResource("1_gear")

@@ -43,6 +43,11 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			return true
 		AnswerPanel.InputKind.TREE:
 			return grow_tree(panel.factor_tree(), target)
+		AnswerPanel.InputKind.GEAR:
+			if not panel.gear_bench().place(int(target)):
+				return false
+			panel.gear_bench().submit()
+			return true
 		AnswerPanel.InputKind.ARRAY:
 			panel.array_builder().set_array(int(target["rows"]), int(target["cols"]))
 			panel.array_builder().submit()
