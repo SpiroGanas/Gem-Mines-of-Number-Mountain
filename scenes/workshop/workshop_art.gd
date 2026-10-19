@@ -12,6 +12,9 @@
 ##                      multiple and the belts run (Zone 6)
 ##   alloy_mixer        params {a, b, copper, tin, mixed}: Zone 7's ore hoppers and electric drum
 ##                      (drawn by AlloyMixerArt, scenes/workshop/builds/alloy_mixer/)
+##   counterweight_elevator  params {w, d, r, x, balanced}: Zone 8's shaft, beam, cab and counterweight;
+##                      balanced, the cab rides up (drawn by CounterweightElevatorArt,
+##                      scenes/workshop/builds/counterweight_elevator/)
 ## `phase` (0..1) moves the machines; the hub tweens it while the machine is on screen.
 class_name WorkshopArt
 extends Control
@@ -68,6 +71,8 @@ func _draw() -> void:
 			_draw_conveyor_sync()
 		&"alloy_mixer":
 			AlloyMixerArt.draw(self, size, params, phase)
+		&"counterweight_elevator":
+			CounterweightElevatorArt.draw(self, size, params, phase)
 
 
 func _box() -> Rect2:

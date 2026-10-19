@@ -1,6 +1,6 @@
 ## Text autoload: the only source of child-facing strings (CLAUDE.md rule 4).
 ##
-## Reads text/lines.csv (columns: id, text, context, voice_version) once at startup
+## Reads text/lines.csv (columns: id, text, context, voice_version, and the optional mode) once at startup
 ## and hands out lines by stable id, filling {placeholders} such as {n}, {a}, {b}
 ## at runtime. Scenes and scripts never hard-code child-facing words, so Phase 3
 ## can add narration by id without reworking any screen.
@@ -21,12 +21,21 @@ const COLUMN_ID: String = "id"
 const COLUMN_TEXT: String = "text"
 ## All columns the table must have. Extra columns are allowed.
 const REQUIRED_COLUMNS: PackedStringArray = ["id", "text", "context", "voice_version"]
+## Scholar mode (Phase 4, Sprint 37): an optional `mode` column. A row whose mode is "scholar" is a
+## longer variant of the line with the same id; get_line() returns it while ModeGate's LONGER_TEXT
+## feature is on for the child playing (ScholarMode). Every other row is the line every child sees.
+const COLUMN_MODE: String = "mode"
+const MODE_SCHOLAR: String = "scholar"
 ## The warm headlamp yellow used to highlight numbers in Bolt's bubble.
 const HIGHLIGHT_COLOR: String = "#FFD166"
 ## The minus sign numbers below zero are shown with (U+2212, wider than a hyphen; Zone 7 depths).
 const MINUS: String = "\u2212"
 
 var _lines: Dictionary[StringName, String] = {}
+## Scholar variants by id (the `mode` column).
+var _scholar: Dictionary[StringName, String] = {}
+## Tests: true or false to show Scholar variants or not without a profile; null asks ScholarMode.
+var scholar_override: Variant = null
 var _placeholder_pattern: RegEx = RegEx.new()
 var _vocabulary: Dictionary[StringName, Dictionary] = {}
 var _vocabulary_loaded: bool = false
@@ -57,12 +66,17 @@ func load_table(path: String = LINES_PATH) -> Error:
 			return ERR_INVALID_DATA
 	var id_column: int = header.find(COLUMN_ID)
 	var text_column: int = header.find(COLUMN_TEXT)
+	var mode_column: int = header.find(COLUMN_MODE)
+	_scholar.clear()
 	while not file.eof_reached():
 		var row: PackedStringArray = file.get_csv_line()
 		if row.size() <= maxi(id_column, text_column):
 			continue # blank or short line
 		var id: StringName = StringName(row[id_column].strip_edges())
 		if id.is_empty():
+			continue
+		if mode_column >= 0 and row.size() > mode_column and row[mode_column].strip_edges() == MODE_SCHOLAR:
+			_scholar[id] = row[text_column] # Scholar mode's longer variant of the same line
 			continue
 		if _lines.has(id):
 			push_error("Text: duplicate line id '%s' in %s" % [id, path])
@@ -87,7 +101,7 @@ func get_line(id: StringName, params: Dictionary = {}) -> String:
 		missing_line.emit(id)
 		_report("Text: missing line '%s'" % id)
 		return "[%s]" % id
-	var filled: String = _lines[id].format(_display_params(params))
+	var filled: String = template(id).format(_display_params(params))
 	var unfilled: PackedStringArray = _placeholders_in(filled)
 	if not unfilled.is_empty():
 		_report("Text: line '%s' is missing parameter(s) %s" % [id, ", ".join(unfilled)])
@@ -106,7 +120,7 @@ func get_line_bbcode(id: StringName, params: Dictionary = {}, highlight: Array =
 	for key: Variant in params:
 		var value: String = escape_bbcode(display_value(params[key]))
 		filled[key] = "[b][color=%s]%s[/color][/b]" % [color, value] if highlight.has(key) else value
-	var template: String = escape_bbcode(_lines[id])
+	var template: String = escape_bbcode(template(id))
 	if not links.is_empty():
 		template = _link_words(template, links)
 	return template.format(filled)
@@ -179,7 +193,36 @@ static func escape_bbcode(text: String) -> String:
 func required_params(id: StringName) -> PackedStringArray:
 	if not _lines.has(id):
 		return PackedStringArray()
-	return _placeholders_in(_lines[id])
+	var names: PackedStringArray = _placeholders_in(_lines[id])
+	for name: String in _placeholders_in(_scholar.get(id, "")): # a Scholar variant may use them too
+		if not names.has(name):
+			names.append(name)
+	return names
+
+
+## The template get_line fills: the Scholar variant while longer text is on (and one exists), else the
+## line every child sees. Unknown ids give "".
+func template(id: StringName) -> String:
+	if _scholar.has(id) and scholar_text_on():
+		return _scholar[id]
+	return _lines.get(id, "")
+
+
+## True when an id has a Scholar variant.
+func has_scholar_variant(id: StringName) -> bool:
+	return _scholar.has(id)
+
+
+## The Scholar variant's template, or "" (tests and the review packet).
+func scholar_template(id: StringName) -> String:
+	return _scholar.get(id, "")
+
+
+## Whether Scholar variants are shown now: ModeGate's LONGER_TEXT for the child playing.
+func scholar_text_on() -> bool:
+	if scholar_override != null:
+		return bool(scholar_override)
+	return ScholarMode.is_on(ModeGate.Feature.LONGER_TEXT)
 
 
 ## A Word Gem: {term: String, text: String, picture: Texture2D or null, visual: Dictionary}.

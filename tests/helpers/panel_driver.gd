@@ -64,6 +64,39 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			panel.proof_board().speed_scale = 0.0
 			panel.proof_board().toggle_fit() # fit the pieces first, as a child would
 			return panel.proof_board().choose(str(target))
+		AnswerPanel.InputKind.VAULT:
+			var lock: VaultLockPicker = panel.vault_lock()
+			lock.speed_scale = 0.0
+			if not Notation.is_base_number(target) or int(target["base"]) != lock.lock.base or target["digits"].size() > lock.place_count():
+				return false
+			lock.set_digits([])
+			# Tap each place up to its digit, the way a child turns a dial.
+			var offset: int = lock.place_count() - target["digits"].size()
+			for index: int in target["digits"].size():
+				for turn: int in int(target["digits"][index]):
+					lock.place_button(index + offset).pressed.emit()
+			lock.open_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.TOWER:
+			var tower: TowerElevator = panel.tower_elevator()
+			tower.speed_scale = 0.0
+			tower.move(int(target) - tower.floor_now())
+			if tower.floor_now() != int(target):
+				return false
+			tower.stop_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.LEVER:
+			var lever: CounterweightLever = panel.counterweight()
+			lever.speed_scale = 0.0
+			lever.set_weight(int(target))
+			if lever.weight() != int(target):
+				return false
+			lever.balance_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.SCI_PAD, AnswerPanel.InputKind.BASE_PAD:
+			return give_power_pad(panel.power_pad(), target)
+		AnswerPanel.InputKind.KEYBOARD:
+			return type_on_keyboard(panel.keyboard_entry(), target)
 		AnswerPanel.InputKind.TILES:
 			var board: TileBoard = panel.tile_board()
 			board.clear()
@@ -169,6 +202,66 @@ static func give_fraction_pad(pad: FractionPad, target: Variant) -> bool:
 			return false
 	pad.go()
 	return true
+
+
+## Types {mantissa, scale: 1, exp} (SCI) or {base, digits} (BASE) on the Zone 8 pad and presses Go.
+static func give_power_pad(pad: PowerPad, target: Variant) -> bool:
+	pad.clear()
+	if pad.layout == PowerPad.Layout.BASE:
+		if not Notation.is_base_number(target):
+			return false
+		for digit: Variant in target["digits"]:
+			pad.press_digit(int(digit))
+		pad.go()
+		return Notation.text(pad.value()) == Notation.text(target)
+	if not Notation.is_sci(target) or int(target["scale"]) != 1 or int(target["mantissa"]) < 10 or int(target["mantissa"]) > 99 or int(target["exp"]) > 9 or int(target["exp"]) < 0:
+		return false # the pad's boxes hold d.d × 10^d only
+	for digit: String in str(int(target["mantissa"])) + str(int(target["exp"])):
+		pad.press_digit(int(digit))
+	pad.go()
+	return true
+
+
+## Types a value on keyboard entry with real key events (digits, "-", "/", ".", "^") and presses Enter.
+static func type_on_keyboard(entry: KeyboardEntry, target: Variant) -> bool:
+	entry.clear()
+	var keys: String = ""
+	if target is int:
+		keys = str(absi(target)) + ("-" if target < 0 else "")
+	elif Rational.is_fraction(target):
+		keys = "%d/%d" % [int(target["num"]), int(target["den"])]
+	elif Rational.is_decimal(target):
+		keys = Rational.decimal_text(target)
+	elif Notation.is_sci(target):
+		keys = Rational.decimal_text({"mantissa": int(target["mantissa"]), "scale": int(target["scale"])}) + "^" + str(int(target["exp"]))
+	elif Notation.is_base_number(target):
+		keys = Notation.text(target)
+	else:
+		return false
+	for character: String in keys:
+		entry.handle_key_event(key_event(character))
+	entry.handle_key_event(key_event("\n"))
+	return true
+
+
+## A pressed InputEventKey for one typed character ("\n" is Enter).
+static func key_event(character: String) -> InputEventKey:
+	var event: InputEventKey = InputEventKey.new()
+	event.pressed = true
+	match character:
+		"\n":
+			event.keycode = KEY_ENTER
+		"-":
+			event.keycode = KEY_MINUS
+		"/":
+			event.keycode = KEY_SLASH
+		".":
+			event.keycode = KEY_PERIOD
+		"^":
+			event.keycode = KEY_ASCIICIRCUM
+		_:
+			event.keycode = (KEY_0 + int(character)) as Key
+	return event
 
 
 ## A value the widget can give that is certainly wrong for `problem`.

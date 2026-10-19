@@ -15,6 +15,11 @@
 ##   {whole, num, den}          a mixed number, num < den (Zone 7)
 ##   {mantissa, scale}          a decimal, mantissa / 10^scale, no trailing zeros (Zone 7)
 ##   {a, b}                     a ratio a : b in lowest terms, order kept (Zone 6 on); "2 : 3"
+##   {base, digits}             a number in base 2 to 10, digits most significant first, no leading
+##                              zero (Zone 8, Notation); its answer button reads "1101"
+##   {mantissa, scale, exp}     scientific notation mantissa / 10^scale × 10^exp, normalized (Zone 8)
+##   {op, terms}                a written-out calculation, op "mul" or "add": 3 × 3 × 3 × 3 (Zone 8)
+## The Zone 8 shapes are judged by exact form (34 × 10⁴ is not 3.4 × 10⁵ here).
 ## A fraction, mixed number, decimal or ratio answer is right in any form of the same value (2/4 for
 ## 1/2, 0.50 for 0.5, 4 : 6 for 2 : 3) unless meta.simplest_form is true; see is_correct().
 ##
@@ -52,6 +57,17 @@
 ##   signed         true: the number pad gets a minus key (the answer may be below zero).
 ##   decimal_places int: the pad or slate takes a decimal with this many places after the point.
 ##   percent        true: the answer buttons read "75%" (the answer is the percent as an int).
+##   pad_digits     int: the number pad takes this many digits (default 3; powers of 10 need 7) (Zone 8).
+##   vault_lock     {base, places}: the vault lock (Zone 8): tap lamps (base 2) or turn dials (other bases)
+##                  in `places` places, then Open. The answer is the {base, digits} the lock shows.
+##   base_pad       {base, places}: the base pad, digit keys 0 to base - 1 only, for a {base, digits}
+##                  answer typed in (binary sums) (Zone 8).
+##   tower          {base, floors, start}: the tower elevator (Zone 8): floor k is base^k meters up; the
+##                  child rides the cab and presses Stop here. The answer is the floor (int).
+##   lever          {left_w, left_d, right_d, max}: the counterweight lever (Zone 8): set the right weight
+##                  (0..max) with More and Less, then Balance. The answer is the weight (int).
+##   sci_pad        {max_exp}: the scientific-notation pad, a first number with one place after the point
+##                  and a power of 10 (Zone 8). The answer is {mantissa, scale, exp}.
 ##   simplest_form  true: the answer must be in lowest terms (Zone 6's simplify skills). is_correct()
 ##                  and GeneratorKit.add_distractor then compare by exact form, so 6/9 is a wrong
 ##                  answer for 2/3 (`partially_simplified`) instead of an equal one.
@@ -104,6 +120,19 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ##             0 at the mountain's base, cab markers, and an elevator move as a jump
 ## ore_mix     {a, b, groups?: int}: a copper ores and b tin ores (round and square lumps); `groups`
 ##             rings them into that many equal mixes
+## The Zone 8 pictures (drawn by PowerArt, scenes/zones/z08_power_tower/power_art.gd, and the notation
+## scenes in scenes/ui/math/):
+## power_tower {base, exp, values: bool}: the ground floor is 1 and each of `exp` floors (0 to 10)
+##             multiplies by `base` (2 to 12); with `values` each floor shows its height
+## notation    {form: "power", base, exp} | {form: "root", n} | {form: "sci", mantissa, scale, exp}: the
+##             math written out large (a raised exponent, a root sign, × 10 with a raised power); in
+##             Explorer mode the words ("2 to the power 5") sit under it
+## cube_blocks {n}: a big cube n blocks a side (1 to 8)
+## lamps       {base, rows: [[digits]], places, style: "lamps" | "dials" | "digits", show_places, plus?}: one
+##             to three numbers in a base, right-aligned in `places` places (1 to 8), as lit lamps, dials or
+##             digit columns, each place's worth written under it; `plus` draws the rows as a sum
+## lever       {left: {w, d}, right: {w, d}, tilt, products?}: weights (0 is an empty hook) at 1 to 8 steps
+##             from the middle; tilt as for `balance`; `products` writes w × d under each weight
 ## The Zone 9 pictures (drawn by PatternArt, scenes/zones/z09_pattern_grotto/pattern_art.gd):
 ## pattern     {terms: [int], blanks: [index], style: "crystals" | "numbers", steps?: [int], step_op?:
 ##             "plus" | "times", figure?: "triangle" | "square", first_index?: int}: a row of tiles (at
@@ -116,7 +145,7 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## fib_squares {terms: [int]}: squares with these Fibonacci sides fitted into a golden rectangle
 ## proof       {diagram, n, fitted: bool}: a proof-without-words picture (curriculum/proof_diagrams.json)
 ## poem_shape  {lines: [int], highlight: index, counts: bool}: a Fib poem's beat dots, one row a line
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape"]
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
 const MAX_LIST_ITEMS: int = 16

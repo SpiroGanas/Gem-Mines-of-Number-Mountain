@@ -12,7 +12,9 @@ Fails (exit code 1) on the project's non-negotiable content rules (CLAUDE.md):
   3. No banned content words in text/lines.csv, curriculum/**, docs/gdd.md and asset file names
      (the family content rules).
   4. text/lines.csv is well formed: exact header, line ids match zone.context.purpose, ids unique,
-     voice_version is a whole number, text is not empty.
+     voice_version is a whole number, text is not empty. Scholar mode (Phase 4, Sprint 37) adds an
+     optional fifth column, `mode`: empty or "explorer" for the line every child sees, "scholar" for a
+     longer variant of the same id (one per id, and only beside an explorer line).
   5. (warning) Explorer lines with a sentence over 12 words.
   6-7. The curriculum is consistent: Word Gem terms exist, the prerequisite graph is acyclic and
      all other checks in curriculum_check.py.
@@ -56,6 +58,9 @@ GDD_PATH = "docs/gdd.md"
 
 LINE_ID_RE = re.compile(r"^[a-z0-9]+(\.[a-z0-9_]+){2,}$")
 EXPECTED_HEADER = ["id", "text", "context", "voice_version"]
+# The header with Scholar mode's optional `mode` column (rows may still have 4 columns).
+MODE_HEADER = EXPECTED_HEADER + ["mode"]
+LINE_MODES = ("", "explorer", "scholar")
 MAX_WORDS_PER_SENTENCE = 12
 
 BANNED_WORDS = (
@@ -225,19 +230,29 @@ def check_line_table(root: Path) -> list[Finding]:
     if not (root / LINES_CSV).is_file():
         return [Finding("4", LINES_CSV, 0, "text/lines.csv is missing")]
     header, rows = read_lines(root)
-    if header != EXPECTED_HEADER:
-        return [Finding("4", LINES_CSV, 1, f"header must be {','.join(EXPECTED_HEADER)}, got {','.join(header)}")]
+    if header not in (EXPECTED_HEADER, MODE_HEADER):
+        return [Finding("4", LINES_CSV, 1, f"header must be {','.join(EXPECTED_HEADER)} (optionally with ,mode), got {','.join(header)}")]
     findings: list[Finding] = []
     seen: dict[str, int] = {}
+    scholar_seen: dict[str, int] = {}
+    allowed_columns = {str(len(EXPECTED_HEADER)), str(len(header))}
     for number, row in rows:
         line_id = row["id"]
-        if row.get("_columns") != str(len(EXPECTED_HEADER)):
+        if row.get("_columns") not in allowed_columns:
             findings.append(Finding("4", LINES_CSV, number, f"line '{line_id}' has {row.get('_columns')} columns, expected {len(EXPECTED_HEADER)} (put text with a comma in double quotes)"))
         if not LINE_ID_RE.match(line_id):
             findings.append(Finding("4", LINES_CSV, number, f"id '{line_id}' must look like zone.context.purpose (lowercase)"))
-        if line_id in seen:
-            findings.append(Finding("4", LINES_CSV, number, f"duplicate id '{line_id}' (first on line {seen[line_id]})"))
-        seen.setdefault(line_id, number)
+        mode = line_mode(row)
+        if mode not in LINE_MODES:
+            findings.append(Finding("4", LINES_CSV, number, f"line '{line_id}': mode must be empty, explorer or scholar, got '{mode}'"))
+        elif mode == "scholar":
+            if line_id in scholar_seen:
+                findings.append(Finding("4", LINES_CSV, number, f"duplicate scholar variant of '{line_id}' (first on line {scholar_seen[line_id]})"))
+            scholar_seen.setdefault(line_id, number)
+        else:
+            if line_id in seen:
+                findings.append(Finding("4", LINES_CSV, number, f"duplicate id '{line_id}' (first on line {seen[line_id]})"))
+            seen.setdefault(line_id, number)
         if not row["text"].strip():
             findings.append(Finding("4", LINES_CSV, number, f"line '{line_id}' has no text"))
         if not row["voice_version"].isdigit():
@@ -247,7 +262,15 @@ def check_line_table(root: Path) -> list[Finding]:
         for placeholder in re.findall(r"\{([^}]*)\}", row["text"]):
             if not re.fullmatch(r"[a-z_][a-z0-9_]*", placeholder):
                 findings.append(Finding("4", LINES_CSV, number, f"line '{line_id}': placeholder '{{{placeholder}}}' must be lowercase letters, digits and underscores"))
+    for line_id, number in scholar_seen.items():
+        if line_id not in seen:
+            findings.append(Finding("4", LINES_CSV, number, f"scholar variant '{line_id}' has no explorer line with the same id"))
     return findings
+
+
+def line_mode(row: dict[str, str]) -> str:
+    """The row's mode column (Scholar mode variants), "" when the row has none."""
+    return (row.get("mode") or "").strip()
 
 
 def sentence_word_counts(text: str) -> list[int]:
@@ -260,12 +283,12 @@ def check_sentence_length(root: Path) -> list[Finding]:
     if not (root / LINES_CSV).is_file():
         return []
     header, rows = read_lines(root)
-    if header != EXPECTED_HEADER:
+    if header not in (EXPECTED_HEADER, MODE_HEADER):
         return []
     findings: list[Finding] = []
     for number, row in rows:
-        if row["context"] == "deprecated":
-            continue
+        if row["context"] == "deprecated" or line_mode(row) == "scholar":
+            continue  # Scholar variants may be longer (Phase 4 plan, Scholar mode); they are gated
         longest = max(sentence_word_counts(row["text"]), default=0)
         if longest > MAX_WORDS_PER_SENTENCE:
             findings.append(Finding("5", LINES_CSV, number, f"line '{row['id']}' has a {longest}-word sentence (Explorer limit {MAX_WORDS_PER_SENTENCE})", WARNING))
@@ -292,7 +315,7 @@ def check_line_references(root: Path) -> list[Finding]:
     if not (root / LINES_CSV).is_file():
         return []
     header, rows = read_lines(root)
-    known = {row["id"] for _, row in rows} if header == EXPECTED_HEADER else set()
+    known = {row["id"] for _, row in rows} if header in (EXPECTED_HEADER, MODE_HEADER) else set()
     findings: list[Finding] = []
     for path in _code_files(root, (".gd",)):
         rel = _rel(path, root)
@@ -395,10 +418,20 @@ MATH_TERMS = {
     r"percent": "percent",
     r"ratios?": "ratio",
     r"negative": "negative",
+    # Zone 8 (Phase 4). "power" and "base" are everyday words too (the mountain's base), so only the
+    # unambiguous forms are checked.
+    r"exponents?": "exponent",
+    r"squared": "square_number",
+    r"square numbers?": "square_number",
+    r"cubed": "cube_number",
+    r"cube numbers?": "cube_number",
+    r"square roots?": "square_root",
+    r"binary": "binary",
+    r"scientific notation": "scientific_notation",
+    r"levers?": "lever",
     # Zone 9 (Phase 4; "rule" and "term" are Word Gems too, but too common as plain words to match)
     r"sequences?": "sequence",
     r"triangular numbers?": "triangular_number",
-    r"square numbers?": "square_number",
     r"fibonacci": "fibonacci",
     r"golden ratio": "golden_ratio",
     r"syllables?": "syllable",

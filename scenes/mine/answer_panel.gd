@@ -29,6 +29,15 @@
 ##   GAUGE          ride the elevator cab up and down the depth gauge, then Stop here (meta.depth_gauge)
 ## A problem that carries a zone mechanic (crystal, alloy, depth_gauge) and lists `tap` is answered on
 ## the mechanic. The number pad gets a minus key when meta.signed is set (depths below zero).
+## Zone 8 (Phase 4, Sprints 35-37) adds:
+##   VAULT      the vault lock: tap lamps or turn dials, then Open (meta.vault_lock)
+##   TOWER      the tower elevator: ride to a floor, then Stop here (meta.tower)
+##   LEVER      the counterweight lever: set the weight with More and Less, then Balance (meta.lever)
+##   SCI_PAD    the scientific-notation pad for a {mantissa, scale, exp} answer
+##   BASE_PAD   the base pad (keys 0 to base - 1) for a {base, digits} answer
+##   KEYBOARD   Scholar mode's keyboard entry: replaces a pad (or the slate) when ModeGate's
+##              KEYBOARD_ENTRY is on for the child and the skill lists `keyboard`; "Use the pad" brings
+##              the pad back. The number pad takes meta.pad_digits digits (powers of 10 need 7).
 ## Zone 9 (Phase 4, Sprint 40) adds, under the `drag` mode:
 ##   PATTERN     the pattern wall: drag a crystal tile into the gap of the row, then Done (meta.pattern_wall)
 ##   PROOF       the proof board: fit the loose piece into place, then tap the fact it shows (meta.proof_board)
@@ -48,7 +57,10 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, PATTERN, PROOF }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, VAULT, TOWER, LEVER, SCI_PAD, BASE_PAD, KEYBOARD, PATTERN, PROOF }
+
+## The inputs a typed answer can take, which keyboard entry replaces in Scholar mode.
+const TYPED_KINDS: Array[InputKind] = [InputKind.NUMBER_PAD, InputKind.SLATE, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD, InputKind.FRACTION_SLATE, InputKind.DECIMAL_SLATE, InputKind.SCI_PAD, InputKind.BASE_PAD]
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
@@ -65,9 +77,14 @@ const FRACTION_PAD_SCENE: PackedScene = preload("res://scenes/input/fraction_pad
 const CRYSTAL_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/crystal.tscn")
 const ALLOY_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/alloy_mixer.tscn")
 const GAUGE_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/depth_gauge.tscn")
+const VAULT_SCENE: PackedScene = preload("res://scenes/zones/z08_power_tower/vault_lock.tscn")
+const TOWER_SCENE: PackedScene = preload("res://scenes/zones/z08_power_tower/tower_elevator.tscn")
+const LEVER_SCENE: PackedScene = preload("res://scenes/zones/z08_power_tower/counterweight.tscn")
+const POWER_PAD_SCENE: PackedScene = preload("res://scenes/input/power_pad.tscn")
+const KEYBOARD_SCENE: PackedScene = preload("res://scenes/input/keyboard_entry.tscn")
 const PATTERN_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/pattern_wall.tscn")
 const PROOF_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/proof_board.tscn")
-## The number pad's digits unless meta.pad_digits asks for more (Zone 9).
+## The number pad's digits unless meta.pad_digits asks for more (Zones 8 and 9).
 const PAD_DIGITS: int = 3
 ## The slate and the pad take fractions with up to this many digits in the top and in the bottom.
 const FRACTION_BOXES: int = 2
@@ -92,6 +109,9 @@ var input_kind: InputKind = InputKind.NONE
 var slate_override: Variant = null
 ## The reader for the slate; null uses DigitInk.make_recognizer(). Tests inject a FakeRecognizer.
 var recognizer: Recognizer
+## Tests set this to true or false to decide keyboard entry without the profile and the device; null
+## asks ScholarMode (Scholar mode on and a key pressed this session).
+var keyboard_override: Variant = null
 ## The number pad's wide layout (three rows of keys, NumberPad.wide) even on a tablet: hosts with less
 ## height than the mine (the workshop's problem card) set it. Phones always get it.
 var wide_pad: bool = false
@@ -113,6 +133,11 @@ var _fraction_pad: FractionPad
 var _crystal: CrystalPicker
 var _alloy: AlloyMixer
 var _gauge: DepthGauge
+var _vault: VaultLockPicker
+var _tower: TowerElevator
+var _lever: CounterweightLever
+var _power_pad: PowerPad
+var _keyboard: KeyboardEntry
 var _pattern_wall: PatternWall
 var _proof_board: ProofBoard
 var _example: PanelContainer
@@ -120,7 +145,14 @@ var _enabled: bool = false
 
 
 ## Which input fits a problem: the first listed answer mode this panel can serve. Pure.
-static func choose_input(for_problem: Problem, slate_allowed: bool = false) -> InputKind:
+static func choose_input(for_problem: Problem, slate_allowed: bool = false, keyboard_allowed: bool = false) -> InputKind:
+	var kind: InputKind = _first_input(for_problem, slate_allowed)
+	if keyboard_allowed and TYPED_KINDS.has(kind) and for_problem.answer_modes.has(&"keyboard"):
+		return InputKind.KEYBOARD # Scholar mode: type it on the keyboard (the pad is one tap away)
+	return kind
+
+
+static func _first_input(for_problem: Problem, slate_allowed: bool) -> InputKind:
 	if for_problem.answer_modes.has(&"tap"):
 		var mechanic: InputKind = _mechanic_for(for_problem)
 		if mechanic != InputKind.NONE:
@@ -152,6 +184,12 @@ static func _mechanic_for(for_problem: Problem) -> InputKind:
 		return InputKind.ALLOY
 	if for_problem.meta.has("depth_gauge"):
 		return InputKind.GAUGE
+	if for_problem.meta.has("vault_lock"):
+		return InputKind.VAULT
+	if for_problem.meta.has("tower"):
+		return InputKind.TOWER
+	if for_problem.meta.has("lever"):
+		return InputKind.LEVER
 	return InputKind.NONE
 
 
@@ -160,6 +198,14 @@ func slate_wanted() -> bool:
 	if slate_override != null:
 		return bool(slate_override)
 	return DigitInk.is_available() and DeviceSettings.shared().handwriting_enabled()
+
+
+## Whether keyboard entry takes the pad's place now (Scholar mode, Sprint 37): ModeGate's KEYBOARD_ENTRY
+## for the child playing, which needs a real key press this session.
+func keyboard_wanted() -> bool:
+	if keyboard_override != null:
+		return bool(keyboard_override)
+	return ScholarMode.is_on(ModeGate.Feature.KEYBOARD_ENTRY)
 
 
 static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowed: bool) -> InputKind:
@@ -196,6 +242,10 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.FRACTION_SLATE if slate_allowed and slate_fits(for_problem) else InputKind.FRACTION_PAD
 			if Rational.is_decimal(for_problem.answer):
 				return InputKind.DECIMAL_SLATE if slate_allowed and slate_fits(for_problem) else InputKind.DECIMAL_PAD
+			if Notation.is_sci(for_problem.answer):
+				return InputKind.SCI_PAD
+			if Notation.is_base_number(for_problem.answer):
+				return InputKind.BASE_PAD
 	return InputKind.NONE
 
 
@@ -233,6 +283,13 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 		InputKind.GAUGE:
 			var ride: Dictionary = for_problem.meta["depth_gauge"]
 			options = int(ride["max"]) - int(ride["min"]) + 1
+		InputKind.VAULT:
+			var lock: Dictionary = for_problem.meta["vault_lock"]
+			options = Notation.power(int(lock["base"]), int(lock["places"])) # every setting of the places
+		InputKind.TOWER:
+			options = int(for_problem.meta["tower"]["floors"]) + 1
+		InputKind.LEVER:
+			options = int(for_problem.meta["lever"]["max"]) + 1
 		_:
 			return FREE_RESPONSE_CHANCE
 	return 1.0 / float(maxi(options - eliminated, 1))
@@ -260,10 +317,12 @@ static func answer_mode_for(for_problem: Problem) -> StringName:
 ## The attempt log's answer_mode for an input: tap, drag, number_pad or handwriting.
 static func answer_mode_for_kind(kind: InputKind) -> StringName:
 	match kind:
-		InputKind.TAP_PILE, InputKind.CHOICES, InputKind.SIEVE, InputKind.CRYSTAL, InputKind.ALLOY, InputKind.GAUGE:
+		InputKind.TAP_PILE, InputKind.CHOICES, InputKind.SIEVE, InputKind.CRYSTAL, InputKind.ALLOY, InputKind.GAUGE, InputKind.VAULT, InputKind.TOWER, InputKind.LEVER:
 			return &"tap"
-		InputKind.NUMBER_PAD, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD:
+		InputKind.NUMBER_PAD, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD, InputKind.SCI_PAD, InputKind.BASE_PAD:
 			return &"number_pad"
+		InputKind.KEYBOARD:
+			return &"keyboard"
 		InputKind.SLATE, InputKind.DECIMAL_SLATE:
 			return &"handwriting"
 		InputKind.FRACTION_SLATE:
@@ -293,6 +352,8 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 		return Text.get_line(StringName(str(for_problem.meta["label_line"])), {"n": value}) # "Add 4" (Zone 9)
 	if for_problem.meta.get("percent", false) and value is int:
 		return Text.display_value(value) + "%"
+	if Notation.is_notation(value):
+		return Notation.text(value) # "3 × 3 × 3 × 3", binary "1101" (Zone 8)
 	return Text.display_value(value) # numerals, "3/4" and "2 : 3" (Zone 6 on), "2 1/3", "0.25", "−15" (Zone 7)
 
 
@@ -308,7 +369,7 @@ static func poem_line_text(words: Array) -> String:
 func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 	_clear()
 	problem = new_problem
-	input_kind = choose_input(problem, slate_wanted())
+	input_kind = choose_input(problem, slate_wanted(), keyboard_wanted())
 	add_theme_constant_override(&"separation", UI.spacing(32)) # half the gaps on a phone
 	alignment = BoxContainer.ALIGNMENT_CENTER # the content sits in the middle of the free space
 	match input_kind:
@@ -347,6 +408,16 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_alloy()
 		InputKind.GAUGE:
 			_add_gauge()
+		InputKind.VAULT:
+			_add_vault()
+		InputKind.TOWER:
+			_add_tower()
+		InputKind.LEVER:
+			_add_lever()
+		InputKind.SCI_PAD, InputKind.BASE_PAD:
+			_add_power_pad()
+		InputKind.KEYBOARD:
+			_add_keyboard()
 		InputKind.PATTERN:
 			if problem.visual.has("figure"):
 				_add_visual(false) # the triangles or squares above the numbers (figurate walls)
@@ -389,7 +460,7 @@ func set_enabled(enabled: bool) -> void:
 		_tree.set_enabled(enabled)
 	if _gear_bench != null:
 		_gear_bench.set_enabled(enabled)
-	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _pattern_wall, _proof_board]:
+	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _vault, _tower, _lever, _power_pad, _keyboard, _pattern_wall, _proof_board]:
 		if widget != null:
 			widget.call(&"set_enabled", enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
@@ -556,6 +627,24 @@ func depth_gauge() -> DepthGauge:
 	return _gauge
 
 
+func vault_lock() -> VaultLockPicker:
+	return _vault
+
+
+func tower_elevator() -> TowerElevator:
+	return _tower
+
+
+func counterweight() -> CounterweightLever:
+	return _lever
+
+
+func power_pad() -> PowerPad:
+	return _power_pad
+
+
+func keyboard_entry() -> KeyboardEntry:
+	return _keyboard
 func pattern_wall() -> PatternWall:
 	return _pattern_wall
 
@@ -585,6 +674,11 @@ func _clear() -> void:
 	_crystal = null
 	_alloy = null
 	_gauge = null
+	_vault = null
+	_tower = null
+	_lever = null
+	_power_pad = null
+	_keyboard = null
 	_pattern_wall = null
 	_proof_board = null
 	_example = null
@@ -646,6 +740,7 @@ func _add_row_with_visual(visual_width: float = 6.0) -> HBoxContainer:
 func _add_pad_with_visual() -> void:
 	var row: HBoxContainer = _add_row_with_visual()
 	_pad = PAD_SCENE.instantiate()
+	# Powers of 10 and scientific notation (Zone 8) and Gauss's sums (Zone 9) need more digits.
 	_pad.max_digits = maxi(int(problem.meta.get("pad_digits", PAD_DIGITS)), PAD_DIGITS)
 	_pad.wide = wide_pad
 	_pad.allow_negative = bool(problem.meta.get("signed", false)) # depths below zero (Zone 7)
@@ -839,6 +934,101 @@ func _add_gauge() -> void:
 	_gauge.submitted.connect(_on_value_given)
 
 
+## The vault lock (meta.vault_lock = {base, places}); Open gives the {base, digits} it shows.
+func _add_vault() -> void:
+	var spec: Dictionary = problem.meta["vault_lock"]
+	_vault = VAULT_SCENE.instantiate()
+	_vault.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_vault)
+	_vault.setup(int(spec["base"]), int(spec["places"]))
+	_vault.submitted.connect(_on_value_given)
+
+
+## The tower elevator (meta.tower = {base, floors, start}); Stop here gives the cab's floor.
+func _add_tower() -> void:
+	var spec: Dictionary = problem.meta["tower"]
+	_tower = TOWER_SCENE.instantiate()
+	_tower.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_tower)
+	_tower.setup(int(spec["base"]), int(spec["floors"]), int(spec.get("start", 0)))
+	_tower.submitted.connect(_on_value_given)
+
+
+## The counterweight lever (meta.lever = {left_w, left_d, right_d, max}); Balance gives the right weight.
+func _add_lever() -> void:
+	var spec: Dictionary = problem.meta["lever"]
+	_lever = LEVER_SCENE.instantiate()
+	_lever.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_lever)
+	_lever.setup(int(spec["left_w"]), int(spec["left_d"]), int(spec["right_d"]), int(spec["max"]))
+	_lever.submitted.connect(_on_value_given)
+
+
+## The scientific-notation or base pad beside the picture.
+func _add_power_pad() -> void:
+	var row: HBoxContainer = _add_row_with_visual()
+	_power_pad = POWER_PAD_SCENE.instantiate()
+	if input_kind == InputKind.BASE_PAD:
+		var spec: Dictionary = problem.meta.get("base_pad", {"base": int(problem.answer["base"]), "places": BaseGenerator.MAX_PLACES})
+		_power_pad.layout = PowerPad.Layout.BASE
+		_power_pad.base = int(spec["base"])
+		_power_pad.places = int(spec["places"])
+	else:
+		_power_pad.layout = PowerPad.Layout.SCI
+	_power_pad.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_power_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_power_pad)
+	_power_pad.submitted.connect(_on_value_given)
+
+
+## Keyboard entry beside the picture (Scholar mode), set up for the answer's shape.
+func _add_keyboard() -> void:
+	var row: HBoxContainer = _add_row_with_visual()
+	_keyboard = KEYBOARD_SCENE.instantiate()
+	var answer: Variant = problem.answer
+	if Rational.is_fraction(answer):
+		_keyboard.kind = KeyboardEntry.Kind.FRACTION
+		_keyboard.max_digits = FRACTION_BOXES
+	elif Rational.is_decimal(answer):
+		_keyboard.kind = KeyboardEntry.Kind.DECIMAL
+		_keyboard.max_digits = 4
+	elif Notation.is_sci(answer):
+		_keyboard.kind = KeyboardEntry.Kind.SCI
+	elif Notation.is_base_number(answer):
+		_keyboard.kind = KeyboardEntry.Kind.BASE
+		_keyboard.base = int(answer["base"])
+		_keyboard.max_digits = int(problem.meta.get("base_pad", {}).get("places", BaseGenerator.MAX_PLACES))
+	else:
+		_keyboard.kind = KeyboardEntry.Kind.INTEGER
+		_keyboard.allow_negative = bool(problem.meta.get("signed", false))
+		_keyboard.max_digits = maxi(int(problem.meta.get("pad_digits", PAD_DIGITS)), PAD_DIGITS)
+	_keyboard.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_keyboard.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_keyboard)
+	_keyboard.submitted.connect(_on_value_given)
+	_keyboard.pad_requested.connect(use_pad, CONNECT_ONE_SHOT)
+
+
+## "Use the pad" on keyboard entry: the on-screen pad (never the slate) takes its place for this problem.
+func use_pad() -> void:
+	if _keyboard == null:
+		return
+	var row: Node = _keyboard.get_parent()
+	row.queue_free()
+	remove_child(row)
+	_keyboard = null
+	_visual = null
+	_pad_row = null
+	input_kind = choose_input(problem, false, false)
+	match input_kind:
+		InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD:
+			_add_fraction_pad()
+		InputKind.SCI_PAD, InputKind.BASE_PAD:
+			_add_power_pad()
+		_:
+			input_kind = InputKind.NUMBER_PAD
+			_add_pad_with_visual()
+	set_enabled(_enabled)
 ## The pattern wall (meta.pattern_wall = {terms, tiles}); Done gives the number in the gap.
 func _add_pattern_wall() -> void:
 	var spec: Dictionary = problem.meta["pattern_wall"]

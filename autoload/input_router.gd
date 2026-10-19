@@ -48,6 +48,8 @@ signal stroke_moved(pos: Vector2, pressure: float)
 signal stroke_ended
 ## The stroke was not the child's: a resting palm that a pen took over from. Drop it.
 signal stroke_cancelled
+## The first typing key of the session was pressed: a real keyboard is there (Scholar mode's typing).
+signal keyboard_detected
 
 const NO_TOUCH: int = -1
 
@@ -62,6 +64,8 @@ var _mouse_down: bool = false
 ## Touches that came down while another was active: index -> where. Ignored unless a pen drag proves
 ## one is the pen (then it takes over from a palm).
 var _waiting_touches: Dictionary[int, Vector2] = {}
+## A typing key was pressed this session (has_keyboard).
+var _keyboard_seen: bool = false
 
 
 func _ready() -> void:
@@ -197,6 +201,31 @@ func _handle_key(event: InputEventKey) -> void:
 	if event.keycode in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
 		return # a lone modifier is not "using the keyboard"
 	_set_kind(DeviceKind.KEYBOARD)
+	if not _keyboard_seen and is_typing_key(event.keycode):
+		_keyboard_seen = true
+		keyboard_detected.emit()
+
+
+## True once a key that only a real keyboard sends was pressed this session (Scholar mode, Sprint 37).
+## Conservative on purpose (Spiro's decision): Android and ChromeOS do not reliably report whether a
+## keyboard is attached, and a tablet's volume, media and back buttons arrive as key events too, so
+## only typing keys count (letters, digits, Enter, Backspace, Space, Tab, arrows, - . /). Until then the
+## on-screen pads are the only way to type, and they always stay available.
+func has_keyboard() -> bool:
+	return _keyboard_seen
+
+
+## Tests (and a fresh session): forget that a keyboard was seen.
+func reset_keyboard() -> void:
+	_keyboard_seen = false
+
+
+## Keys only a real keyboard sends (has_keyboard).
+static func is_typing_key(keycode: Key) -> bool:
+	if (keycode >= KEY_A and keycode <= KEY_Z) or (keycode >= KEY_0 and keycode <= KEY_9) or (keycode >= KEY_KP_0 and keycode <= KEY_KP_9):
+		return true
+	return keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_BACKSPACE, KEY_SPACE, KEY_TAB, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN,
+		KEY_MINUS, KEY_KP_SUBTRACT, KEY_PERIOD, KEY_KP_PERIOD, KEY_SLASH, KEY_KP_DIVIDE]
 
 
 ## Best-effort stylus detection: a pen reports pressure strictly between 0 and 1, a tilt,

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z08_power_tower/tower_elevator.gd" id="1_script"]
+
+[node name="TowerElevator" type="HBoxContainer"]
+script = ExtResource("1_script")

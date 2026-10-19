@@ -218,8 +218,73 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 				errors.append("%s: shaded must be 0 to the first gear's teeth" % where)
 		&"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix":
 			errors.append_array(zone7_visual_errors(visual, where))
+		&"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever":
+			errors.append_array(zone8_visual_errors(visual, where))
 		&"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape":
 			errors.append_array(zone9_visual_errors(visual, where))
+	return errors
+
+
+## The Zone 8 pictures (Problem.VISUAL_TYPES) must be drawable: towers of 0 to 10 floors, notation of a
+## known form, cubes up to 8 a side, lamp rows that fit their places with digits below the base, levers
+## with hooks 1 to 8 steps out.
+static func zone8_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"power_tower":
+			var base: int = int(visual.get("base", 0))
+			var exp: int = int(visual.get("exp", -1))
+			if base < 2 or base > ExponentGenerator.MAX_TOWER_BASE or exp < 0 or exp > ExponentGenerator.MAX_TOWER_FLOORS or not visual.get("values") is bool:
+				errors.append("%s: a power tower needs base 2 to 12, 0 to 10 floors and values true or false" % where)
+		&"notation":
+			match str(visual.get("form", "")):
+				"power":
+					if int(visual.get("base", -1)) < 0 or int(visual.get("exp", -1)) < 0:
+						errors.append("%s: a power needs a base and an exponent of at least 0" % where)
+				"root":
+					var n: int = int(visual.get("n", -1))
+					var root: int = roundi(sqrt(float(maxi(n, 0))))
+					if n < 1 or root * root != n:
+						errors.append("%s: a root card shows only perfect squares" % where)
+				"sci":
+					if not Notation.is_normalized_sci({"mantissa": int(visual.get("mantissa", 0)), "scale": int(visual.get("scale", -1)), "exp": int(visual.get("exp", 0))}):
+						errors.append("%s: a scientific-notation card must be normalized" % where)
+				_:
+					errors.append("%s: unknown notation form '%s'" % [where, visual.get("form")])
+		&"cube_blocks":
+			if int(visual.get("n", 0)) < 1 or int(visual.get("n", 0)) > ExponentGenerator.MAX_CUBE_SIDE:
+				errors.append("%s: a cube of blocks is 1 to 8 a side" % where)
+		&"lamps":
+			var base: int = int(visual.get("base", 0))
+			var places: int = int(visual.get("places", 0))
+			var rows: Variant = visual.get("rows")
+			if base < 2 or base > 10 or places < 1 or places > BaseGenerator.MAX_PLACES or not ["lamps", "dials", "digits"].has(str(visual.get("style", ""))):
+				errors.append("%s: lamps need base 2 to 10, 1 to %d places and a known style" % [where, BaseGenerator.MAX_PLACES])
+			elif not rows is Array or rows.is_empty() or rows.size() > 3:
+				errors.append("%s: lamps show 1 to 3 rows" % where)
+			else:
+				for row: Variant in rows:
+					if not row is Array or row.size() > places:
+						errors.append("%s: a row of %s does not fit %d places" % [where, row, places])
+						continue
+					for digit: Variant in row:
+						if int(digit) < 0 or int(digit) >= base:
+							errors.append("%s: digit %s is not a base-%d digit" % [where, digit, base])
+		&"lever":
+			for side: String in ["left", "right"]:
+				var hook: Variant = visual.get(side)
+				if not hook is Dictionary or int(hook.get("d", 0)) < 1 or int(hook.get("d", 0)) > 8 or int(hook.get("w", -1)) < 0 or int(hook.get("w", -1)) > 64:
+					errors.append("%s: the %s weight must hang 1 to 8 steps out and weigh 0 to 64" % [where, side])
+					return errors
+			var tilt: String = str(visual.get("tilt", ""))
+			if not Problem.TILTS.has(tilt):
+				errors.append("%s: unknown tilt '%s'" % [where, tilt])
+			elif tilt != "unknown":
+				var left: int = int(visual["left"]["w"]) * int(visual["left"]["d"])
+				var right: int = int(visual["right"]["w"]) * int(visual["right"]["d"])
+				var expected: String = "level" if left == right else ("left" if left > right else "right")
+				if tilt != expected:
+					errors.append("%s: moments %d and %d should tilt %s" % [where, left, right, expected])
 	return errors
 
 
@@ -438,6 +503,7 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 		var ride: Dictionary = meta["depth_gauge"]
 		if not problem.answer is int or problem.answer < int(ride["min"]) or problem.answer > int(ride["max"]) or int(ride["start"]) < int(ride["min"]) or int(ride["start"]) > int(ride["max"]):
 			errors.append("%s: the cab cannot ride to the answer" % where)
+	errors.append_array(_zone8_meta_errors(problem, where))
 	if bool(meta.get("simplest_form", false)):
 		# Judged by form (Problem.same_answer), so the answer itself must be in lowest terms.
 		var answer: Variant = problem.answer
@@ -479,6 +545,36 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 				errors.append("%s: no label line for answer %s" % [where, key])
 			elif not Text.has_line(StringName(labels[key])):
 				errors.append("%s: label line '%s' is not in the text table" % [where, labels[key]])
+	return errors
+
+
+## Zone 8's inputs must be able to give the answer: the vault lock and base pad hold its digits, the
+## cab can stop on its floor, the lever's weight range holds it, the pad has room for its digits, and a
+## {base, digits} or scientific-notation answer is canonical.
+static func _zone8_meta_errors(problem: Problem, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	var meta: Dictionary = problem.meta
+	var answer: Variant = problem.answer
+	if Notation.is_base_number(answer) and not Notation.is_canonical_base_number(answer):
+		errors.append("%s: the answer %s is not a canonical base-%s number" % [where, answer, answer["base"]])
+	if Notation.is_sci(answer) and not Notation.is_normalized_sci(answer):
+		errors.append("%s: the answer %s is not normalized scientific notation" % [where, answer])
+	for key: String in ["vault_lock", "base_pad"]:
+		if meta.has(key):
+			var spec: Dictionary = meta[key]
+			if not Notation.is_base_number(answer) or int(spec["base"]) != int(answer["base"]) or answer["digits"].size() > int(spec["places"]) or int(spec["places"]) > BaseGenerator.MAX_PLACES:
+				errors.append("%s: the %s cannot show the answer %s" % [where, key, answer])
+	if meta.has("tower"):
+		var tower: Dictionary = meta["tower"]
+		if not answer is int or answer < 0 or answer > int(tower["floors"]) or int(tower["floors"]) > ExponentGenerator.MAX_TOWER_FLOORS:
+			errors.append("%s: the cab cannot stop on floor %s" % [where, answer])
+	if meta.has("lever"):
+		if not answer is int or answer < 0 or answer > int(meta["lever"]["max"]):
+			errors.append("%s: the lever cannot hold the weight %s" % [where, answer])
+	if meta.has("pad_digits") and answer is int and str(answer).length() > int(meta["pad_digits"]):
+		errors.append("%s: the pad has %s digits, the answer needs more" % [where, meta["pad_digits"]])
+	if meta.has("sci_pad") and (not Notation.is_sci(answer) or int(answer["exp"]) > int(meta["sci_pad"]["max_exp"])):
+		errors.append("%s: the scientific-notation pad cannot give %s" % [where, answer])
 	return errors
 
 

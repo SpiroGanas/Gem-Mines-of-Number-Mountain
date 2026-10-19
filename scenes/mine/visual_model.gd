@@ -4,8 +4,10 @@
 ## equal groups (`groups`), gems lined up in pairs (`pairs`) and a number's digits with the part a
 ## divisibility rule looks at lit up (`digits`, Zone 5), rows of factors, multiples or prime recipes
 ## (`lists`, Zone 6) and meshing gears (`gears`, Zone 6); Zone 7's crystals, fraction line, crystal
-## grids, depth gauge and ore mix are painted by CrystalArt, Zone 9's pattern rows, figures, pairing rows,
-## Fibonacci squares, proofs and poem shapes by PatternArt. Gray-box shapes in code; the
+## grids, depth gauge and ore mix are painted by CrystalArt; Zone 8's power tower, cube of blocks, lamps
+## and lever by PowerArt, and its notation cards (2⁵, √49, 3.4 × 10⁵) by a MathNotation child, with the
+## words underneath in Explorer mode; Zone 9's pattern rows, figures, pairing rows, Fibonacci squares,
+## proofs and poem shapes by PatternArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -44,6 +46,11 @@ const LIST_FONT: int = 28
 ## Zone 7 pictures (CrystalArt): crystals and grids need room to read; the gauge is tall.
 const HEIGHT_MULTIPLE_CRYSTALS: float = 4.4
 const HEIGHT_MULTIPLE_GAUGE: float = 6.0
+## Zone 8 pictures (PowerArt): the tower is tall; notation, lamps and the lever are wide and short.
+const HEIGHT_MULTIPLE_TOWER: float = 5.0
+const HEIGHT_MULTIPLE_NOTATION: float = 3.0
+const HEIGHT_MULTIPLE_LAMPS: float = 3.2
+const HEIGHT_MULTIPLE_LEVER: float = 3.6
 ## Zone 9 pictures (PatternArt): a row of tiles, and gems in shapes (figures, proofs, golden rectangles).
 const HEIGHT_MULTIPLE_PATTERN: float = 3.2
 const HEIGHT_MULTIPLE_FIGURES: float = 4.4
@@ -71,6 +78,8 @@ var width_multiple: float = 6.0
 var _buttons: Array[Button] = []
 ## One GearArt per gear a `gears` picture can hold (each keeps its own point buffer).
 var _gear_arts: Array[GearArt] = [GearArt.new(), GearArt.new(), GearArt.new()]
+## The notation card of a `notation` picture (Zone 8), or null.
+var _notation: MathNotation
 
 
 func _ready() -> void:
@@ -106,6 +115,14 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_CRYSTALS
 		&"depth_gauge":
 			height = HEIGHT_MULTIPLE_GAUGE
+		&"power_tower", &"cube_blocks":
+			height = HEIGHT_MULTIPLE_TOWER
+		&"notation":
+			height = HEIGHT_MULTIPLE_NOTATION
+		&"lamps":
+			height = HEIGHT_MULTIPLE_LAMPS * (1.0 + 0.35 * maxf(float(visual.get("rows", []).size()) - 1.0, 0.0))
+		&"lever":
+			height = HEIGHT_MULTIPLE_LEVER
 		&"pattern":
 			height = HEIGHT_MULTIPLE_FIGURES if visual.has("figure") else HEIGHT_MULTIPLE_PATTERN
 		&"figurate", &"proof", &"fib_squares", &"poem_shape":
@@ -113,6 +130,7 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 		&"pairing":
 			height = HEIGHT_MULTIPLE_PATTERN
 	UI.make_touch_target(self, width_multiple, height * (COMPACT_SCALE if compact else 1.0))
+	_rebuild_notation()
 	_rebuild_buttons()
 	queue_redraw()
 
@@ -298,9 +316,11 @@ func _draw() -> void:
 			_draw_lists()
 		&"gears":
 			_draw_gears()
+		&"notation":
+			draw_style_box(_panel_style(), Rect2(Vector2.ZERO, size)) # the card behind the MathNotation child
 		_:
 			var area: Rect2 = Rect2(Vector2(12, 12), size - Vector2(24, 24))
-			if not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()):
+			if not PowerArt.draw_visual(self, area, visual, get_theme_default_font()) and not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()):
 				PatternArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 9
 
 
@@ -664,6 +684,27 @@ func _panel_style() -> StyleBoxFlat:
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(16)
 	return style
+
+
+# --- Notation cards (Zone 8) -------------------------------------------------------------------
+
+
+## The notation card's MathNotation (null unless the picture is `notation`).
+func notation() -> MathNotation:
+	return _notation
+
+
+func _rebuild_notation() -> void:
+	if _notation != null:
+		remove_child(_notation)
+		_notation.queue_free()
+		_notation = null
+	if visual_type() != &"notation":
+		return
+	_notation = MathNotation.make(visual, COMPACT_SCALE * 0.9 if compact else 0.9)
+	_notation.name = "Notation"
+	add_child(_notation)
+	_notation.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 # --- Tappable piles ---------------------------------------------------------------------------

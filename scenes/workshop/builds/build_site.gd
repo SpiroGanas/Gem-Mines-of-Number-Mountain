@@ -43,6 +43,8 @@ static func finished_params(build_id: StringName) -> Dictionary:
 			return {"a": 4, "b": 6, "synced": true}
 		&"alloy_mixer":
 			return {"a": 2, "b": 3, "copper": 8, "tin": 12, "mixed": true}
+		&"counterweight_elevator":
+			return {"w": 8, "d": 2, "r": 4, "x": 4, "balanced": true}
 	return {}
 
 

@@ -371,3 +371,31 @@ def test_rule11_skips_parent_and_word_gem_lines(tmp_path: Path) -> None:
 
 def test_rule11_matches_whole_words_only(tmp_path: Path) -> None:
     assert glossary_findings(tmp_path, "z1.dig.x,The summit is high.,x,0\n") == []
+
+
+# --- Scholar mode's optional mode column (Phase 4, Sprint 37) ---------------------------------
+
+
+def test_rule4_accepts_a_scholar_variant_beside_its_explorer_line(tmp_path: Path) -> None:
+    text = "id,text,context,voice_version,mode\nz8.a.b,Short.,ctx,0\nz8.a.b,A longer Scholar line.,ctx,0,scholar\nz8.c.d,Plain.,ctx,0\n"
+    assert lines_findings(tmp_path, text) == []
+
+
+def test_rule4_rejects_bad_scholar_variants(tmp_path: Path) -> None:
+    text = ("id,text,context,voice_version,mode\nz8.a.b,Short.,ctx,0\nz8.a.b,One.,ctx,0,scholar\nz8.a.b,Two.,ctx,0,scholar\n"
+            "z8.c.d,Orphan.,ctx,0,scholar\nz8.e.f,Odd.,ctx,0,wizard\n")
+    found = " ".join(str(f) for f in lines_findings(tmp_path, text))
+    assert "duplicate scholar variant" in found
+    assert "no explorer line" in found
+    assert "mode must be" in found
+
+
+def test_rule5_skips_scholar_variants(tmp_path: Path) -> None:
+    long_sentence = " ".join(["word"] * 16) + "."
+    root = make_tree(tmp_path, {"text/lines.csv": f"id,text,context,voice_version,mode\nz8.a.b,Short.,ctx,0\nz8.a.b,{long_sentence},ctx,0,scholar\n"})
+    assert lint.check_sentence_length(root) == []
+
+
+def test_rule11_knows_the_zone_8_terms() -> None:
+    for word, term in (("binary", "binary"), ("squared", "square_number"), ("square root", "square_root"), ("scientific notation", "scientific_notation")):
+        assert any(term == value and __import__("re").fullmatch(pattern, word) for pattern, value in lint.MATH_TERMS.items())
