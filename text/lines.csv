@@ -1137,3 +1137,5 @@ vocab.proof.term,proof,Word Gem term,0
 vocab.proof.definition,A proof shows that a fact is always true. A picture can be a proof.,Word Gem kid-sized definition,0
 vocab.syllable.term,syllable,Word Gem term,0
 vocab.syllable.definition,A syllable is one beat in a word. Clap once for each beat.,Word Gem kid-sized definition,0
+z9.poem.prompt_single,Line {k} of a Fib poem needs {n} syllable. Which line fits?,"Zone 9: pick the poem line with the right syllable count (n = 1, the singular)",0
+z9.hint.example_poem_single,Line {k} needs {n} syllable. Clap once for it.,"Worked example: a Fib poem line of one syllable (n = 1)",0

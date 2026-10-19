@@ -196,6 +196,7 @@ TAMPERS = [
     ("poem", _set(["answer"], ["crystal", "sun", "moon"]), "four syllables for a three-syllable line"),
     ("poem", _set(["answer"], ["crystal", "glimmer"]), "word not in the bank"),
     ("poem", _set(["prompt_params", "n"], 5), "line 4 needs three"),
+    ("poem", _set(["prompt_line_id"], "z9.poem.prompt_single"), "singular prompt for three syllables"),
     ("poem", _set(["distractors", 1, "value"], ["sky", "sun", "red"]), "counted words that fit"),
     ("poem", _set(["distractors", 2, "value"], ["galaxy", "watermelon"]), "seven is not one off"),
 ]

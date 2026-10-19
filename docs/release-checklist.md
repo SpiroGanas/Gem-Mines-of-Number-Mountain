@@ -70,3 +70,16 @@ Run on the build being released, installed from the Play track where possible.
 
 - [ ] Tag the release commit (`v1.0.0`; platform updates `v1.4.1-platform` style) and push the tag.
 - [ ] Note the release, the rollout dates and the download size in `docs/decisions.md` if anything was decided along the way, and in `status.md`.
+
+## 8. Zone content updates (Phase 4 on; added with Zone 9)
+
+A zone update (`v1.1.0-zone6`, `v1.2.0-zone7`, `v1.3.0-zone8`, `v1.5.0-zone9`) is a normal release plus these steps, in the zone's Sprint C (`docs/phases/phase-4-middle-mountain.md`, "The three-sprint zone pattern").
+
+- [ ] The zone's skill file is `"status": "detailed"`, and every one of its generators passes its GdUnit4 suite and `python tools/crosscheck/run.py --skill <id> --n 10000` at difficulty 0 and `--difficulty -1` (paste the per-skill lines).
+- [ ] The zone opens only after the zone before it: `tests/curriculum/test_skill_graph.gd` (its zone-order test) and the zone's mine test (`deepest_zone`, music and banner) pass.
+- [ ] The math review packet is regenerated (`"$GODOT" --headless --path . res://tools/qa/math_review_packet.tscn -- --zones N --samples 30`) and the zone's "Needs reviewer" entry in `docs/decisions.md` has the human reviewer's sign-off. No sign-off: internal track only.
+- [ ] Art and sound: the zone has its own backdrop palette (`Backdrop.PALETTES`, and `LAST_PALETTE_ZONE` raised when every zone up to it has one), its banner line (`zN.zone.name`), its music loop (`tools/music/generate_placeholder_music.py --track mine_zN`) and its `zN.zone.done` line; every new file has its row in `assets/CREDITS.md`.
+- [ ] Any badge the zone adds is earned by mastery only (`curriculum/badges.json`, `unlock.skills_mastered`) and its story reads without placeholders.
+- [ ] If the zone added data a person must check (Zone 9's `curriculum/poem_words.json` syllable counts), Spiro has reviewed it.
+- [ ] Store listing: one new screenshot of the zone and its "What's new" line.
+- [ ] After 100%: tag `v1.N.0-zoneN` and push the tag.

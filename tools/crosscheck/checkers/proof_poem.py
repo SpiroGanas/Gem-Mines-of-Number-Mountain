@@ -79,6 +79,8 @@ def check_poem(problem: dict) -> list[str]:
     errors = []
     if lines != FIB_LINES or not 1 <= k <= 6 or n != lines[k - 1]:
         return [f"line {k} of a Fib poem needs {lines[k - 1] if 1 <= k <= 6 else '?'} syllables, not {n}"]
+    if problem["prompt_line_id"] != ("z9.poem.prompt_single" if n == 1 else "z9.poem.prompt"):
+        errors.append("a one-syllable line is asked with the singular prompt, the others with the plural one")
     answer = problem["answer"]
     if syllables(answer) != n or len(answer) > MAX_WORDS or len(set(answer)) != len(answer):
         errors.append(f"{answer} does not make {n} syllables in up to {MAX_WORDS} different words")

@@ -37,7 +37,7 @@ static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, 
 	var last_line: int = targets.size() if GeneratorKit.difficulty_of(params) >= 0 else mini(4, targets.size())
 	var line: int = rng.randi_range(1, last_line)
 	var count: int = targets[line - 1]
-	problem.prompt_line_id = &"z9.poem.prompt"
+	problem.prompt_line_id = &"z9.poem.prompt_single" if count == 1 else &"z9.poem.prompt"
 	problem.prompt_params = {"k": line, "n": count}
 	problem.answer = make_line(count, rng)
 	problem.meta = {"array_label": "words"}
@@ -53,7 +53,8 @@ static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, 
 		var example: Problem = GeneratorKit.make_example(
 			func(sub: RandomNumberGenerator) -> Problem: return _make(skill, params, sub, false), problem, rng)
 		var p: Dictionary = example.prompt_params
-		GeneratorKit.add_hints(problem, poem_shape(targets, line - 1, true), example, {"line_id": &"z9.hint.example_poem", "params": {"k": p["k"], "n": p["n"]}})
+		var example_line: StringName = &"z9.hint.example_poem_single" if int(p["n"]) == 1 else &"z9.hint.example_poem"
+		GeneratorKit.add_hints(problem, poem_shape(targets, line - 1, true), example, {"line_id": example_line, "params": {"k": p["k"], "n": p["n"]}})
 	return problem
 
 

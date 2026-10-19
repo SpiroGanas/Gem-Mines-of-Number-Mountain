@@ -85,11 +85,11 @@ func _ready() -> void:
 		for sample: int in samples_per_skill:
 			var representation: StringName = skill.representations[sample % skill.representations.size()]
 			var problem: Problem = GeneratorRegistry.make_problem(skill, 1000 + sample, {"representation": representation})
-			lines.append("- Seed %d (%s): \"%s\" Answer: **%s**." % [problem.seed, representation, Text.get_line(problem.prompt_line_id, problem.prompt_params), _show(problem.answer)])
+			lines.append("- Seed %d (%s): \"%s\" Answer: **%s**." % [problem.seed, representation, Text.get_line(problem.prompt_line_id, problem.prompt_params), _show_for(problem, skill, problem.answer)])
 			for entry: Dictionary in problem.distractors:
 				var targeted: StringName = StringName("bolt.misconception.%s" % entry["misconception"])
 				var bolt_line: String = Text.get_line(targeted) if Text.has_line(targeted) else "(no targeted line)"
-				lines.append("  - Wrong answer %s (`%s`): Bolt says \"%s\"" % [_show(entry["value"]), entry["misconception"], bolt_line])
+				lines.append("  - Wrong answer %s (`%s`): Bolt says \"%s\"" % [_show_for(problem, skill, entry["value"]), entry["misconception"], bolt_line])
 	lines.append("")
 	lines.append("%d skills." % count)
 	var file: FileAccess = FileAccess.open(ProjectSettings.globalize_path(out_path()), FileAccess.WRITE)
@@ -97,6 +97,15 @@ func _ready() -> void:
 	file.close()
 	print("math review packet: %d skills written to %s" % [count, out_path()])
 	get_tree().quit()
+
+
+## From Zone 9 on, an answer whose button reads words (a sequence kind, a proof's fact, "Add 4", a Fib
+## poem line) is shown with the button's text, as the child reads it.
+static func _show_for(problem: Problem, skill: Skill, value: Variant) -> String:
+	var worded: bool = problem.meta.has("label_lines") or problem.meta.has("label_line") or problem.meta.get("array_label") == "words"
+	if skill.zone >= 9 and worded:
+		return "%s (\"%s\")" % [_show(value), AnswerPanel.label_for(value, problem)]
+	return _show(value)
 
 
 static func _show(value: Variant) -> String:
