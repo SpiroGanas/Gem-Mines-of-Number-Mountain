@@ -257,7 +257,7 @@ These guardrails also line up with Google Play's expectations for children's app
 - Intel/AMD Chromebooks (x86_64 build).
 - **Mouse-only Chromebooks** with no touchscreen: every interaction must also work with click and drag, using the number pad instead of handwriting.
 - Smaller and older tablets.
-- **Phones are supported** (Spiro, 2026-10-19; this replaces the earlier phone exclusion). Every screen size stays on in the manifest, and layouts must fit a landscape phone (about 20:9, roughly 360 dp tall) with 64 dp targets.
+- **Phones are supported** (Spiro, 2026-10-19; this replaces the earlier phone exclusion). Every screen size stays on in the manifest, and layouts must fit a landscape phone (about 20:9, roughly 360 dp tall) with 64 dp targets. **Layout:** a screen whose short side is under 600 dp is "compact" (`UI.is_compact()`): gaps halve, target multiples keep their design-canvas size but never drop below one 64 dp target, the number pad goes three rows of four, and while a rock is open the wall steps aside so the problem has the screen (and Bolt moves beside a tall input). `tests/scenes/test_phone_layout.gd` checks every screen, every answer input, hints and overlays at 2400x1080 @ 420 dpi and 1600x720 @ 320 dpi as well as 16:9, 16:10, 3:2 and 4:3 (`docs/decisions.md`, "Phone layout pass").
 
 **All devices:**
 
