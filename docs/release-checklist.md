@@ -25,7 +25,7 @@ The device matrices (save migration, cross-device round trip, posture x input) l
 
 - [ ] `"$GODOT" --headless --path . --import`
 - [ ] `GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh --headless --ignoreHeadlessMode -c -a res://tests` (all suites; includes `tests/scenes/test_mouse_only_pass.gd`)
-- [ ] `python -m pytest tools` (includes the export-preset checks: no permissions, phones excluded, the pinned target SDK, and the listing limits)
+- [ ] `python -m pytest tools` (includes the export-preset checks: no permissions, every screen size on (phones supported), the pinned target SDK, and the listing limits)
 - [ ] `python tools/crosscheck/run.py --all --n 10000`, then `--n 2000 --difficulty -1` and `--difficulty -2`
 - [ ] `python tools/ci/lint_content.py`, `python tools/ci/curriculum_check.py`, `python tools/ci/perf_check.py`, `python tools/ci/check_sdk_audit.py`
 - [ ] CI is green on the release commit (`.github/workflows/ci.yml`)
@@ -34,7 +34,7 @@ The device matrices (save migration, cross-device round trip, posture x input) l
 
 - [ ] Release keystore in environment variables only (never in the repo or in `export_presets.cfg`): `GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `GODOT_ANDROID_KEYSTORE_RELEASE_USER`, `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD`.
 - [ ] `"$GODOT" --headless --path . --export-release "Android AAB" build/gem-mines.aab`
-- [ ] `python tools/ci/check_manifest.py build/gem-mines.aab` passes: no `INTERNET`, location, camera, microphone, contacts or `AD_ID`; `<supports-screens>` small and normal `false` (phones excluded). Set `BUNDLETOOL` to the bundletool JAR to read it with bundletool too. Paste the output.
+- [ ] `python tools/ci/check_manifest.py build/gem-mines.aab` passes: no `INTERNET`, location, camera, microphone, contacts or `AD_ID`; nothing in `<supports-screens>` shuts phones out. Set `BUNDLETOOL` to the bundletool JAR to read it with bundletool too. Paste the output.
 - [ ] The AAB holds both ABIs: `unzip -l build/gem-mines.aab | grep -E "lib/(arm64-v8a|x86_64)/"` lists both.
 - [ ] Size: the download stays under 150 MB (Play Console shows the per-device download size after upload; record it).
 - [ ] Archive the AAB with its SHA-256 (`sha256sum build/gem-mines.aab`) and the commit, outside the repo.

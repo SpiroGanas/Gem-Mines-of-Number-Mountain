@@ -9,12 +9,12 @@ Fails (exit code 1) when the manifest:
   1. Asks for a banned permission (CLAUDE.md rules 1 and 2): INTERNET, ACCESS_FINE_LOCATION,
      ACCESS_COARSE_LOCATION, ACCESS_BACKGROUND_LOCATION, CAMERA, RECORD_AUDIO, READ_CONTACTS or the
      advertising ID (com.google.android.gms.permission.AD_ID).
-  2. Does not exclude phones: <supports-screens> must say android:smallScreens="false" and
+  2. Shuts phones out. Phones are supported (Spiro, docs/decisions.md, 2026-10-19 "Phones are
+     supported"), so <supports-screens> must not say android:smallScreens="false" or
      android:normalScreens="false" (export preset options screen/support_small and
-     screen/support_normal; docs/decisions.md, 2026-10-19). If android:requiresSmallestWidthDp is
-     present it must be at least 600; --require-smallest-width 600 makes it mandatory as well.
-     Godot 4.7 writes <supports-screens> itself and has no preset option for that attribute, and
-     Google Play does not filter on it, so it is optional by default.
+     screen/support_normal), and android:requiresSmallestWidthDp, if present, must be at most
+     MAX_SMALLEST_WIDTH_DP (a phone's smallest width is about 320-411 dp). A manifest without
+     <supports-screens> passes: every size defaults to supported.
 
 Exit code 2 means the file could not be read.
 
@@ -54,7 +54,8 @@ BANNED_PERMISSIONS = (
     "com.google.android.gms.permission.AD_ID",
 )
 PERMISSION_TAGS = ("uses-permission", "uses-permission-sdk-23", "uses-permission-sdk-m")
-SMALLEST_WIDTH_DP = 600
+## The largest android:requiresSmallestWidthDp that still lets a small phone install.
+MAX_SMALLEST_WIDTH_DP = 320
 
 AAB_MANIFEST = "base/manifest/AndroidManifest.xml"
 APK_MANIFEST = "AndroidManifest.xml"
@@ -394,7 +395,7 @@ def permissions(manifest: Element) -> list[str]:
     return [e.attrs.get("name", "") for e in manifest.iter() if e.tag in PERMISSION_TAGS]
 
 
-def check(manifest: Element, require_smallest_width: int | None = None, extra_permissions: list[str] | None = None) -> list[str]:
+def check(manifest: Element, extra_permissions: list[str] | None = None) -> list[str]:
     """Every problem found, as one sentence each (empty when the manifest passes)."""
     problems: list[str] = []
     if manifest.tag != "manifest":
@@ -403,38 +404,26 @@ def check(manifest: Element, require_smallest_width: int | None = None, extra_pe
     for banned in BANNED_PERMISSIONS:
         if banned in asked:
             problems.append(f"banned permission requested: {banned}")
-    screens = [e for e in manifest.iter() if e.tag == "supports-screens"]
-    if not screens:
-        problems.append("no <supports-screens>: phones are not excluded")
     attrs: dict[str, str] = {}
-    for element in screens:
-        attrs.update(element.attrs)  # several elements: the last value wins, as on the device
-    if screens:
-        for name in ("smallScreens", "normalScreens"):
-            if attrs.get(name, "true").lower() != "false":
-                problems.append(f'<supports-screens android:{name}> must be "false" (phones excluded), found {attrs.get(name, "missing (defaults to true)")}')
-        width = attrs.get("requiresSmallestWidthDp")
-        if width is not None:
-            try:
-                if int(width, 0) < SMALLEST_WIDTH_DP:
-                    problems.append(f"android:requiresSmallestWidthDp is {width}, below {SMALLEST_WIDTH_DP}")
-            except ValueError:
-                problems.append(f"android:requiresSmallestWidthDp is not a number: {width}")
-        elif require_smallest_width is not None:
-            problems.append(f"android:requiresSmallestWidthDp is missing (required: {require_smallest_width})")
-        if width is not None and require_smallest_width is not None:
-            try:
-                if int(width, 0) < require_smallest_width:
-                    problems.append(f"android:requiresSmallestWidthDp is {width}, below the required {require_smallest_width}")
-            except ValueError:
-                pass
+    for element in manifest.iter():
+        if element.tag == "supports-screens":
+            attrs.update(element.attrs)  # several elements: the last value wins, as on the device
+    for name in ("smallScreens", "normalScreens"):
+        if attrs.get(name, "true").lower() == "false":
+            problems.append(f'<supports-screens android:{name}="false"> shuts phones out (phones are supported)')
+    width = attrs.get("requiresSmallestWidthDp")
+    if width is not None:
+        try:
+            if int(width, 0) > MAX_SMALLEST_WIDTH_DP:
+                problems.append(f"android:requiresSmallestWidthDp is {width}, above {MAX_SMALLEST_WIDTH_DP}: phones could not install")
+        except ValueError:
+            problems.append(f"android:requiresSmallestWidthDp is not a number: {width}")
     return problems
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("path", type=Path, help=".aab, .apk or AndroidManifest.xml (plain or binary)")
-    parser.add_argument("--require-smallest-width", type=int, default=None, metavar="DP", help="also require android:requiresSmallestWidthDp >= DP")
     args = parser.parse_args(argv)
     try:
         manifest = load_manifest(args.path)
@@ -447,12 +436,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  permissions: {', '.join(asked) if asked else '(none)'}")
     if extra is not None:
         print("  (aapt2 dump permissions was read as well)")
-    problems = check(manifest, args.require_smallest_width, extra)
+    problems = check(manifest, extra)
     for problem in problems:
         print(f"  FAIL {problem}")
     if problems:
         return 1
-    print("  OK: no banned permission; phones excluded")
+    print("  OK: no banned permission; phones can install")
     return 0
 
 

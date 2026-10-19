@@ -16,7 +16,7 @@ SDK="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 | 8" small tablet, 1280 x 800 | `gm-tablet-8` | a 7-8" definition from the list (e.g. `"Nexus 7 2013"`) | `hw.lcd.width=1280`, `hw.lcd.height=800`, `hw.lcd.density=213` | small tablets; the 600 dp boundary |
 | Low-end tablet, 2 GB | `gm-lowend` | `-d pixel_tablet` | `hw.ramSize=2048`, `hw.cpu.ncore=2` | 60 fps on the dig loop and hub |
 | x86_64 Chromebook, mouse only | `gm-desktop` | a "Desktop" or resizable definition from the list | `hw.screen=no-touch`, `hw.mainKeys=yes`, `hw.keyboard=yes` | Intel/AMD Chromebooks; the mouse-only pass (the slate must never appear) |
-| Phone (must be refused by Play) | `gm-phone` | `-d pixel_8` | | phones are excluded: Play shows "not compatible"; `adb install` still works (side-loading ignores `<supports-screens>`), which is expected |
+| Phone (supported) | `gm-phone` | `-d pixel_8` | | landscape phone, about 20:9: every screen fits, every target is at least 64 dp, nothing is cut off |
 
 Run one: `"$SDK/emulator/emulator" -avd gm-desktop`, then `adb install -r build/gem-mines-debug.apk`.
 

@@ -1,6 +1,6 @@
 # CLAUDE.md: Gem Mines of Number Mountain
 
-Educational mining-and-crafting game teaching number theory (place value → modular arithmetic, ciphers, proof) to a gifted 6-year-old, Charlie, and later other families' kids aged 6–12. Built in **Godot 4.7 (GDScript)**, exported as an **Android app** for a touchscreen ARM 2-in-1 Chromebook (with stylus) and an Android tablet. Phones are out of scope.
+Educational mining-and-crafting game teaching number theory (place value → modular arithmetic, ciphers, proof) to a gifted 6-year-old, Charlie, and later other families' kids aged 6–12. Built in **Godot 4.7 (GDScript)**, exported as an **Android app** for a touchscreen ARM 2-in-1 Chromebook (with stylus) and an Android tablet; Android phones are also supported (landscape; Spiro's decision, 2026-10-19).
 
 Developer and product owner: **Spiro**, an experienced software engineer and AI expert who is **new to Godot and game development**. When you introduce a Godot idiom he may not know (signals, autoloads, scene inheritance, resources, tweens), explain it in 1–2 lines in your summary.
 

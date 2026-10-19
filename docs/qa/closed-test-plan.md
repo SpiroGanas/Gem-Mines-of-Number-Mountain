@@ -16,7 +16,7 @@ Record: start date ____, testers opted in on day 1 ____, end date ____.
 
 ## Recruiting (Sprint 25, P3-S25-07)
 
-- [ ] List of families with the Google account each will test with and the device (tablet or Chromebook; no phones: the app excludes them).
+- [ ] List of families with the Google account each will test with and the device (tablet, Chromebook or phone; aim for at least two phone testers).
 - [ ] Each family agrees to: install from the Play link, play at least three sessions over the two weeks, and fill in the feedback form once a week.
 - [ ] Mention that the app collects nothing and works offline (the privacy policy link), so nothing is learned about their child unless they write it in the form.
 

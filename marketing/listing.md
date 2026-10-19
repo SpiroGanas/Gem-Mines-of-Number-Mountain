@@ -61,7 +61,7 @@ Made for tablets and Chromebooks, in landscape.
 
 - Content rules (`CLAUDE.md`, "Content rules"): no alcohol, gambling, tobacco, smoke, campfires or fireplaces, bees, cats or dogs, octopus or shellfish. Light sources named are electric (the electric lantern). The automated banned-word check covers the words; a person checks the meaning.
 - Tone: warm and encouraging; the feedback line quoted is the game's own ("Not quite. Let's look again.").
-- Claims match the build: five zones (Zones 1-5, 72 skills), handwriting on touch screens only, mouse and trackpad support (the mouse-only path, Sprint 25), up to four profiles (Phase 3), export/import by file, no `INTERNET` (`tools/ci/check_manifest.py`). Phones are excluded, so the listing says tablets and Chromebooks.
+- Claims match the build: five zones (Zones 1-5, 72 skills), handwriting on touch screens only, mouse and trackpad support (the mouse-only path, Sprint 25), up to four profiles (Phase 3), export/import by file, no `INTERNET` (`tools/ci/check_manifest.py`). Phones are supported (Spiro, 2026-10-19), so the listing may say tablets, Chromebooks and phones.
 - Not promised: read-aloud, narration or an AI voice (none in the app).
 
 ## Graphics

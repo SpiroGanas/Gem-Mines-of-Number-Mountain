@@ -1,4 +1,4 @@
-"""pytest: check_manifest.py fails on banned permissions and on phones, in every manifest format.
+"""pytest: check_manifest.py fails on banned permissions and on a build that shuts phones out, in every manifest format.
 
 The plain-XML fixtures are in tools/ci/fixtures/manifest/. The binary formats (AXML inside an APK,
 aapt2 protobuf XML inside an AAB) are built here by small encoders that follow the published formats
@@ -22,16 +22,16 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "manifest"
 Tree = tuple[str, dict[str, object], list["Tree"]]
 
 CLEAN: Tree = ("manifest", {"package": "com.spiroganas.gemmine"}, [
-    ("supports-screens", {"smallScreens": False, "normalScreens": False, "largeScreens": True, "xlargeScreens": True}, []),
+    ("supports-screens", {"smallScreens": True, "normalScreens": True, "largeScreens": True, "xlargeScreens": True}, []),
     ("application", {"label": "Gem Mines of Number Mountain"}, []),
 ])
 WITH_INTERNET: Tree = ("manifest", {"package": "com.spiroganas.gemmine"}, [
-    ("supports-screens", {"smallScreens": False, "normalScreens": False}, []),
+    ("supports-screens", {"smallScreens": True, "normalScreens": True}, []),
     ("uses-permission", {"name": "android.permission.INTERNET"}, []),
     ("application", {}, []),
 ])
-PHONES: Tree = ("manifest", {}, [("supports-screens", {"smallScreens": True, "normalScreens": True}, [])])
-SMALLEST_WIDTH: Tree = ("manifest", {}, [("supports-screens", {"smallScreens": False, "normalScreens": False, "requiresSmallestWidthDp": 600}, [])])
+TABLETS_ONLY: Tree = ("manifest", {}, [("supports-screens", {"smallScreens": False, "normalScreens": False}, [])])
+SMALLEST_WIDTH: Tree = ("manifest", {}, [("supports-screens", {"smallScreens": True, "normalScreens": True, "requiresSmallestWidthDp": 600}, [])])
 
 
 # --- Encoders for the binary formats (test fixtures only) ---------------------------------------
@@ -179,8 +179,8 @@ def test_internet_and_the_advertising_id_fail() -> None:
     assert cm.main([str(FIXTURES / "internet.xml")]) == 1
 
 
-def test_a_manifest_that_lets_phones_install_fails() -> None:
-    problems = cm.check(cm.load_manifest(FIXTURES / "phones.xml"))
+def test_a_manifest_that_shuts_phones_out_fails() -> None:
+    problems = cm.check(cm.load_manifest(FIXTURES / "tablets_only.xml"))
     assert any("smallScreens" in p for p in problems)
     assert any("normalScreens" in p for p in problems)
 
@@ -188,34 +188,34 @@ def test_a_manifest_that_lets_phones_install_fails() -> None:
 @pytest.mark.parametrize("permission", cm.BANNED_PERMISSIONS)
 def test_every_banned_permission_fails(permission: str) -> None:
     manifest = cm.parse_text_xml(
-        f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="false" android:normalScreens="false"/>'
+        f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="true" android:normalScreens="true"/>'
         f'<uses-permission android:name="{permission}"/></manifest>'
     )
     assert cm.check(manifest) == [f"banned permission requested: {permission}"]
 
 
 def test_the_sdk_23_permission_tag_counts_too() -> None:
-    manifest = cm.parse_text_xml(f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="false" android:normalScreens="false"/><uses-permission-sdk-23 android:name="android.permission.CAMERA"/></manifest>')
+    manifest = cm.parse_text_xml(f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="true" android:normalScreens="true"/><uses-permission-sdk-23 android:name="android.permission.CAMERA"/></manifest>')
     assert cm.check(manifest) == ["banned permission requested: android.permission.CAMERA"]
 
 
 def test_a_harmless_permission_is_allowed() -> None:
-    manifest = cm.parse_text_xml(f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="false" android:normalScreens="false"/><uses-permission android:name="android.permission.VIBRATE"/></manifest>')
+    manifest = cm.parse_text_xml(f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="true" android:normalScreens="true"/><uses-permission android:name="android.permission.VIBRATE"/></manifest>')
     assert cm.check(manifest) == []
 
 
-def test_missing_supports_screens_fails() -> None:
+def test_missing_supports_screens_passes() -> None:
+    # Every screen size defaults to supported.
     manifest = cm.parse_text_xml(f'<manifest xmlns:android="{cm.ANDROID_NS}"/>')
-    assert any("supports-screens" in p for p in cm.check(manifest))
+    assert cm.check(manifest) == []
 
 
-def test_the_smallest_width_is_optional_but_checked_when_present_or_required() -> None:
-    base = f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens android:smallScreens="false" android:normalScreens="false"{{}}/></manifest>'
-    without = cm.parse_text_xml(base.format(""))
-    assert cm.check(without) == []
-    assert cm.check(without, require_smallest_width=600) == ["android:requiresSmallestWidthDp is missing (required: 600)"]
-    assert cm.check(cm.parse_text_xml(base.format(' android:requiresSmallestWidthDp="600"')), require_smallest_width=600) == []
-    assert any("below" in p for p in cm.check(cm.parse_text_xml(base.format(' android:requiresSmallestWidthDp="320"'))))
+def test_a_smallest_width_that_shuts_phones_out_fails() -> None:
+    base = f'<manifest xmlns:android="{cm.ANDROID_NS}"><supports-screens{{}}/></manifest>'
+    assert cm.check(cm.parse_text_xml(base.format(""))) == []
+    assert cm.check(cm.parse_text_xml(base.format(' android:requiresSmallestWidthDp="320"'))) == []
+    assert any("above" in p for p in cm.check(cm.parse_text_xml(base.format(' android:requiresSmallestWidthDp="600"'))))
+    assert any("not a number" in p for p in cm.check(cm.parse_text_xml(base.format(' android:requiresSmallestWidthDp="wide"'))))
 
 
 def test_unreadable_files_exit_2(tmp_path: Path) -> None:
@@ -238,14 +238,14 @@ def test_the_axml_reader_reads_tags_strings_and_booleans(utf8: bool) -> None:
     assert root.attrs["package"] == "com.spiroganas.gemmine"
     screens = root.children[0]
     assert screens.tag == "supports-screens"
-    assert screens.attrs == {"smallScreens": "false", "normalScreens": "false", "largeScreens": "true", "xlargeScreens": "true"}
+    assert screens.attrs == {"smallScreens": "true", "normalScreens": "true", "largeScreens": "true", "xlargeScreens": "true"}
     assert root.children[1].attrs["label"] == "Gem Mines of Number Mountain"
 
 
 def test_axml_attribute_names_stripped_to_resource_ids_are_still_found() -> None:
     root = cm.parse_axml(encode_axml(WITH_INTERNET, strip_names=True))
     assert cm.permissions(root) == ["android.permission.INTERNET"]
-    assert root.children[0].attrs["smallScreens"] == "false"
+    assert root.children[0].attrs["smallScreens"] == "true"
 
 
 def test_an_apk_is_checked_from_its_binary_manifest(tmp_path: Path) -> None:
@@ -253,14 +253,14 @@ def test_an_apk_is_checked_from_its_binary_manifest(tmp_path: Path) -> None:
     assert cm.main([str(clean)]) == 0
     bad = _zip(tmp_path / "bad.apk", "AndroidManifest.xml", encode_axml(WITH_INTERNET))
     assert cm.main([str(bad)]) == 1
-    phones = _zip(tmp_path / "phones.apk", "AndroidManifest.xml", encode_axml(PHONES))
-    assert cm.main([str(phones)]) == 1
+    tablets_only = _zip(tmp_path / "tablets_only.apk", "AndroidManifest.xml", encode_axml(TABLETS_ONLY))
+    assert cm.main([str(tablets_only)]) == 1
 
 
 def test_axml_integers_are_read() -> None:
     root = cm.parse_axml(encode_axml(SMALLEST_WIDTH))
     assert root.children[0].attrs["requiresSmallestWidthDp"] == "600"
-    assert cm.check(root, require_smallest_width=600) == []
+    assert any("above" in p for p in cm.check(root))
 
 
 def test_aapt2_permissions_also_fail_an_apk(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -276,7 +276,7 @@ def test_aapt2_permissions_also_fail_an_apk(tmp_path: Path, monkeypatch: pytest.
 def test_the_protobuf_reader_reads_raw_and_compiled_values(keep_raw_values: bool) -> None:
     root = cm.parse_proto_xml(encode_proto(SMALLEST_WIDTH, keep_raw_values))
     assert root.tag == "manifest"
-    assert root.children[0].attrs == {"smallScreens": "false", "normalScreens": "false", "requiresSmallestWidthDp": "600"}
+    assert root.children[0].attrs == {"smallScreens": "true", "normalScreens": "true", "requiresSmallestWidthDp": "600"}
 
 
 def test_an_aab_is_checked_from_its_protobuf_manifest(tmp_path: Path) -> None:
@@ -284,8 +284,8 @@ def test_an_aab_is_checked_from_its_protobuf_manifest(tmp_path: Path) -> None:
     assert cm.main([str(clean)]) == 0
     bad = _zip(tmp_path / "bad.aab", cm.AAB_MANIFEST, encode_proto(WITH_INTERNET, keep_raw_values=False))
     assert cm.main([str(bad)]) == 1
-    phones = _zip(tmp_path / "phones.aab", cm.AAB_MANIFEST, encode_proto(PHONES))
-    assert cm.main([str(phones)]) == 1
+    tablets_only = _zip(tmp_path / "tablets_only.aab", cm.AAB_MANIFEST, encode_proto(TABLETS_ONLY))
+    assert cm.main([str(tablets_only)]) == 1
 
 
 def test_an_aab_without_a_manifest_is_unreadable(tmp_path: Path) -> None:

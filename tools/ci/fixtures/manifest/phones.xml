@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Must fail: the Godot defaults (every screen size supported), so phones could install it. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.spiroganas.gemmine">
-  <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true"/>
-  <application android:label="Gem Mines of Number Mountain"/>
-</manifest>

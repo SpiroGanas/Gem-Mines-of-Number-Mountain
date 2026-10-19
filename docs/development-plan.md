@@ -10,7 +10,7 @@
 |---|---|
 | Developer | **Spiro** (MS in CS, Georgia Tech; AI expert; new to game development), full time (~40 hrs/week), using an AI coding assistant |
 | Charlie's devices | **New 2-in-1 Chromebook** (modern ARM chip, touchscreen, stylus) and a **new Android tablet**. The old non-touch Chromebook is retired. |
-| Other devices supported | Other families' Chromebooks and tablets (ARM and Intel/AMD, touch or mouse-only). Phones are out of scope. |
+| Other devices supported | Other families' Chromebooks and tablets (ARM and Intel/AMD, touch or mouse-only) and Android phones (landscape; Spiro, 2026-10-19). |
 | Engine | **Godot 4.7.x** (GDScript), exported as an Android app, plus a small **Kotlin** Android plugin for handwriting recognition |
 | Voice | **Licensed AI voice narration**, generated ahead of time as audio files (no live AI in the game). **Added in Phase 3 (Sprint 22), after the MVP.** The MVP is text-based, since Charlie reads well. |
 | Distribution | Google Play: private testing first, then a **public release** built for Google Play's rules on children's apps |
@@ -257,7 +257,7 @@ These guardrails also line up with Google Play's expectations for children's app
 - Intel/AMD Chromebooks (x86_64 build).
 - **Mouse-only Chromebooks** with no touchscreen: every interaction must also work with click and drag, using the number pad instead of handwriting.
 - Smaller and older tablets.
-- **Phones are excluded** using screen-size settings in the app manifest and Google Play's device catalog.
+- **Phones are supported** (Spiro, 2026-10-19; this replaces the earlier phone exclusion). Every screen size stays on in the manifest, and layouts must fit a landscape phone (about 20:9, roughly 360 dp tall) with 64 dp targets.
 
 **All devices:**
 
@@ -525,7 +525,7 @@ Plus about 3 hours studying the game feel of well-regarded learning games (e.g.,
 | **22** | Apr 12–16 | **AI-voice narration** (moved here from the MVP). Shortlist providers and check commercial licenses; **Charlie picks Bolt's voice** from 3 samples. Build the generation pipeline (see 5.6). Narration manager: number-clip splicing, word highlighting, replay button. Generate every line for Zones 1–5 plus numbers 0–1,000. |
 | **23** | Apr 19–23 | **Families who aren't us.** Up to 4 child profiles per device. **Read-aloud setting per profile** (on by default for younger or non-reading players, optional for Charlie). Generic placement (parent picks a starting grade). Parent onboarding. A parent-facing "how this game teaches" page. |
 | **24** | Apr 26–30 | **Compliance.** Privacy policy (hosted on GitHub Pages); data safety form; target audience (ages 6–8 and 9–12); content rating questionnaire; SDK audit; parental-gate review; Families Policy self-check. |
-| **25** | May 3–7 | **Broad device support.** x86_64 build. **Mouse-only Chromebook path** (no touch, no pen). Small and older tablets. Low-end performance. Phone exclusion. Emulator test matrix. Recruit tester families (12+ if personal account). |
+| **25** | May 3–7 | **Broad device support.** x86_64 build. **Mouse-only Chromebook path** (no touch, no pen). Small and older tablets. Low-end performance. Phone layouts (phones are supported, Spiro 2026-10-19). Emulator test matrix. Recruit tester families (12+ if personal account). |
 | **26** | May 10–14 | **Store listing and closed test.** Icon, screenshots, feature graphic, short trailer, description (with an optional AI-voice note). **Closed test starts** and must run 14 consecutive days if on a personal account. |
 | **27** | May 17–21 | **Closed-test fixes.** Bugs and feedback from other families (especially first-time onboarding and read-aloud with non-readers); a mid-test build. |
 | **28** | May 24–28 | **Launch.** Final build. Request production access (personal account) or submit directly (organization account). Allow up to about 7 days for Google's review of a children's app. |

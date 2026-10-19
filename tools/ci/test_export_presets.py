@@ -83,7 +83,7 @@ def test_presets_agree_on_the_package_id_and_abis() -> None:
         assert options.get("architectures/x86_64") == "true", name
 
 
-# --- Phase 3, Sprint 25 (phones excluded) and Sprint 38 (the pinned target SDK) ------------------
+# --- Phase 3, Sprint 25 (every screen size, phones included) and Sprint 38 (the pinned target SDK) ------------------
 
 TARGET_SDK_FILE = ROOT / ".android-target-sdk"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
@@ -93,13 +93,14 @@ def pinned_target_sdk() -> str:
     return TARGET_SDK_FILE.read_text(encoding="utf-8").strip()
 
 
-def test_presets_exclude_phones_and_keep_tablets_and_chromebooks() -> None:
-    # Godot writes these into <supports-screens>; small and normal screens are phones
-    # (docs/decisions.md, 2026-10-19). tools/ci/check_manifest.py checks the built manifest too.
+def test_presets_support_every_screen_size_phones_included() -> None:
+    # Godot writes these into <supports-screens>; small and normal screens are phones, which are
+    # supported (Spiro, docs/decisions.md, 2026-10-19 "Phones are supported").
+    # tools/ci/check_manifest.py checks the built manifest too.
     for name, preset in android_presets().items():
         options: dict[str, str] = preset["options"]  # type: ignore[assignment]
-        assert options.get("screen/support_small") == "false", f"{name}: small screens (phones) must be off"
-        assert options.get("screen/support_normal") == "false", f"{name}: normal screens (phones) must be off"
+        assert options.get("screen/support_small") == "true", f"{name}: small screens (phones) must stay on"
+        assert options.get("screen/support_normal") == "true", f"{name}: normal screens (phones) must stay on"
         assert options.get("screen/support_large") == "true", f"{name}: large screens (7-inch tablets) must stay on"
         assert options.get("screen/support_xlarge") == "true", f"{name}: xlarge screens (tablets, Chromebooks) must stay on"
 

@@ -168,7 +168,7 @@ jobs:
       # P3-S24-06 / P3-S25-05: the full manifest check on the APK that was built: no banned
       # permission (INTERNET, location, camera, microphone, contacts, advertising ID) and phones
       # excluded (<supports-screens> small and normal false). aapt2 cross-checks its AXML reader.
-      - name: Manifest check (banned permissions, phones excluded)
+      - name: Manifest check (banned permissions, phones not shut out)
         run: AAPT2="$ANDROID_SDK_ROOT/build-tools/36.0.0/aapt2" python3 tools/ci/check_manifest.py build/gem-mines-debug.apk
 
       - name: Upload the debug APK

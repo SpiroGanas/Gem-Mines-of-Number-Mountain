@@ -27,7 +27,6 @@ Godot idioms used in this document are explained the first time they appear, sin
 - Cross-device sync changes (the Phase 2 approach stands).
 - New third-party SDKs or plugins (the web build uses only Godot's own export template).
 - Multiplayer, chat, sharing to social networks, or any feature that sends data off the device. The secret-message feature is on-screen only.
-- Phone support.
 - Live AI of any kind in the shipped game.
 - Changing BKT thresholds, curriculum prerequisites for Zones 1–9, or the save schema without the Phase 2 migration process and Spiro's sign-off.
 
