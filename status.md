@@ -58,7 +58,7 @@ Owned by Spiro, the devices or a reviewer. Details in the 2026-10-19 sections of
 
 ## 7. Health check (last known)
 
-- 2026-10-19, headless Linux, on the branch tip: GdUnit4 full suite: run pending at this commit (updated in the next commit); pytest 1158 passed (34 skipped by design); cross-check `--all --n 2000` on all 135 skills passed (Zones 6-9 also at 10,000 and at difficulty −1 on their branches); `lint_content.py`, `curriculum_check.py`, `perf_check.py` (4.5 MB exported) and `check_sdk_audit.py` all clean.
+- 2026-10-19, headless Linux, on the branch tip: GdUnit4 1452 test cases, 0 failures, 0 errors, 0 orphans; pytest 1158 passed (34 skipped by design); cross-check `--all --n 2000` on all 135 skills passed (Zones 6-9 also at 10,000 and at difficulty −1 on their branches); `lint_content.py`, `curriculum_check.py`, `perf_check.py` (4.5 MB exported) and `check_sdk_audit.py` all clean.
 - Parallel Godot test runs on one machine share `user://`; set `XDG_DATA_HOME` per run to keep them apart.
 - Not verified in a cloud session: anything needing a device, a renderer, the Android SDK (the manifest check's binary readers are tested only on synthetic files) or the keystore.
 
