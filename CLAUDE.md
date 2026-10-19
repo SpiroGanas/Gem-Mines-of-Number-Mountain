@@ -304,20 +304,16 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 
 ## Current phase
 
-**Phase 2 (Version 1.0) is built in code; Phase 3 (public release readiness, Sprints 22-28, Apr 12 - May 28, 2027; `docs/phases/phase-3-public-release-readiness.md`) is next.** Phase 2 status per sprint: `docs/phases/phase-2-version-1-0.md` ("Status"); retrospective: `docs/phases/phase-2-retrospective.md`.
+**Phases 3 and 4 are built in code** (Oct 2026, ahead of their 2027 calendar). Spiro decided: **no narration or AI voice**, and **phones are supported** (`docs/decisions.md`, 2026-10-19). Phase 2 (Version 1.0) is built in code too and waits on human/device work.
 
-Built in Phase 2 (Sprints 12-21), on top of the MVP:
+Built in Phase 3 (public release readiness):
 
-- **Handwriting:** the digit network in GDScript, `ChalkSlate`, palm rejection, "Did you write 47?" (logged as `confirmed`), numeral coaching.
-- **Zones 4 and 5:** 27 skills (72 in all), every generator cross-checked; `BoulderSplit`, `SieveGrid`, `FactorTree`; rare gems from rare numbers.
-- **Workshop (Sprint 16):** crafting bench (`curriculum/recipes.json`), build site and build runner (`curriculum/builds.json`); the balance elevator opens Zone 4 (`Scheduler.locked_zones`).
-- **Cross-device (Sprint 17):** save schema **v2** (one migration for every Phase 2 record), `SaveMerge` newest-wins with backups, a checksum, a random device id and an import/export log. Parent-managed files only; no accounts.
-- **Motivation (Sprint 19):** badges (`curriculum/badges.json`), the Word Gems glossary (lint rule 11), the weekly Deep Dig, the Challenge Door, family reward points (`MotivationRules`).
-- **Art and sound (Sprint 20):** no artist (Spiro's decision): Kenney CC0 packs plus code-drawn art (`docs/art/asset-inventory.md`), Bolt's six poses (`Bolt.set_pose`), synthesized music per zone group with a cross-fade.
-- **Parent area (Sprint 21):** dashboard v2 (skill map, weekly summary), family rewards, the import/export log.
+- **Profiles:** up to 4 children per device (`Profiles` autoload, `scripts/core/profile.gd`), save schema **v3** (one save document per child in `user://save/profiles/<id>/`), grade-seeded placement (`curriculum/placement_priors.json`), parent onboarding, the profile switcher, "How this game teaches", a stronger parent gate.
+- **Devices:** `DeviceCaps` mouse-only path (`--no-touch`), phone layouts (`UI.is_compact()`, room levels in the mine, `tests/scenes/test_phone_layout.gd`), every screen size on in the export presets.
+- **Compliance and store:** `docs/privacy-policy.md`, `docs/compliance/`, `tools/ci/check_manifest.py`, `tools/ci/check_sdk_audit.py`, `marketing/`, `docs/release-checklist.md`, `docs/qa/closed-test-plan.md`, `docs/platform-update.md`.
 
-Left for Spiro, the devices and the math reviewer before the `v1.0.0` tag: `docs/qa/release-1.0.md` (device matrices, airplane mode, the release AAB, the Android version code and name) and `docs/reviews/2027-04-math-review.md` (human sign-off on Zones 1-5), plus the Phase 2 items marked "Needs Spiro" in `docs/decisions.md` (Charlie's logs and the decision gate, his digits, the Zone 4 and 5 prerequisites, the MNIST licence).
+Built in Phase 4 (Middle Mountain, Version 1.5): Zones 6 Gear Works, 7 Crystal Shards, 8 Power Tower and 9 Pattern Grotto (135 skills in all, every generator cross-checked), their mechanics and builds, `Rational`, simplest-form answers (`meta.simplest_form`), Scholar mode part 1 (keyboard entry, notation widgets, explorer/scholar/auto), saved Fib poems (save schema **v4**), the Gauss Staircase badge.
 
-**Next:** Sprint 22 (AI-voice narration; paid API calls need Spiro's go-ahead), then profiles and read-aloud, compliance, broad devices, the store listing and the closed test. The Phase 3 profiles change is a v2-to-v3 save migration. Zones 6-12 and Scholar mode stay out of scope until Phase 4. Don't build ahead of the current sprint; add ideas to the backlog instead.
+**Next:** the human, device and store items in `status.md` section 5 (math reviewer sign-off on Zones 6-9, Spiro's open decisions, device matrices, the closed test, the Play submission). Zones 10-12 and Scholar mode part 2 are Phase 5 (`docs/phases/phase-5-deep-mountain.md`); don't build them until Spiro confirms Phase 5.
 
 Update this section at the start of each phase. Day-to-day state (what just landed, what is next, what is blocked) lives in `status.md`, not here.
