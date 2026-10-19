@@ -34,7 +34,8 @@ func test_save_now_writes_the_file_and_announces_it() -> void:
 	system.data()["rewards"]["coins"] = 55
 	system.save_now()
 	await assert_signal(system).is_emitted("saved")
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_true()
+	assert_bool(FileAccess.file_exists(system.profile_dir().path_join("profile.json"))).is_true()
+	assert_str(system.profile_dir()).is_equal(_dir.path_join("profiles").path_join(system.profile_id()))
 	var reloaded: Node = _system()
 	assert_int(reloaded.data()["rewards"]["coins"]).is_equal(55)
 
@@ -53,7 +54,7 @@ func test_loading_a_recovered_save_is_reported_for_the_parent_dashboard() -> voi
 	system.save_now()
 	system.data()["rewards"]["coins"] = 2
 	system.save_now()
-	var file: FileAccess = FileAccess.open(_dir.path_join("profile.json"), FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(system.profile_dir().path_join("profile.json"), FileAccess.WRITE)
 	file.store_string("corrupted!")
 	file.close()
 	var recovered: Node = _system()
@@ -99,7 +100,7 @@ func test_the_v1_fixture_loads_through_the_whole_system() -> void:
 	assert_str(system.data()["child"]["nickname"]).is_equal("Charlie")
 	assert_int(system.data()["rewards"]["coins"]).is_equal(120)
 	assert_bool(system.last_load_report["recovered"]).is_false()
-	assert_bool(system.last_load_report["migrated"]).is_true() # version 1 is migrated to version 2
+	assert_bool(system.last_load_report["migrated"]).is_true() # version 1 is migrated to the current one
 	assert_int(system.last_load_report["from_version"]).is_equal(1)
 	assert_int(system.data()["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
 	assert_dict(system.data()["workshop"]["builds"]).is_empty()
@@ -131,14 +132,14 @@ func test_the_app_pausing_or_closing_saves() -> void:
 		system.use_directory(dir)
 		system.data()["rewards"]["coins"] = notification
 		system._notification(notification)
-		var on_disk: Dictionary = SaveStore.new(dir).read_profile()["data"]
+		var on_disk: Dictionary = SaveStore.new(system.profile_dir()).read_profile()["data"]
 		assert_int(on_disk["rewards"]["coins"]).override_failure_message("notification %d did not save" % notification).is_equal(notification)
 
 
 func test_other_notifications_do_not_save() -> void:
 	var system: Node = _system()
 	system._notification(Node.NOTIFICATION_READY)
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_false()
+	assert_bool(FileAccess.file_exists(system.profile_dir().path_join("profile.json"))).is_false()
 
 
 # --- Export and import (P1-S09-05) ---------------------------------------------------------
@@ -203,9 +204,9 @@ func test_the_replaced_save_is_kept_as_the_backup() -> void:
 	target.use_directory(target_dir)
 	target.data()["rewards"]["coins"] = 42
 	target.data()["updated_at"] = "2000-01-01T00:00:00Z"
-	SaveStore.new(target_dir).write_profile(target.data())
+	SaveStore.new(target.profile_dir()).write_profile(target.data())
 	target.import_bundle(bundle_path)
-	var backup: Dictionary = JsonUtil.parse_file(target_dir.path_join("profile.json.bak"))
+	var backup: Dictionary = JsonUtil.parse_file(target.profile_dir().path_join("profile.json.bak"))
 	assert_int(backup["rewards"]["coins"]).is_equal(42)
 
 

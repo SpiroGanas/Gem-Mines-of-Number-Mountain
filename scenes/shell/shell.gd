@@ -32,11 +32,14 @@ const SCREEN_PATHS: Dictionary = {
 	&"parent_gate": "res://scenes/shell/parent_area/parent_gate.tscn",
 	&"dashboard": "res://scenes/shell/parent_area/dashboard.tscn",
 	&"capture": "res://scenes/shell/parent_area/capture.tscn",
+	&"onboarding": "res://scenes/shell/parent_area/onboarding.tscn",
+	&"profiles": "res://scenes/shell/parent_area/profiles.tscn",
+	&"how_it_teaches": "res://scenes/shell/parent_area/how_it_teaches.tscn",
 }
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing: nothing to pause there, and the parent area has no pause
 ## overlay (GDD section 3).
-const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture", &"family_rewards"]
+const NON_PAUSABLE: Array[StringName] = [&"title", &"first_run", &"parent_gate", &"dashboard", &"capture", &"family_rewards", &"onboarding", &"profiles", &"how_it_teaches"]
 
 @export var fade_seconds: float = 0.2
 

@@ -150,9 +150,9 @@ func test_the_praise_stays_up_after_a_rock_and_clears_when_the_next_one_opens() 
 
 
 func test_the_game_saves_after_every_rock() -> void:
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_false()
+	assert_bool(FileAccess.file_exists(SaveSystem.profile_dir().path_join("profile.json"))).is_false()
 	await _solve(1)
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_true()
+	assert_bool(FileAccess.file_exists(SaveSystem.profile_dir().path_join("profile.json"))).is_true()
 
 
 func test_a_not_quite_answer_wobbles_costs_nothing_and_allows_another_try() -> void:
@@ -600,7 +600,7 @@ func test_a_cracked_rock_is_paid_and_saved_before_its_gem_lands() -> void:
 	await _wait_state(DigFlow.State.GEM_DROP)
 	assert_int(Rewards.coins()).is_equal(DigFlow.COINS_FIRST_TRY)
 	assert_int(Rewards.gem_count(&"quartz")).is_equal(1)
-	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()
+	var on_disk: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()
 	assert_bool(on_disk["ok"]).override_failure_message("the rock was not saved when it cracked").is_true()
 	assert_int(on_disk["data"]["rewards"]["coins"]).is_equal(DigFlow.COINS_FIRST_TRY)
 	_mine.queue_free() # back to the workshop mid-flight
