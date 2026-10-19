@@ -38,12 +38,15 @@ KNOWN_GENERATORS = frozenset({
     "GcfGenerator", "LcmGenerator", "GearGenerator", "SimplifyGenerator",
     # Zone 7 (Phase 4, Sprint 32)
     "FractionGenerator", "DecimalGenerator", "PercentGenerator", "RatioGenerator", "NegativeGenerator",
+    # Zone 8 (Phase 4, Sprint 35)
+    "ExponentGenerator", "RootGenerator", "BaseGenerator", "SciNotationGenerator", "LeverGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
 WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits",
                               "lists", "gears",
-                              "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix"})
+                              "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
+                              "power_tower", "notation", "cube_blocks", "lamps", "lever"})
 # handwriting_fraction (Phase 4): the two-row slate for a fraction answer, numerator over denominator.
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting", "handwriting_fraction"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})

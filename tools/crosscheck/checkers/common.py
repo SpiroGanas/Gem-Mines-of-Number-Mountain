@@ -2,6 +2,7 @@
 visuals). Independent of the GDScript generators; see checkers/__init__.py."""
 from __future__ import annotations
 
+import math
 from fractions import Fraction
 
 REQUIRED_KEYS = (
@@ -11,7 +12,10 @@ REQUIRED_KEYS = (
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
 VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits",
                 "lists", "gears",
-                "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix")
+                "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
+                "power_tower", "notation", "cube_blocks", "lamps", "lever")
+ZONE8_VISUALS = ("power_tower", "notation", "cube_blocks", "lamps", "lever")
+MAX_PLACES = 8  # the most lamps or dials a vault lock (or a lamps picture) has (Zone 8)
 LIST_KINDS = ("factors", "multiples", "recipe")
 MAX_LIST_ITEMS = 16
 MAX_LIST_ROWS = 2
@@ -214,6 +218,8 @@ def check_visual(visual: dict, where: str) -> list[str]:
                 errors.append(f"{where}: a gear has {count!r} teeth, not {GEAR_TEETH[0]} to {GEAR_TEETH[1]}")
         if "shaded" in visual and (not is_int(visual["shaded"]) or not 0 <= visual["shaded"] <= teeth[0]):
             errors.append(f"{where}: shaded must be 0 to the first gear's teeth")
+    elif kind in ZONE8_VISUALS:
+        errors += _check_zone8_visual(visual, where)
     else:
         errors += _check_zone7_visual(visual, where)
     return errors
@@ -242,6 +248,30 @@ def _check_lists(visual: dict, where: str) -> list[str]:
     for value in visual.get("marked", []):
         if value not in shown:
             errors.append(f"{where}: marked {value!r} is in no row")
+    return errors
+
+
+def _check_zone8_meta(problem: dict) -> list[str]:
+    """Zone 8 inputs can give the answer: lock and pad places, the cab's floors, the lever's range."""
+    errors: list[str] = []
+    meta, answer = problem["meta"], problem["answer"]
+    for key in ("vault_lock", "base_pad"):
+        spec = meta.get(key)
+        if spec is not None and not (is_base_number(answer) and spec.get("base") == answer["base"]
+                                     and len(answer["digits"]) <= spec.get("places", 0) <= MAX_PLACES):
+            errors.append(f"{key}: cannot show the answer {answer!r}")
+    tower = meta.get("tower")
+    if tower is not None and not (is_int(answer) and 0 <= answer <= tower.get("floors", -1) <= 10):
+        errors.append("tower: the cab cannot stop on the answer's floor")
+    lever = meta.get("lever")
+    if lever is not None and not (is_int(answer) and 0 <= answer <= lever.get("max", -1)):
+        errors.append("lever: the weight range cannot hold the answer")
+    digits = meta.get("pad_digits")
+    if digits is not None and is_int(answer) and len(str(answer)) > digits:
+        errors.append("pad_digits: the pad is too short for the answer")
+    sci_pad = meta.get("sci_pad")
+    if sci_pad is not None and not (is_normalized_sci(answer) and answer["exp"] <= sci_pad.get("max_exp", -1)):
+        errors.append("sci_pad: the pad cannot give the answer")
     return errors
 
 
@@ -288,6 +318,103 @@ def _check_zone7_visual(visual: dict, where: str) -> list[str]:
         if a < 0 or b < 0 or not 1 <= a + b <= 72 or groups < 1 or a % groups or b % groups:
             errors.append(f"{where}: ore mix {visual} does not split into its groups")
     return errors
+
+
+def _check_zone8_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 8 pictures can be drawn: tower floors, notation forms, cubes, lamp rows and levers."""
+    errors: list[str] = []
+    kind = visual["type"]
+    if kind == "power_tower":
+        if not (is_int(visual.get("base")) and 2 <= visual["base"] <= 12 and is_int(visual.get("exp"))
+                and 0 <= visual["exp"] <= 10 and isinstance(visual.get("values"), bool)):
+            errors.append(f"{where}: a power tower needs base 2..12, 0..10 floors and values true/false")
+    elif kind == "notation":
+        form = visual.get("form")
+        if form == "power":
+            if not (is_int(visual.get("base")) and is_int(visual.get("exp")) and visual["base"] >= 0 and visual["exp"] >= 0):
+                errors.append(f"{where}: a power needs a base and an exponent")
+        elif form == "root":
+            n = visual.get("n")
+            if not is_int(n) or n < 1 or math.isqrt(n) ** 2 != n:
+                errors.append(f"{where}: a root card shows only perfect squares, got {n!r}")
+        elif form == "sci":
+            if not is_normalized_sci({k: visual.get(k) for k in ("mantissa", "scale", "exp")}):
+                errors.append(f"{where}: a scientific-notation card must be normalized")
+        else:
+            errors.append(f"{where}: unknown notation form {form!r}")
+    elif kind == "cube_blocks":
+        if not is_int(visual.get("n")) or not 1 <= visual["n"] <= 8:
+            errors.append(f"{where}: a cube of blocks is 1 to 8 a side")
+    elif kind == "lamps":
+        base, places, rows = visual.get("base"), visual.get("places"), visual.get("rows")
+        if not (is_int(base) and 2 <= base <= 10 and is_int(places) and 1 <= places <= MAX_PLACES
+                and visual.get("style") in ("lamps", "dials", "digits")):
+            return [f"{where}: lamps need base 2..10, 1..{MAX_PLACES} places and a known style"]
+        if not isinstance(rows, list) or not 1 <= len(rows) <= 3:
+            return [f"{where}: lamps show 1 to 3 rows"]
+        for row in rows:
+            if not isinstance(row, list) or len(row) > places or not all(is_int(d) and 0 <= d < base for d in row):
+                errors.append(f"{where}: the row {row!r} does not fit {places} base-{base} places")
+    elif kind == "lever":
+        moments = []
+        for side in ("left", "right"):
+            hook = visual.get(side)
+            if not isinstance(hook, dict) or not (is_int(hook.get("w")) and 0 <= hook["w"] <= 64 and is_int(hook.get("d")) and 1 <= hook["d"] <= 8):
+                return [f"{where}: the {side} weight must hang 1..8 steps out and weigh 0..64"]
+            moments.append(hook["w"] * hook["d"])
+        tilt = visual.get("tilt")
+        if tilt not in TILTS:
+            errors.append(f"{where}: unknown tilt {tilt!r}")
+        elif tilt != "unknown":
+            expected = "level" if moments[0] == moments[1] else ("left" if moments[0] > moments[1] else "right")
+            if tilt != expected:
+                errors.append(f"{where}: moments {moments} should tilt {expected}, not {tilt}")
+    return errors
+
+
+def is_normalized_sci(value: object) -> bool:
+    """{mantissa, scale, exp} with 1 <= mantissa / 10^scale < 10 and no trailing zero after the point."""
+    if not isinstance(value, dict) or set(value) != {"mantissa", "scale", "exp"}:
+        return False
+    mantissa, scale, exp = value["mantissa"], value["scale"], value["exp"]
+    if not (is_int(mantissa) and is_int(scale) and is_int(exp)) or scale < 0 or mantissa <= 0:
+        return False
+    if scale > 0 and mantissa % 10 == 0:
+        return False
+    return 1 <= Fraction(mantissa, 10 ** scale) < 10
+
+
+def is_base_number(value: object, canonical: bool = True) -> bool:
+    """{base, digits}: base 2..10, digits below the base, and (canonical) no leading zero."""
+    if not isinstance(value, dict) or set(value) != {"base", "digits"}:
+        return False
+    base, digits = value["base"], value["digits"]
+    if not is_int(base) or not 2 <= base <= 10 or not isinstance(digits, list) or not digits:
+        return False
+    if not all(is_int(d) and 0 <= d < base for d in digits):
+        return False
+    return not canonical or len(digits) == 1 or digits[0] != 0
+
+
+def filtered(answer: object, candidates: list[tuple[str, object]], allowed: set[str] | None = None,
+             allow_negative: bool = False) -> list[tuple[str, object]]:
+    """The wrong answers a generator keeps from `candidates` (name, value) in order: none equal to the
+    answer or to an earlier one, no negative whole number, and (with `allowed`) only listed names."""
+    kept: list[tuple[str, object]] = []
+    for name, value in candidates:
+        if allowed is not None and name not in allowed:
+            continue
+        if is_int(value) and value < 0 and not allow_negative:
+            continue
+        if same_answer(value, answer) or any(same_answer(value, earlier) for _, earlier in kept):
+            continue
+        kept.append((name, value))
+    return kept
+
+
+def distractor_pairs(problem: dict) -> list[tuple[str, object]]:
+    """The problem's (misconception, value) pairs in order."""
+    return [(entry["misconception"], entry["value"]) for entry in problem["distractors"]]
 
 
 def label_key(value: object) -> str:
@@ -364,6 +491,7 @@ def check_input_meta(problem: dict) -> list[str]:
     ride = meta.get("depth_gauge")
     if ride is not None and not (is_int(problem["answer"]) and ride["min"] <= problem["answer"] <= ride["max"] and ride["min"] <= ride["start"] <= ride["max"]):
         errors.append("depth gauge: the cab cannot ride to the answer")
+    errors += _check_zone8_meta(problem)
     labels = meta.get("label_lines")
     if labels is not None:
         for value in values:

@@ -14,7 +14,10 @@ func test_the_catalog_holds_the_detailed_zones_and_skips_outline_zones() -> void
 	for zone: int in range(1, 13):
 		detailed += _catalog.skills_in_zone(zone).size()
 	assert_int(_catalog.count()).is_equal(detailed)
-	assert_int(_catalog.count()).is_equal(104) # 72 in Zones 1-5, 14 in Zone 6, 18 in Zone 7 (Phase 4)
+	# 72 in Zones 1-5, 14 in Zone 6, 18 in Zone 7, 16 in Zone 8 (Phase 4); later zones add theirs.
+	assert_int(_catalog.skills_in_zone(6).size() + _catalog.skills_in_zone(7).size()).is_equal(32)
+	assert_int(_catalog.skills_in_zone(8).size()).is_equal(16)
+	assert_int(_catalog.count()).is_greater_equal(120)
 	assert_int(_catalog.skills_in_zone(1).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(2).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(3).size()).is_equal(11)
@@ -79,6 +82,8 @@ func test_misconception_names_load_from_the_curriculum_file() -> void:
 	var on_file: Dictionary = JsonUtil.parse_file(SkillCatalog.MISCONCEPTIONS_PATH)["misconceptions"]
 	assert_int(names.size()).is_equal(on_file.size())
 	assert_int(names.size()).is_greater_equal(70) # the Phase 1-2 names stay (never renamed or removed)
-	assert_int(names.size()).is_equal(132) # 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7 (inverted_ratio is shared)
+	# 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7 (inverted_ratio is shared), 27 from Zone 8.
+	assert_int(names.size()).is_greater_equal(159)
+	assert_bool(names.has(&"zero_power_is_zero") and names.has(&"mantissa_not_normalized")).is_true()
 	assert_bool(names.has(&"digit_swap")).is_true()
 	assert_bool(names.has(&"thought_equal")).is_true()

@@ -1,4 +1,4 @@
-id,text,context,voice_version
+id,text,context,voice_version,mode
 vocab.digit.term,digit,Word Gem term,0
 vocab.digit.definition,A digit is one number symbol. We build every number from ten digits.,Word Gem kid-sized definition,0
 vocab.numeral.term,numeral,Word Gem term,0
@@ -882,3 +882,128 @@ vocab.ratio.term,ratio,Word Gem term,0
 vocab.ratio.definition,"A ratio compares two amounts, like copper to tin.",Word Gem kid-sized definition,0
 vocab.negative.term,negative,Word Gem term,0
 vocab.negative.definition,A negative number is below zero. It has a minus sign in front.,Word Gem kid-sized definition,0
+z8.zone.name,Power Tower,Zone 8 name on its banner,0
+z8.zone.done,You climbed every floor of the Power Tower!,Celebration: every Zone 8 skill is mastered,0
+z8.repeat.prompt,{b} to the power {e}. Which multiplication is it?,Zone 8: pick the repeated multiplication a power means,0
+z8.evaluate.prompt,What is {b} to the power {e}?,Zone 8: the value of a power (also powers of 2 and 10 and the 0 and 1 rules),0
+z8.evaluate.prompt_tower,The tower starts at 1. Each floor multiplies by {b}. How high is floor {e}?,Zone 8: the value of a power from the tower picture,0
+z8.square.prompt,What is {n} squared?,Zone 8: a square number,0
+z8.square.prompt_array,The square has {n} rows of {n} gems. How many gems?,Zone 8: a square number from a square array,0
+z8.cube.prompt,What is {n} cubed?,Zone 8: a cube number,0
+z8.cube.prompt_blocks,The big cube is {n} blocks long on every side. How many blocks?,Zone 8: a cube number from a cube of blocks,0
+z8.root.prompt,What is the square root of {n}?,Zone 8: the square root of a perfect square,0
+z8.root.prompt_array,{n} gems make a square. How many gems are in each row?,Zone 8: a square root from a square array,0
+z8.two.prompt_ride,Floor 0 is 1 meter up. Each floor doubles. Ride to {n} meters.,Zone 8: powers of 2 on the tower elevator (answer: the floor),0
+z8.binary.prompt_lamps,What number do the lamps show?,Zone 8: read a binary number from lit lamps,0
+z8.binary.prompt_columns,What number is this binary number?,Zone 8: read a binary number from place-value columns,0
+z8.binary.prompt_make,Light the lamps to make {n}.,Zone 8: write a number in binary on the vault lock,0
+z8.binary.prompt_pick,Which binary number is {n}?,Zone 8: pick a number written in binary,0
+z8.binary.prompt_add,Add these binary numbers. Write the sum in binary.,Zone 8: add two binary numbers,0
+z8.base.prompt_read,These digits are in base {b}. What number is it?,Zone 8: read a number in base 3 4 5 or 8,0
+z8.base.prompt_make,Set the dials to show {n} in base {b}.,Zone 8: write a number in another base on the vault dials,0
+z8.base.prompt_pick,Which is {n} written in base {b}?,Zone 8: pick a number written in another base,0
+z8.sci.prompt_read,Write this number the usual way.,Zone 8: read scientific notation (the card shows it),0
+z8.sci.prompt_write,Write {n} in scientific notation.,Zone 8: write a number in scientific notation,0
+z8.lever.prompt,The left weight is {w}. It hangs {d} steps out. What weight balances {r} steps out on the right?,Zone 8: balance a lever (weight times distance),0
+z8.hint.example_repeat,{b} to the power {e} means {e} copies of {b} multiplied.,Worked example: what a power means,0
+z8.hint.example_value,{b} to the power {e} is {v}.,Worked example: the value of a power,0
+z8.hint.example_zero,{b} to the power 0 is 1. The tower stays on the ground.,Worked example: a power of zero,0
+z8.hint.example_one,{b} to the power 1 is just {b}.,Worked example: a power of one,0
+z8.hint.example_square,{n} squared is {n} × {n} = {v}.,Worked example: a square number,0
+z8.hint.example_cube,{n} cubed is {n} × {n} × {n} = {v}.,Worked example: a cube number,0
+z8.hint.example_root,{r} × {r} = {n}. So the square root of {n} is {r}.,Worked example: a square root,0
+z8.hint.example_floor,Floor {k} is at {n} meters. 2 to the power {k} is {n}.,Worked example: a floor of the doubling elevator,0
+z8.hint.example_binary,The lit lamps add up to {n}.,Worked example: read a binary number,0
+z8.hint.example_binary_make,{n} in binary is {s}. Its lamps add up to {n}.,Worked example: write a number in binary,0
+z8.hint.example_binary_add,{a} + {b} = {n}. In binary the sum is {s}.,Worked example: a binary sum,0
+z8.hint.example_base,Each place is worth {b} times the place on its right. These digits make {n}.,Worked example: read a number in another base,0
+z8.hint.example_base_make,{n} in base {b} is written {s}.,Worked example: write a number in another base,0
+z8.hint.example_sci_read,{m} times 10 to the power {e} is {n}.,Worked example: read scientific notation,0
+z8.hint.example_sci_write,{n} is {m} times 10 to the power {e}.,Worked example: write scientific notation,0
+z8.hint.example_lever,{w} × {d} = {p} and {x} × {r} = {p}. The lever balances.,Worked example: a balanced lever,0
+z8.notation.power_words,{b} to the power {e},Words beside the power notation in Explorer mode,0
+z8.notation.root_words,the square root of {n},Words beside the square root sign in Explorer mode,0
+z8.notation.sci_words,{m} times 10 to the power {e},Words beside scientific notation in Explorer mode,0
+z8.notation.base_words,base {b},Small label under a number written in another base,0
+z8.vault.how,Tap a lamp to light it. Then press Open.,Vault lock instructions (binary lamps),0
+z8.vault.how_dials,Tap a dial to turn it. Then press Open.,Vault lock instructions (dials for other bases),0
+z8.vault.open,Open,Vault lock button: hand in the lamps or dials,0
+z8.vault.total,The lamps make {n}.,Vault lock: the number the lamps or dials show now,0
+z8.tower.how,Ride the cab up or down. Then press Stop here.,Tower elevator instructions,0
+z8.tower.up,Up,Tower elevator button,0
+z8.tower.down,Down,Tower elevator button,0
+z8.tower.stop,Stop here,Tower elevator button: hand in this floor,0
+z8.tower.floor,Floor {k},Tower elevator: the floor the cab is on,0
+z8.tower.height,{n} meters,Tower elevator: the height of a floor the cab has visited,0
+z8.lever.how,Add or take away weight. Then press Balance.,Counterweight lever instructions,0
+z8.lever.more,More,Counterweight lever button: one more weight,0
+z8.lever.less,Less,Counterweight lever button: one less weight,0
+z8.lever.balance,Balance,Counterweight lever button: hand in the weight,0
+z8.lever.side,{w} × {d} = {p},Counterweight lever: weight times distance on one side,0
+z8.pad.mantissa,First number,Scientific notation pad: the box before times 10,0
+z8.pad.exponent,Power of 10,Scientific notation pad: the small raised box,0
+z8.pad.digits,Digits,Base pad: the box for the digits,0
+ui.keyboard.how,Type your answer. Then press Enter.,Keyboard entry (Scholar mode): instructions,0
+ui.keyboard.use_pad,Use the pad,Keyboard entry: switch to the on-screen pad,0
+ui.keyboard.next_box,Next box,Keyboard entry: move to the next box (Tab works too),0
+build.counterweight_elevator.name,Counterweight Elevator,Build project name (Zone 8),0
+build.counterweight_elevator.intro,Balance the cab with the counterweight. Then the elevator can climb the tower!,Build project intro (Zone 8),0
+build.counterweight_elevator.done,The elevator rides up the Power Tower. The counterweight helps it climb!,Build project finished (Zone 8),0
+parent.dash.interface,Screen style,Parent dashboard: the Explorer or Scholar setting (heading),0
+parent.dash.interface_explorer,Explorer: pictures and short words,Parent dashboard: interface mode option,0
+parent.dash.interface_scholar,Scholar: math notation and typing,Parent dashboard: interface mode option,0
+parent.dash.interface_auto,Auto: by grade and keyboard,Parent dashboard: interface mode option,0
+parent.dash.interface_note,"Scholar mode shows real notation, like 2⁵. It lets a child type on a keyboard. Its sentences are longer. Auto turns on notation and typing from grade 3. Longer text starts at grade 4. Typing starts only after a key is pressed.",Parent dashboard: what the interface setting does,0
+vocab.power.term,power,Word Gem term,0
+vocab.power.definition,A power is a number multiplied by itself again and again. 2 × 2 × 2 is a power of 2.,Word Gem kid-sized definition,0
+vocab.base.term,base,Word Gem term,0
+vocab.base.definition,The base is the number being multiplied. In 2 to the power 5 the base is 2. In base 5 we count in groups of 5.,Word Gem kid-sized definition,0
+vocab.exponent.term,exponent,Word Gem term,0
+vocab.exponent.definition,The exponent is the small raised number. It says how many times to multiply the base.,Word Gem kid-sized definition,0
+vocab.square_number.term,square number,Word Gem term,0
+vocab.square_number.definition,A square number is a number times itself. 4 × 4 = 16 makes a square of gems.,Word Gem kid-sized definition,0
+vocab.cube_number.term,cube number,Word Gem term,0
+vocab.cube_number.definition,A cube number is a number times itself times itself. 3 × 3 × 3 = 27 blocks make a cube.,Word Gem kid-sized definition,0
+vocab.square_root.term,square root,Word Gem term,0
+vocab.square_root.definition,The square root is the side of a square. 25 gems make a square with 5 on each side.,Word Gem kid-sized definition,0
+vocab.binary.term,binary,Word Gem term,0
+vocab.binary.definition,Binary numbers use only 0 and 1. Each place is worth twice the place on its right.,Word Gem kid-sized definition,0
+vocab.scientific_notation.term,scientific notation,Word Gem term,0
+vocab.scientific_notation.definition,Scientific notation writes big numbers short. 3.4 times 10 to the power 5 is 340000.,Word Gem kid-sized definition,0
+vocab.lever.term,lever,Word Gem term,0
+vocab.lever.definition,A lever is a bar that tips on a middle point. Weight times distance must match on both sides.,Word Gem kid-sized definition,0
+bolt.misconception.multiplied_base_by_exp,A power multiplies the base again and again. Count the copies.,Targeted hint after the multiplied_base_by_exp mistake,0
+bolt.misconception.added_base_exp_times,A power multiplies. It does not add. Try times instead of plus.,Targeted hint after the added_base_exp_times mistake,0
+bolt.misconception.swapped_base_exp,The big number is the base. The small raised number counts the copies.,Targeted hint after the swapped_base_exp mistake,0
+bolt.misconception.off_by_one_exponent,So close! Count the floors again. One more or one less?,Targeted hint after the off_by_one_exponent mistake,0
+bolt.misconception.doubled,Squared means times itself. Try the number times the same number.,Targeted hint after the doubled mistake,0
+bolt.misconception.off_by_one_square,So close! Check that both sides of the square are the same number.,Targeted hint after the off_by_one_square mistake,0
+bolt.misconception.tripled,Cubed means times itself and times itself again.,Targeted hint after the tripled mistake,0
+bolt.misconception.squared_only,A cube is layers of squares. Multiply by the number one more time.,Targeted hint after the squared_only mistake,0
+bolt.misconception.halved,The square root times itself makes the number. Halving is different.,Targeted hint after the halved mistake,0
+bolt.misconception.off_by_one_root,So close! Multiply your answer by itself to check.,Targeted hint after the off_by_one_root mistake,0
+bolt.misconception.added_two,Each floor doubles. Double the floor below instead of adding 2.,Targeted hint after the added_two mistake,0
+bolt.misconception.counted_digits_not_zeros,The exponent counts the zeros after the 1.,Targeted hint after the counted_digits_not_zeros mistake,0
+bolt.misconception.zero_power_is_zero,Power 0 means no floors yet. The tower stays at 1.,Targeted hint after the zero_power_is_zero mistake,0
+bolt.misconception.first_power_is_one,Power 1 means one copy of the base. That is the base itself.,Targeted hint after the first_power_is_one mistake,0
+bolt.misconception.added_base_and_exp,A power is about multiplying. Adding does not make a power.,Targeted hint after the added_base_and_exp mistake,0
+bolt.misconception.read_as_decimal_digits,These places are not tens and ones. Add up what each place is worth.,Targeted hint after the read_as_decimal_digits mistake,0
+bolt.misconception.reversed_bits,The ones place is on the right. Read the places from the right.,Targeted hint after the reversed_bits mistake,0
+bolt.misconception.dropped_leading_place,Check the biggest place on the left. Did you count it?,Targeted hint after the dropped_leading_place mistake,0
+bolt.misconception.greedy_skipped_place,A skipped place still needs a 0. Keep every place.,Targeted hint after the greedy_skipped_place mistake,0
+bolt.misconception.forgot_carry,In binary 1 + 1 makes 10. Carry the 1 to the next place.,Targeted hint after the forgot_carry mistake,0
+bolt.misconception.carried_as_decimal,Binary has only 0 and 1. Two in a place means carry 1.,Targeted hint after the carried_as_decimal mistake,0
+bolt.misconception.used_base_two,Check the base. Each place is worth the base times the place on its right.,Targeted hint after the used_base_two mistake,0
+bolt.misconception.counted_digits_not_shift,Move the point instead of adding zeros after every digit.,Targeted hint after the counted_digits_not_shift mistake,0
+bolt.misconception.mantissa_not_normalized,The first number must be at least 1 and less than 10.,Targeted hint after the mantissa_not_normalized mistake,0
+bolt.misconception.matched_weight_only,Distance matters too. A far weight pushes harder.,Targeted hint after the matched_weight_only mistake,0
+bolt.misconception.added_distance,Multiply weight times distance on each side. Then match them.,Targeted hint after the added_distance mistake,0
+bolt.misconception.swapped_distances,Check which side is farther out. The far weight pushes harder.,Targeted hint after the swapped_distances mistake,0
+z8.repeat.prompt,Which repeated multiplication equals this power?,Zone 8 (Scholar): pick the repeated multiplication a power means,0,scholar
+z8.evaluate.prompt,Evaluate this power.,Zone 8 (Scholar): the value of a power,0,scholar
+z8.square.prompt,Evaluate this square: a number multiplied by itself.,Zone 8 (Scholar): a square number,0,scholar
+z8.cube.prompt,Evaluate this cube: a number multiplied by itself three times.,Zone 8 (Scholar): a cube number,0,scholar
+z8.root.prompt,Find the square root: the number that multiplies by itself to make {n}.,Zone 8 (Scholar): a square root,0,scholar
+z8.sci.prompt_read,Write this number in standard form (all of its digits).,Zone 8 (Scholar): read scientific notation,0,scholar
+z8.sci.prompt_write,"Write {n} in scientific notation: a number from 1 to less than 10, times a power of 10.",Zone 8 (Scholar): write scientific notation,0,scholar
+z8.lever.prompt,"A weight of {w} hangs {d} steps left of the pivot. Which weight, {r} steps right of the pivot, balances it? Weight × distance must match.",Zone 8 (Scholar): balance a lever,0,scholar

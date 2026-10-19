@@ -114,16 +114,20 @@ func test_feedback_never_says_wrong() -> void:
 func test_every_real_line_has_a_valid_unique_id_and_balanced_placeholders() -> void:
 	var file: FileAccess = FileAccess.open(REAL_LINES, FileAccess.READ)
 	var header: PackedStringArray = file.get_csv_line()
-	assert_array(header).contains_exactly(["id", "text", "context", "voice_version"])
+	assert_array(header.slice(0, 4)).contains_exactly(["id", "text", "context", "voice_version"])
+	assert_bool(header.size() == 4 or (header.size() == 5 and header[4] == "mode")).is_true() # Scholar variants (Sprint 37)
 	var id_pattern: RegEx = RegEx.create_from_string("^[a-z0-9]+(\\.[a-z0-9_]+){2,}$")
 	var seen: Dictionary[String, bool] = {}
+	var scholar: Dictionary[String, bool] = {}
 	while not file.eof_reached():
 		var row: PackedStringArray = file.get_csv_line()
 		if row.size() < 4:
 			continue
 		assert_object(id_pattern.search(row[0])).override_failure_message("bad line id: " + row[0]).is_not_null()
-		assert_bool(seen.has(row[0])).override_failure_message("duplicate id: " + row[0]).is_false()
-		seen[row[0]] = true
+		var is_scholar: bool = row.size() > 4 and row[4] == "scholar"
+		var ids: Dictionary[String, bool] = scholar if is_scholar else seen
+		assert_bool(ids.has(row[0])).override_failure_message("duplicate id: " + row[0]).is_false()
+		ids[row[0]] = true
 		assert_str(row[1].strip_edges()).override_failure_message("empty text: " + row[0]).is_not_empty()
 		assert_int(row[1].count("{")).override_failure_message("unbalanced braces: " + row[0]).is_equal(row[1].count("}"))
 		assert_bool(row[3].is_valid_int()).override_failure_message("voice_version not an int: " + row[0]).is_true()
@@ -143,7 +147,8 @@ func test_every_vocabulary_term_resolves_to_real_lines() -> void:
 	# Zone 6, Gear Works: 7 of its own plus the fraction previews' fraction, numerator, denominator, unit fraction
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 6).size()).is_equal(11)
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 7).size()).is_equal(9) # Zone 7, Crystal Shards
-	assert_int(vocabulary["terms"].size()).is_equal(51)
+	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 8).size()).is_equal(9) # Zone 8, Power Tower
+	assert_int(vocabulary["terms"].size()).is_greater_equal(60) # later zones add theirs
 	for entry: Dictionary in vocabulary["terms"]:
 		assert_bool(Text.has_line(StringName(entry["term_line_id"]))).override_failure_message("missing " + entry["term_line_id"]).is_true()
 		assert_bool(Text.has_line(StringName(entry["definition_line_id"]))).override_failure_message("missing " + entry["definition_line_id"]).is_true()

@@ -238,7 +238,9 @@ def test_runner_knows_the_skills_and_misconceptions() -> None:
     assert sum(1 for skill in SKILLS.values() if skill["zone"] == 6) == 14 # Zone 6 (Phase 4), with the two fraction previews
     assert sum(1 for skill in SKILLS.values() if skill["zone"] == 7) == 18 # Zone 7 (Phase 4)
     assert len(ALLOWED) >= 70
-    assert len(ALLOWED) == 132 # 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7
+    # 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7; later zones add theirs (Zone 8: 27, checked
+    # by name in test_checkers_zone8.py), so only the Phase 4 floor is pinned here.
+    assert len(ALLOWED) >= 132
     assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every generator has a checker
 
 

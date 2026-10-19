@@ -44,6 +44,11 @@ static func table() -> Dictionary:
 		&"PercentGenerator": PercentGenerator.generate,
 		&"RatioGenerator": RatioGenerator.generate,
 		&"NegativeGenerator": NegativeGenerator.generate,
+		&"ExponentGenerator": ExponentGenerator.generate,
+		&"RootGenerator": RootGenerator.generate,
+		&"BaseGenerator": BaseGenerator.generate,
+		&"SciNotationGenerator": SciNotationGenerator.generate,
+		&"LeverGenerator": LeverGenerator.generate,
 	}
 
 
