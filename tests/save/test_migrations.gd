@@ -50,7 +50,7 @@ func test_v2_to_v3_adds_the_profile_block_and_keeps_everything_else() -> void:
 	assert_bool(result["ok"]).is_true()
 	assert_int(result["from_version"]).is_equal(2)
 	var v3: Dictionary = result["data"]
-	assert_int(v3["schema_version"]).is_equal(3)
+	assert_int(v3["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION) # migrate() goes on to v4 (poems); v3 -> v4 is in test_save_v4.gd
 	assert_str(v3["profile"]["id"]).is_equal("")
 	assert_str(v3["profile"]["avatar_id"]).is_equal("bolt")
 	assert_str(v3["profile"]["created_at"]).is_equal(v2["created_at"])

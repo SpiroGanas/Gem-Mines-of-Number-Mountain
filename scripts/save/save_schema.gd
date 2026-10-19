@@ -1,4 +1,4 @@
-## The shape of the save file (schema version 3) and its defaults.
+## The shape of the save file (schema version 4) and its defaults.
 ##
 ## Version 2 (Phase 2, docs/decisions.md "Save schema v2") adds, in one step:
 ##   device_id    the random id of the device that last wrote this save (DeviceSettings.device_id();
@@ -16,13 +16,21 @@
 ##                (Profile.from_save reads them all). The profile index lives in its own file
 ##                (ProfileIndex); this document is still the one source of truth about the child.
 ##
+## Version 4 (Phase 4, Sprint 40, docs/decisions.md "Save schema v4: saved Fib poems"; Spiro approved the
+## additive change) adds:
+##   poems        {saved: [{made_at, lines: [[word id, ...] x 6]}]}: the Fib poems the child built in the
+##                poem maker, newest last, at most FibPoem.MAX_SAVED. Only word ids from the poem word
+##                bank (curriculum/poem_words.json) are stored, never free text and never strokes; the
+##                words are read from the text table when a poem is shown. A parent's progress export
+##                carries them like every other part of the save.
+##
 ## CLAUDE.md: every save carries schema_version, and any change to this structure
 ## needs Spiro's sign-off, a migration in scripts/save/migrations/ and a fixture in
 ## tests/save/fixtures/. Never break an existing save.
 class_name SaveSchema
 extends RefCounted
 
-const CURRENT_VERSION: int = 3
+const CURRENT_VERSION: int = 4
 
 
 ## A brand-new profile. now_iso is an ISO 8601 UTC timestamp supplied by the caller
@@ -60,6 +68,7 @@ static func new_profile(now_iso: String) -> Dictionary:
 		},
 		"family": {"points": 0, "awarded": [], "goals": []},
 		"profile": {"id": "", "avatar_id": "bolt", "created_at": now_iso, "last_played_at": "", "welcomed": true},
+		"poems": {"saved": []},
 	}
 
 
@@ -89,6 +98,8 @@ static func validate(data: Dictionary) -> PackedStringArray:
 		expected_types.merge({"workshop": TYPE_DICTIONARY, "motivation": TYPE_DICTIONARY, "family": TYPE_DICTIONARY})
 	if int(data.get("schema_version", 0)) >= 3:
 		expected_types["profile"] = TYPE_DICTIONARY
+	if int(data.get("schema_version", 0)) >= 4:
+		expected_types["poems"] = TYPE_DICTIONARY
 	for key: String in expected_types:
 		if typeof(data.get(key)) != expected_types[key]:
 			problems.append("'%s' is missing or has the wrong type" % key)
