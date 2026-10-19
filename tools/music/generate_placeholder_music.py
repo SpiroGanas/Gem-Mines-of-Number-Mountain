@@ -21,6 +21,9 @@ and one for the build site. Which screen plays which file:
     build.ogg    the build site and the crafting bench: a short, bright, steady loop
     mine_z7.ogg  the mine in Zone 7, Crystal Shards (Phase 4): glassy bells that ring only on the
                  halves, quarters and eighths of each 16 beats, like a crystal split into shards
+    mine_z8.ogg  the mine in Zone 8, Power Tower (Phase 4): a climbing bell figure that rings only on
+                 the beats that are powers of 2 (1, 2, 4, 8) and the downbeat, each note higher, like
+                 the doubling elevator going up the tower
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -90,6 +93,15 @@ TRACKS = {
                    73, None, 76, None, 81, None, 83, None, 78, None, 76, None, 73, None, None, None],
         "chords": [[45, 52, 61], [42, 49, 57], [38, 45, 54], [40, 47, 56],
                    [45, 52, 61], [38, 45, 57], [40, 47, 56], [45, 52, 64]],
+    },
+    # Zone 8, Power Tower: D major pentatonic bells on beats 0, 1, 2, 4 and 8 of each 16 (the downbeat and
+    # the powers of 2), climbing like the doubling elevator, over slow chords.
+    "mine_z8": {
+        "bpm": 64,
+        "melody": [62, 66, 69, None, 74, None, None, None, 78, None, None, None, None, None, None, None,
+                   64, 69, 71, None, 76, None, None, None, 81, None, None, None, None, None, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 55], [45, 52, 61],
+                   [38, 45, 54], [35, 42, 50], [43, 50, 59], [38, 45, 57]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {

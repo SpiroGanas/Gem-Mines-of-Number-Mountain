@@ -12,8 +12,9 @@
 ##
 ## Phase 4 (Zone 6, Gear Works, no artist): a warm bronze-and-steel tint with big quiet gears drawn in
 ## the rock walls (GearArt). They never turn: the backdrop stays still while the child thinks.
-## Zone 7 (Crystal Shards) is deep teal-violet with glowing crystals in a cooler blue. A zone without
-## its own palette takes the deepest one before it.
+## Zone 7 (Crystal Shards) is deep teal-violet with glowing crystals in a cooler blue. Zone 8 (Power
+## Tower) is dusk violet with warm lamp-gold crystals and the tower's lit floors rising in the rock,
+## each floor narrower than the one below. A zone without its own palette takes the deepest one before it.
 class_name Backdrop
 extends Control
 
@@ -26,9 +27,10 @@ const PALETTES: Dictionary = {
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
 	&"zone6": {"top": Color("#4A3B2C"), "bottom": Color("#1C1A24"), "rock": Color("#584634"), "lamps": true, "crystals": false, "gears": true},
 	&"zone7": {"top": Color("#2A3B63"), "bottom": Color("#141A30"), "rock": Color("#33446F"), "lamps": true, "crystals": true, "crystal_color": Color("#8FE3FF")},
+	&"zone8": {"top": Color("#3A2F5C"), "bottom": Color("#17142B"), "rock": Color("#463A6E"), "lamps": true, "crystals": true, "crystal_color": Color("#FFE27A"), "tower": true},
 }
 ## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
-const LAST_PALETTE_ZONE: int = 7
+const LAST_PALETTE_ZONE: int = 8
 ## Zones past the last one that has art fall back to it.
 const LAST_ZONE: int = 12
 ## Zone 6's wall gears: where (as a share of the screen), how big (share of the height), how many teeth.
@@ -103,6 +105,8 @@ func _draw() -> void:
 		_draw_mountain(rock)
 	if colors_now.get("gears", false):
 		_draw_wall_gears(rock)
+	if colors_now.get("tower", false):
+		_draw_wall_tower(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
@@ -117,6 +121,17 @@ var _gear_art: GearArt = GearArt.new()
 func _draw_wall_gears(rock: Color) -> void:
 	for spot: Vector4 in WALL_GEARS:
 		_gear_art.draw(self, Vector2(size.x * spot.x, size.y * spot.y), size.y * spot.z, int(spot.w), 0.0, "", 0, false, rock.lightened(0.18))
+
+
+## The Power Tower in the rock (Zone 8): floors stacked up the right side, each narrower than the one
+## below, with a lit electric window on each floor. Still, like every backdrop.
+func _draw_wall_tower(rock: Color) -> void:
+	var floor_height: float = size.y * 0.07
+	for index: int in 6:
+		var width: float = size.x * (0.09 - 0.009 * index)
+		var box: Rect2 = Rect2(Vector2(size.x * 0.87 - width * 0.5, size.y * 0.8 - floor_height * float(index + 1)), Vector2(width, floor_height * 0.88))
+		draw_rect(box, rock.lightened(0.16))
+		draw_circle(box.get_center(), floor_height * 0.16, LAMP_BULB)
 
 
 ## A row of edge tiles across the screen at `y`, tinted to the zone's rock.
