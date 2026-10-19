@@ -47,6 +47,7 @@ func show_problem(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 	_panel = PANEL_SCENE.instantiate()
 	_panel.slate_override = slate_override
 	_panel.recognizer = recognizer
+	_panel.wide_pad = true # under Bolt beside the workshop's body there is less height than in the mine
 	_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(_panel)
 	_panel.setup(problem, rng)

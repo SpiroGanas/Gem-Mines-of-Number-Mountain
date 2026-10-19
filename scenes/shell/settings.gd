@@ -32,6 +32,7 @@ func _ready() -> void:
 	_read_aloud_button.toggled.connect(_on_read_aloud_toggled)
 	_back_button.pressed.connect(_on_back_pressed)
 	var column: VBoxContainer = _read_aloud_button.get_parent()
+	column.add_theme_constant_override(&"separation", UI.spacing(64, 0.25)) # four rows fit a phone
 	column.add_child(_volume_row("music", &"ui.settings.music"))
 	column.move_child(column.get_child(column.get_child_count() - 1), 1)
 	column.add_child(_volume_row("sfx", &"ui.settings.sounds"))

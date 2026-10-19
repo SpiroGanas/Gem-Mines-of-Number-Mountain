@@ -42,6 +42,9 @@ const BUBBLE_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/confir
 const PLACE_LINES: Array[StringName] = [&"input.slate.place_ones", &"input.slate.place_tens", &"input.slate.place_hundreds"]
 ## Fraction and decimal boxes are square, in touch-target multiples: at least 1.5 (the plan's
 ## minimum), larger when the window has room for two rows (computed from the viewport, not fixed).
+## The prompt's least width in canvas pixels (text is sized in canvas pixels, not in targets): two
+## lines for the longest prompt.
+const PROMPT_MIN_WIDTH: float = 576.0
 const SMALL_BOX_MIN: float = 1.5
 const SMALL_BOX_MAX: float = 2.2
 const VINCULUM_COLOR: Color = Color("#F5F7FF")
@@ -80,6 +83,10 @@ func _ready() -> void:
 	_prompt.name = "Prompt"
 	_prompt.text = Text.get_line(&"input.slate.prompt")
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Wraps at about two lines: a long prompt on one line pushed the Done button off a 16:9 screen
+	# beside the picture, and one squeezed to the boxes' width took too much height.
+	_prompt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_prompt.custom_minimum_size.x = PROMPT_MIN_WIDTH
 	add_child(_prompt)
 	_message = Label.new()
 	_message.name = "Message"

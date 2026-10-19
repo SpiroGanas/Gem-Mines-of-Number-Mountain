@@ -1,7 +1,8 @@
-## The fraction and decimal pad (Zone 7): the number pad's keys under two answer boxes, so a child
-## types a fraction (top over bottom) or a decimal (ones, a fixed point, then the places) without a
-## text field (CLAUDE.md rule 6). It is the slate's fallback when handwriting is unavailable (no touch
-## screen, switched off, mouse-only devices) and works the same with finger, stylus, mouse and keys.
+## The fraction and decimal pad (Zone 7): the number pad's keys beside or under two answer boxes, so
+## a child types a fraction (top over bottom) or a decimal (ones, a fixed point, then the places)
+## without a text field (CLAUDE.md rule 6). It is the slate's fallback when handwriting is
+## unavailable (no touch screen, switched off, mouse-only devices) and works the same with finger,
+## stylus, mouse and keys.
 ##
 ##   FRACTION  the top box over a bar over the bottom box; submits {num, den}
 ##   DECIMAL   the ones box, the point, the places box (exactly `decimal_places` digits; fewer typed
@@ -75,7 +76,22 @@ func _ready() -> void:
 	_pad.show_display = false
 	_pad.max_digits = _limit(0)
 	_pad.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	add_child(_pad)
+	# Room is short beside the picture under Bolt. A fraction's boxes stand to the left of the keys (top
+	# over bottom is tall). A decimal's boxes are a row: they stay over the keys, which are the wide
+	# pad's three rows (on a phone the keys are always the wide pad's, NumberPad.is_wide).
+	_pad.wide = layout == Layout.DECIMAL
+	if layout == Layout.FRACTION:
+		var row: HBoxContainer = HBoxContainer.new()
+		row.name = "Row"
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override(&"separation", 24)
+		remove_child(holder)
+		row.add_child(holder)
+		row.add_child(_pad)
+		holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		add_child(row)
+	else:
+		add_child(_pad)
 	_pad.value_changed.connect(_on_entry_changed)
 	_pad.submitted.connect(func(_value: int) -> void: go())
 	select(0)

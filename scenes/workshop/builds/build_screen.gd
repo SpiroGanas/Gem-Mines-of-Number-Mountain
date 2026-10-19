@@ -31,6 +31,7 @@ func _ready() -> void:
 		_rng.seed = seed_value
 	else:
 		_rng.randomize()
+	one_row_header = true # the step's body column is wide; on a phone its height is what is short
 	build_frame(_build.name_line_id if _build != null else &"build.site.title")
 	back_to = &"build_site"
 	body.size_flags_stretch_ratio = 6.0

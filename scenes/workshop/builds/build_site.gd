@@ -20,8 +20,7 @@ func _ready() -> void:
 	build_frame(&"build.site.title")
 	var list: VBoxContainer = VBoxContainer.new()
 	list.add_theme_constant_override(&"separation", 20)
-	list.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(list)
+	body.add_child(UI.vertical_scroll(list)) # every zone adds builds: the list scrolls when it is long
 	var any_open: bool = false
 	for build: BuildProject in Rewards.builds():
 		list.add_child(_make_row(build))

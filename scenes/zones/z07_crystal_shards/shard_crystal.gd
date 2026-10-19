@@ -56,7 +56,9 @@ func set_enabled(enabled: bool) -> void:
 ## The radius every shard needs to be a touch target.
 func radius() -> float:
 	var target: float = float(UI.min_target_px())
-	return maxf(CrystalShards.radius_for_targets(target, crystal.den), target * MIN_RADIUS_TARGETS)
+	# The floor is a picture size (UI.target_size), so on a phone a crystal of few shards is not drawn
+	# bigger than its shards need; the shards themselves always stay a whole target at the edge.
+	return maxf(CrystalShards.radius_for_targets(target, crystal.den), UI.target_size(MIN_RADIUS_TARGETS, 1.0).x)
 
 
 ## Where the centre of shard `index` is, in this control's coordinates (tests tap there).

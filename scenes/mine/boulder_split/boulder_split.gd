@@ -92,6 +92,9 @@ func _ready() -> void:
 	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	resized.connect(_layout)
 	sort_children.connect(_layout)
+	# The pickaxe is top-level, so it is placed by hand: also when the screen moves the split without
+	# resizing it (the mine making room for a hint on a phone, a window resize).
+	set_notify_transform(true)
 
 
 func _exit_tree() -> void:
@@ -106,6 +109,8 @@ func _exit_tree() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PAUSED and _dragging:
 		_drop_pickaxe_back()
+	elif what == NOTIFICATION_TRANSFORM_CHANGED:
+		_layout()
 
 
 ## A resting palm the pen took over from was holding the pickaxe: it goes back, no split is made.

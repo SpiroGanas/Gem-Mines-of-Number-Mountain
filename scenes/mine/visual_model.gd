@@ -60,6 +60,9 @@ var visual: Dictionary = {}
 var tappable: bool = false
 ## A smaller picture (hint pictures added above an input), COMPACT_SCALE of the normal height.
 var compact: bool = false
+## The picture's least width in touch targets (beside the wider Zone 7 pads it is narrower). Set
+## before the model enters the tree.
+var width_multiple: float = 6.0
 
 var _buttons: Array[Button] = []
 ## One GearArt per gear a `gears` picture can hold (each keeps its own point buffer).
@@ -67,7 +70,7 @@ var _gear_arts: Array[GearArt] = [GearArt.new(), GearArt.new(), GearArt.new()]
 
 
 func _ready() -> void:
-	UI.make_touch_target(self, 6.0, HEIGHT_MULTIPLE_LINE)
+	UI.make_touch_target(self, width_multiple, HEIGHT_MULTIPLE_LINE)
 	resized.connect(_on_resized)
 
 
@@ -99,7 +102,7 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_CRYSTALS
 		&"depth_gauge":
 			height = HEIGHT_MULTIPLE_GAUGE
-	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
+	UI.make_touch_target(self, width_multiple, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
 

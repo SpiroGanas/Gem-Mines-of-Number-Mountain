@@ -28,10 +28,10 @@ func _ready() -> void:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
-		margin.add_theme_constant_override(side, 40)
+		margin.add_theme_constant_override(side, UI.spacing(40))
 	add_child(margin)
 	var column: VBoxContainer = VBoxContainer.new()
-	column.add_theme_constant_override(&"separation", 24)
+	column.add_theme_constant_override(&"separation", UI.spacing(24))
 	margin.add_child(column)
 	var header: HBoxContainer = HBoxContainer.new()
 	column.add_child(header)
@@ -42,7 +42,7 @@ func _ready() -> void:
 	_back_button.pressed.connect(request_screen.emit.bind(&"hub", {}))
 	header.add_child(_back_button)
 	var title: Label = Label.new()
-	title.theme_type_variation = &"HeadingLabel"
+	title.theme_type_variation = &"" if UI.is_compact() else &"HeadingLabel" # body size on a phone
 	title.text = Text.get_line(&"hub.garage.title")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -54,7 +54,7 @@ func _ready() -> void:
 	_bolt.say(&"hub.garage.hello")
 	var list: VBoxContainer = VBoxContainer.new()
 	list.add_theme_constant_override(&"separation", 16)
-	column.add_child(list)
+	column.add_child(UI.vertical_scroll(list)) # more items than a phone's height scroll
 	for item: Dictionary in ITEMS:
 		list.add_child(_make_row(item))
 	Rewards.coins_changed.connect(func(_total: int) -> void: _refresh())
