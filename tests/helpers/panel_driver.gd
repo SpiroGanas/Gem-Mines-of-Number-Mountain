@@ -19,9 +19,44 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			return false
 		AnswerPanel.InputKind.NUMBER_PAD:
 			panel.number_pad().clear()
-			for digit: String in str(int(target)):
+			for digit: String in str(absi(int(target))):
 				panel.number_pad().press_digit(int(digit))
+			if int(target) < 0:
+				if panel.number_pad().minus_button() == null:
+					return false # no minus key: this pad cannot give a number below zero
+				panel.number_pad().toggle_sign()
 			panel.number_pad().submit()
+			return true
+		AnswerPanel.InputKind.FRACTION_PAD, AnswerPanel.InputKind.DECIMAL_PAD:
+			return give_fraction_pad(panel.fraction_pad(), target)
+		AnswerPanel.InputKind.CRYSTAL:
+			var picker: CrystalPicker = panel.crystal_picker()
+			var den: int = picker.crystal().crystal.den
+			var exact: Dictionary = Rational.value_of(target)
+			if exact.is_empty() or (int(exact["num"]) * den) % int(exact["den"]) != 0:
+				return false # this crystal cannot show that fraction
+			var count: int = floori(int(exact["num"]) * den / float(int(exact["den"])))
+			if count < 0 or count > den:
+				return false
+			picker.crystal().crystal.clear()
+			for index: int in count:
+				picker.crystal().toggle(index)
+			picker.submit()
+			return true
+		AnswerPanel.InputKind.ALLOY:
+			var mixer: AlloyMixer = panel.alloy_mixer()
+			mixer.set_tin(int(target))
+			if mixer.tin != int(target):
+				return false
+			mixer.submit()
+			return true
+		AnswerPanel.InputKind.GAUGE:
+			var gauge: DepthGauge = panel.depth_gauge()
+			gauge.speed_scale = 0.0
+			gauge.move(int(target) - gauge.level())
+			if gauge.level() != int(target):
+				return false
+			gauge.submit()
 			return true
 		AnswerPanel.InputKind.TILES:
 			var board: TileBoard = panel.tile_board()
@@ -94,6 +129,34 @@ static func grow_tree(tree: FactorTree, target: Array) -> bool:
 		return false
 	if not tree.is_complete():
 		tree.submit()
+	return true
+
+
+## Types a fraction {num, den} or a decimal {mantissa, scale} into the fraction pad's boxes and presses
+## Go. False when it does not fit the boxes.
+static func give_fraction_pad(pad: FractionPad, target: Variant) -> bool:
+	pad.clear()
+	var parts: Array[String] = []
+	if Rational.is_fraction(target):
+		parts = [str(int(target["num"])), str(int(target["den"]))]
+	elif Rational.is_decimal(target):
+		var places: int = pad.decimal_places
+		if int(target["scale"]) > places or int(target["mantissa"]) < 0:
+			return false
+		var hundredths: int = int(target["mantissa"]) * Rational.pow10(places - int(target["scale"]))
+		var fraction_digits: String = str(hundredths % Rational.pow10(places))
+		while fraction_digits.length() < places:
+			fraction_digits = "0" + fraction_digits
+		parts = [str(floori(hundredths / float(Rational.pow10(places)))), fraction_digits]
+	else:
+		return false
+	for index: int in parts.size():
+		pad.select(index)
+		for digit: String in parts[index]:
+			pad.press_digit(int(digit))
+		if pad.texts()[index] != parts[index]:
+			return false
+	pad.go()
 	return true
 
 
