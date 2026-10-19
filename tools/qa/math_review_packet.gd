@@ -86,6 +86,9 @@ func _ready() -> void:
 			var representation: StringName = skill.representations[sample % skill.representations.size()]
 			var problem: Problem = GeneratorRegistry.make_problem(skill, 1000 + sample, {"representation": representation})
 			lines.append("- Seed %d (%s): \"%s\" Answer: **%s**." % [problem.seed, representation, Text.get_line(problem.prompt_line_id, problem.prompt_params), _show(problem.answer)])
+			var picture: String = _describe_picture(problem.visual)
+			if not picture.is_empty():
+				lines.append("  - Picture: %s" % picture)
 			for entry: Dictionary in problem.distractors:
 				var targeted: StringName = StringName("bolt.misconception.%s" % entry["misconception"])
 				var bolt_line: String = Text.get_line(targeted) if Text.has_line(targeted) else "(no targeted line)"
@@ -108,9 +111,37 @@ static func _show(value: Variant) -> String:
 	if value is Dictionary:
 		if Rational.is_fraction(value) or Rational.is_mixed(value) or Rational.is_decimal(value) or Rational.is_ratio(value):
 			return Text.display_value(value) # 3/4, 2 : 3 (Zone 6 on), 2 1/3, 0.25 (Zone 7)
+		if Notation.is_notation(value):
+			var text: String = Notation.text(value) # 3 × 3 × 3, 3.4 × 10⁵ (Zone 8)
+			return text + (" (base %d)" % int(value["base"]) if Notation.is_base_number(value) else "")
 		return JSON.stringify(value)
 	if value is int and value < 0:
 		return Text.display_value(value)
 	if value is float and is_equal_approx(value, roundf(value)):
 		return str(int(value))
 	return str(value)
+
+
+## What a Zone 8 picture shows, in words for the reviewer (the prompt alone may say "these lamps").
+static func _describe_picture(visual: Dictionary) -> String:
+	match str(visual.get("type", "")):
+		"notation":
+			match str(visual.get("form", "")):
+				"power":
+					return Notation.text({"base": int(visual["base"]), "exp": int(visual["exp"])})
+				"root":
+					return "√%d" % int(visual["n"])
+				"sci":
+					return Notation.text(Notation.sci(int(visual["mantissa"]), int(visual["scale"]), int(visual["exp"])))
+		"power_tower":
+			return "a tower: ground floor 1, then %d floors of × %d%s" % [int(visual["exp"]), int(visual["base"]), " (heights shown)" if bool(visual.get("values", false)) else ""]
+		"cube_blocks":
+			return "a cube %d blocks on each edge" % int(visual["n"])
+		"lamps":
+			var rows: PackedStringArray = PackedStringArray()
+			for row: Variant in visual.get("rows", []):
+				rows.append(Notation.text({"base": int(visual["base"]), "digits": row}))
+			return "%s %s in base %d%s" % [str(visual.get("style", "")), (" + " if visual.get("plus", false) else ", ").join(rows), int(visual["base"]), ", place values shown" if visual.get("show_places", false) else ""]
+		"lever":
+			return "lever: %d at %d steps left, %s at %d steps right" % [int(visual["left"]["w"]), int(visual["left"]["d"]), str(int(visual["right"]["w"])) if int(visual["right"]["w"]) > 0 else "?", int(visual["right"]["d"])]
+	return ""

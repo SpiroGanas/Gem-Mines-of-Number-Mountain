@@ -134,6 +134,7 @@ func refresh() -> void:
 	name_row.add_child(_nickname)
 	_content.add_child(_switch_row(&"HandwritingSwitch", &"parent.dash.handwriting", DeviceSettings.shared().handwriting_enabled(), toggle_handwriting))
 	_content.add_child(_switch_row(&"CoachingSwitch", &"parent.dash.coaching", bool(SaveSystem.data()["settings"].get("handwriting_coaching", false)), toggle_coaching))
+	_add_interface_row()
 	if StrokeCapture.is_enabled():
 		var capture: Button = _button(&"parent.dash.capture", func() -> void: request_screen.emit(&"capture", {}))
 		capture.name = "CaptureButton"
@@ -212,6 +213,34 @@ func toggle_handwriting() -> void:
 func toggle_coaching() -> void:
 	var settings: Dictionary = SaveSystem.data()["settings"]
 	settings["handwriting_coaching"] = not bool(settings.get("handwriting_coaching", false))
+	SaveSystem.save_now()
+	refresh()
+
+
+## Explorer, Scholar or Auto for this child (Scholar mode part 1, Phase 4 Sprint 37): three buttons, the
+## current one pressed, and a note saying what each does. Kept in the save's settings.interface_mode
+## (already in the schema, so no migration); ModeGate decides what each setting turns on.
+func _add_interface_row() -> void:
+	_content.add_child(_label(&"parent.dash.interface"))
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = "InterfaceRow"
+	row.add_theme_constant_override(&"separation", 16)
+	_content.add_child(row)
+	var current: String = ModeGate.clean_setting(str(SaveSystem.data()["settings"].get("interface_mode", ModeGate.EXPLORER)))
+	for mode: String in ModeGate.SETTINGS:
+		var button: Button = _button(StringName("parent.dash.interface_" + mode), set_interface_mode.bind(mode))
+		button.name = "Interface_" + mode
+		button.toggle_mode = true
+		button.button_pressed = mode == current
+		row.add_child(button)
+	var note: Label = _label(&"parent.dash.interface_note")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_content.add_child(note)
+
+
+## Sets this child's interface setting ("explorer", "scholar" or "auto") and saves.
+func set_interface_mode(mode: String) -> void:
+	SaveSystem.data()["settings"]["interface_mode"] = ModeGate.clean_setting(mode)
 	SaveSystem.save_now()
 	refresh()
 

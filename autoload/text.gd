@@ -1,6 +1,6 @@
 ## Text autoload: the only source of child-facing strings (CLAUDE.md rule 4).
 ##
-## Reads text/lines.csv (columns: id, text, context, voice_version) once at startup
+## Reads text/lines.csv (columns: id, text, context, voice_version, and the optional mode) once at startup
 ## and hands out lines by stable id, filling {placeholders} such as {n}, {a}, {b}
 ## at runtime. Scenes and scripts never hard-code child-facing words, so Phase 3
 ## can add narration by id without reworking any screen.
