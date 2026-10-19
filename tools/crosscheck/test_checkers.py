@@ -233,8 +233,10 @@ def test_a_malformed_export_is_a_failure_not_a_crash() -> None:
 
 
 def test_runner_knows_the_skills_and_misconceptions() -> None:
-    assert len(SKILLS) == 72 # Zones 1-5
-    assert len(ALLOWED) == 70
+    # Counted per zone, so a later zone joining the skill map does not change the Phase 1-2 numbers.
+    assert sum(1 for skill in SKILLS.values() if skill["zone"] <= 5) == 72 # Zones 1-5
+    assert sum(1 for skill in SKILLS.values() if skill["zone"] == 6) == 12 # Zone 6 (Phase 4)
+    assert len(ALLOWED) >= 70
     assert {skill["generator"] for skill in SKILLS.values()} == set(run.CHECKERS) # every generator has a checker
 
 

@@ -373,6 +373,13 @@ MATH_TERMS = {
     r"divid(?:e|es|ing)|division|÷": "divide",
     r"prime factorizations?": "prime_factorization",
     r"fundamental theorem": "fundamental_theorem",
+    r"common factors?": "common_factor",
+    r"greatest common factors?|GCFs?": "gcf",
+    r"common multiples?": "common_multiple",
+    r"least common multiples?|LCMs?": "lcm",
+    r"coprime": "coprime",
+    r"simplest form": "simplest_form",
+    r"gear ratios?": "gear_ratio",
 }
 # Lines for grown-ups and the Word Gem lines themselves are not checked.
 TERM_EXEMPT_PREFIXES = ("parent.", "vocab.", "debug.")

@@ -600,3 +600,89 @@ hub.museum.geode_fact,A geode is a plain rock with crystals hiding inside.,Museu
 hub.museum.geode_how,Finish a weekly Deep Dig to find it.,Museum: how to earn the geode,0
 vocab.divide.term,divide,Word Gem term (added after the Sprint 21 math pre-review),0
 vocab.divide.definition,To divide is to share into equal groups. The ÷ sign means divide.,Word Gem kid-sized definition,0
+z6.zone.name,Gear Works,Zone 6 name on its banner,0
+z6.gcf.prompt_common,Which list shows all the common factors of {a} and {b}?,"Zone 6: pick the list of common factors (answer buttons such as 1, 2, 4)",0
+z6.gcf.prompt_gcf,What is the greatest common factor of {a} and {b}?,Zone 6: find the GCF,0
+z6.gcf.prompt_recipes,Use the prime recipes. What is the GCF of {a} and {b}?,Zone 6: find the GCF from the prime factorizations,0
+z6.gcf.prompt_coprime,Are {a} and {b} coprime?,Zone 6: coprime or not (yes or no),0
+z6.lcm.prompt_common,Find the first {k} common multiples of {a} and {b}.,Zone 6: drag the first k common multiples into the slots,0
+z6.lcm.prompt_lcm,What is the least common multiple of {a} and {b}?,Zone 6: find the LCM,0
+z6.lcm.prompt_recipes,Use the prime recipes. What is the LCM of {a} and {b}?,Zone 6: find the LCM from the prime factorizations,0
+z6.lcm.prompt_relation,GCF × LCM = {a} × {b}. The GCF is {g}. What is the LCM?,Zone 6: use GCF × LCM = a × b (g = the GCF),0
+z6.gear.prompt_ratio,The big gear has {a} teeth. It turns once. Which gear turns {k} times?,Zone 6: pick the gear that the big gear turns k times (gear bench or answer buttons),0
+z6.gear.prompt_sync,A {a}-tooth gear turns a {b}-tooth gear. Both marks start together. How many turns of the {a}-tooth gear until the marks meet again?,Zone 6: turns of the first gear until the marked teeth line up again (lcm / a),0
+z6.simplify.prompt_fraction,Write {a}/{b} in simplest form.,Zone 6: simplify a fraction (answer buttons such as 3/4),0
+z6.simplify.prompt_ratio,Write {a} : {b} in simplest form.,Zone 6: simplify a ratio (answer buttons such as 2 : 3),0
+z6.hint.example_common,The factors of {g} are in both lists. {g} is the greatest.,Worked example: the common factors are the factors of the GCF,0
+z6.hint.example_gcf,The greatest common factor of {a} and {b} is {g}.,Worked example: a GCF,0
+z6.hint.example_recipes_gcf,{a} and {b} share primes that make {g}. The GCF is {g}.,Worked example: a GCF from shared primes,0
+z6.hint.example_coprime_yes,{a} and {b} share only the factor one. They are coprime.,Worked example: a coprime pair,0
+z6.hint.example_coprime_no,{a} and {b} share the factor {g}. They are not coprime.,Worked example: a pair that is not coprime (g = their GCF),0
+z6.hint.example_common_multiples,The first common multiple of {a} and {b} is {l}. Then add {l} each time.,Worked example: common multiples are multiples of the LCM,0
+z6.hint.example_lcm,The least common multiple of {a} and {b} is {l}.,Worked example: an LCM,0
+z6.hint.example_recipes_lcm,Take each prime the most times it shows up. The LCM of {a} and {b} is {l}.,Worked example: an LCM from prime factorizations,0
+z6.hint.example_relation,{a} × {b} = {p}. Then {p} ÷ {g} = {l}. The LCM is {l}.,Worked example: the LCM from GCF × LCM = a × b,0
+z6.hint.example_ratio,"When a {a}-tooth gear turns once, a {b}-tooth gear turns {k} times.",Worked example: a gear ratio,0
+z6.hint.example_sync,The marks meet after {l} teeth pass. That is {t} turns of the {a}-tooth gear.,Worked example: turns until the marks line up,0
+z6.hint.example_fraction,Divide top and bottom by {g}. {a}/{b} becomes {c}/{d}.,Worked example: simplest form of a fraction,0
+z6.hint.example_ratio_simplify,Divide both numbers by {g}. {a} : {b} becomes {c} : {d}.,Worked example: simplest form of a ratio,0
+z6.gcf.means,The biggest factor two numbers share is the greatest common factor.,Teaching line: what the GCF is,0
+z6.lcm.means,The smallest multiple two numbers share is the least common multiple.,Teaching line: what the LCM is,0
+z6.coprime.means,"When two numbers share only the factor one, we call them coprime.",Teaching line: what coprime means,0
+z6.simplify.means,Divide both numbers by their GCF. Then they are in simplest form.,Teaching line: simplest form,0
+z6.gear.ratio_means,Teeth push teeth. A gear with fewer teeth turns more times.,Teaching line: gear ratios,0
+z6.gear.sync_means,The marks line up again after a common multiple of teeth pass.,Teaching line: why gears line up at the LCM,0
+z6.bench.drag_gear,Drag a gear onto the empty axle.,Zone 6: gear bench: how to answer,0
+z6.bench.go,Go!,Zone 6: gear bench: button that runs the gears and hands in the answer,0
+z6.bench.watch,Watch the marks turn. Count the turns.,Zone 6: gear bench: the gears are spinning,0
+bolt.celebrate.zone_done,You mastered every skill in Zone {n}! What a miner!,"Celebration: every skill of a zone is mastered (n = zone number, Zone 6 on)",0
+build.conveyor_sync.name,Conveyor Sync,Build project name,0
+build.conveyor_sync.intro,Two belts drop gems. Find when they drop gems together!,Bolt: the Conveyor Sync build (first common multiple),0
+build.conveyor_sync.done,The belts drop gems together! The gears can go to Zone {n}.,Bolt: Conveyor Sync is finished and opens a zone (n = zone number),0
+build.site.conveyor_hint,Build Conveyor Sync to reach Zone {n}!,Bolt at the build site: Conveyor Sync opens the next zone (n = zone number),0
+bolt.misconception.included_non_factor,Check each number. Does it fit into both?,Targeted hint after the included_non_factor mistake,0
+bolt.misconception.missed_largest,Look for the biggest factor they share too.,Targeted hint after the missed_largest mistake,0
+bolt.misconception.factors_of_one_number,Keep only the factors that are in both lists.,Targeted hint after the factors_of_one_number mistake,0
+bolt.misconception.picked_smallest_common,"We want the greatest factor they share, not the smallest.",Targeted hint after the picked_smallest_common mistake,0
+bolt.misconception.picked_lcm,A factor fits into the number. Look for a smaller one.,Targeted hint after the picked_lcm mistake,0
+bolt.misconception.picked_prime_factor_only,Multiply all the shared primes together.,Targeted hint after the picked_prime_factor_only mistake,0
+bolt.misconception.picked_smaller_number,Does the smaller number fit into the bigger one? Check it.,Targeted hint after the picked_smaller_number mistake,0
+bolt.misconception.multiplied_all_primes,Use only the primes that both recipes share.,Targeted hint after the multiplied_all_primes mistake,0
+bolt.misconception.took_union,Pick only the primes that are in both recipes.,Targeted hint after the took_union mistake,0
+bolt.misconception.shared_even_only,Odd numbers can share factors too. Try three or five.,Targeted hint after the shared_even_only mistake,0
+bolt.misconception.missed_common_factor,Look for a factor bigger than one in both lists.,Targeted hint after the missed_common_factor mistake,0
+bolt.misconception.assumed_primes_only,List the factors of both. Do they share any but one?,Targeted hint after the assumed_primes_only mistake,0
+bolt.misconception.assumed_common_factor,Two different primes share only the factor one.,Targeted hint after the assumed_common_factor mistake,0
+bolt.misconception.listed_product_only,Find the first number in both lists. Start there.,Targeted hint after the listed_product_only mistake,0
+bolt.misconception.off_by_one_multiple,Start with the very first number in both lists.,Targeted hint after the off_by_one_multiple mistake,0
+bolt.misconception.multiples_of_one_number,Each number must be a multiple of both.,Targeted hint after the multiples_of_one_number mistake,0
+bolt.misconception.picked_product,Is there a smaller number in both lists?,Targeted hint after the picked_product mistake,0
+bolt.misconception.picked_gcf,A multiple is as big as the number or bigger.,Targeted hint after the picked_gcf mistake,0
+bolt.misconception.picked_sum,Count up by each number. Where do the lists meet?,Targeted hint after the picked_sum mistake,0
+bolt.misconception.took_intersection,Use every prime that either number needs.,Targeted hint after the took_intersection mistake,0
+bolt.misconception.dropped_highest_power,Take each prime as many times as it shows up.,Targeted hint after the dropped_highest_power mistake,0
+bolt.misconception.added_instead_of_multiplied,GCF times LCM makes the product. Divide by the GCF.,Targeted hint after the added_instead_of_multiplied mistake,0
+bolt.misconception.inverted_ratio,Check which number comes first. Keep that order.,Targeted hint after the inverted_ratio mistake,0
+bolt.misconception.subtracted_teeth,"Count teeth in groups. Divide, do not take away.",Targeted hint after the subtracted_teeth mistake,0
+bolt.misconception.same_size_gear,A gear the same size turns just once. Try a smaller gear.,Targeted hint after the same_size_gear mistake,0
+bolt.misconception.used_gcf,The marks meet at a number in both lists of multiples.,Targeted hint after the used_gcf mistake,0
+bolt.misconception.counted_other_gear,Count the turns of the gear we asked about.,Targeted hint after the counted_other_gear mistake,0
+bolt.misconception.teeth_not_turns,That is how many teeth pass. Now count the turns.,Targeted hint after the teeth_not_turns mistake,0
+bolt.misconception.divided_numerator_only,Divide the top and the bottom by the same number.,Targeted hint after the divided_numerator_only mistake,0
+bolt.misconception.partially_simplified,Can both numbers still be shared? Keep dividing.,Targeted hint after the partially_simplified mistake,0
+bolt.misconception.swapped_num_den,Keep the top number on top.,Targeted hint after the swapped_num_den mistake,0
+bolt.misconception.divided_one_term_only,Divide both numbers by the same factor.,Targeted hint after the divided_one_term_only mistake,0
+vocab.common_factor.term,common factor,Word Gem term,0
+vocab.common_factor.definition,A common factor is a factor of both numbers. One is always a common factor.,Word Gem kid-sized definition,0
+vocab.gcf.term,greatest common factor (GCF),Word Gem term,0
+vocab.gcf.definition,The greatest common factor is the biggest factor two numbers share. We call it the GCF.,Word Gem kid-sized definition,0
+vocab.common_multiple.term,common multiple,Word Gem term,0
+vocab.common_multiple.definition,A common multiple is in both lists of multiples.,Word Gem kid-sized definition,0
+vocab.lcm.term,least common multiple (LCM),Word Gem term,0
+vocab.lcm.definition,The least common multiple is the smallest multiple two numbers share. We call it the LCM.,Word Gem kid-sized definition,0
+vocab.coprime.term,coprime,Word Gem term,0
+vocab.coprime.definition,Coprime numbers share no factor except one.,Word Gem kid-sized definition,0
+vocab.simplest_form.term,simplest form,Word Gem term,0
+vocab.simplest_form.definition,Simplest form means the two numbers share no factor but one. Divide both by the GCF to get there.,Word Gem kid-sized definition,0
+vocab.gear_ratio.term,gear ratio,Word Gem term,0
+vocab.gear_ratio.definition,A gear ratio compares how two linked gears turn. A small gear turns more times than a big one.,Word Gem kid-sized definition,0

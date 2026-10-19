@@ -31,6 +31,11 @@
 ##                  smallest first. The precrossed rocks are crossed from the start and stay so.
 ##   factor_tree    {value}: build the factor tree of value by splitting pieces with the pickaxe
 ##                  (Zone 5); the answer is the leaves, smallest first.
+##   gear_bench     {driver, turns, tray: [int]}: drag a gear from the tray onto the empty axle beside
+##                  the driver gear (Zone 6, GearBench); the answer is the chosen gear's teeth, and
+##                  the tray holds the answer and every wrong gear.
+## From Zone 6 an answer may also be a fraction {num, den} (lowest terms, positive den; see Rational)
+## or a ratio {a, b} (lowest terms, order kept); their answer buttons read "3/4" and "2 : 3".
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -49,7 +54,19 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## digits      {digits: [int], focus: "last" | "last_two" | "sum" | "sum_and_last" | "recipe",
 ##             recipe?: [int]}: a number's digits with the part a divisibility rule looks at lit up,
 ##             plus "1 + 2 + 6 = 9" under a digit sum or "= 2 × 2 × 3" under a recipe (Zone 5)
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits"]
+## lists       {kind: "factors" | "multiples" | "recipe", rows: [{n, items: [int], lit?: [index]}],
+##             marked: [int]}: one or two rows such as "12: 1, 2, 3, 4, 6, 12" (Zone 6). Values in
+##             `marked` are ringed wherever they show; `lit` rings items of one row by position (the
+##             shared primes of two prime recipes). At most MAX_LIST_ITEMS items a row.
+## gears       {teeth: [int], shaded?: int, marks?: bool}: one to three meshing gears of 2 to 200 teeth
+##             with their tooth counts; `shaded` colors that many teeth of the first gear (simplest
+##             form); `marks` draws the marked teeth that start together (Zone 6)
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears"]
+const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
+const MAX_LIST_ITEMS: int = 16
+const MAX_LIST_ROWS: int = 2
+const MAX_GEARS: int = 3
+const GEAR_TEETH_RANGE: Vector2i = Vector2i(2, 200)
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 
 var skill_id: StringName = &""

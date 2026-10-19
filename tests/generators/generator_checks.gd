@@ -202,6 +202,46 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 					errors.append("%s: %s is not a digit" % [where, digit])
 			if not ["last", "last_two", "sum", "sum_and_last", "recipe"].has(str(visual.get("focus", ""))):
 				errors.append("%s: unknown digits focus '%s'" % [where, visual.get("focus")])
+		&"lists":
+			errors.append_array(_lists_errors(visual, where))
+		&"gears":
+			var teeth: Variant = visual.get("teeth")
+			if not teeth is Array or teeth.is_empty() or teeth.size() > Problem.MAX_GEARS:
+				errors.append("%s: gears needs 1 to %d gears" % [where, Problem.MAX_GEARS])
+				return errors
+			for count: Variant in teeth:
+				if not count is int or count < Problem.GEAR_TEETH_RANGE.x or count > Problem.GEAR_TEETH_RANGE.y:
+					errors.append("%s: a gear has %s teeth, not %d to %d" % [where, count, Problem.GEAR_TEETH_RANGE.x, Problem.GEAR_TEETH_RANGE.y])
+			if visual.has("shaded") and (not visual["shaded"] is int or visual["shaded"] < 0 or visual["shaded"] > int(teeth[0])):
+				errors.append("%s: shaded must be 0 to the first gear's teeth" % where)
+	return errors
+
+
+## A `lists` picture: a known kind, one or two rows of whole numbers, marks and lit positions that exist.
+static func _lists_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	if not Problem.LIST_KINDS.has(str(visual.get("kind", ""))):
+		errors.append("%s: unknown lists kind '%s'" % [where, visual.get("kind")])
+	var rows: Variant = visual.get("rows")
+	if not rows is Array or rows.is_empty() or rows.size() > Problem.MAX_LIST_ROWS:
+		errors.append("%s: lists needs 1 to %d rows" % [where, Problem.MAX_LIST_ROWS])
+		return errors
+	var shown: Array = []
+	for row: Variant in rows:
+		var items: Variant = row.get("items") if row is Dictionary else null
+		if not row is Dictionary or not row.get("n") is int or not items is Array or items.is_empty() or items.size() > Problem.MAX_LIST_ITEMS:
+			errors.append("%s: each row needs n and 1 to %d items" % [where, Problem.MAX_LIST_ITEMS])
+			continue
+		for item: Variant in items:
+			if not item is int or item < 1:
+				errors.append("%s: list item %s is not a whole number above 0" % [where, item])
+		for index: Variant in row.get("lit", []):
+			if not index is int or index < 0 or index >= items.size():
+				errors.append("%s: lit position %s is off the row" % [where, index])
+		shown.append_array(items)
+	for value: Variant in visual.get("marked", []):
+		if not shown.has(value):
+			errors.append("%s: marked %s is in no row" % [where, value])
 	return errors
 
 
@@ -261,6 +301,16 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 			product *= int(leaf)
 		if product != int(meta["factor_tree"]["value"]):
 			errors.append("%s: the tree's leaves do not multiply to its value" % where)
+	if meta.has("gear_bench"):
+		var bench: Dictionary = meta["gear_bench"]
+		var tray: Array = Problem.canonical(bench.get("tray", []))
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		if tray.size() != values.size() or Problem.sorted_values(tray) != tray:
+			errors.append("%s: the gear tray must hold the answer and every wrong gear, smallest first" % where)
+		for value: Variant in values:
+			if not tray.has(Problem.canonical(value)):
+				errors.append("%s: gear %s is not in the tray" % [where, value])
 	if meta.has("label_lines"):
 		var labels: Dictionary = meta["label_lines"]
 		var values: Array = [problem.answer]
