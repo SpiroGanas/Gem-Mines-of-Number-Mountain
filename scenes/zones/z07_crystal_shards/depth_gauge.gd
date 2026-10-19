@@ -47,24 +47,33 @@ func _ready() -> void:
 	add_child(column)
 	var how: Label = Label.new()
 	how.text = Text.get_line(&"z7.gauge.how")
-	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	how.custom_minimum_size.x = UI.target_size(BUTTON_WIDTH_MULTIPLE, 1.0).x
+	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART # as wide as the buttons under it
 	column.add_child(how)
+	# Up, the level and Down stacked like the shaft, with Stop here beside them: four stacked buttons
+	# did not fit under Bolt at 16:9 or on a phone.
+	var buttons: HBoxContainer = HBoxContainer.new()
+	buttons.name = "Buttons"
+	buttons.add_theme_constant_override(&"separation", 16)
+	column.add_child(buttons)
+	var ride_column: VBoxContainer = VBoxContainer.new()
+	ride_column.add_theme_constant_override(&"separation", 8)
+	buttons.add_child(ride_column)
 	_up = _button(&"z7.gauge.up", "UpButton")
 	_up.pressed.connect(move.bind(1))
-	column.add_child(_up)
+	ride_column.add_child(_up)
 	_level_label = Label.new()
 	_level_label.name = "Level"
 	_level_label.theme_type_variation = &"NumberLabel"
 	_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(_level_label)
+	ride_column.add_child(_level_label)
 	_down = _button(&"z7.gauge.down", "DownButton")
 	_down.pressed.connect(move.bind(-1))
-	column.add_child(_down)
+	ride_column.add_child(_down)
 	_stop = _button(&"z7.gauge.stop", "StopButton")
 	_stop.theme_type_variation = &"GoButton"
+	_stop.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_stop.pressed.connect(submit)
-	column.add_child(_stop)
+	buttons.add_child(_stop)
 	_refresh()
 
 

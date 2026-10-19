@@ -26,30 +26,47 @@ var _unlock_timer: Timer
 
 func _ready() -> void:
 	alignment = BoxContainer.ALIGNMENT_CENTER
-	add_theme_constant_override(&"separation", 24)
+	add_theme_constant_override(&"separation", UI.spacing(24))
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.randomize()
 	rules = ParentGateRules.new(rng)
 	rules.locked_until_ms = _remembered_locked_until_ms
 	rules.misses = _remembered_misses
 	rules.locks = _remembered_locks
+	# The words over the pad; on a phone (UI.is_compact) the words to the left of it, as the height
+	# does not hold both. The pad is the wide one (three rows of keys) everywhere.
+	var words: BoxContainer = self
+	var row: HBoxContainer = null
+	if UI.is_compact():
+		row = HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override(&"separation", 48)
+		add_child(row)
+		words = VBoxContainer.new()
+		words.alignment = BoxContainer.ALIGNMENT_CENTER
+		words.add_theme_constant_override(&"separation", 24)
+		row.add_child(words)
 	_step = Label.new()
 	_step.name = "StepLabel"
 	_step.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(_step)
+	words.add_child(_step)
 	_question = Label.new()
 	_question.name = "QuestionLabel"
 	_question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(_question)
+	words.add_child(_question)
 	_feedback = Label.new()
 	_feedback.name = "FeedbackLabel"
 	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_feedback.add_theme_color_override(&"font_color", Bolt.NOTE_COLOR)
-	add_child(_feedback)
+	words.add_child(_feedback)
 	_pad = load("res://scenes/input/number_pad.tscn").instantiate()
 	_pad.max_digits = 3
+	_pad.wide = true
 	_pad.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	add_child(_pad)
+	if row != null:
+		row.add_child(_pad)
+	else:
+		add_child(_pad)
 	_pad.submitted.connect(_on_submitted)
 	_unlock_timer = Timer.new()
 	_unlock_timer.one_shot = true

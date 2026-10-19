@@ -53,6 +53,19 @@ func _ready() -> void:
 	UI.make_touch_target(_done, DONE_WIDTH_MULTIPLE, DONE_HEIGHT_MULTIPLE)
 	_done.pressed.connect(submit)
 	add_child(_done)
+	if UI.is_compact():
+		# On a phone a crystal of twelve shards is almost as tall as the room under Bolt: the hint and
+		# Done stand beside the crystal instead of above and below it.
+		var side: VBoxContainer = VBoxContainer.new()
+		side.name = "Side"
+		side.alignment = BoxContainer.ALIGNMENT_CENTER
+		side.add_theme_constant_override(&"separation", 24)
+		side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		remove_child(_how)
+		remove_child(_done)
+		side.add_child(_how)
+		side.add_child(_done)
+		_row.add_child(side)
 
 
 ## A crystal of `den` shards to light; `match` ({num, den}, may be empty) is the fraction to copy.

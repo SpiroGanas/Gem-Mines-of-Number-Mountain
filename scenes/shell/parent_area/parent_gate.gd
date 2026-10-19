@@ -30,7 +30,7 @@ func _ready() -> void:
 	add_child(center)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_theme_constant_override(&"separation", 24)
+	column.add_theme_constant_override(&"separation", UI.spacing(24))
 	center.add_child(column)
 	var title: Label = Label.new()
 	title.theme_type_variation = &"HeadingLabel"

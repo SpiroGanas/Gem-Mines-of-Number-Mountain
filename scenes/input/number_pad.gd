@@ -24,6 +24,10 @@ signal value_changed(text: String)
 const KEY_WIDTH_MULTIPLE: float = 2.5
 const KEY_HEIGHT_MULTIPLE: float = 1.75
 const COLUMNS: int = 3
+## The wide layout: the keys go four to a row in three rows (1-9, 0, Erase, Go) with the display to
+## the left of them. Three key rows instead of four, so it fits where height is short: always on a
+## phone (UI.is_compact), and wherever a host sets `wide`.
+const WIDE_COLUMNS: int = 4
 ## Phone-style order, so counting reads left to right, top to bottom.
 const KEY_ORDER: Array[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -32,6 +36,8 @@ const KEY_ORDER: Array[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 @export var allow_negative: bool = false
 ## False hides the display (the FractionPad shows the entry in its own boxes).
 @export var show_display: bool = true
+## The wide layout (WIDE_COLUMNS) even on a tablet. Set before the pad enters the tree.
+@export var wide: bool = false
 
 var _entry: String = ""
 var _enabled: bool = true
@@ -140,6 +146,11 @@ func handle_key_event(event: InputEventKey) -> bool:
 	return false
 
 
+## True when the pad uses the wide layout (three rows of four keys, the display beside them).
+func is_wide() -> bool:
+	return wide or UI.is_compact()
+
+
 ## The button for a digit, so tests and layout code can inspect it.
 func digit_button(digit: int) -> Button:
 	return _digit_buttons.get(digit)
@@ -179,16 +190,30 @@ func _build() -> void:
 
 	var grid: GridContainer = GridContainer.new()
 	grid.columns = COLUMNS
-	grid.add_theme_constant_override(&"h_separation", 16)
-	grid.add_theme_constant_override(&"v_separation", 16)
+	grid.add_theme_constant_override(&"h_separation", UI.spacing(16))
+	grid.add_theme_constant_override(&"v_separation", UI.spacing(16))
 	add_child(grid)
+	var three_rows: bool = is_wide()
+	if three_rows:
+		grid.columns = WIDE_COLUMNS
+		var row: HBoxContainer = HBoxContainer.new()
+		row.add_theme_constant_override(&"separation", 16)
+		remove_child(top)
+		remove_child(grid)
+		row.add_child(top)
+		row.add_child(grid)
+		add_child(row)
+		top.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	for digit: int in KEY_ORDER:
 		grid.add_child(_make_digit_button(digit))
+	if three_rows:
+		grid.add_child(_make_digit_button(0))
 	_erase_button = _make_key(Text.get_line(&"ui.numpad.erase"))
 	_erase_button.pressed.connect(erase)
 	grid.add_child(_erase_button)
-	grid.add_child(_make_digit_button(0))
+	if not three_rows:
+		grid.add_child(_make_digit_button(0))
 	_go_button = _make_key(Text.get_line(&"ui.numpad.go"))
 	_go_button.theme_type_variation = &"GoButton"
 	_go_button.pressed.connect(submit)

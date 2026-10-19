@@ -16,7 +16,7 @@ func _ready() -> void:
 	grid.columns = 2 if Rewards.badges().size() <= 4 else 3 # five badges from Zone 9 on: two rows of three
 	grid.add_theme_constant_override(&"h_separation", 24)
 	grid.add_theme_constant_override(&"v_separation", 24)
-	body.add_child(grid)
+	body.add_child(UI.vertical_scroll(grid)) # more badges than the height holds scroll (phones)
 	for badge: Dictionary in Rewards.badges():
 		grid.add_child(_make_badge(badge))
 	_story = VBoxContainer.new()

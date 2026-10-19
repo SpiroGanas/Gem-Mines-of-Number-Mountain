@@ -71,6 +71,13 @@ const PROOF_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/
 const PAD_DIGITS: int = 3
 ## The slate and the pad take fractions with up to this many digits in the top and in the bottom.
 const FRACTION_BOXES: int = 2
+## The picture beside the fraction and decimal pads and slates is narrower than beside the number pad
+## (in touch targets), so picture, boxes and keys fit beside Bolt at 16:9.
+const FRACTION_VISUAL_WIDTH: float = 4.0
+## Inputs whose worked-example card (hint rung 3) also draws the friend problem's picture: the card
+## stands where the problem's picture was. The others (tappable piles, which are the picture, and the
+## tall zone mechanics) get the card's two lines of text only, so the input stays on the screen.
+const EXAMPLE_PICTURE_KINDS: Array[InputKind] = [InputKind.CHOICES, InputKind.NUMBER_PAD, InputKind.SLATE, InputKind.TILES]
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
 ## few options (a random number on the pad, a random pile on the board). Used by the adaptive
 ## engine's guessing guard; deliberately generous.
@@ -85,6 +92,9 @@ var input_kind: InputKind = InputKind.NONE
 var slate_override: Variant = null
 ## The reader for the slate; null uses DigitInk.make_recognizer(). Tests inject a FakeRecognizer.
 var recognizer: Recognizer
+## The number pad's wide layout (three rows of keys, NumberPad.wide) even on a tablet: hosts with less
+## height than the mine (the workshop's problem card) set it. Phones always get it.
+var wide_pad: bool = false
 
 var _visual: VisualModel
 var _hint_visual: VisualModel
@@ -299,7 +309,7 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 	_clear()
 	problem = new_problem
 	input_kind = choose_input(problem, slate_wanted())
-	add_theme_constant_override(&"separation", 32)
+	add_theme_constant_override(&"separation", UI.spacing(32)) # half the gaps on a phone
 	alignment = BoxContainer.ALIGNMENT_CENTER # the content sits in the middle of the free space
 	match input_kind:
 		InputKind.TAP_PILE:
@@ -344,6 +354,12 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 		InputKind.PROOF:
 			_add_proof_board(rng)
 	set_enabled(_enabled)
+
+
+## True when the input needs the screen's whole height on a phone (five rows of array cells, each a
+## 64 dp target, take nearly all of a 360 dp phone): the mine then moves Bolt beside the panel.
+func wants_height() -> bool:
+	return input_kind == InputKind.ARRAY
 
 
 ## True while the panel takes answers (false under the Word Gem card, the stroke demo or an animation).
@@ -395,18 +411,22 @@ func hint_visual() -> VisualModel:
 ## null). From rung 2 (VISUAL_MODEL) that is the problem's picture model (hint_steps[1].visual): it
 ## takes the place of the problem's own picture when that picture is only to look at, and is added
 ## above the input otherwise (tappable piles, the build board, a problem with no picture). From
-## rung 3 (WORKED_EXAMPLE) a card above the input shows a solved problem of the same skill with
-## other numbers; an added model box steps aside for it so everything still fits the screen.
+## rung 3 (WORKED_EXAMPLE) a card shows a solved problem of the same skill with other numbers. It
+## takes the picture's place (beside the pad or the slate, or above the input) and the picture and
+## any added model box step aside, so the input always stays on the screen (16:9 and phones alike;
+## Bolt still reads the problem). Where the picture is the input (tappable piles) or the input is a
+## tall zone mechanic, the card keeps to its two lines of text (EXAMPLE_PICTURE_KINDS).
 func show_hint(rung: HintLadder.Rung) -> VisualModel:
 	if not HintLadder.shows_model(rung) or problem.hint_steps.size() < 2:
 		return null
 	var shown: VisualModel = _show_model()
 	if HintLadder.shows_example(rung) and problem.hint_steps.size() >= 3:
 		_show_example()
-		if _hint_visual != null and _hint_visual != _visual:
-			_hint_visual.visible = false
-		if input_kind == InputKind.TILES and _visual != null and _example != null:
-			_visual.visible = false # the tile strip still shows the problem; the card needs the room
+		if _example != null:
+			if _hint_visual != null and _hint_visual != _visual:
+				_hint_visual.visible = false
+			if _visual != null and input_kind != InputKind.TAP_PILE:
+				_visual.visible = false # the problem is still Bolt's line; the card needs the room
 	return shown
 
 
@@ -429,6 +449,7 @@ func _show_model() -> VisualModel:
 		_hint_visual.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_hint_visual.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if _pad_row != null:
+			_hint_visual.width_multiple = FRACTION_VISUAL_WIDTH # beside an input it is the narrow picture
 			_pad_row.add_child(_hint_visual)
 			_pad_row.move_child(_hint_visual, 0)
 		else:
@@ -454,7 +475,7 @@ func _show_example() -> void:
 	asked.text = Text.get_line(StringName(example["prompt_line_id"]), example["prompt_params"])
 	asked.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(asked)
-	var picture: Dictionary = step.get("visual", {})
+	var picture: Dictionary = step.get("visual", {}) if EXAMPLE_PICTURE_KINDS.has(input_kind) else {}
 	if not picture.is_empty():
 		var visual: VisualModel = VISUAL_SCENE.instantiate()
 		visual.compact = true
@@ -466,8 +487,14 @@ func _show_example() -> void:
 	solved.add_theme_color_override(&"font_color", Color(Text.HIGHLIGHT_COLOR))
 	solved.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(solved)
-	add_child(_example)
-	move_child(_example, 0)
+	if _pad_row != null:
+		# Beside the pad or the slate, where the problem's picture was.
+		_example.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_pad_row.add_child(_example)
+		_pad_row.move_child(_example, 0)
+	else:
+		add_child(_example)
+		move_child(_example, 0)
 
 
 func board() -> BuildBoard:
@@ -598,15 +625,16 @@ func _add_board() -> void:
 
 ## The picture and an input side by side, so both fit on a 16:9 screen: the picture takes the free
 ## width on the left. Returns the row (the input is added by the caller).
-func _add_row_with_visual() -> HBoxContainer:
+func _add_row_with_visual(visual_width: float = 6.0) -> HBoxContainer:
 	var row: HBoxContainer = HBoxContainer.new()
 	_pad_row = row
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override(&"separation", 32)
+	row.add_theme_constant_override(&"separation", UI.spacing(32))
 	add_child(row)
 	if not problem.visual.is_empty():
 		_visual = VISUAL_SCENE.instantiate()
+		_visual.width_multiple = visual_width
 		_visual.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_visual.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		row.add_child(_visual)
@@ -619,6 +647,7 @@ func _add_pad_with_visual() -> void:
 	var row: HBoxContainer = _add_row_with_visual()
 	_pad = PAD_SCENE.instantiate()
 	_pad.max_digits = maxi(int(problem.meta.get("pad_digits", PAD_DIGITS)), PAD_DIGITS)
+	_pad.wide = wide_pad
 	_pad.allow_negative = bool(problem.meta.get("signed", false)) # depths below zero (Zone 7)
 	_pad.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -644,7 +673,18 @@ func _add_array_builder() -> void:
 	_array.max_rows = int(limits["max_rows"])
 	_array.max_cols = int(limits["max_cols"])
 	_array.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	add_child(_array)
+	if UI.is_compact():
+		# On a phone the grid takes the whole height: the hint picture and the worked example go
+		# beside it (show_hint adds them to the row, as beside the number pad).
+		_pad_row = HBoxContainer.new()
+		_pad_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		_pad_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_pad_row.add_theme_constant_override(&"separation", UI.spacing(32))
+		add_child(_pad_row)
+		_array.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_pad_row.add_child(_array)
+	else:
+		add_child(_array)
 	_array.submitted.connect(_on_value_given)
 
 
@@ -698,7 +738,7 @@ func _add_gear_bench() -> void:
 ## The slate sits beside the picture, where the number pad would. If it cannot read (no
 ## recognizer), the number pad replaces it.
 func _add_slate() -> void:
-	var row: HBoxContainer = _add_row_with_visual()
+	var row: HBoxContainer = _add_row_with_visual(6.0 if input_kind == InputKind.SLATE else FRACTION_VISUAL_WIDTH)
 	_slate = SLATE_SCENE.instantiate()
 	_slate.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_slate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -741,7 +781,7 @@ func _on_slate_fell_back() -> void:
 
 ## The fraction or decimal pad beside the picture (the slate's fallback, and mouse-only devices).
 func _add_fraction_pad() -> void:
-	var row: HBoxContainer = _add_row_with_visual()
+	var row: HBoxContainer = _add_row_with_visual(FRACTION_VISUAL_WIDTH)
 	_fraction_pad = FRACTION_PAD_SCENE.instantiate()
 	if input_kind == InputKind.DECIMAL_PAD:
 		_fraction_pad.layout = FractionPad.Layout.DECIMAL

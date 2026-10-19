@@ -21,7 +21,8 @@ func _ready() -> void:
 	sign.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(sign)
 	_label = Label.new()
-	_label.theme_type_variation = &"HeadingLabel"
+	# On a phone (UI.is_compact) the name is in the body size, so the banner fits above the wall.
+	_label.theme_type_variation = &"" if UI.is_compact() else &"HeadingLabel"
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	add_child(_label)
 	show_zone(zone)

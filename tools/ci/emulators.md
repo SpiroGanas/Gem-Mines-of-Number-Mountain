@@ -16,7 +16,8 @@ SDK="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 | 8" small tablet, 1280 x 800 | `gm-tablet-8` | a 7-8" definition from the list (e.g. `"Nexus 7 2013"`) | `hw.lcd.width=1280`, `hw.lcd.height=800`, `hw.lcd.density=213` | small tablets; the 600 dp boundary |
 | Low-end tablet, 2 GB | `gm-lowend` | `-d pixel_tablet` | `hw.ramSize=2048`, `hw.cpu.ncore=2` | 60 fps on the dig loop and hub |
 | x86_64 Chromebook, mouse only | `gm-desktop` | a "Desktop" or resizable definition from the list | `hw.screen=no-touch`, `hw.mainKeys=yes`, `hw.keyboard=yes` | Intel/AMD Chromebooks; the mouse-only pass (the slate must never appear) |
-| Phone (supported) | `gm-phone` | `-d pixel_8` | | landscape phone, about 20:9: every screen fits, every target is at least 64 dp, nothing is cut off |
+| Phone (supported) | `gm-phone` | `-d pixel_8` | | landscape phone, about 20:9 (about 411 dp tall): the compact layouts (`UI.is_compact()`); every screen fits, every target is at least 64 dp, nothing is cut off (headless: `tests/scenes/test_phone_layout.gd` at 2400x1080 @ 420 dpi) |
+| Small phone | `gm-phone-small` | `-d pixel_8` | `hw.lcd.width=720`, `hw.lcd.height=1600`, `hw.lcd.density=320` | the shortest landscape phone, 360 dp tall: the same checks (headless at 1600x720 @ 320 dpi) |
 
 Run one: `"$SDK/emulator/emulator" -avd gm-desktop`, then `adb install -r build/gem-mines-debug.apk`.
 
