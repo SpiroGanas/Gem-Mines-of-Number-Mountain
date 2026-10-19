@@ -17,14 +17,14 @@ func after_test() -> void:
 
 
 func test_zone_8_has_its_own_tint_and_banner() -> void:
-	assert_int(Backdrop.LAST_PALETTE_ZONE).is_equal(8)
+	assert_int(Backdrop.LAST_PALETTE_ZONE).is_greater_equal(8) # 9 once Zone 9 joined
 	assert_str(String(Backdrop.palette_for_zone(8))).is_equal("zone8")
 	var eight: Color = Backdrop.PALETTES[&"zone8"]["top"]
 	for zone: int in range(1, 8):
 		assert_bool(Backdrop.PALETTES[Backdrop.palette_for_zone(zone)]["top"] == eight).is_false()
 	assert_bool(Backdrop.PALETTES[&"zone8"]["tower"]).is_true()
 	assert_str(Text.get_line(ZoneBanner.line_for(8))).is_equal("Power Tower")
-	assert_str(String(Backdrop.palette_for_zone(9))).is_equal("zone8") # a zone without art takes Zone 8's
+	assert_str(String(Backdrop.palette_for_zone(9))).is_equal("zone9") # Zone 9 has its own (test_zone9_polish)
 
 
 func test_the_zone_8_music_loop_exists_and_is_credited() -> void:

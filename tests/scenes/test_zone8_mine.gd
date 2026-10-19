@@ -104,10 +104,12 @@ func test_every_word_in_every_zone_8_prompt_and_hint_comes_from_the_text_table()
 					assert_bool(Text.has_line(StringName("bolt.misconception." + String(entry["misconception"])))).is_true()
 
 
+## Zones 8 and 9 both open after Zone 7 (docs/decisions.md, "Zones 8 and 9 merged"), so Zone 8 is the
+## deepest frontier zone only once Zone 9's skills are done too: every skill but Zone 8's is mastered.
 func test_the_mine_plays_the_zone_8_loop_when_zone_8_is_the_deepest() -> void:
 	for id: StringName in Adaptive.catalog().ids():
 		var skill: Skill = Adaptive.catalog().skill(id)
-		if skill.zone < 8:
+		if skill.zone != 8:
 			var record: Dictionary = SkillRecord.fresh(0.97)
 			record["mastered_at"] = "2027-01-01T00:00:00Z"
 			SaveSystem.data()["skills"][String(id)] = record
