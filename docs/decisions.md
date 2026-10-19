@@ -622,3 +622,10 @@ Zone 6 (Gear Works) and Zone 7 (Crystal Shards) were built in parallel from the 
 - **Also approved by Spiro the same day:** save schema v3 (profiles) and v4 (saved Fib poems); the plan's recommendations on the other "Decisions for Spiro" items (free, no purchases; Zone 6 fraction preview skills; composed-Label superscripts; conservative keyboard detection; no Godot upgrade in Sprint 38; the Gauss badge; 20% then 100% staged rollout); phones are supported (section above).
 - **Built ahead of the calendar in code (Oct 2026):** everything codeable in Phases 3 and 4. What remains is human, device and store work (`status.md`, section 5).
 - **Alternatives:** narration as planned (paid voice runs, about 100+ MB of audio budget, a provider licence).
+
+## 2026-10-19: Zone 9 waits for Zone 8 (Spiro)
+
+- **Decision (Spiro):** put Zone 9 behind Zone 8. `seq.arith.next_term`, Zone 9's only entry skill, now needs `skip.by_5.to_100`, `exp.square.numbers` and `exp.powers_of_two.list` (was `skip.by_5.to_100` and `ratio.scale.alloy`; Zone 7 is still below it through Zone 8). Every Zone 9 skill now leads back to Zone 8, and a child who has mastered everything in Zones 1-7 meets no Zone 9 skill (`test_zone_9_opens_only_after_zone_8`). Zone 9 still opens before the rest of Zone 8 is done (binary, other bases, roots, cubes, scientific notation, the lever), so the two zones then run side by side.
+- **Why:** both zones opened together after Zone 7 and the mine shows the deepest zone on the frontier, so Zone 8's banner, backdrop and music almost never showed. Squares and powers of two are what figurate numbers and geometric sequences build on.
+- **Alternatives:** require every Zone 8 skill (holds Zone 9 back behind binary addition and scientific notation, which it does not need); make the mine follow the zone of the rock being dug (a presentation change; still possible later if Zone 8's look gives way to Zone 9's too soon).
+- **Needs reviewer:** the new prerequisites.

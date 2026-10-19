@@ -138,3 +138,27 @@ func test_zone_9_opens_only_after_zone_7() -> void:
 			mastered[id] = true
 	for id: StringName in _frontier(mastered):
 		assert_int(_catalog.skill(id).zone).override_failure_message(String(id)).is_less(9)
+
+
+func test_zone_9_opens_only_after_zone_8() -> void:
+	# Spiro, 2026-10-19: Zone 9 comes after Zone 8, so Zone 8's banner, backdrop and music get their
+	# turn (the mine shows the deepest zone on the frontier). Every Zone 9 skill needs a Zone 8 skill
+	# somewhere below it, and a child with every skill below Zone 8 mastered still meets no Zone 9 skill.
+	for skill: Skill in _catalog.skills_in_zone(9):
+		var below: Array[StringName] = skill.prereqs.duplicate()
+		var seen: Dictionary = {}
+		var reaches_8: bool = false
+		while not below.is_empty():
+			var id: StringName = below.pop_back()
+			if seen.has(id):
+				continue
+			seen[id] = true
+			reaches_8 = reaches_8 or _catalog.skill(id).zone == 8
+			below.append_array(_catalog.skill(id).prereqs)
+		assert_bool(reaches_8).override_failure_message(String(skill.id) + " can open before Zone 8").is_true()
+	var mastered: Dictionary = {}
+	for id: StringName in _catalog.ids():
+		if _catalog.skill(id).zone < 8:
+			mastered[id] = true
+	for id: StringName in _frontier(mastered):
+		assert_int(_catalog.skill(id).zone).override_failure_message(String(id)).is_less(9)

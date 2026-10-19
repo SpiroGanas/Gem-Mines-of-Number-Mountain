@@ -7,7 +7,7 @@
     {
       "id": "seq.arith.next_term",
       "name": "Next term of an arithmetic sequence",
-      "prereqs": ["skip.by_5.to_100", "ratio.scale.alloy"],
+      "prereqs": ["skip.by_5.to_100", "exp.square.numbers", "exp.powers_of_two.list"],
       "generator": "SequenceGenerator",
       "params": {"mode": "next", "max_start": 20, "max_step": 9, "length": 5},
       "representations": ["concrete", "abstract"],

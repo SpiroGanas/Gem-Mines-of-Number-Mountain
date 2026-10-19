@@ -31,6 +31,7 @@ Key docs: `docs/decisions.md` (newest at bottom; the 2026-10-19 sections cover a
 
 ## 4. Recent changes (newest first)
 
+- **Zone 9 waits for Zone 8 (Spiro, Oct 19):** `seq.arith.next_term` needs `exp.square.numbers` and `exp.powers_of_two.list`, so Zone 8's banner and music get their turn (`docs/decisions.md`).
 - **Phase 4 (Zones 6-9, Scholar mode part 1), Oct 19:** Gear Works (GCF/LCM, gears, simplest form, Conveyor Sync build opens it), Crystal Shards (fractions, decimals, percents, ratio, negatives; fraction handwriting, `FractionPad`, Alloy Mixer build), Power Tower (exponents, roots, bases, scientific notation; vault lock, tower, lever, Counterweight Elevator build), Pattern Grotto (sequences, figurate numbers, Fibonacci, Gauss, proof without words, Fib poems; save v4; Gauss Staircase badge). Scholar mode: keyboard entry after the first key press, Label-composed notation, explorer/scholar/auto on the dashboard. The fraction preview skills moved into Zone 6; cross-zone prerequisites set (all "Needs reviewer").
 - **Phase 3, Oct 19:** profiles (save v3, onboarding, switcher, per-child export/import), generic placement, gate (two three-digit products, doubling lockout, a 1,000-random-tap test), `DeviceCaps` mouse-only path, phone support and the phone layout pass, compliance docs, `check_manifest.py`, `check_sdk_audit.py`, store listing and icons, release checklist, closed-test plan, platform-update procedure, the peer review 02 CI follow-ups.
 - **Spiro's decisions, Oct 19:** no narration or AI voice; phones supported; save v3 and v4 approved; plan recommendations accepted (`docs/decisions.md`).
@@ -42,14 +43,14 @@ Key docs: `docs/decisions.md` (newest at bottom; the 2026-10-19 sections cover a
 Owned by Spiro, the devices or a reviewer. Details in the 2026-10-19 sections of `docs/decisions.md`.
 
 - **Math reviewer:** sign-off on Zones 1-5 (`docs/reviews/2027-04-math-review.md`) and Zones 6-9 (`docs/reviews/math-review-packet-z6.md` … `-z9.md`), including the new prerequisites, misconception names and the "equal forms count, except simplest-form skills" rule.
-- **Spiro's open decisions:** Zone 8 is overshadowed by Zone 9 (both open after Zone 7 and the mine shows the deepest zone; put Zone 9 behind Zone 8 or follow the dug rock's zone); the Conveyor Sync gate; `negative.depth.read` and `exp.repeated_mult.read` extra prerequisites; the grade-based Scholar "auto" rule; the vault lock's running total; a second Gauss badge; the syllable counts in `curriculum/poem_words.json`; placement priors; the gate's strength for ages 9-12; the privacy-policy URL, effective date and contact email; the rung-3 worked-example layout.
+- **Spiro's open decisions:** the Conveyor Sync gate; `negative.depth.read` and `exp.repeated_mult.read` extra prerequisites; the grade-based Scholar "auto" rule; the vault lock's running total; a second Gauss badge; the syllable counts in `curriculum/poem_words.json`; placement priors; the gate's strength for ages 9-12; the privacy-policy URL, effective date and contact email; the rung-3 worked-example layout.
 - **Devices:** the real dpi and window size of the 2-in-1 and the tablet. At a real 10-inch tablet density some screens overflowed already before this work (pads and slates, factor tree, museum, four-child title, build screens, Challenge Door); a layout pass needs those numbers. Plus the device matrices, the save migration v2→v4 on Charlie's real devices, airplane mode, frame times.
 - **Store and release:** Play Console device catalog (no phone exclusion), Families Policy live checks (`docs/compliance/families-self-check.md`), screenshots and trailer, the closed test (12+ testers, 14 days), the Android version code/name, the release-signed AAB, tags.
 - Still open from Phase 2: Charlie's logs and the decision gate, his digits against the 97% bar, the MNIST licence before the public release.
 
 ## 6. Immediate next steps (for the next coding session)
 
-1. Act on Spiro's answers to section 5 (for example the Zone 8/9 order), each as its own small branch.
+1. Act on Spiro's answers to section 5, each as its own small branch.
 2. The tablet-density layout pass once the real device metrics are known (`tests/scenes/test_phone_layout.gd` already takes a dpi; add the real tablet and 2-in-1 sizes).
 3. Small follow-ups noted in `docs/decisions.md`: a half-set crystal or vault lock is not saved mid-rock; Scholar free-text Fib poems; cursor feedback on drags and focus neighbours for a full keyboard-only pass.
 4. Merge `claude/brave-pascal-r976fv` to `main` when Spiro has reviewed it.
