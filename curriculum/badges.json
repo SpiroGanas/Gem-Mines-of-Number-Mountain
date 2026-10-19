@@ -66,6 +66,21 @@
         {"line_id": "badge.sophie_germain.story_5", "params": {}}
       ],
       "unlock": {"skills_mastered": ["pf.tree.build", "pf.fta.unique"]}
+    },
+    {
+      "id": "gauss_staircase",
+      "name_line_id": "badge.gauss_staircase.name",
+      "emblem": "staircase",
+      "zone": 9,
+      "story": [
+        {"line_id": "badge.gauss_staircase.story_1", "params": {}},
+        {"line_id": "badge.gauss_staircase.story_2", "params": {}},
+        {"line_id": "badge.gauss_staircase.story_3", "params": {}},
+        {"line_id": "badge.gauss_staircase.story_4", "params": {}},
+        {"line_id": "badge.gauss_staircase.story_5", "params": {"n": 4, "m": 5, "t": 10}},
+        {"line_id": "badge.gauss_staircase.story_6", "params": {}}
+      ],
+      "unlock": {"skills_mastered": ["gauss.sum.pairing", "gauss.sum.formula"]}
     }
   ]
 }

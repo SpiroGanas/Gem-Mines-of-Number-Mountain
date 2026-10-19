@@ -64,6 +64,14 @@ func _ready() -> void:
 		door.pressed.connect(request_screen.emit.bind(pair[2], {}))
 		header.add_child(door)
 		IconArt.attach(door, pair[2])
+	# Zone 9 (Phase 4): the Fib poem maker, once the child knows Fibonacci numbers.
+	if FibPoem.is_open(SaveSystem.data(), Adaptive.mastered()):
+		var poems: Button = Button.new()
+		poems.name = "PoemsButton"
+		poems.text = Text.get_line(&"ui.museum.poems")
+		UI.make_touch_target(poems, 2.6, 1.2)
+		poems.pressed.connect(request_screen.emit.bind(&"poems", {}))
+		header.add_child(poems)
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)

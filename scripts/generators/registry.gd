@@ -44,6 +44,13 @@ static func table() -> Dictionary:
 		&"PercentGenerator": PercentGenerator.generate,
 		&"RatioGenerator": RatioGenerator.generate,
 		&"NegativeGenerator": NegativeGenerator.generate,
+		# Zone 9, Pattern Grotto (Phase 4)
+		&"SequenceGenerator": SequenceGenerator.generate,
+		&"FigurateGenerator": FigurateGenerator.generate,
+		&"FibGenerator": FibGenerator.generate,
+		&"GaussGenerator": GaussGenerator.generate,
+		&"ProofGenerator": ProofGenerator.generate,
+		&"FibPoemGenerator": FibPoemGenerator.generate,
 	}
 
 

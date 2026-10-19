@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z09_pattern_grotto/proof_board.gd" id="1_board"]
+
+[node name="ProofBoard" type="VBoxContainer"]
+script = ExtResource("1_board")

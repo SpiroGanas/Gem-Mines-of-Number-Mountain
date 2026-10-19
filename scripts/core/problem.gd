@@ -55,6 +55,17 @@
 ##   simplest_form  true: the answer must be in lowest terms (Zone 6's simplify skills). is_correct()
 ##                  and GeneratorKit.add_distractor then compare by exact form, so 6/9 is a wrong
 ##                  answer for 2/3 (`partially_simplified`) instead of an equal one.
+## Zone 9 (Pattern Grotto, Phase 4) adds:
+##   pattern_wall   {terms: Array (null at the gap), tiles: [int]}: the pattern wall. The child drags a
+##                  crystal tile into the gap of the row (or taps a tile) and presses Done; the answer
+##                  is the tile's number (int). The tiles are the answer and every wrong answer.
+##   proof_board    {diagram, n, choices: [id]}: the proof board. The child fits the loose piece into
+##                  place and picks the fact it proves; the answer is a diagram id (String) and each
+##                  choice's button reads meta.label_lines[id].
+##   label_line     a line id with {n}: answer buttons for whole numbers read that line ("Add 4").
+##   array_label    "words" (as well as "sum" and "product"): an Array answer of Fib poem word ids
+##                  reads as the words ("glowing crystal").
+##   pad_digits     int: the number pad takes this many digits (4 for answers up to 5050; default 3).
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -93,13 +104,32 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ##             0 at the mountain's base, cab markers, and an elevator move as a jump
 ## ore_mix     {a, b, groups?: int}: a copper ores and b tin ores (round and square lumps); `groups`
 ##             rings them into that many equal mixes
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix"]
+## The Zone 9 pictures (drawn by PatternArt, scenes/zones/z09_pattern_grotto/pattern_art.gd):
+## pattern     {terms: [int], blanks: [index], style: "crystals" | "numbers", steps?: [int], step_op?:
+##             "plus" | "times", figure?: "triangle" | "square", first_index?: int}: a row of tiles (at
+##             most MAX_PATTERN_TERMS), "?" at each blank; `steps` are drawn between the tiles ("+3",
+##             "×2"); `figure` draws each tile's triangle or square of gems (figure first_index, ...)
+## figurate    {kind: "triangle" | "square" | "two_triangles", n, fitted?: bool}: gems in a triangle
+##             (rows 1..n), a square (n by n), or the staircases of n and n - 1 rows (two colors and
+##             shapes), apart or fitted into an n by n square
+## pairing     {n}: 1..n on top and n..1 below, each column joined and adding to n + 1
+## fib_squares {terms: [int]}: squares with these Fibonacci sides fitted into a golden rectangle
+## proof       {diagram, n, fitted: bool}: a proof-without-words picture (curriculum/proof_diagrams.json)
+## poem_shape  {lines: [int], highlight: index, counts: bool}: a Fib poem's beat dots, one row a line
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
 const MAX_LIST_ITEMS: int = 16
 const MAX_LIST_ROWS: int = 2
 const MAX_GEARS: int = 3
 const GEAR_TEETH_RANGE: Vector2i = Vector2i(2, 200)
+## Zone 9 picture limits: tiles in a pattern row, the figurate size, the pairing row, Fibonacci squares.
+const MAX_PATTERN_TERMS: int = 6
+const MAX_FIGURATE_N: int = 20
+const PAIRING_RANGE: Vector2i = Vector2i(2, 100)
+const MAX_FIB_SQUARES: int = 8
+const FIGURATE_KINDS: Array[String] = ["triangle", "square", "two_triangles"]
+const PROOF_DIAGRAMS: Array[String] = ["staircases", "two_triangles", "odd_layers", "array_turn", "fib_squares"]
 
 var skill_id: StringName = &""
 ## The seed that produced this problem; the same seed always gives the same problem.

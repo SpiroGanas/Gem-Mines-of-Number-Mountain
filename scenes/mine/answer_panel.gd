@@ -29,6 +29,11 @@
 ##   GAUGE          ride the elevator cab up and down the depth gauge, then Stop here (meta.depth_gauge)
 ## A problem that carries a zone mechanic (crystal, alloy, depth_gauge) and lists `tap` is answered on
 ## the mechanic. The number pad gets a minus key when meta.signed is set (depths below zero).
+## Zone 9 (Phase 4, Sprint 40) adds, under the `drag` mode:
+##   PATTERN     the pattern wall: drag a crystal tile into the gap of the row, then Done (meta.pattern_wall)
+##   PROOF       the proof board: fit the loose piece into place, then tap the fact it shows (meta.proof_board)
+## and answer buttons that read a line with the number (meta.label_line, "Add 4") or a Fib poem line's
+## words (meta.array_label "words"). meta.pad_digits widens the number pad (Gauss's sums up to 5050).
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
 ## "friend" of the problem (show_hint).
@@ -43,7 +48,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, PATTERN, PROOF }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
@@ -60,6 +65,10 @@ const FRACTION_PAD_SCENE: PackedScene = preload("res://scenes/input/fraction_pad
 const CRYSTAL_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/crystal.tscn")
 const ALLOY_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/alloy_mixer.tscn")
 const GAUGE_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/depth_gauge.tscn")
+const PATTERN_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/pattern_wall.tscn")
+const PROOF_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/proof_board.tscn")
+## The number pad's digits unless meta.pad_digits asks for more (Zone 9).
+const PAD_DIGITS: int = 3
 ## The slate and the pad take fractions with up to this many digits in the top and in the bottom.
 const FRACTION_BOXES: int = 2
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
@@ -94,6 +103,8 @@ var _fraction_pad: FractionPad
 var _crystal: CrystalPicker
 var _alloy: AlloyMixer
 var _gauge: DepthGauge
+var _pattern_wall: PatternWall
+var _proof_board: ProofBoard
 var _example: PanelContainer
 var _enabled: bool = false
 
@@ -163,6 +174,10 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.TREE
 			if for_problem.meta.has("gear_bench"):
 				return InputKind.GEAR
+			if for_problem.meta.has("pattern_wall"):
+				return InputKind.PATTERN
+			if for_problem.meta.has("proof_board"):
+				return InputKind.PROOF
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
@@ -197,6 +212,10 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			return 1.0 / float(maxi(BoulderSplit.pairs_for(int(spec["value"]), factors).size(), 1))
 		InputKind.GEAR:
 			return 1.0 / float(maxi(for_problem.meta["gear_bench"].get("tray", []).size() - eliminated, 1))
+		InputKind.PATTERN:
+			options = for_problem.meta["pattern_wall"].get("tiles", []).size()
+		InputKind.PROOF:
+			options = for_problem.meta["proof_board"].get("choices", []).size()
 		InputKind.CRYSTAL:
 			options = int(for_problem.meta["crystal"]["den"]) + 1 # light 0 to den shards
 		InputKind.ALLOY:
@@ -248,6 +267,8 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 	if words.has(Problem.label_key(value)):
 		return Text.get_line(StringName(words[Problem.label_key(value)])) # "True", "Even"...
 	if value is Array:
+		if for_problem.meta.get("array_label") == "words":
+			return poem_line_text(value) # a Fib poem line (Zone 9)
 		var parts: PackedStringArray = PackedStringArray()
 		for item: Variant in value:
 			parts.append(str(item))
@@ -258,9 +279,19 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 			"product":
 				joiner = " × "
 		return joiner.join(parts)
+	if for_problem.meta.has("label_line") and value is int:
+		return Text.get_line(StringName(str(for_problem.meta["label_line"])), {"n": value}) # "Add 4" (Zone 9)
 	if for_problem.meta.get("percent", false) and value is int:
 		return Text.display_value(value) + "%"
 	return Text.display_value(value) # numerals, "3/4" and "2 : 3" (Zone 6 on), "2 1/3", "0.25", "−15" (Zone 7)
+
+
+## The words of a Fib poem line as the child reads them, from the text table: "glowing crystal".
+static func poem_line_text(words: Array) -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	for word: Variant in words:
+		parts.append(Text.get_line(PoemWords.line_id(str(word))))
+	return " ".join(parts)
 
 
 ## Builds the picture and the input for a problem. `rng` shuffles the answer buttons.
@@ -306,6 +337,12 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_alloy()
 		InputKind.GAUGE:
 			_add_gauge()
+		InputKind.PATTERN:
+			if problem.visual.has("figure"):
+				_add_visual(false) # the triangles or squares above the numbers (figurate walls)
+			_add_pattern_wall()
+		InputKind.PROOF:
+			_add_proof_board(rng)
 	set_enabled(_enabled)
 
 
@@ -336,7 +373,7 @@ func set_enabled(enabled: bool) -> void:
 		_tree.set_enabled(enabled)
 	if _gear_bench != null:
 		_gear_bench.set_enabled(enabled)
-	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge]:
+	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _pattern_wall, _proof_board]:
 		if widget != null:
 			widget.call(&"set_enabled", enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
@@ -492,6 +529,14 @@ func depth_gauge() -> DepthGauge:
 	return _gauge
 
 
+func pattern_wall() -> PatternWall:
+	return _pattern_wall
+
+
+func proof_board() -> ProofBoard:
+	return _proof_board
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -513,6 +558,8 @@ func _clear() -> void:
 	_crystal = null
 	_alloy = null
 	_gauge = null
+	_pattern_wall = null
+	_proof_board = null
 	_example = null
 
 
@@ -571,7 +618,7 @@ func _add_row_with_visual() -> HBoxContainer:
 func _add_pad_with_visual() -> void:
 	var row: HBoxContainer = _add_row_with_visual()
 	_pad = PAD_SCENE.instantiate()
-	_pad.max_digits = 3
+	_pad.max_digits = maxi(int(problem.meta.get("pad_digits", PAD_DIGITS)), PAD_DIGITS)
 	_pad.allow_negative = bool(problem.meta.get("signed", false)) # depths below zero (Zone 7)
 	_pad.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -750,6 +797,29 @@ func _add_gauge() -> void:
 	add_child(_gauge)
 	_gauge.setup(int(spec["min"]), int(spec["max"]), int(spec["start"]))
 	_gauge.submitted.connect(_on_value_given)
+
+
+## The pattern wall (meta.pattern_wall = {terms, tiles}); Done gives the number in the gap.
+func _add_pattern_wall() -> void:
+	var spec: Dictionary = problem.meta["pattern_wall"]
+	_pattern_wall = PATTERN_SCENE.instantiate()
+	_pattern_wall.setup(spec["terms"], spec["tiles"])
+	_pattern_wall.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_pattern_wall)
+	_pattern_wall.number_chosen.connect(_on_value_given)
+
+
+## The proof board (meta.proof_board = {diagram, n, choices}); a fact button gives its diagram id.
+func _add_proof_board(rng: RandomNumberGenerator) -> void:
+	var spec: Dictionary = problem.meta["proof_board"]
+	var options: Array[Dictionary] = []
+	for id: Variant in spec.get("choices", []):
+		options.append({"value": str(id), "label": label_for(str(id), problem)})
+	_proof_board = PROOF_SCENE.instantiate()
+	_proof_board.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_proof_board)
+	_proof_board.setup(str(spec["diagram"]), int(spec["n"]), options, rng)
+	_proof_board.chosen.connect(_on_value_given)
 
 
 ## For a number strip (a number line whose blanks are the answer, or meta.strip), the strip in

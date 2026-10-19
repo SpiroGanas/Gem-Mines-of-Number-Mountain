@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z09_pattern_grotto/pattern_wall.gd" id="1_wall"]
+
+[node name="PatternWall" type="VBoxContainer"]
+script = ExtResource("1_wall")

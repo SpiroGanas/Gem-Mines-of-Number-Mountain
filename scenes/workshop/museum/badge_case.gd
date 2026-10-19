@@ -13,7 +13,7 @@ func _ready() -> void:
 	build_frame(&"badge.case.title")
 	back_to = &"museum"
 	var grid: GridContainer = GridContainer.new()
-	grid.columns = 2
+	grid.columns = 2 if Rewards.badges().size() <= 4 else 3 # five badges from Zone 9 on: two rows of three
 	grid.add_theme_constant_override(&"h_separation", 24)
 	grid.add_theme_constant_override(&"v_separation", 24)
 	body.add_child(grid)

@@ -58,6 +58,12 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 				return false
 			gauge.submit()
 			return true
+		AnswerPanel.InputKind.PATTERN:
+			return target is int and panel.pattern_wall().choose(int(target))
+		AnswerPanel.InputKind.PROOF:
+			panel.proof_board().speed_scale = 0.0
+			panel.proof_board().toggle_fit() # fit the pieces first, as a child would
+			return panel.proof_board().choose(str(target))
 		AnswerPanel.InputKind.TILES:
 			var board: TileBoard = panel.tile_board()
 			board.clear()

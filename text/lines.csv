@@ -882,3 +882,260 @@ vocab.ratio.term,ratio,Word Gem term,0
 vocab.ratio.definition,"A ratio compares two amounts, like copper to tin.",Word Gem kid-sized definition,0
 vocab.negative.term,negative,Word Gem term,0
 vocab.negative.definition,A negative number is below zero. It has a minus sign in front.,Word Gem kid-sized definition,0
+z9.zone.name,Pattern Grotto,Zone 9 name on its banner,0
+z9.seq.prompt_next,"What comes after {a}, {b}, {c}, {d}?",Zone 9: the next term of a sequence (four shown),0
+z9.seq.prompt_next3,"What comes after {a}, {b}, {c}?",Zone 9: the next term of a multiplying sequence (three shown),0
+z9.seq.prompt_missing_1,"{a}, ?, {c}, {d}, {e}. What number is missing?",Zone 9: missing second term of an adding sequence,0
+z9.seq.prompt_missing_2,"{a}, {b}, ?, {d}, {e}. What number is missing?",Zone 9: missing third term of an adding sequence,0
+z9.seq.prompt_missing_3,"{a}, {b}, {c}, ?, {e}. What number is missing?",Zone 9: missing fourth term of an adding sequence,0
+z9.seq.prompt_rule,"{a}, {b}, {c}, {d}, {e}. What is added each time?",Zone 9: the rule (step) of an adding sequence,0
+z9.seq.rule_add,Add {n},Answer button: the rule of an adding sequence (n = the step),0
+z9.seq.prompt_classify,"{a}, {b}, {c}, {d}. How does this sequence grow?",Zone 9: arithmetic or geometric (answer buttons in words),0
+z9.classify.adds,It adds the same number.,Answer button: an arithmetic sequence,0
+z9.classify.multiplies,It multiplies by the same number.,Answer button: a geometric sequence,0
+z9.classify.neither,It has no rule.,Answer button: neither (always a wrong answer here),0
+z9.fig.prompt_triangle,Each row has one more gem. The triangle has {n} rows. How many gems?,Zone 9: a triangular number from its picture,0
+z9.fig.prompt_triangle_wall,Triangle {n} comes next. How many gems does it have?,Zone 9: the next triangular number on the pattern wall,0
+z9.fig.prompt_square_wall,Square {n} comes next. How many gems does it have?,Zone 9: the next square number on the pattern wall,0
+z9.fig.prompt_two_triangles,Two staircases make a square. One has {n} rows. The other has {m}. How many gems?,Zone 9: two triangular numbers make a square number,0
+z9.fib.prompt_next,"Add the two numbers before. What comes after {a}, {b}, {c}, {d}?",Zone 9: the next Fibonacci number,0
+z9.fib.prompt_missing_1,"{a}, ?, {c}, {d}, {e}. Each number adds the two before. What is missing?",Zone 9: missing second Fibonacci number,0
+z9.fib.prompt_missing_2,"{a}, {b}, ?, {d}, {e}. Each number adds the two before. What is missing?",Zone 9: missing third Fibonacci number,0
+z9.fib.prompt_missing_3,"{a}, {b}, {c}, ?, {e}. Each number adds the two before. What is missing?",Zone 9: missing fourth Fibonacci number,0
+z9.fib.prompt_ratio,What is {b} ÷ {a} to the nearest hundredth?,Zone 9: a Fibonacci ratio rounded to hundredths (b and a are neighbors),0
+z9.gauss.prompt_pairs,Make pairs from both ends. What is {a} + {b} + … + {n}?,"Zone 9: Gauss's sum with the pairing picture (a = 1, b = 2)",0
+z9.gauss.prompt_formula,Use Gauss's trick. What is {a} + {b} + … + {n}?,"Zone 9: Gauss's sum without a picture (a = 1, b = 2)",0
+z9.proof.prompt,Fit the pieces together. What does the picture show?,Zone 9: proof without words (answer buttons are facts),0
+z9.proof.fact_staircases,Two staircases make a rectangle.,Proof fact: 1 + 2 + ... + n is half of n by n + 1,0
+z9.proof.fact_two_triangles,Two triangles make a square.,Proof fact: two neighboring triangular numbers make a square number,0
+z9.proof.fact_odd_layers,Odd numbers stack into a square.,Proof fact: 1 + 3 + 5 + ... is a square number,0
+z9.proof.fact_array_turn,Turning an array keeps the total.,Proof fact: a times b equals b times a,0
+z9.proof.fact_fib_squares,Fibonacci squares make a rectangle.,Proof fact: Fibonacci squares tile a rectangle,0
+z9.proof.fit,Fit together,Proof board: slide the loose piece into place,0
+z9.proof.apart,Take apart,Proof board: slide the piece back out,0
+z9.proof.how,Drag the piece to fit it. Then pick what it shows.,Proof board: how it works,0
+z9.poem.prompt,Line {k} of a Fib poem needs {n} syllables. Which line fits?,Zone 9: pick the poem line with the right syllable count,0
+z9.wall.how,Drag a crystal into the gap. Then tap Done.,Pattern wall: how it works,0
+z9.hint.example_next,Each step adds {s}. So {d} + {s} = {e}.,Worked example: the next term of an adding sequence,0
+z9.hint.example_missing,Each step adds {s}. The missing number is {m}.,Worked example: a missing term,0
+z9.hint.example_rule,Each number is {s} more than the one before.,Worked example: the rule of an adding sequence,0
+z9.hint.example_geometric,Each number is {r} times the one before. {d} × {r} = {e}.,Worked example: the next term of a multiplying sequence,0
+z9.hint.example_classify_adds,{a} to {b} adds {s}. {b} to {c} adds {s} too.,Worked example: an adding (arithmetic) sequence,0
+z9.hint.example_classify_multiplies,{a} to {b} is times {r}. {b} to {c} is times {r} too.,Worked example: a multiplying (geometric) sequence,0
+z9.hint.example_triangle,Triangle {n} has rows up to {n}. That is {t} gems.,Worked example: a triangular number,0
+z9.hint.example_square,Square {n} is {n} rows of {n}. That is {t} gems.,Worked example: a square number,0
+z9.hint.example_two_triangles,Staircases of {n} and {m} rows fit together. They make {t} gems in a square.,Worked example: two triangles make a square,0
+z9.hint.example_fib_next,{c} + {d} = {e}. Add the last two numbers.,Worked example: the next Fibonacci number,0
+z9.hint.example_fib_missing,The missing number is {m}. Each number is the sum of the two before.,Worked example: a missing Fibonacci number,0
+z9.hint.example_ratio,{b} ÷ {a} is about {d}. These ratios get close to the golden ratio.,Worked example: a Fibonacci ratio (d is rounded to hundredths),0
+z9.hint.example_gauss,Two copies make {n} pairs of {p}. That is {d}. Half is {t}.,"Worked example: Gauss's pairing (d = n times p, t = half)",0
+z9.hint.example_poem,Line {k} needs {n} syllables. Clap once for each one.,Worked example: a Fib poem line's syllable count,0
+z9.poem.title,Fib Poem Maker,Poem maker screen title,0
+z9.poem.how,Tap a line. Then tap words to add them.,Poem maker: how it works,0
+z9.poem.save,Save my poem,Poem maker: save the finished poem (all six lines fit),0
+z9.poem.saved,Your poem is saved!,Poem maker: Bolt after a save,0
+z9.poem.clear,Clear line,Poem maker: empty the chosen line,0
+z9.poem.all_fit,Every line fits. You can save your poem!,Poem maker: all six syllable counts match,0
+z9.poem.line_fits,That line fits!,Poem maker: a line's syllables match its goal,0
+z9.poem.my_poems,My poems,Poem maker: the saved poems list,0
+z9.poem.none_yet,No poems yet. Make one!,Poem maker: no saved poems,0
+z9.poem.new,New poem,Poem maker: start an empty poem,0
+z9.poem.more_words,More words,Poem maker: show the next page of word tiles,0
+ui.museum.poems,Poems,Museum button: the Fib poem maker (Zone 9),0
+z9.zone.done,You found every pattern in Pattern Grotto!,Celebration: every Zone 9 skill is mastered,0
+bolt.misconception.added_wrong_step,Check the step. Add the same amount each time.,Targeted hint after the added_wrong_step mistake,0
+bolt.misconception.repeated_last_term,The pattern keeps growing. Add the step once more.,Targeted hint after the repeated_last_term mistake,0
+bolt.misconception.averaged_neighbors_wrong,The gap sits halfway between its neighbors.,Targeted hint after the averaged_neighbors_wrong mistake,0
+bolt.misconception.confused_start_and_step,The first number is the start. Look at the jumps.,Targeted hint after the confused_start_and_step mistake,0
+bolt.misconception.added_ratio,This pattern multiplies. Times the last number by the same amount.,Targeted hint after the added_ratio mistake,0
+bolt.misconception.off_by_one_exponent,Multiply just once to get the next number.,Targeted hint after the off_by_one_exponent mistake,0
+bolt.misconception.continued_by_adding,The jumps keep getting bigger. Try multiplying.,Targeted hint after the continued_by_adding mistake,0
+bolt.misconception.swapped_types,Check each jump. Does it add or multiply?,Targeted hint after the swapped_types mistake,0
+bolt.misconception.missed_the_pattern,Look again. Each jump follows the same rule.,Targeted hint after the missed_the_pattern mistake,0
+bolt.misconception.used_square,A triangle has one more gem in each row. It is not a square.,Targeted hint after the used_square mistake,0
+bolt.misconception.off_by_one_n,"Count the rows again, one by one.",Targeted hint after the off_by_one_n mistake,0
+bolt.misconception.used_triangular,A square has the same number in every row.,Targeted hint after the used_triangular mistake,0
+bolt.misconception.added_same_triangular_twice_wrong_n,The second staircase is one row shorter.,Targeted hint after the added_same_triangular_twice_wrong_n mistake,0
+bolt.misconception.added_wrong_pair,Add the two numbers just before the gap.,Targeted hint after the added_wrong_pair mistake,0
+bolt.misconception.doubled_last,"Add the last two numbers, not the last one twice.",Targeted hint after the doubled_last mistake,0
+bolt.misconception.rounded_down,Look at the next digit. Five or more rounds up.,Targeted hint after the rounded_down mistake,0
+bolt.misconception.forgot_halve,Two rows count every number twice. Take half.,Targeted hint after the forgot_halve mistake,0
+bolt.misconception.used_n_squared,Make pairs from both ends. Count the pairs.,Targeted hint after the used_n_squared mistake,0
+bolt.misconception.wrong_diagram,Fit the pieces together. What shape do they make?,Targeted hint after the wrong_diagram mistake,0
+bolt.misconception.wrong_line_count,Check which line it is. Each line has its own count.,Targeted hint after the wrong_line_count mistake,0
+bolt.misconception.counted_words,"Count the beats, not the words. Clap them out.",Targeted hint after the counted_words mistake,0
+bolt.misconception.off_by_one_syllable,"Clap the line again, slowly, beat by beat.",Targeted hint after the off_by_one_syllable mistake,0
+badge.gauss_staircase.name,Gauss Staircase Badge,"Mathematician badge name (Phase 4, Sprint 40)",0
+badge.gauss_staircase.story_1,Gauss loved patterns all his life.,Badge story line 1,0
+badge.gauss_staircase.story_2,Picture a sum as a staircase of gems.,Badge story line 2,0
+badge.gauss_staircase.story_3,Build a second staircase and turn it upside down.,Badge story line 3,0
+badge.gauss_staircase.story_4,The two staircases fit into a rectangle!,Badge story line 4,0
+badge.gauss_staircase.story_5,"With {n} steps, the rectangle is {n} by {m}. Half is {t}.","Badge story line 5 (n = 4, m = 5, t = 10)",0
+badge.gauss_staircase.story_6,A picture can show a fact without any words!,Badge story line 6,0
+z9.word.sun,sun,Fib poem word tile (1 syllable),0
+z9.word.moon,moon,Fib poem word tile (1 syllable),0
+z9.word.star,star,Fib poem word tile (1 syllable),0
+z9.word.sky,sky,Fib poem word tile (1 syllable),0
+z9.word.rock,rock,Fib poem word tile (1 syllable),0
+z9.word.gem,gem,Fib poem word tile (1 syllable),0
+z9.word.glow,glow,Fib poem word tile (1 syllable),0
+z9.word.shine,shine,Fib poem word tile (1 syllable),0
+z9.word.light,light,Fib poem word tile (1 syllable),0
+z9.word.bright,bright,Fib poem word tile (1 syllable),0
+z9.word.deep,deep,Fib poem word tile (1 syllable),0
+z9.word.cave,cave,Fib poem word tile (1 syllable),0
+z9.word.path,path,Fib poem word tile (1 syllable),0
+z9.word.stone,stone,Fib poem word tile (1 syllable),0
+z9.word.gold,gold,Fib poem word tile (1 syllable),0
+z9.word.blue,blue,Fib poem word tile (1 syllable),0
+z9.word.green,green,Fib poem word tile (1 syllable),0
+z9.word.red,red,Fib poem word tile (1 syllable),0
+z9.word.pink,pink,Fib poem word tile (1 syllable),0
+z9.word.cool,cool,Fib poem word tile (1 syllable),0
+z9.word.warm,warm,Fib poem word tile (1 syllable),0
+z9.word.calm,calm,Fib poem word tile (1 syllable),0
+z9.word.soft,soft,Fib poem word tile (1 syllable),0
+z9.word.bold,bold,Fib poem word tile (1 syllable),0
+z9.word.round,round,Fib poem word tile (1 syllable),0
+z9.word.small,small,Fib poem word tile (1 syllable),0
+z9.word.big,big,Fib poem word tile (1 syllable),0
+z9.word.tall,tall,Fib poem word tile (1 syllable),0
+z9.word.wide,wide,Fib poem word tile (1 syllable),0
+z9.word.slow,slow,Fib poem word tile (1 syllable),0
+z9.word.quick,quick,Fib poem word tile (1 syllable),0
+z9.word.climb,climb,Fib poem word tile (1 syllable),0
+z9.word.dig,dig,Fib poem word tile (1 syllable),0
+z9.word.find,find,Fib poem word tile (1 syllable),0
+z9.word.spin,spin,Fib poem word tile (1 syllable),0
+z9.word.grow,grow,Fib poem word tile (1 syllable),0
+z9.word.hum,hum,Fib poem word tile (1 syllable),0
+z9.word.sing,sing,Fib poem word tile (1 syllable),0
+z9.word.dream,dream,Fib poem word tile (1 syllable),0
+z9.word.rest,rest,Fib poem word tile (1 syllable),0
+z9.word.wake,wake,Fib poem word tile (1 syllable),0
+z9.word.rain,rain,Fib poem word tile (1 syllable),0
+z9.word.snow,snow,Fib poem word tile (1 syllable),0
+z9.word.leaf,leaf,Fib poem word tile (1 syllable),0
+z9.word.tree,tree,Fib poem word tile (1 syllable),0
+z9.word.seed,seed,Fib poem word tile (1 syllable),0
+z9.word.wind,wind,Fib poem word tile (1 syllable),0
+z9.word.sea,sea,Fib poem word tile (1 syllable),0
+z9.word.hill,hill,Fib poem word tile (1 syllable),0
+z9.word.sand,sand,Fib poem word tile (1 syllable),0
+z9.word.kind,kind,Fib poem word tile (1 syllable),0
+z9.word.brave,brave,Fib poem word tile (1 syllable),0
+z9.word.glad,glad,Fib poem word tile (1 syllable),0
+z9.word.new,new,Fib poem word tile (1 syllable),0
+z9.word.one,one,Fib poem word tile (1 syllable),0
+z9.word.two,two,Fib poem word tile (1 syllable),0
+z9.word.three,three,Fib poem word tile (1 syllable),0
+z9.word.five,five,Fib poem word tile (1 syllable),0
+z9.word.eight,eight,Fib poem word tile (1 syllable),0
+z9.word.step,step,Fib poem word tile (1 syllable),0
+z9.word.crystal,crystal,Fib poem word tile (2 syllables),0
+z9.word.mountain,mountain,Fib poem word tile (2 syllables),0
+z9.word.lantern,lantern,Fib poem word tile (2 syllables),0
+z9.word.river,river,Fib poem word tile (2 syllables),0
+z9.word.silver,silver,Fib poem word tile (2 syllables),0
+z9.word.purple,purple,Fib poem word tile (2 syllables),0
+z9.word.yellow,yellow,Fib poem word tile (2 syllables),0
+z9.word.shimmer,shimmer,Fib poem word tile (2 syllables),0
+z9.word.sparkle,sparkle,Fib poem word tile (2 syllables),0
+z9.word.glowing,glowing,Fib poem word tile (2 syllables),0
+z9.word.shining,shining,Fib poem word tile (2 syllables),0
+z9.word.gentle,gentle,Fib poem word tile (2 syllables),0
+z9.word.quiet,quiet,Fib poem word tile (2 syllables),0
+z9.word.happy,happy,Fib poem word tile (2 syllables),0
+z9.word.sunny,sunny,Fib poem word tile (2 syllables),0
+z9.word.morning,morning,Fib poem word tile (2 syllables),0
+z9.word.pattern,pattern,Fib poem word tile (2 syllables),0
+z9.word.number,number,Fib poem word tile (2 syllables),0
+z9.word.spiral,spiral,Fib poem word tile (2 syllables),0
+z9.word.pebble,pebble,Fib poem word tile (2 syllables),0
+z9.word.garden,garden,Fib poem word tile (2 syllables),0
+z9.word.meadow,meadow,Fib poem word tile (2 syllables),0
+z9.word.rainbow,rainbow,Fib poem word tile (2 syllables),0
+z9.word.thunder,thunder,Fib poem word tile (2 syllables),0
+z9.word.whisper,whisper,Fib poem word tile (2 syllables),0
+z9.word.wonder,wonder,Fib poem word tile (2 syllables),0
+z9.word.tunnel,tunnel,Fib poem word tile (2 syllables),0
+z9.word.helmet,helmet,Fib poem word tile (2 syllables),0
+z9.word.rocket,rocket,Fib poem word tile (2 syllables),0
+z9.word.planet,planet,Fib poem word tile (2 syllables),0
+z9.word.comet,comet,Fib poem word tile (2 syllables),0
+z9.word.pocket,pocket,Fib poem word tile (2 syllables),0
+z9.word.circle,circle,Fib poem word tile (2 syllables),0
+z9.word.window,window,Fib poem word tile (2 syllables),0
+z9.word.puzzle,puzzle,Fib poem word tile (2 syllables),0
+z9.word.counting,counting,Fib poem word tile (2 syllables),0
+z9.word.climbing,climbing,Fib poem word tile (2 syllables),0
+z9.word.digging,digging,Fib poem word tile (2 syllables),0
+z9.word.dancing,dancing,Fib poem word tile (2 syllables),0
+z9.word.humming,humming,Fib poem word tile (2 syllables),0
+z9.word.steady,steady,Fib poem word tile (2 syllables),0
+z9.word.golden,golden,Fib poem word tile (2 syllables),0
+z9.word.marble,marble,Fib poem word tile (2 syllables),0
+z9.word.copper,copper,Fib poem word tile (2 syllables),0
+z9.word.metal,metal,Fib poem word tile (2 syllables),0
+z9.word.bubble,bubble,Fib poem word tile (2 syllables),0
+z9.word.pillow,pillow,Fib poem word tile (2 syllables),0
+z9.word.seven,seven,Fib poem word tile (2 syllables),0
+z9.word.twenty,twenty,Fib poem word tile (2 syllables),0
+z9.word.thirteen,thirteen,Fib poem word tile (2 syllables),0
+z9.word.galaxy,galaxy,Fib poem word tile (3 syllables),0
+z9.word.beautiful,beautiful,Fib poem word tile (3 syllables),0
+z9.word.wonderful,wonderful,Fib poem word tile (3 syllables),0
+z9.word.amazing,amazing,Fib poem word tile (3 syllables),0
+z9.word.together,together,Fib poem word tile (3 syllables),0
+z9.word.adventure,adventure,Fib poem word tile (3 syllables),0
+z9.word.underground,underground,Fib poem word tile (3 syllables),0
+z9.word.magical,magical,Fib poem word tile (3 syllables),0
+z9.word.tomorrow,tomorrow,Fib poem word tile (3 syllables),0
+z9.word.remember,remember,Fib poem word tile (3 syllables),0
+z9.word.discover,discover,Fib poem word tile (3 syllables),0
+z9.word.energy,energy,Fib poem word tile (3 syllables),0
+z9.word.pyramid,pyramid,Fib poem word tile (3 syllables),0
+z9.word.triangle,triangle,Fib poem word tile (3 syllables),0
+z9.word.hexagon,hexagon,Fib poem word tile (3 syllables),0
+z9.word.banana,banana,Fib poem word tile (3 syllables),0
+z9.word.potato,potato,Fib poem word tile (3 syllables),0
+z9.word.umbrella,umbrella,Fib poem word tile (3 syllables),0
+z9.word.lemonade,lemonade,Fib poem word tile (3 syllables),0
+z9.word.strawberry,strawberry,Fib poem word tile (3 syllables),0
+z9.word.pineapple,pineapple,Fib poem word tile (3 syllables),0
+z9.word.blueberry,blueberry,Fib poem word tile (3 syllables),0
+z9.word.cinnamon,cinnamon,Fib poem word tile (3 syllables),0
+z9.word.lavender,lavender,Fib poem word tile (3 syllables),0
+z9.word.harmony,harmony,Fib poem word tile (3 syllables),0
+z9.word.melody,melody,Fib poem word tile (3 syllables),0
+z9.word.electric,electric,Fib poem word tile (3 syllables),0
+z9.word.fantastic,fantastic,Fib poem word tile (3 syllables),0
+z9.word.eleven,eleven,Fib poem word tile (3 syllables),0
+z9.word.watermelon,watermelon,Fib poem word tile (4 syllables),0
+z9.word.helicopter,helicopter,Fib poem word tile (4 syllables),0
+z9.word.calculator,calculator,Fib poem word tile (4 syllables),0
+z9.word.avocado,avocado,Fib poem word tile (4 syllables),0
+z9.word.escalator,escalator,Fib poem word tile (4 syllables),0
+z9.word.invisible,invisible,Fib poem word tile (4 syllables),0
+z9.word.celebration,celebration,Fib poem word tile (4 syllables),0
+z9.word.january,January,Fib poem word tile (4 syllables),0
+vocab.sequence.term,sequence,Word Gem term,0
+vocab.sequence.definition,A sequence is a list of numbers in order. A rule makes it grow.,Word Gem kid-sized definition,0
+vocab.term.term,term,Word Gem term,0
+vocab.term.definition,Each number in a sequence is called a term.,Word Gem kid-sized definition,0
+vocab.rule.term,rule,Word Gem term,0
+vocab.rule.definition,A rule tells how to get the next number in a pattern.,Word Gem kid-sized definition,0
+vocab.triangular_number.term,triangular number,Word Gem term,0
+vocab.triangular_number.definition,A triangular number of gems stacks into a triangle. Each row has one more.,Word Gem kid-sized definition,0
+vocab.square_number.term,square number,Word Gem term,0
+vocab.square_number.definition,A square number of gems makes a square. It is a number times itself.,Word Gem kid-sized definition,0
+vocab.fibonacci.term,Fibonacci,Word Gem term,0
+vocab.fibonacci.definition,Each Fibonacci number is the sum of the two numbers before it.,Word Gem kid-sized definition,0
+vocab.golden_ratio.term,golden ratio,Word Gem term,0
+vocab.golden_ratio.definition,Divide a Fibonacci number by the one before. The answers get close to the golden ratio.,Word Gem kid-sized definition,0
+vocab.proof.term,proof,Word Gem term,0
+vocab.proof.definition,A proof shows that a fact is always true. A picture can be a proof.,Word Gem kid-sized definition,0
+vocab.syllable.term,syllable,Word Gem term,0
+vocab.syllable.definition,A syllable is one beat in a word. Clap once for each beat.,Word Gem kid-sized definition,0
+z9.poem.prompt_single,Line {k} of a Fib poem needs {n} syllable. Which line fits?,"Zone 9: pick the poem line with the right syllable count (n = 1, the singular)",0
+z9.hint.example_poem_single,Line {k} needs {n} syllable. Clap once for it.,"Worked example: a Fib poem line of one syllable (n = 1)",0

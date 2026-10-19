@@ -4,7 +4,8 @@
 ## equal groups (`groups`), gems lined up in pairs (`pairs`) and a number's digits with the part a
 ## divisibility rule looks at lit up (`digits`, Zone 5), rows of factors, multiples or prime recipes
 ## (`lists`, Zone 6) and meshing gears (`gears`, Zone 6); Zone 7's crystals, fraction line, crystal
-## grids, depth gauge and ore mix are painted by CrystalArt. Gray-box shapes in code; the
+## grids, depth gauge and ore mix are painted by CrystalArt, Zone 9's pattern rows, figures, pairing rows,
+## Fibonacci squares, proofs and poem shapes by PatternArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -43,6 +44,9 @@ const LIST_FONT: int = 28
 ## Zone 7 pictures (CrystalArt): crystals and grids need room to read; the gauge is tall.
 const HEIGHT_MULTIPLE_CRYSTALS: float = 4.4
 const HEIGHT_MULTIPLE_GAUGE: float = 6.0
+## Zone 9 pictures (PatternArt): a row of tiles, and gems in shapes (figures, proofs, golden rectangles).
+const HEIGHT_MULTIPLE_PATTERN: float = 3.2
+const HEIGHT_MULTIPLE_FIGURES: float = 4.4
 const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
@@ -99,6 +103,12 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_CRYSTALS
 		&"depth_gauge":
 			height = HEIGHT_MULTIPLE_GAUGE
+		&"pattern":
+			height = HEIGHT_MULTIPLE_FIGURES if visual.has("figure") else HEIGHT_MULTIPLE_PATTERN
+		&"figurate", &"proof", &"fib_squares", &"poem_shape":
+			height = HEIGHT_MULTIPLE_FIGURES
+		&"pairing":
+			height = HEIGHT_MULTIPLE_PATTERN
 	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
@@ -286,7 +296,9 @@ func _draw() -> void:
 		&"gears":
 			_draw_gears()
 		_:
-			CrystalArt.draw_visual(self, Rect2(Vector2(12, 12), size - Vector2(24, 24)), visual, get_theme_default_font())
+			var area: Rect2 = Rect2(Vector2(12, 12), size - Vector2(24, 24))
+			if not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()):
+				PatternArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 9
 
 
 func _draw_piles() -> void:
