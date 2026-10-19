@@ -81,3 +81,48 @@ def test_presets_agree_on_the_package_id_and_abis() -> None:
         options: dict[str, str] = preset["options"]  # type: ignore[assignment]
         assert options.get("architectures/arm64-v8a") == "true", name
         assert options.get("architectures/x86_64") == "true", name
+
+
+# --- Phase 3, Sprint 25 (phones excluded) and Sprint 38 (the pinned target SDK) ------------------
+
+TARGET_SDK_FILE = ROOT / ".android-target-sdk"
+CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
+
+
+def pinned_target_sdk() -> str:
+    return TARGET_SDK_FILE.read_text(encoding="utf-8").strip()
+
+
+def test_presets_exclude_phones_and_keep_tablets_and_chromebooks() -> None:
+    # Godot writes these into <supports-screens>; small and normal screens are phones
+    # (docs/decisions.md, 2026-10-19). tools/ci/check_manifest.py checks the built manifest too.
+    for name, preset in android_presets().items():
+        options: dict[str, str] = preset["options"]  # type: ignore[assignment]
+        assert options.get("screen/support_small") == "false", f"{name}: small screens (phones) must be off"
+        assert options.get("screen/support_normal") == "false", f"{name}: normal screens (phones) must be off"
+        assert options.get("screen/support_large") == "true", f"{name}: large screens (7-inch tablets) must stay on"
+        assert options.get("screen/support_xlarge") == "true", f"{name}: xlarge screens (tablets, Chromebooks) must stay on"
+
+
+def test_presets_build_only_the_two_abis() -> None:
+    for name, preset in android_presets().items():
+        options: dict[str, str] = preset["options"]  # type: ignore[assignment]
+        assert options.get("architectures/armeabi-v7a") == "false", name
+        assert options.get("architectures/x86") == "false", name
+
+
+def test_presets_target_the_pinned_sdk() -> None:
+    # Changing the target SDK is the yearly platform update (docs/platform-update.md): bump
+    # .android-target-sdk, both presets and the CI SDK packages together.
+    pinned = pinned_target_sdk()
+    assert pinned.isdigit(), ".android-target-sdk must hold one API level, e.g. 36"
+    for name, preset in android_presets().items():
+        options: dict[str, str] = preset["options"]  # type: ignore[assignment]
+        assert options.get("gradle_build/target_sdk") == f'"{pinned}"', f"{name}: target SDK must be {pinned}"
+
+
+def test_ci_installs_the_pinned_sdk_platform() -> None:
+    pinned = pinned_target_sdk()
+    workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+    assert f'"platforms;android-{pinned}"' in workflow
+    assert f"build-tools;{pinned}." in workflow

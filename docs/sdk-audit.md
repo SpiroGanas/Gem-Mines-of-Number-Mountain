@@ -21,3 +21,16 @@ Every third-party dependency, plugin or SDK in the shipped app or the build must
 | An Android share-sheet plugin | Sprint 17: not needed; Godot's native file dialog opens the system picker, where a parent can choose Drive. No plugin was added. |
 
 **Sprints 16 to 21 added no dependency.** The device id uses Godot's own `Crypto` class (random bytes, no network); the new art and sounds are Kenney CC0 files (assets, credited in `assets/CREDITS.md`, not code); the music is synthesized by the project's own script. `ffmpeg` (already used by `tools/sfx/`) normalized the music's loudness at build time only.
+
+## Families Policy status (Phase 3, Sprint 24; checked 2026-10-19)
+
+Google Play's Families Policy asks that every SDK in a children's app that handles user data is approved for Families use. Status of each row above (append a row here for every new entry in the main table). `tools/ci/check_sdk_audit.py` fails CI when a folder under `addons/` or `android/plugins/`, or a plugin named in `project.godot`, is missing from this file.
+
+| Name | Ships in app? | Collects or transmits user data? | Families Policy status |
+|---|---|---|---|
+| Godot Engine | Yes | No (no `INTERNET` permission; the engine has no telemetry) | Fine: not an ads or analytics SDK; nothing to self-certify |
+| Andika font | Yes | No (a font file) | Fine: content, licence in `assets/fonts/andika/OFL.txt` |
+| Art and sound packs (Kenney CC0, code-drawn art, synthesized music) | Yes | No (files) | Fine: content, licences in `assets/CREDITS.md` |
+| GdUnit4 | No | No | Not in the app (excluded by both presets) |
+| digit_ink (own GDScript reader) | Yes | No: strokes in memory only | Fine: own code, no third party. `android/plugins/digit_ink/` is an empty placeholder, not a plugin |
+| PyTorch + numpy | No | No (build time only) | Not in the app |

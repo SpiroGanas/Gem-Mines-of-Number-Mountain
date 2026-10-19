@@ -45,6 +45,12 @@ jobs:
       - name: Cross-check problem generators in Python
         run: python3 tools/crosscheck/run.py --all --n 10000
 
+      # Hint rung 4 swaps in easier problems (difficulty -1 and -2); peer review 02, section 4.6.
+      - name: Cross-check the easier hint-rung problems (difficulty -1 and -2)
+        run: |
+          python3 tools/crosscheck/run.py --all --n 2000 --difficulty -1
+          python3 tools/crosscheck/run.py --all --n 2000 --difficulty -2
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,7 +71,7 @@ jobs:
       - name: Install pytest
         run: python3 -m pip install -r tools/requirements.txt
 
-      - name: pytest (curriculum, lint rules, export permissions)
+      - name: pytest (curriculum, lint rules, export permissions, screens and target SDK, manifest check)
         run: python3 -m pytest tools -q
 
       - name: Content lint (hard-coded text, text fields, banned words, text table, curriculum)
@@ -73,6 +79,9 @@ jobs:
 
       - name: Static performance checks (no per-frame allocations, OGG audio, size budget)
         run: python3 tools/ci/perf_check.py
+
+      - name: SDK audit lists every addon and Android plugin (Families Policy)
+        run: python3 tools/ci/check_sdk_audit.py
 
   # P1-S11-04: a debug APK on every merge to main (and on demand), for adb installs on the
   # devices. It uses a throwaway debug keystore made here, so nothing secret is involved.
@@ -155,6 +164,12 @@ jobs:
           cat permissions.txt
           grep -q "com.spiroganas.gemmine" permissions.txt # aapt2 really read the APK
           ! grep -q "android.permission.INTERNET" permissions.txt
+
+      # P3-S24-06 / P3-S25-05: the full manifest check on the APK that was built: no banned
+      # permission (INTERNET, location, camera, microphone, contacts, advertising ID) and phones
+      # excluded (<supports-screens> small and normal false). aapt2 cross-checks its AXML reader.
+      - name: Manifest check (banned permissions, phones excluded)
+        run: AAPT2="$ANDROID_SDK_ROOT/build-tools/36.0.0/aapt2" python3 tools/ci/check_manifest.py build/gem-mines-debug.apk
 
       - name: Upload the debug APK
         uses: actions/upload-artifact@v4

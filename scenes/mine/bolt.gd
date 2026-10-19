@@ -306,11 +306,21 @@ class _BoltArt extends Control:
 			for path: String in Bolt.DRIVE_TEXTURE_PATHS:
 				_drive.append(load(path))
 
+	## The bubble's tail and its outline, filled in place on every redraw: the pose tweens redraw
+	## every frame, so _draw must not allocate (tools/ci/perf_check.py rule 1b).
+	var _tail: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+	var _tail_edge: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+
 	func _draw() -> void:
 		# The bubble's tail, pointing from the bubble (at the right edge) to Bolt's head.
-		var tail: PackedVector2Array = PackedVector2Array([Vector2(size.x, size.y * 0.3), Vector2(size.x, size.y * 0.52), Vector2(size.x * 0.8, size.y * 0.28)])
-		draw_colored_polygon(tail, Bolt.BUBBLE_FILL)
-		draw_polyline(PackedVector2Array([tail[0], tail[2], tail[1]]), Bolt.BUBBLE_EDGE, 3.0, true)
+		_tail[0] = Vector2(size.x, size.y * 0.3)
+		_tail[1] = Vector2(size.x, size.y * 0.52)
+		_tail[2] = Vector2(size.x * 0.8, size.y * 0.28)
+		draw_colored_polygon(_tail, Bolt.BUBBLE_FILL)
+		_tail_edge[0] = _tail[0]
+		_tail_edge[1] = _tail[2]
+		_tail_edge[2] = _tail[1]
+		draw_polyline(_tail_edge, Bolt.BUBBLE_EDGE, 3.0, true)
 		# The robot: body over tracks, each at its own aspect, in the left 80% of the figure.
 		var width: float = size.x * 0.8
 		var body_texture: Texture2D = _body

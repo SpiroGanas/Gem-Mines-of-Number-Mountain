@@ -280,7 +280,7 @@ Charlie's placement is seeded from his Star results. For other families, the par
 
 Design rules already in `CLAUDE.md` apply: landscape only; anchors and containers; 16:9, 16:10, 3:2 and 4:3; 64 dp targets; no multi-finger gestures; 60 fps.
 
-**Mouse-only path.** `InputRouter` already maps mouse to the same actions. Phase 3 adds a capability check at startup: `DisplayServer.is_touchscreen_available()` (verify in Godot docs; present in 4.x) and whether the `digit_ink` plugin loaded. If no touchscreen, `ChalkSlate` is hidden from the answer-mode chooser and `NumberPad` is the default; drag targets grow their drop tolerance by 25%. Every screen must be completable with click and drag only (see Testing).
+**Mouse-only path.** `InputRouter` already maps mouse to the same actions. Phase 3 adds a capability check at startup: `DisplayServer.is_touchscreen_available()` (verify in Godot docs; present in 4.x) and whether the digit network's weights loaded (`DigitInk.is_available`; corrected 2026-10-19: recognition runs in GDScript, there is no plugin). Built as `DeviceCaps` (`scripts/input/device_caps.gd`). If no touchscreen, `ChalkSlate` is hidden from the answer-mode chooser and `NumberPad` is the default; drag targets grow their drop tolerance by 25%. Every screen must be completable with click and drag only (see Testing).
 
 **Phone exclusion.** Done in two layers, both on the "ask Spiro before changing export settings" list:
 
@@ -298,10 +298,10 @@ Everything here must describe what the app *actually does*; the privacy policy i
 | Artefact | Location | Content |
 |---|---|---|
 | Privacy policy | `docs/privacy-policy.md`, published via GitHub Pages at a stable URL that is also entered in Play Console | What is stored on the device (nickname, skill states, attempt history, inventory, settings); what is never collected (location, contacts, camera, microphone, advertising ID, accounts, analytics, handwriting images); that nothing leaves the device unless a parent exports a file; no ads; no purchases; no third-party SDKs that collect data; contact email; effective date; how a parent deletes data (delete the profile or uninstall). |
-| Data safety form answers | `docs/compliance/data-safety.md` | "Does your app collect or share any of the required user data types?" → No. Document the reasoning per data type and note the `digit_ink` plugin processes strokes in memory only. |
+| Data safety form answers | `docs/compliance/data-safety.md` | "Does your app collect or share any of the required user data types?" → No. Document the reasoning per data type and note the GDScript digit reader (`scripts/input/`) processes strokes in memory only (corrected 2026-10-19: no `digit_ink` plugin, no LiteRT). |
 | Target audience & content | `docs/compliance/target-audience.md` | Age groups 6–8 and 9–12; "designed for children"; no ads; no third-party ads SDKs; app meets Families Policy. |
 | Content rating | `docs/compliance/content-rating.md` | IARC questionnaire answers: no violence, no user interaction/sharing, no purchases, no location. |
-| SDK audit | `docs/sdk-audit.md` | One row per dependency: name, version, purpose, shipped in APK?, network?, data?, Families-Policy status. Expected rows: Godot engine, GdUnit4 (not shipped), `digit_ink` (own code, LiteRT runtime, no network), font Andika (OFL), art/audio packs (licenses in `assets/CREDITS.md`). |
+| SDK audit | `docs/sdk-audit.md` | One row per dependency: name, version, purpose, shipped in APK?, network?, data?, Families-Policy status. Expected rows: Godot engine, GdUnit4 (not shipped), `digit_ink` (own GDScript code, no plugin and no LiteRT since 2026-10-17, no network), font Andika (OFL), art/audio packs (licenses in `assets/CREDITS.md`). |
 | Parental gate review | `docs/compliance/parental-gate.md` | Description of the gate, why it meets Google's guidance, test evidence. |
 | Families Policy self-check | `docs/compliance/families-self-check.md` | Checklist walk-through of Google's current policy page, dated, with the policy version. Re-run every release. |
 | AI voice disclosure | store listing text | Optional good practice: "Bolt's voice is a licensed AI voice." Also record the provider licence terms and the date checked in `docs/decisions.md`. |
@@ -317,7 +317,7 @@ Assets (`marketing/` directory, gitignored except for the source `.svg`/`.kra` f
 | Screenshots | at least 4 for tablets, 16:10 and 16:9 | Dig loop, Chalk Slate, Museum, Parent dashboard (with a fictional profile, never Charlie's real data) |
 | Short trailer | 30–60 s MP4, landscape | Screen capture from the emulator; music from the licensed pack |
 | Short description | 80 chars | |
-| Full description | up to 4,000 chars | Mentions: offline, no ads, no purchases, read-aloud, ages 6–12, licensed AI voice note |
+| Full description | up to 4,000 chars | Mentions: offline, no ads, no purchases, ages 6–12 (no read-aloud and no AI voice: there is no narration, Spiro 2026-10-19) |
 
 Testing tracks:
 
@@ -448,7 +448,7 @@ Playtest focus: Charlie plays on the x86_64 emulator with a mouse only (novel fo
 
 | ID | Branch | Item | Done when |
 |---|---|---|---|
-| P3-S26-01 | `content/store-assets` | Icon, feature graphic, screenshots, trailer, descriptions (with the AI-voice note) | All assets uploaded and the listing saves without errors |
+| P3-S26-01 | `content/store-assets` | Icon, feature graphic, screenshots, trailer, descriptions (no AI-voice note: no narration, Spiro 2026-10-19) | All assets uploaded and the listing saves without errors |
 | P3-S26-02 | `chore/release-build-rc1` | Release-signed AAB from CI; keystore via env vars; `check_manifest.py` green | Build uploaded to the closed track |
 | P3-S26-03 | (Play Console) | Create closed testing track, add tester emails or group, publish the test; note the start date | 12+ testers opted in (personal) by day 1 |
 | P3-S26-04 | `docs/tester-guide` | One-page tester guide: install steps, what to try, how to send feedback (form link), reminder that no data leaves the device | Sent with the invitation |

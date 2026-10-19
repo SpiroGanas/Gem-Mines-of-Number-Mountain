@@ -72,6 +72,7 @@ var _music_id: StringName = &""
 func _ready() -> void:
 	theme = UI.theme()
 	DeviceSettings.shared().apply()
+	DeviceCaps.check_at_startup() # touch screen or mouse-only (Phase 3, Sprint 25); --no-touch simulates it
 	_music = _make_music_player()
 	_music_out = _make_music_player()
 	_pause_menu.resume_requested.connect(resume)

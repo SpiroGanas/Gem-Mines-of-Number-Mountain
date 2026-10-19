@@ -330,10 +330,11 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 	_pickaxe.global_position = _rest # dropped on nothing: it goes back, nothing is lost
 
 
-## The split point nearest `pos` within the snap radius, or -1.
+## The split point nearest `pos` within the snap radius, or -1. Without a touch screen the radius is
+## 25% bigger (DeviceCaps.drop_scale, the mouse-only path).
 func _notch_under(pos: Vector2) -> int:
 	var best: int = -1
-	var best_distance: float = float(UI.min_target_px()) * SNAP_RADIUS_MULTIPLE
+	var best_distance: float = float(UI.min_target_px()) * SNAP_RADIUS_MULTIPLE * DeviceCaps.drop_scale()
 	for index: int in _notches.size():
 		var rect: Rect2 = _notches[index].get_global_rect()
 		var distance: float = 0.0 if rect.has_point(pos) else rect.get_center().distance_to(pos) - rect.size.x / 2.0

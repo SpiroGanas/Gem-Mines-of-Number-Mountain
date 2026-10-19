@@ -260,10 +260,8 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 			if empty >= 0:
 				put(value, empty)
 		return
-	var target: int = -1
-	for index: int in _slot_faces.size():
-		if _slot_faces[index].get_global_rect().has_point(pos):
-			target = index
+	# Without a touch screen the slots count as 25% bigger for the drop (DeviceCaps, mouse-only path).
+	var target: int = DeviceCaps.drop_index(_slot_rects(), pos)
 	if target < 0:
 		if from_slot >= 0:
 			take_out(from_slot)
@@ -276,6 +274,14 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 		_refresh()
 	elif from_slot < 0:
 		put(value, target)
+
+
+## Where each slot is on screen, in slot order (for the drop test).
+func _slot_rects() -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	for face: Control in _slot_faces:
+		rects.append(face.get_global_rect())
+	return rects
 
 
 func _begin_drag(value: Variant, from_slot: int, pos: Vector2) -> void:
