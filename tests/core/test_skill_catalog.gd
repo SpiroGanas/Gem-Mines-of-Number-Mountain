@@ -14,12 +14,14 @@ func test_the_catalog_holds_the_detailed_zones_and_skips_outline_zones() -> void
 	for zone: int in range(1, 13):
 		detailed += _catalog.skills_in_zone(zone).size()
 	assert_int(_catalog.count()).is_equal(detailed)
+	assert_int(_catalog.count()).is_equal(104) # 72 in Zones 1-5, 14 in Zone 6, 18 in Zone 7 (Phase 4)
 	assert_int(_catalog.skills_in_zone(1).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(2).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(3).size()).is_equal(11)
 	assert_int(_catalog.skills_in_zone(4).size()).is_equal(16)
 	assert_int(_catalog.skills_in_zone(5).size()).is_equal(11)
-	assert_int(_catalog.skills_in_zone(6).size()).is_equal(12) # Zone 6, Gear Works (Phase 4)
+	assert_int(_catalog.skills_in_zone(6).size()).is_equal(14) # Zone 6, Gear Works, with the two fraction previews (Phase 4)
+	assert_int(_catalog.skills_in_zone(7).size()).is_equal(18) # Zone 7, Crystal Shards
 	assert_int(_catalog.skills_in_zone(12).size()).is_equal(0) # Zone 12 is still an outline
 	assert_bool(_catalog.has_skill(&"fac.list.find_all")).is_true()
 	assert_bool(_catalog.has_skill(&"sieve.mark.multiples_of")).is_true()
@@ -77,5 +79,6 @@ func test_misconception_names_load_from_the_curriculum_file() -> void:
 	var on_file: Dictionary = JsonUtil.parse_file(SkillCatalog.MISCONCEPTIONS_PATH)["misconceptions"]
 	assert_int(names.size()).is_equal(on_file.size())
 	assert_int(names.size()).is_greater_equal(70) # the Phase 1-2 names stay (never renamed or removed)
+	assert_int(names.size()).is_equal(132) # 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7 (inverted_ratio is shared)
 	assert_bool(names.has(&"digit_swap")).is_true()
 	assert_bool(names.has(&"thought_equal")).is_true()

@@ -12,6 +12,8 @@
 ##
 ## Phase 4 (Zone 6, Gear Works, no artist): a warm bronze-and-steel tint with big quiet gears drawn in
 ## the rock walls (GearArt). They never turn: the backdrop stays still while the child thinks.
+## Zone 7 (Crystal Shards) is deep teal-violet with glowing crystals in a cooler blue. A zone without
+## its own palette takes the deepest one before it.
 class_name Backdrop
 extends Control
 
@@ -23,9 +25,12 @@ const PALETTES: Dictionary = {
 	&"zone4": {"top": Color("#2B3F5C"), "bottom": Color("#1A2238"), "rock": Color("#34486A"), "lamps": true, "crystals": false},
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
 	&"zone6": {"top": Color("#4A3B2C"), "bottom": Color("#1C1A24"), "rock": Color("#584634"), "lamps": true, "crystals": false, "gears": true},
+	&"zone7": {"top": Color("#2A3B63"), "bottom": Color("#141A30"), "rock": Color("#33446F"), "lamps": true, "crystals": true, "crystal_color": Color("#8FE3FF")},
 }
-## The deepest zone with its own palette (the others fall back to the nearest).
-const LAST_PALETTE_ZONE: int = 6
+## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
+const LAST_PALETTE_ZONE: int = 7
+## Zones past the last one that has art fall back to it.
+const LAST_ZONE: int = 12
 ## Zone 6's wall gears: where (as a share of the screen), how big (share of the height), how many teeth.
 const WALL_GEARS: Array[Vector4] = [Vector4(0.1, 0.2, 0.11, 24), Vector4(0.9, 0.32, 0.09, 16), Vector4(0.82, 0.12, 0.06, 12)]
 const STALACTITES_PATH: String = "res://assets/art/kenney/cave/stalactites.png"
@@ -49,9 +54,14 @@ const CRYSTAL: Color = Color("#9B6BD6")
 		queue_redraw()
 
 
-## The palette for a zone number (1 to LAST_PALETTE_ZONE; others fall back to the nearest).
+## The palette for a zone number: its own, or the deepest zone's before it that has one (zones
+## below 1 take Zone 1's).
 static func palette_for_zone(zone: int) -> StringName:
-	return StringName("zone%d" % clampi(zone, 1, LAST_PALETTE_ZONE))
+	for candidate: int in range(clampi(zone, 1, LAST_ZONE), 0, -1):
+		var name: StringName = StringName("zone%d" % candidate)
+		if PALETTES.has(name):
+			return name
+	return &"zone1"
 
 
 static func _texture(path: String) -> Texture2D:
@@ -97,7 +107,7 @@ func _draw() -> void:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
 			var height: float = s.y * (0.05 + 0.02 * (index % 2))
-			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(CRYSTAL, 0.8))
+			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(colors_now.get("crystal_color", CRYSTAL), 0.8))
 
 
 var _gear_art: GearArt = GearArt.new()

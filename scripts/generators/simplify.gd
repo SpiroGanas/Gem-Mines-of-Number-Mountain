@@ -16,7 +16,8 @@
 ## only when the GCF has one), dividing the top number or the first number only
 ## (divided_numerator_only, divided_one_term_only), and writing the answer back to front
 ## (swapped_num_den, inverted_ratio). Wrong answers are what the child would write, so they need not be
-## in lowest terms.
+## in lowest terms. Every problem sets meta.simplest_form, so answers are judged by form, not value
+## (Problem.same_answer): 6/9 equals 2/3 in value but is not in simplest form.
 class_name SimplifyGenerator
 extends RefCounted
 
@@ -31,6 +32,9 @@ static func generate(skill: Skill, params: Dictionary, rng: RandomNumberGenerato
 static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, with_hints: bool) -> Problem:
 	var mode: String = String(params.get("mode", "fraction"))
 	var problem: Problem = GeneratorKit.new_problem(skill, params, GeneratorKit.pick_representation(skill, params))
+	# The question asks for lowest terms: set before the distractors, so 6/9 for 2/3 is judged by its
+	# form and kept as the named mistake partially_simplified (Problem.same_answer).
+	problem.meta["simplest_form"] = true
 	var model: Dictionary
 	match mode:
 		"fraction":

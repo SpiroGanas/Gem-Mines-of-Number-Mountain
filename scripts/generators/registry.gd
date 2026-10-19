@@ -39,6 +39,11 @@ static func table() -> Dictionary:
 		&"LcmGenerator": LcmGenerator.generate,
 		&"GearGenerator": GearGenerator.generate,
 		&"SimplifyGenerator": SimplifyGenerator.generate,
+		&"FractionGenerator": FractionGenerator.generate,
+		&"DecimalGenerator": DecimalGenerator.generate,
+		&"PercentGenerator": PercentGenerator.generate,
+		&"RatioGenerator": RatioGenerator.generate,
+		&"NegativeGenerator": NegativeGenerator.generate,
 	}
 
 

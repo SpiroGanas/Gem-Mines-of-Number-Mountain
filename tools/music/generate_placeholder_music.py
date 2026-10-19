@@ -19,6 +19,8 @@ and one for the build site. Which screen plays which file:
     mine_z6.ogg  the mine in Zone 6, Gear Works (Phase 4): two interlocking figures, one every 3 beats
                  and one every 4, that meet on beat 12 (their least common multiple), over steady chords
     build.ogg    the build site and the crafting bench: a short, bright, steady loop
+    mine_z7.ogg  the mine in Zone 7, Crystal Shards (Phase 4): glassy bells that ring only on the
+                 halves, quarters and eighths of each 16 beats, like a crystal split into shards
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -80,6 +82,14 @@ TRACKS = {
                    79, 67, None, None],
         "chords": [[43, 50, 59], [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59],
                    [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59]],
+    },
+    # Zone 7, Crystal Shards: A major pentatonic glass bells on the even beats only (the shards of 16).
+    "mine_z7": {
+        "bpm": 62,
+        "melody": [81, None, 76, None, 78, None, None, None, 76, None, 73, None, 71, None, None, None,
+                   73, None, 76, None, 81, None, 83, None, 78, None, 76, None, 73, None, None, None],
+        "chords": [[45, 52, 61], [42, 49, 57], [38, 45, 54], [40, 47, 56],
+                   [45, 52, 61], [38, 45, 57], [40, 47, 56], [45, 52, 64]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {
@@ -170,13 +180,15 @@ def loudnorm_filter(measured: dict[str, str]) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--track", action="append", choices=TRACK_NAMES,
+                        help="write only this loop (repeatable); default: every loop")
     args = parser.parse_args(argv)
     if shutil.which("ffmpeg") is None:
         print("ffmpeg is required to write OGG files", file=sys.stderr)
         return 1
     args.out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
-        for name in TRACK_NAMES:
+        for name in args.track or TRACK_NAMES:
             wav_path = Path(tmp) / f"{name}.wav"
             write_wav(wav_path, synthesize(name))
             out = args.out / f"{name}.ogg"

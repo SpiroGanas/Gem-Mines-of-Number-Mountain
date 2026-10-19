@@ -37,5 +37,10 @@ func text() -> String:
 	return _label.text
 
 
+## The zone's name line: zN.zone.name, or the deepest zone's before it that has one.
 static func line_for(for_zone: int) -> StringName:
-	return StringName("z%d.zone.name" % clampi(for_zone, 1, Backdrop.LAST_PALETTE_ZONE))
+	for zone_now: int in range(clampi(for_zone, 1, Backdrop.LAST_ZONE), 0, -1):
+		var line: StringName = StringName("z%d.zone.name" % zone_now)
+		if Text.has_line(line):
+			return line
+	return &"z1.zone.name"

@@ -753,3 +753,132 @@ vocab.gear_ratio.definition,A gear ratio compares how two linked gears turn. A s
 badge.euclid.story_gcf_1,Euclid also found a clever way to get the GCF.,"Badge story, Zone 6 addition (Euclid's algorithm), line 1",0
 badge.euclid.story_gcf_2,Take the smaller number away from the bigger. Do it again and again.,"Badge story, Zone 6 addition, line 2 (repeated subtraction)",0
 badge.euclid.story_gcf_3,"When the two numbers match, that number is the GCF!","Badge story, Zone 6 addition, line 3",0
+z7.zone.name,Crystal Shards,Zone 7 name on its banner,0
+z7.unit.prompt,The crystal has {den} equal shards. What fraction is one shard?,Zone 7: name a unit fraction,0
+z7.part.prompt_light,Light up {num}/{den} of the crystal.,Zone 7: light shards to show a fraction (crystal),0
+z7.part.prompt_read,What fraction of the crystal is lit?,Zone 7: name the lit fraction (picture),0
+z7.part.prompt_words,{num} of {den} equal shards are lit. What fraction is lit?,Zone 7: name a fraction from words,0
+z7.line.prompt,The line from 0 to 1 has {den} equal parts. Which fraction is at the gem?,Zone 7: a fraction on a number line,0
+z7.equiv.prompt_match,Light the big crystal to show as much as {a}/{b}.,Zone 7: equivalent fractions (light a second crystal; c = its shards),0
+z7.equiv.prompt_num,{a}/{b} = ?/{c}. What number goes on top?,"Zone 7: equivalent fractions, missing top number",0
+z7.equiv.prompt_den,{a}/{b} = {m}/?. What number goes on the bottom?,"Zone 7: equivalent fractions, missing bottom number",0
+z7.compare.prompt,Which symbol goes between {a}/{b} and {c}/{d}?,Zone 7: compare two fractions with < or >,0
+z7.add.prompt,What is {a}/{b} + {c}/{d}?,Zone 7: add two fractions,0
+z7.mixed.prompt_to_improper,Write {w} {num}/{den} as an improper fraction.,Zone 7: a mixed number as an improper fraction,0
+z7.mixed.prompt_to_mixed,Write {top}/{den} as a mixed number.,Zone 7: an improper fraction as a mixed number,0
+z7.tenths.prompt_crystal,Each crystal has 10 shards. What decimal is lit?,Zone 7: read tenths (ten-shard crystals),0
+z7.tenths.prompt_grid,Each strip has 10 parts. What decimal is lit?,Zone 7: read tenths (ten-part strips),0
+z7.tenths.prompt_words,What decimal is {w} ones and {k} tenths?,Zone 7: read tenths from words,0
+z7.hundredths.prompt_grid,Each grid has 100 cells. What decimal is lit?,Zone 7: read hundredths (10 by 10 grids),0
+z7.hundredths.prompt_words,What decimal is {w} ones and {k} hundredths?,Zone 7: read hundredths from words,0
+z7.decfrac.prompt,Write {num}/{den} as a decimal.,Zone 7: a fraction as a decimal,0
+z7.deccmp.prompt,Which symbol goes between {a} and {b}?,Zone 7: compare two decimals with < or >,0
+z7.percent.prompt,The grid has 100 cells. What percent is lit?,Zone 7: read a percent from the 10 by 10 grid,0
+z7.pctfrac.prompt,{num}/{den} of the grid is lit. What percent is that?,Zone 7: a fraction as a percent,0
+z7.ratio.prompt,The cart has {a} copper and {b} tin. What is the ratio of copper to tin?,Zone 7: describe a part-to-part ratio,0
+z7.alloy.prompt,The recipe is {a} copper to {b} tin. The hopper has {c} copper. How much tin?,Zone 7: scale a ratio (the alloy mixer),0
+z7.depth.prompt_read,Where is the cab on the depth gauge?,Zone 7: read a depth (often below zero),0
+z7.depth.prompt_compare,Which number is greater: {a} or {b}?,Zone 7: compare numbers below zero,0
+z7.depth.prompt_down,The cab is at {s}. It goes down {t}. Where is it now?,Zone 7: move down the depth gauge,0
+z7.depth.prompt_up,The cab is at {s}. It goes up {t}. Where is it now?,Zone 7: move up the depth gauge,0
+z7.hint.example_unit,One of {den} equal shards is 1/{den}.,Worked example: a unit fraction,0
+z7.hint.example_part,{num} of {den} equal shards is {num}/{den}.,Worked example: a fraction of a crystal,0
+z7.hint.example_equiv,{a}/{b} = {m}/{c}. Multiply the top and the bottom by {k}.,Worked example: equivalent fractions,0
+z7.hint.example_compare_like,The shards are the same size. So {a}/{b} {symbol} {c}/{d}.,Worked example: compare fractions with the same bottom,0
+z7.hint.example_compare,Make the shards the same size. Then {a}/{b} {symbol} {c}/{d}.,Worked example: compare fractions with different bottoms,0
+z7.hint.example_add,{a}/{b} + {c}/{d} = {sum}.,Worked example: add fractions (sum = same-size shards),0
+z7.hint.example_mixed,{w} wholes are {parts} shards. {parts} + {num} = {top}. So {w} {num}/{den} is {top}/{den}.,Worked example: a mixed number and an improper fraction,0
+z7.hint.example_tenths,{w} ones and {k} tenths is {d}.,Worked example: tenths as a decimal,0
+z7.hint.example_hundredths,{w} ones and {k} hundredths is {d}.,Worked example: hundredths as a decimal,0
+z7.hint.example_decfrac,{num}/{den} is {k} hundredths. That is {d}.,Worked example: a fraction as a decimal,0
+z7.hint.example_deccmp,Line up the points. {a} {symbol} {b}.,Worked example: compare decimals,0
+z7.hint.example_percent,{p} out of 100 is {p} percent.,Worked example: a percent on the grid,0
+z7.hint.example_pctfrac,{num}/{den} is {p} out of 100. That is {p} percent.,Worked example: a fraction as a percent,0
+z7.hint.example_ratio,{a} copper to {b} tin is the ratio {r}.,Worked example: a ratio in simplest form (r),0
+z7.hint.example_alloy,{c} copper is {k} groups of {a}. Tin needs {k} groups of {b}. That is {t}.,Worked example: scaling an alloy recipe,0
+z7.hint.example_depth_below,{m} meters below zero is {d}.,Worked example: a depth below zero (d is negative),0
+z7.hint.example_depth_above,{m} meters above zero is {d}.,Worked example: a height above zero,0
+z7.hint.example_depth_compare,{a} is higher on the gauge. So {a} is greater than {b}.,Worked example: compare numbers below zero,0
+z7.hint.example_move_down,Start at {s}. Go down {t}. You stop at {e}.,Worked example: move down the gauge,0
+z7.hint.example_move_up,Start at {s}. Go up {t}. You stop at {e}.,Worked example: move up the gauge,0
+z7.slate.prompt_fraction,Write the top number and the bottom number.,Slate: instruction for a fraction answer,0
+z7.slate.prompt_decimal,Write the digits. The point is already there.,Slate: instruction for a decimal answer,0
+z7.slate.confirm_fraction,Did you write {num} over {den}?,Slate: Bolt checks an unsure fraction reading,0
+z7.slate.confirm_decimal,Did you write {d}?,Slate: Bolt checks an unsure decimal reading,0
+z7.pad.top,top,Fraction pad: caption of the top number (numerator),0
+z7.pad.bottom,bottom,Fraction pad: caption of the bottom number (denominator),0
+z7.pad.pick_box,Tap a box. Then type its number.,Fraction pad: how to choose the top or the bottom,0
+ui.numpad.minus,−,"Number pad: the minus key (numbers below zero, Zone 7)",0
+z7.crystal.tap_hint,Tap a shard to light it. Tap again to turn it off.,Crystal: how lighting shards works,0
+z7.crystal.done,Done,Crystal: button that hands in the lit shards,0
+z7.crystal.match,Match this one.,Crystal: caption under the crystal to copy,0
+z7.gauge.up,Up,Depth gauge: ride the cab up one meter,0
+z7.gauge.down,Down,Depth gauge: ride the cab down one meter,0
+z7.gauge.stop,Stop here,Depth gauge: hand in the cab's level,0
+z7.gauge.how,Ride the cab up or down. Then tap Stop here.,Depth gauge: how it works,0
+z7.alloy.more,More tin,Alloy mixer: add a scoop of tin,0
+z7.alloy.less,Less tin,Alloy mixer: take a scoop of tin out,0
+z7.alloy.mix,Mix,Alloy mixer: run the electric drum (hands in the tin count),0
+z7.alloy.copper,copper,Alloy mixer: caption of the copper hopper,0
+z7.alloy.tin,tin,Alloy mixer: caption of the tin hopper,0
+z7.alloy.how,Add tin scoops. Then tap Mix.,Alloy mixer: how it works,0
+z7.zone.done,You lit every crystal in Crystal Shards!,Celebration: every Zone 7 skill is mastered,0
+build.alloy_mixer.name,Alloy Mixer,Build project name,0
+build.alloy_mixer.intro,Mix copper and tin by the recipe. The electric drum stirs it.,Bolt: the alloy mixer build (scale a ratio),0
+build.alloy_mixer.done,The alloy is strong! The mixer hums in the workshop now.,"Bolt: the alloy mixer is finished (n = zone number, unused)",0
+bolt.misconception.inverted,The bottom number counts all the equal shards.,Targeted hint after the inverted mistake,0
+bolt.misconception.counted_shaded_as_denominator,Count every shard for the bottom number.,Targeted hint after the counted_shaded_as_denominator mistake,0
+bolt.misconception.unshaded_count,Count the lit shards for the top number.,Targeted hint after the unshaded_count mistake,0
+bolt.misconception.off_by_one_numerator,"Count the lit shards again, one by one.",Targeted hint after the off_by_one_numerator mistake,0
+bolt.misconception.counted_ticks_not_gaps,"Count the spaces between the marks, not the marks.",Targeted hint after the counted_ticks_not_gaps mistake,0
+bolt.misconception.added_to_both,Multiply the top and the bottom by the same number.,Targeted hint after the added_to_both mistake,0
+bolt.misconception.scaled_numerator_only,Change the bottom the same way as the top.,Targeted hint after the scaled_numerator_only mistake,0
+bolt.misconception.copied_numerator,More shards means more lit shards. Change the top too.,Targeted hint after the copied_numerator mistake,0
+bolt.misconception.compared_denominators,The shards are the same size. Count the lit ones.,Targeted hint after the compared_denominators mistake,0
+bolt.misconception.bigger_denominator_bigger,More shards means smaller shards. Look at the size.,Targeted hint after the bigger_denominator_bigger mistake,0
+bolt.misconception.compared_numerators_only,Look at the bottoms too. Make the shards the same size.,Targeted hint after the compared_numerators_only mistake,0
+bolt.misconception.added_denominators,Add only the tops. The shard size stays the same.,Targeted hint after the added_denominators mistake,0
+bolt.misconception.added_numerators_only,Make the shards the same size before you add.,Targeted hint after the added_numerators_only mistake,0
+bolt.misconception.dropped_whole,Remember the whole crystals too.,Targeted hint after the dropped_whole mistake,0
+bolt.misconception.added_whole_to_numerator,Each whole crystal is a full set of shards. Count them all.,Targeted hint after the added_whole_to_numerator mistake,0
+bolt.misconception.swapped_quotient_remainder,Wholes go in front. Leftover shards go on top.,Targeted hint after the swapped_quotient_remainder mistake,0
+bolt.misconception.place_shift,Check where the point goes. Count the places.,Targeted hint after the place_shift mistake,0
+bolt.misconception.read_as_whole,"The digits after the point are parts, not wholes.",Targeted hint after the read_as_whole mistake,0
+bolt.misconception.dropped_zero,Hundredths need two places after the point.,Targeted hint after the dropped_zero mistake,0
+bolt.misconception.wrote_numerator_as_decimal,Change the fraction to tenths or hundredths first.,Targeted hint after the wrote_numerator_as_decimal mistake,0
+bolt.misconception.longer_is_bigger,More digits is not always bigger. Line up the points.,Targeted hint after the longer_is_bigger mistake,0
+bolt.misconception.ignored_whole,Look at the whole numbers first.,Targeted hint after the ignored_whole mistake,0
+bolt.misconception.counted_unlit,"Count the lit cells, not the dark ones.",Targeted hint after the counted_unlit mistake,0
+bolt.misconception.wrote_numerator_as_percent,Percent means out of a hundred. Change the bottom first.,Targeted hint after the wrote_numerator_as_percent mistake,0
+bolt.misconception.part_to_whole,"Compare copper with tin, not with all the ore.",Targeted hint after the part_to_whole mistake,0
+bolt.misconception.added_instead_of_scaled,"Grow the recipe in groups. Multiply, do not add.",Targeted hint after the added_instead_of_scaled mistake,0
+bolt.misconception.scaled_one_part,"If the copper grows, the tin grows too.",Targeted hint after the scaled_one_part mistake,0
+bolt.misconception.dropped_sign,Below zero needs a minus sign.,Targeted hint after the dropped_sign mistake,0
+bolt.misconception.bigger_magnitude_bigger,Higher on the gauge is greater. Deeper is less.,Targeted hint after the bigger_magnitude_bigger mistake,0
+bolt.misconception.wrong_direction,Check the way. Down means lower numbers.,Targeted hint after the wrong_direction mistake,0
+vocab.fraction.term,fraction,Word Gem term,0
+vocab.fraction.definition,A fraction names equal parts of a whole. The top counts the parts we have.,Word Gem kid-sized definition,0
+vocab.numerator.term,numerator,Word Gem term,0
+vocab.numerator.definition,The numerator is the top number of a fraction. It counts the lit parts.,Word Gem kid-sized definition,0
+vocab.denominator.term,denominator,Word Gem term,0
+vocab.denominator.definition,The denominator is the bottom number. It tells how many equal parts make the whole.,Word Gem kid-sized definition,0
+vocab.unit_fraction.term,unit fraction,Word Gem term,0
+vocab.unit_fraction.definition,A unit fraction is just one equal part. Its top number is one.,Word Gem kid-sized definition,0
+vocab.equivalent.term,equivalent,Word Gem term,0
+vocab.equivalent.definition,Equivalent fractions name the same amount with different numbers.,Word Gem kid-sized definition,0
+vocab.mixed_number.term,mixed number,Word Gem term,0
+vocab.mixed_number.definition,A mixed number has wholes and a fraction. Two and a half is one.,Word Gem kid-sized definition,0
+vocab.improper_fraction.term,improper fraction,Word Gem term,0
+vocab.improper_fraction.definition,An improper fraction is one whole or more. Its top is not smaller.,Word Gem kid-sized definition,0
+vocab.decimal.term,decimal,Word Gem term,0
+vocab.decimal.definition,A decimal uses a point. The digits after the point are parts of one.,Word Gem kid-sized definition,0
+vocab.tenth.term,tenth,Word Gem term,0
+vocab.tenth.definition,A tenth is one of ten equal parts of a whole.,Word Gem kid-sized definition,0
+vocab.hundredth.term,hundredth,Word Gem term,0
+vocab.hundredth.definition,A hundredth is one of a hundred equal parts of a whole.,Word Gem kid-sized definition,0
+vocab.percent.term,percent,Word Gem term,0
+vocab.percent.definition,Percent means out of a hundred. The percent sign is %.,Word Gem kid-sized definition,0
+vocab.ratio.term,ratio,Word Gem term,0
+vocab.ratio.definition,"A ratio compares two amounts, like copper to tin.",Word Gem kid-sized definition,0
+vocab.negative.term,negative,Word Gem term,0
+vocab.negative.definition,A negative number is below zero. It has a minus sign in front.,Word Gem kid-sized definition,0

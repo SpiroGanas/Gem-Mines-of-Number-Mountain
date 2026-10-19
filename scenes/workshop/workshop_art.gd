@@ -10,6 +10,8 @@
 ##   conveyor_sync      params {a, b, synced}: two belts driven by gears of a and b teeth drop a gem
 ##                      every a and every b ticks; synced, both drop together at their first shared
 ##                      multiple and the belts run (Zone 6)
+##   alloy_mixer        params {a, b, copper, tin, mixed}: Zone 7's ore hoppers and electric drum
+##                      (drawn by AlloyMixerArt, scenes/workshop/builds/alloy_mixer/)
 ## `phase` (0..1) moves the machines; the hub tweens it while the machine is on screen.
 class_name WorkshopArt
 extends Control
@@ -64,6 +66,8 @@ func _draw() -> void:
 			_draw_balance_elevator()
 		&"conveyor_sync":
 			_draw_conveyor_sync()
+		&"alloy_mixer":
+			AlloyMixerArt.draw(self, size, params, phase)
 
 
 func _box() -> Rect2:

@@ -2,8 +2,9 @@
 
 Simplest form comes from Python's fractions.Fraction (which always keeps lowest terms) and math.gcd.
 Each wrong answer is judged against the mistake it names: the right value but not in lowest terms
-(partially_simplified), only the top or first number divided, or written back to front. Nothing here
-is ported from scripts/generators/simplify.gd.
+(partially_simplified), only the top or first number divided, or written back to front. Every problem
+must ask for simplest form (meta.simplest_form), so the shared rules judge 6/9 by its form and keep it
+a wrong answer to 2/3. Nothing here is ported from scripts/generators/simplify.gd.
 """
 from __future__ import annotations
 
@@ -29,7 +30,10 @@ def check(problem: dict) -> list[str]:
     handler = {"fraction": _fraction, "ratio": _ratio}.get(problem["params"].get("mode"))
     if handler is None:
         return [f"unknown simplify mode {problem['params'].get('mode')!r}"]
-    return handler(problem)
+    errors: list[str] = []
+    if problem["meta"].get("simplest_form") is not True:
+        errors.append("a simplest-form question must set meta.simplest_form")
+    return errors + handler(problem)
 
 
 def _expected(wanted: dict, problem: dict) -> list[str]:

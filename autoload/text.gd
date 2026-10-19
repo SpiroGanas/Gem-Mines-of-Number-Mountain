@@ -23,6 +23,8 @@ const COLUMN_TEXT: String = "text"
 const REQUIRED_COLUMNS: PackedStringArray = ["id", "text", "context", "voice_version"]
 ## The warm headlamp yellow used to highlight numbers in Bolt's bubble.
 const HIGHLIGHT_COLOR: String = "#FFD166"
+## The minus sign numbers below zero are shown with (U+2212, wider than a hyphen; Zone 7 depths).
+const MINUS: String = "\u2212"
 
 var _lines: Dictionary[StringName, String] = {}
 var _placeholder_pattern: RegEx = RegEx.new()
@@ -85,7 +87,7 @@ func get_line(id: StringName, params: Dictionary = {}) -> String:
 		missing_line.emit(id)
 		_report("Text: missing line '%s'" % id)
 		return "[%s]" % id
-	var filled: String = _lines[id].format(params)
+	var filled: String = _lines[id].format(_display_params(params))
 	var unfilled: PackedStringArray = _placeholders_in(filled)
 	if not unfilled.is_empty():
 		_report("Text: line '%s' is missing parameter(s) %s" % [id, ", ".join(unfilled)])
@@ -102,7 +104,7 @@ func get_line_bbcode(id: StringName, params: Dictionary = {}, highlight: Array =
 		return get_line(id, params) # reports the gap the usual way
 	var filled: Dictionary = {}
 	for key: Variant in params:
-		var value: String = escape_bbcode(str(params[key]))
+		var value: String = escape_bbcode(display_value(params[key]))
 		filled[key] = "[b][color=%s]%s[/color][/b]" % [color, value] if highlight.has(key) else value
 	var template: String = escape_bbcode(_lines[id])
 	if not links.is_empty():
@@ -129,6 +131,42 @@ func _link_words(template: String, links: Dictionary) -> String:
 		result += "[url=%s][u]%s[/u][/url]" % [term, word]
 		last = found.get_end()
 	return result + template.substr(last)
+
+
+## How a placeholder value reads (Phase 4 exact values, never a float): a number below zero gets the
+## real minus sign ("−30"), a decimal {mantissa, scale} its point ("2.75", format_decimal), a fraction
+## {num, den} "3/4", a mixed number {whole, num, den} "2 1/3" and a ratio {a, b} "2 : 3". Anything
+## else reads as str() does.
+static func display_value(value: Variant) -> String:
+	if value is int:
+		return (MINUS + str(-value)) if value < 0 else str(value)
+	if value is Dictionary:
+		if Rational.is_decimal(value):
+			return format_decimal(value)
+		if Rational.is_fraction(value):
+			return "%s/%s" % [display_value(int(value["num"])), str(int(value["den"]))]
+		if Rational.is_mixed(value):
+			var part: String = "%d/%d" % [int(value["num"]), int(value["den"])]
+			if int(value["whole"]) == 0:
+				return part
+			return str(int(value["whole"])) if int(value["num"]) == 0 else "%d %s" % [int(value["whole"]), part]
+		if Rational.is_ratio(value):
+			return "%d : %d" % [int(value["a"]), int(value["b"])]
+	return str(value)
+
+
+## A decimal {mantissa, scale} with its point and the real minus sign: {275, 2} is "2.75", {5, 2} is
+## "0.05", {-15, 1} is "−1.5". Integers only, so 0.30000000000000004 can never appear.
+static func format_decimal(value: Dictionary) -> String:
+	var text: String = Rational.decimal_text(value)
+	return MINUS + text.substr(1) if text.begins_with("-") else text
+
+
+func _display_params(params: Dictionary) -> Dictionary:
+	var shown: Dictionary = {}
+	for key: Variant in params:
+		shown[key] = display_value(params[key])
+	return shown
 
 
 ## Text made safe to show in a BBCode label: "[" becomes the [lb] tag.

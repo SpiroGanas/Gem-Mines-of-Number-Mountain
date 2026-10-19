@@ -57,6 +57,11 @@ func test_each_zone_6_skill_gets_the_input_the_plan_describes() -> void:
 	for seed_value: int in range(1, 11):
 		assert_int(AnswerPanel.choose_input(_problem(&"gear.ratio.teeth", seed_value, &"concrete"))).is_equal(AnswerPanel.InputKind.GEAR)
 		assert_int(AnswerPanel.choose_input(_problem(&"gear.ratio.teeth", seed_value, &"pictorial"))).is_equal(AnswerPanel.InputKind.CHOICES)
+	# The fraction preview skills (moved here from Zone 7's file at the merge) use Zone 7's inputs, the
+	# crystal and the fraction pad; test_zone7_answer_panel.gd checks which one each gets.
+	for skill_id: StringName in [&"fraction.unit.identify", &"fraction.part.of_whole"]:
+		assert_int(_catalog.skill(skill_id).zone).is_equal(6)
+		counted += 1
 	assert_int(counted).is_equal(_catalog.skills_in_zone(6).size())
 
 
@@ -92,6 +97,24 @@ func test_every_zone_6_problem_judges_every_named_wrong_answer_as_wrong() -> voi
 				if not PanelDriver.give(_panel, entry["value"]):
 					continue # a wrong number the widget cannot even build is fine
 				assert_bool(problem.is_correct(heard[0])).override_failure_message("%s seed %d: %s accepted" % [skill.id, seed_value, entry["value"]]).is_false()
+
+
+func test_a_simplest_form_question_judges_by_form_not_value() -> void:
+	# Zone 7 judges fractions by value (2/4 is right for 1/2); simplify.* sets meta.simplest_form so a
+	# fraction or ratio that is equal but not in lowest terms stays the named mistake.
+	var checked: int = 0
+	for skill_id: StringName in [&"simplify.fraction.gcf", &"simplify.ratio.gcf"]:
+		for seed_value: int in range(1, 41):
+			var problem: Problem = _problem(skill_id, seed_value)
+			assert_bool(problem.meta.get("simplest_form", false)).is_true()
+			for entry: Dictionary in problem.distractors:
+				if entry["misconception"] != &"partially_simplified":
+					continue
+				checked += 1
+				assert_bool(Problem.same_value(entry["value"], problem.answer)).is_true() # equal in value...
+				assert_bool(problem.is_correct(entry["value"])).is_false() # ...and still wrong
+				assert_str(String(MineScreen.misconception_of(problem, entry["value"]))).is_equal("partially_simplified")
+	assert_int(checked).is_greater(10)
 
 
 func test_fraction_and_ratio_buttons_read_as_the_child_writes_them() -> void:

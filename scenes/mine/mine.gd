@@ -134,9 +134,9 @@ func _ready() -> void:
 	_bolt.term_tapped.connect(_on_term_tapped)
 	Rewards.skill_celebrated.connect(_on_skill_celebrated)
 	Rewards.mineral_found.connect(_on_mineral_found)
+	Rewards.zone_completed.connect(_on_zone_completed)
 	Rewards.badge_earned.connect(_on_badge_earned)
 	Rewards.word_gem_collected.connect(_on_word_gem_collected)
-	Rewards.zone_completed.connect(_on_zone_completed)
 	_door_button = Button.new()
 	_door_button.name = "DoorButton"
 	_door_button.text = Text.get_line(&"door.mine.offer")
@@ -203,6 +203,8 @@ func music_id() -> StringName:
 			return &"mine_z5"
 		6:
 			return &"mine_z6"
+		7:
+			return &"mine_z7"
 	return &"mine"
 
 
@@ -407,9 +409,14 @@ func _on_skill_celebrated(_skill_id: StringName) -> void:
 	_pending_celebrations.append({"line_id": &"bolt.celebrate.mastery", "gem": RewardsRules.MASTERY_GEM})
 
 
-## Every skill of a zone is mastered (Zone 6 on): Bolt cheers for the whole zone.
+## Every skill of a zone is mastered (Zone 6 on; RewardsRules.zone_finished): Bolt cheers with the
+## zone's own line and gem when it has a zN.zone.done line (Zone 7), else with the shared zone line.
 func _on_zone_completed(zone: int) -> void:
-	_pending_celebrations.append({"line_id": &"bolt.celebrate.zone_done", "params": {"n": zone}, "gem": RewardsRules.MASTERY_GEM})
+	var own: StringName = RewardsRules.zone_done_line(zone)
+	if Text.has_line(own):
+		_pending_celebrations.append({"line_id": own, "gem": GemArt.gem_for_zone(zone)})
+	else:
+		_pending_celebrations.append({"line_id": RewardsRules.ZONE_DONE_LINE, "params": {"n": zone}, "gem": RewardsRules.MASTERY_GEM})
 
 
 func _on_mineral_found(gem: StringName) -> void:
@@ -513,7 +520,7 @@ func _overlay_up() -> bool:
 ## hint is keyed to the distractor the child picked or typed).
 static func misconception_of(problem: Problem, given: Variant) -> StringName:
 	for entry: Dictionary in problem.distractors:
-		if Problem.same(entry["value"], given):
+		if problem.same_answer(entry["value"], given): # 2/6 typed for the 1/3 distractor is that mistake
 			return StringName(entry["misconception"])
 	return &""
 

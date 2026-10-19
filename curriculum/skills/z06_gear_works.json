@@ -135,9 +135,35 @@
       "misconceptions": ["used_gcf", "counted_other_gear", "teeth_not_turns"]
     },
     {
+      "id": "fraction.unit.identify",
+      "name": "Name a unit fraction",
+      "prereqs": ["div.sharing.equal_shares"],
+      "generator": "FractionGenerator",
+      "params": {"mode": "unit", "max_den": 12},
+      "representations": ["concrete", "pictorial"],
+      "answer_modes": ["number_pad", "handwriting_fraction", "tap"],
+      "terms": ["fraction", "unit_fraction", "denominator"],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": ["inverted", "counted_shaded_as_denominator"]
+    },
+    {
+      "id": "fraction.part.of_whole",
+      "name": "Fractions as parts of a whole",
+      "prereqs": ["fraction.unit.identify"],
+      "generator": "FractionGenerator",
+      "params": {"mode": "part", "max_den": 12},
+      "representations": ["concrete", "pictorial", "abstract"],
+      "answer_modes": ["number_pad", "handwriting_fraction", "tap"],
+      "terms": ["fraction", "numerator", "denominator"],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": ["inverted", "unshaded_count", "off_by_one_numerator"]
+    },
+    {
       "id": "simplify.fraction.gcf",
       "name": "Simplify a fraction",
-      "prereqs": ["gcf.find.by_listing"],
+      "prereqs": ["gcf.find.by_listing", "fraction.unit.identify", "fraction.part.of_whole"],
       "generator": "SimplifyGenerator",
       "params": {"mode": "fraction", "min_den": 4, "max_den": 48},
       "representations": ["pictorial", "abstract"],

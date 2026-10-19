@@ -91,7 +91,7 @@ func test_every_term_is_a_word_gem_with_text() -> void:
 
 
 func test_answer_modes_and_representations_are_valid() -> void:
-	var modes: Array[StringName] = [&"tap", &"drag", &"number_pad", &"keyboard", &"handwriting"]
+	var modes: Array[StringName] = [&"tap", &"drag", &"number_pad", &"keyboard", &"handwriting", &"handwriting_fraction"]
 	var representations: Array[StringName] = [&"concrete", &"pictorial", &"abstract"]
 	for id: StringName in _catalog.ids():
 		var skill: Skill = _catalog.skill(id)

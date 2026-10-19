@@ -10,7 +10,7 @@ import copy
 
 import pytest
 import run
-from checkers import gcf_lcm, gears, numbers, simplify
+from checkers import common, gcf_lcm, gears, numbers, simplify
 
 SKILLS = {skill["id"]: skill for skill in run.load_skills()}
 ALLOWED = run.allowed_misconceptions()
@@ -104,11 +104,11 @@ GOOD = {
                  example=example("z6.gear.prompt_sync", {"a": 6, "b": 4}, 2, "z6.hint.example_sync", {"a": 6, "l": 12, "t": 2})),
     "fraction": make("simplify.fraction.gcf", "z6.simplify.prompt_fraction", {"a": 12, "b": 18}, {"num": 2, "den": 3},
                      [("partially_simplified", {"num": 4, "den": 6}), ("divided_numerator_only", {"num": 2, "den": 18}), ("swapped_num_den", {"num": 3, "den": 2})],
-                     visual={"type": "gears", "teeth": [18], "shaded": 12}, model=lists("factors", [F12, F18], [1, 2, 3, 6]),
+                     visual={"type": "gears", "teeth": [18], "shaded": 12}, meta={"simplest_form": True}, model=lists("factors", [F12, F18], [1, 2, 3, 6]),
                      example=example("z6.simplify.prompt_fraction", {"a": 6, "b": 8}, {"num": 3, "den": 4}, "z6.hint.example_fraction", {"g": 2, "a": 6, "b": 8, "c": 3, "d": 4})),
     "ratio": make("simplify.ratio.gcf", "z6.simplify.prompt_ratio", {"a": 12, "b": 8}, {"a": 3, "b": 2},
                   [("partially_simplified", {"a": 6, "b": 4}), ("inverted_ratio", {"a": 2, "b": 3}), ("divided_one_term_only", {"a": 3, "b": 8})],
-                  visual={"type": "gears", "teeth": [12, 8]}, model=lists("factors", [F8, F12], [1, 2, 4]),
+                  visual={"type": "gears", "teeth": [12, 8]}, meta={"simplest_form": True}, model=lists("factors", [F8, F12], [1, 2, 4]),
                   example=example("z6.simplify.prompt_ratio", {"a": 6, "b": 9}, {"a": 2, "b": 3}, "z6.hint.example_ratio_simplify", {"g": 3, "a": 6, "b": 9, "c": 2, "d": 3})),
 }
 
@@ -123,7 +123,7 @@ def test_a_correct_problem_passes(name: str) -> None:
 
 
 def test_every_zone_6_skill_has_a_checker() -> None:
-    assert len(ZONE6) == 12
+    assert len(ZONE6) == 14  # 12 Gear Works skills and the two fraction previews (FractionGenerator, checked in test_checkers_zone7.py)
     for skill_id in ZONE6:
         assert SKILLS[skill_id]["generator"] in run.CHECKERS
 
@@ -206,6 +206,8 @@ TAMPERS = [
     ("fraction", "a fraction already in simplest form", _set(["prompt_params"], {"a": 5, "b": 7})),
     ("fraction", "shaded the bottom number", _set(["visual", "shaded"], 18)),
     ("ratio", "order turned around", _set(["answer"], {"a": 2, "b": 3})),
+    ("fraction", "no simplest-form flag (6/9 would count as 2/3)", _set(["meta"], {})),
+    ("ratio", "no simplest-form flag (6 : 4 would count as 3 : 2)", _set(["meta"], {})),
     ("ratio", "one-term board divides the second", _distractor(2, {"a": 12, "b": 2})),
     ("ratio", "model with the larger number first", _set(["hint_steps", 1, "visual"], lists("factors", [F12, F8], [1, 2, 4]))),
 ]
@@ -216,6 +218,19 @@ def test_a_tampered_problem_fails(name: str, what: str, tamper) -> None:
     problem = copy.deepcopy(GOOD[name])
     tamper(problem)
     assert verdict(problem), f"{name}: '{what}' was not caught"
+
+
+def test_simplest_form_judges_by_form() -> None:
+    # The partially simplified answer equals the answer in value; under meta.simplest_form it is still
+    # a wrong answer, so the good problems pass and the same problem without the flag fails.
+    assert common.same_answer({"num": 4, "den": 6}, {"num": 2, "den": 3})
+    assert not common.same_answer({"num": 4, "den": 6}, {"num": 2, "den": 3}, simplest_form=True)
+    assert not common.same_answer({"a": 6, "b": 4}, {"a": 3, "b": 2}, simplest_form=True)
+    for name in ("fraction", "ratio"):
+        assert verdict(copy.deepcopy(GOOD[name])) == []
+        bare = copy.deepcopy(GOOD[name])
+        bare["meta"] = {}
+        assert any("equals the answer" in message for message in verdict(bare))
 
 
 def test_the_independent_helpers() -> None:

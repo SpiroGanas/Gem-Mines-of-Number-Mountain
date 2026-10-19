@@ -73,5 +73,5 @@ func test_a_gear_rock_opens_on_the_gear_bench_and_a_right_gear_cracks_it() -> vo
 	await _until(mine, func() -> bool: return mine.flow.state == DigFlow.State.PICK_ROCK or mine.flow.state == DigFlow.State.WALL_CLEAR)
 	var record: Dictionary = SaveSystem.data()["skills"].get("gear.ratio.teeth", {})
 	assert_int(int(record.get("attempts", 0))).is_equal(1)
-	var on_disk: Dictionary = JsonUtil.parse_file(_dir.path_join("profile.json"))
+	var on_disk: Dictionary = JsonUtil.parse_file(SaveSystem.profile_dir().path_join("profile.json"))
 	assert_bool(on_disk["skills"].has("gear.ratio.teeth")).is_true() # saved after the rock

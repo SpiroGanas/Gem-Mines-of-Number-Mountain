@@ -19,6 +19,16 @@
 ##               box. Takes the number pad's place when the skill lists the `handwriting` mode, the
 ##               device can read handwriting (DigitInk.is_available), a grown-up has not turned it off
 ##               and the answer is a whole number of one to three digits. Otherwise the number pad.
+## Zone 7 (Phase 4, Sprint 32-33) adds:
+##   FRACTION_PAD   the fraction pad (top over bottom) for a fraction answer, the slate's fallback
+##   DECIMAL_PAD    the same pad with a fixed point for a decimal answer (meta.decimal_places)
+##   FRACTION_SLATE the two-row slate (skill mode `handwriting_fraction`), numerator over denominator
+##   DECIMAL_SLATE  the slate with a fixed point (skill mode `handwriting`)
+##   CRYSTAL        tap shards of a crystal to light them, then Done (meta.crystal)
+##   ALLOY          the alloy mixer: set the tin scoops, then Mix (meta.alloy)
+##   GAUGE          ride the elevator cab up and down the depth gauge, then Stop here (meta.depth_gauge)
+## A problem that carries a zone mechanic (crystal, alloy, depth_gauge) and lists `tap` is answered on
+## the mechanic. The number pad gets a minus key when meta.signed is set (depths below zero).
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
 ## "friend" of the problem (show_hint).
@@ -33,7 +43,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
@@ -46,6 +56,12 @@ const TREE_SCENE: PackedScene = preload("res://scenes/zones/z05_prime_caverns/fa
 const GEAR_SCENE: PackedScene = preload("res://scenes/zones/z06_gear_works/gear_bench.tscn")
 const SLATE_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/chalk_slate.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
+const FRACTION_PAD_SCENE: PackedScene = preload("res://scenes/input/fraction_pad.tscn")
+const CRYSTAL_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/crystal.tscn")
+const ALLOY_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/alloy_mixer.tscn")
+const GAUGE_SCENE: PackedScene = preload("res://scenes/zones/z07_crystal_shards/depth_gauge.tscn")
+## The slate and the pad take fractions with up to this many digits in the top and in the bottom.
+const FRACTION_BOXES: int = 2
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
 ## few options (a random number on the pad, a random pile on the board). Used by the adaptive
 ## engine's guessing guard; deliberately generous.
@@ -74,12 +90,20 @@ var _split: BoulderSplit
 var _sieve: SieveGrid
 var _tree: FactorTree
 var _gear_bench: GearBench
+var _fraction_pad: FractionPad
+var _crystal: CrystalPicker
+var _alloy: AlloyMixer
+var _gauge: DepthGauge
 var _example: PanelContainer
 var _enabled: bool = false
 
 
 ## Which input fits a problem: the first listed answer mode this panel can serve. Pure.
 static func choose_input(for_problem: Problem, slate_allowed: bool = false) -> InputKind:
+	if for_problem.answer_modes.has(&"tap"):
+		var mechanic: InputKind = _mechanic_for(for_problem)
+		if mechanic != InputKind.NONE:
+			return mechanic
 	for mode: StringName in for_problem.answer_modes:
 		var kind: InputKind = _input_for_mode(mode, for_problem, slate_allowed)
 		if kind != InputKind.NONE:
@@ -88,9 +112,26 @@ static func choose_input(for_problem: Problem, slate_allowed: bool = false) -> I
 
 
 ## True when the slate could take this problem's answer: the skill lists `handwriting` and the answer
-## is a whole number of one to three digits.
+## is a whole number of one to three digits (or, Zone 7, a decimal; a fraction needs
+## `handwriting_fraction` and fits in FRACTION_BOXES digits top and bottom).
 static func slate_fits(for_problem: Problem) -> bool:
+	if Rational.is_fraction(for_problem.answer):
+		var digits: Dictionary = for_problem.fraction_digits()
+		return for_problem.answer_modes.has(&"handwriting_fraction") and not digits.is_empty() and int(digits["num"]) <= FRACTION_BOXES and int(digits["den"]) <= FRACTION_BOXES
+	if Rational.is_decimal(for_problem.answer):
+		return for_problem.answer_modes.has(&"handwriting") and int(for_problem.answer["mantissa"]) >= 0
 	return for_problem.answer_modes.has(&"handwriting") and for_problem.answer is int and for_problem.answer_digits() >= 1 and for_problem.answer_digits() <= 3
+
+
+## The zone mechanic a problem's meta asks for (Zone 7), or NONE.
+static func _mechanic_for(for_problem: Problem) -> InputKind:
+	if for_problem.meta.has("crystal"):
+		return InputKind.CRYSTAL
+	if for_problem.meta.has("alloy"):
+		return InputKind.ALLOY
+	if for_problem.meta.has("depth_gauge"):
+		return InputKind.GAUGE
+	return InputKind.NONE
 
 
 ## Whether this device offers the slate now: it can read handwriting and a grown-up has not turned it off.
@@ -126,6 +167,10 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
 				return InputKind.SLATE if slate_allowed and slate_fits(for_problem) else InputKind.NUMBER_PAD
+			if Rational.is_fraction(for_problem.answer):
+				return InputKind.FRACTION_SLATE if slate_allowed and slate_fits(for_problem) else InputKind.FRACTION_PAD
+			if Rational.is_decimal(for_problem.answer):
+				return InputKind.DECIMAL_SLATE if slate_allowed and slate_fits(for_problem) else InputKind.DECIMAL_PAD
 	return InputKind.NONE
 
 
@@ -152,6 +197,13 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			return 1.0 / float(maxi(BoulderSplit.pairs_for(int(spec["value"]), factors).size(), 1))
 		InputKind.GEAR:
 			return 1.0 / float(maxi(for_problem.meta["gear_bench"].get("tray", []).size() - eliminated, 1))
+		InputKind.CRYSTAL:
+			options = int(for_problem.meta["crystal"]["den"]) + 1 # light 0 to den shards
+		InputKind.ALLOY:
+			options = int(for_problem.meta["alloy"]["max"]) + 1
+		InputKind.GAUGE:
+			var ride: Dictionary = for_problem.meta["depth_gauge"]
+			options = int(ride["max"]) - int(ride["min"]) + 1
 		_:
 			return FREE_RESPONSE_CHANCE
 	return 1.0 / float(maxi(options - eliminated, 1))
@@ -179,12 +231,14 @@ static func answer_mode_for(for_problem: Problem) -> StringName:
 ## The attempt log's answer_mode for an input: tap, drag, number_pad or handwriting.
 static func answer_mode_for_kind(kind: InputKind) -> StringName:
 	match kind:
-		InputKind.TAP_PILE, InputKind.CHOICES, InputKind.SIEVE:
+		InputKind.TAP_PILE, InputKind.CHOICES, InputKind.SIEVE, InputKind.CRYSTAL, InputKind.ALLOY, InputKind.GAUGE:
 			return &"tap"
-		InputKind.NUMBER_PAD:
+		InputKind.NUMBER_PAD, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD:
 			return &"number_pad"
-		InputKind.SLATE:
+		InputKind.SLATE, InputKind.DECIMAL_SLATE:
 			return &"handwriting"
+		InputKind.FRACTION_SLATE:
+			return &"handwriting_fraction"
 	return &"drag"
 
 
@@ -204,11 +258,9 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 			"product":
 				joiner = " × "
 		return joiner.join(parts)
-	if value is Dictionary and value.size() == 2 and value.has("num") and value.has("den"):
-		return "%d/%d" % [int(value["num"]), int(value["den"])] # a fraction (Zone 6 on)
-	if value is Dictionary and value.size() == 2 and value.has("a") and value.has("b"):
-		return "%d : %d" % [int(value["a"]), int(value["b"])] # a ratio (Zone 6 on)
-	return str(value)
+	if for_problem.meta.get("percent", false) and value is int:
+		return Text.display_value(value) + "%"
+	return Text.display_value(value) # numerals, "3/4" and "2 : 3" (Zone 6 on), "2 1/3", "0.25", "−15" (Zone 7)
 
 
 ## Builds the picture and the input for a problem. `rng` shuffles the answer buttons.
@@ -244,6 +296,16 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_tree()
 		InputKind.GEAR:
 			_add_gear_bench()
+		InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD:
+			_add_fraction_pad()
+		InputKind.FRACTION_SLATE, InputKind.DECIMAL_SLATE:
+			_add_slate()
+		InputKind.CRYSTAL:
+			_add_crystal()
+		InputKind.ALLOY:
+			_add_alloy()
+		InputKind.GAUGE:
+			_add_gauge()
 	set_enabled(_enabled)
 
 
@@ -274,6 +336,9 @@ func set_enabled(enabled: bool) -> void:
 		_tree.set_enabled(enabled)
 	if _gear_bench != null:
 		_gear_bench.set_enabled(enabled)
+	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge]:
+		if widget != null:
+			widget.call(&"set_enabled", enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
 		for button: Button in _visual.pile_buttons():
 			button.disabled = not enabled
@@ -411,6 +476,20 @@ func factor_tree() -> FactorTree:
 
 func gear_bench() -> GearBench:
 	return _gear_bench
+func fraction_pad() -> FractionPad:
+	return _fraction_pad
+
+
+func crystal_picker() -> CrystalPicker:
+	return _crystal
+
+
+func alloy_mixer() -> AlloyMixer:
+	return _alloy
+
+
+func depth_gauge() -> DepthGauge:
+	return _gauge
 
 
 func _clear() -> void:
@@ -430,6 +509,10 @@ func _clear() -> void:
 	_sieve = null
 	_tree = null
 	_gear_bench = null
+	_fraction_pad = null
+	_crystal = null
+	_alloy = null
+	_gauge = null
 	_example = null
 
 
@@ -489,6 +572,7 @@ func _add_pad_with_visual() -> void:
 	var row: HBoxContainer = _add_row_with_visual()
 	_pad = PAD_SCENE.instantiate()
 	_pad.max_digits = 3
+	_pad.allow_negative = bool(problem.meta.get("signed", false)) # depths below zero (Zone 7)
 	_pad.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_pad)
@@ -572,8 +656,15 @@ func _add_slate() -> void:
 	_slate.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_slate.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(_slate)
-	_slate.setup(problem.answer_digits(), recognizer if recognizer != null else DigitInk.make_recognizer())
-	_slate.answer_submitted.connect(_on_value_given)
+	var reader: Recognizer = recognizer if recognizer != null else DigitInk.make_recognizer()
+	match input_kind:
+		InputKind.FRACTION_SLATE:
+			_slate.setup_fraction(FRACTION_BOXES, FRACTION_BOXES, reader)
+		InputKind.DECIMAL_SLATE:
+			_slate.setup_decimal(_whole_digits(), _decimal_places(), reader)
+		_:
+			_slate.setup(problem.answer_digits(), reader)
+	_slate.answer_written.connect(_on_value_given)
 	_slate.answer_rejected.connect(func() -> void: rejected.emit())
 	_slate.digit_read.connect(func(digit: int, mirrored: bool) -> void: digit_written.emit(digit, mirrored))
 	_slate.fell_back_to_number_pad.connect(_on_slate_fell_back, CONNECT_ONE_SHOT)
@@ -588,9 +679,77 @@ func _on_slate_fell_back() -> void:
 	_slate = null
 	_visual = null
 	_pad_row = null
-	input_kind = InputKind.NUMBER_PAD
-	_add_pad_with_visual()
+	match input_kind:
+		InputKind.FRACTION_SLATE:
+			input_kind = InputKind.FRACTION_PAD
+			_add_fraction_pad()
+		InputKind.DECIMAL_SLATE:
+			input_kind = InputKind.DECIMAL_PAD
+			_add_fraction_pad()
+		_:
+			input_kind = InputKind.NUMBER_PAD
+			_add_pad_with_visual()
 	set_enabled(_enabled)
+
+
+## The fraction or decimal pad beside the picture (the slate's fallback, and mouse-only devices).
+func _add_fraction_pad() -> void:
+	var row: HBoxContainer = _add_row_with_visual()
+	_fraction_pad = FRACTION_PAD_SCENE.instantiate()
+	if input_kind == InputKind.DECIMAL_PAD:
+		_fraction_pad.layout = FractionPad.Layout.DECIMAL
+		_fraction_pad.box_digits = _whole_digits()
+		_fraction_pad.decimal_places = _decimal_places()
+	else:
+		_fraction_pad.layout = FractionPad.Layout.FRACTION
+		_fraction_pad.box_digits = FRACTION_BOXES
+	_fraction_pad.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_fraction_pad.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_fraction_pad)
+	_fraction_pad.submitted.connect(_on_value_given)
+
+
+## How many digits the ones of a decimal answer take (at least 1, at most 2).
+func _whole_digits() -> int:
+	var places: int = int(problem.answer["scale"])
+	var whole: int = floori(int(problem.answer["mantissa"]) / float(Rational.pow10(places)))
+	return clampi(str(whole).length(), 1, 2)
+
+
+## The places after the point for a decimal answer: meta.decimal_places, else the answer's own.
+func _decimal_places() -> int:
+	return maxi(int(problem.meta.get("decimal_places", int(problem.answer["scale"]))), 1)
+
+
+## The crystal to light (meta.crystal = {den, match?}) beside the picture; Done gives the lit fraction.
+func _add_crystal() -> void:
+	var spec: Dictionary = problem.meta["crystal"]
+	var row: HBoxContainer = _add_row_with_visual()
+	_crystal = CRYSTAL_SCENE.instantiate()
+	_crystal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(_crystal)
+	_crystal.setup(int(spec["den"]), spec.get("match", {}))
+	_crystal.submitted.connect(_on_value_given)
+
+
+## The alloy mixer (meta.alloy = {a, b, given, max}); Mix gives the tin count.
+func _add_alloy() -> void:
+	var spec: Dictionary = problem.meta["alloy"]
+	_alloy = ALLOY_SCENE.instantiate()
+	_alloy.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_alloy)
+	_alloy.setup(int(spec["a"]), int(spec["b"]), int(spec["given"]), int(spec["max"]))
+	_alloy.submitted.connect(_on_value_given)
+
+
+## The depth gauge (meta.depth_gauge = {min, max, start}); Stop here gives the cab's level.
+func _add_gauge() -> void:
+	var spec: Dictionary = problem.meta["depth_gauge"]
+	_gauge = GAUGE_SCENE.instantiate()
+	_gauge.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_gauge)
+	_gauge.setup(int(spec["min"]), int(spec["max"]), int(spec["start"]))
+	_gauge.submitted.connect(_on_value_given)
 
 
 ## For a number strip (a number line whose blanks are the answer, or meta.strip), the strip in

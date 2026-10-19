@@ -63,8 +63,10 @@ static func _prompt_errors(problem: Problem, where: String) -> Array[String]:
 		if not problem.prompt_params.has(name):
 			errors.append("%s: prompt '%s' needs {%s}" % [where, problem.prompt_line_id, name])
 	for key: Variant in problem.prompt_params:
-		if not problem.prompt_params[key] is int:
-			errors.append("%s: prompt param %s is not a whole number" % [where, key])
+		var value: Variant = problem.prompt_params[key]
+		# Whole numbers, or (Zone 7) an exact decimal or fraction the Text table formats; never a float.
+		if not value is int and not (Rational.is_decimal(value) or Rational.is_fraction(value)):
+			errors.append("%s: prompt param %s is not a whole number or an exact decimal" % [where, key])
 	return errors
 
 
@@ -81,10 +83,10 @@ static func _distractor_errors(problem: Problem, skill: Skill, allowed_names: Ar
 		if not skill.misconceptions.has(name):
 			errors.append("%s: misconception '%s' is not listed for the skill" % [where, name])
 		var canon: Variant = Problem.canonical(entry["value"])
-		if Problem.same(canon, problem.answer):
+		if problem.same_answer(canon, problem.answer):
 			errors.append("%s: distractor equals the answer (%s)" % [where, canon])
 		for earlier: Variant in seen:
-			if Problem.same(earlier, canon):
+			if problem.same_answer(earlier, canon):
 				errors.append("%s: duplicate distractor value %s" % [where, canon])
 		seen.append(canon)
 	if problem.answer_modes.has(&"tap") and problem.distractors.is_empty():
@@ -214,6 +216,8 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 					errors.append("%s: a gear has %s teeth, not %d to %d" % [where, count, Problem.GEAR_TEETH_RANGE.x, Problem.GEAR_TEETH_RANGE.y])
 			if visual.has("shaded") and (not visual["shaded"] is int or visual["shaded"] < 0 or visual["shaded"] > int(teeth[0])):
 				errors.append("%s: shaded must be 0 to the first gear's teeth" % where)
+		&"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix":
+			errors.append_array(zone7_visual_errors(visual, where))
 	return errors
 
 
@@ -242,6 +246,62 @@ static func _lists_errors(visual: Dictionary, where: String) -> Array[String]:
 	for value: Variant in visual.get("marked", []):
 		if not shown.has(value):
 			errors.append("%s: marked %s is in no row" % [where, value])
+	return errors
+
+
+## The Zone 7 pictures (Problem.VISUAL_TYPES) must be drawable: shard counts the crystal can cut, lit
+## counts that fit, gauge markers on the gauge.
+static func zone7_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"crystals":
+			var entries: Variant = visual.get("crystals")
+			if not entries is Array or entries.is_empty() or entries.size() > 2:
+				errors.append("%s: crystals needs 1 or 2 crystals" % where)
+				return errors
+			if not ["crystal", "bar"].has(str(visual.get("shape", ""))):
+				errors.append("%s: unknown crystal shape '%s'" % [where, visual.get("shape")])
+			if int(visual.get("wholes", 0)) < 0 or int(visual.get("wholes", 0)) > 9:
+				errors.append("%s: 0 to 9 whole crystals" % where)
+			for entry: Dictionary in entries:
+				var den: int = int(entry.get("den", 0))
+				var lit: int = int(entry.get("lit", -1)) + int(entry.get("second", 0))
+				if den < 1 or den > 24 or int(entry.get("lit", -1)) < 0 or int(entry.get("second", 0)) < 0 or lit > den:
+					errors.append("%s: crystal %s does not fit (1 to 24 shards, lit within)" % [where, entry])
+		&"fraction_line":
+			var den: int = int(visual.get("den", 0))
+			var marker: Dictionary = visual.get("marker", {})
+			if den < 2 or int(visual.get("wholes", 0)) < 1 or int(visual.get("ticks", 0)) != den * int(visual.get("wholes", 0)) + 1:
+				errors.append("%s: a fraction line needs den >= 2 and ticks = den * wholes + 1" % where)
+			elif int(marker.get("den", 0)) != den or int(marker.get("num", -1)) < 0 or int(marker.get("num", -1)) > den * int(visual["wholes"]):
+				errors.append("%s: the marker %s is not on a tick" % [where, marker])
+		&"crystal_grid":
+			var cells: int = int(visual.get("cells", 0))
+			if cells != 10 and cells != 100:
+				errors.append("%s: a crystal grid has 10 or 100 cells" % where)
+			for entry: Dictionary in visual.get("grids", []):
+				if int(entry.get("lit", -1)) < 0 or int(entry.get("lit", -1)) > cells or int(entry.get("wholes", -1)) < 0 or int(entry.get("wholes", -1)) > 9:
+					errors.append("%s: grid %s does not fit" % [where, entry])
+			if visual.get("grids", []).is_empty() or visual.get("grids", []).size() > 2:
+				errors.append("%s: a crystal grid shows 1 or 2 numbers" % where)
+		&"depth_gauge":
+			var low: int = int(visual.get("min", 0))
+			var high: int = int(visual.get("max", 0))
+			if low >= 0 or high <= 0 or int(visual.get("labeled_every", 0)) < 1:
+				errors.append("%s: a depth gauge runs from below 0 to above 0" % where)
+			for marker: Variant in visual.get("markers", []):
+				if int(marker) < low or int(marker) > high:
+					errors.append("%s: marker %s is off the gauge" % [where, marker])
+			for jump: Dictionary in visual.get("jumps", []):
+				for end: String in ["from", "to"]:
+					if not jump.get(end) is int or jump[end] < low or jump[end] > high:
+						errors.append("%s: jump %s %s is off the gauge" % [where, end, jump.get(end)])
+		&"ore_mix":
+			var a: int = int(visual.get("a", -1))
+			var b: int = int(visual.get("b", -1))
+			var groups: int = int(visual.get("groups", 1))
+			if a < 0 or b < 0 or a + b < 1 or a + b > 72 or groups < 1 or a % groups != 0 or b % groups != 0:
+				errors.append("%s: ore mix %s does not split into its groups" % [where, visual])
 	return errors
 
 
@@ -311,6 +371,32 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 		for value: Variant in values:
 			if not tray.has(Problem.canonical(value)):
 				errors.append("%s: gear %s is not in the tray" % [where, value])
+	if meta.has("crystal"):
+		var spec: Dictionary = meta["crystal"]
+		var den: int = int(spec.get("den", 0))
+		if den < 2 or den > FractionGenerator.MAX_TAP_SHARDS:
+			errors.append("%s: a crystal to tap needs 2 to %d shards" % [where, FractionGenerator.MAX_TAP_SHARDS])
+		# Lighting k of den shards gives k/den: the answer must be one of those.
+		var reachable: bool = false
+		for k: int in range(0, den + 1):
+			reachable = reachable or problem.is_correct(Rational.normalize(k, maxi(den, 1)))
+		if not reachable:
+			errors.append("%s: no way to light the crystal gives the answer" % where)
+	if meta.has("alloy"):
+		var mixer: Dictionary = meta["alloy"]
+		if not problem.answer is int or problem.answer < 0 or problem.answer > int(mixer.get("max", -1)):
+			errors.append("%s: the tin hopper cannot hold the answer" % where)
+	if meta.has("depth_gauge"):
+		var ride: Dictionary = meta["depth_gauge"]
+		if not problem.answer is int or problem.answer < int(ride["min"]) or problem.answer > int(ride["max"]) or int(ride["start"]) < int(ride["min"]) or int(ride["start"]) > int(ride["max"]):
+			errors.append("%s: the cab cannot ride to the answer" % where)
+	if bool(meta.get("simplest_form", false)):
+		# Judged by form (Problem.same_answer), so the answer itself must be in lowest terms.
+		var answer: Variant = problem.answer
+		var lowest: bool = Rational.is_canonical(answer) or (Rational.is_ratio(answer) \
+			and Rational.normalize_ratio(int(answer["a"]), int(answer["b"])) == Problem.canonical(answer))
+		if not lowest:
+			errors.append("%s: a simplest-form answer %s is not in lowest terms" % [where, answer])
 	if meta.has("label_lines"):
 		var labels: Dictionary = meta["label_lines"]
 		var values: Array = [problem.answer]
