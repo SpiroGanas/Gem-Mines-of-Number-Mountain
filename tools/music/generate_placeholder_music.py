@@ -16,6 +16,8 @@ and one for the build site. Which screen plays which file:
     mine_z4.ogg  the mine in Zone 4, Factor Workshop: a busy little mallet tune, like a workbench
     mine_z5.ogg  the mine in Zone 5, Prime Caverns: high crystal bells that ring only on prime
                  beats (2, 3, 5, 7, 11, 13 of each 16) over slow, spacious chords
+    mine_z6.ogg  the mine in Zone 6, Gear Works (Phase 4): two interlocking figures, one every 3 beats
+                 and one every 4, that meet on beat 12 (their least common multiple), over steady chords
     build.ogg    the build site and the crafting bench: a short, bright, steady loop
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
@@ -68,6 +70,16 @@ TRACKS = {
                    None, None, 74, 76, None, 79, None, 76, None, None, None, 74, None, 71, None, None],
         "chords": [[40, 47, 55], [36, 43, 52], [43, 50, 59], [38, 45, 54],
                    [40, 47, 55], [36, 43, 52], [38, 45, 54], [40, 47, 59]],
+    },
+    # Zone 6, Gear Works: G major pentatonic. A low "gear" note every 3 beats and a high one every 4
+    # beats line up only on the beats that are multiples of 12 (the least common multiple).
+    "mine_z6": {
+        "bpm": 68,
+        "melody": [79, None, None, 67, 81, None, 67, None, 83, 67, None, None, 79, None, None, 67,
+                   81, None, 67, None, 83, 67, None, None, 74, None, None, 67, 76, None, 67, None,
+                   79, 67, None, None],
+        "chords": [[43, 50, 59], [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59],
+                   [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {

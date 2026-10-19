@@ -74,7 +74,7 @@ func _show_story(badge: Dictionary) -> void:
 	heading.theme_type_variation = &"HeadingLabel"
 	heading.text = Text.get_line(StringName(str(badge["name_line_id"])))
 	_story.add_child(heading)
-	for entry: Dictionary in badge.get("story", []):
+	for entry: Dictionary in MotivationRules.story_for(badge, Adaptive.mastered()):
 		var line: Label = Label.new()
 		line.text = Text.get_line(StringName(str(entry["line_id"])), entry.get("params", {}))
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

@@ -27,7 +27,7 @@ def test_the_tempo_is_calm_and_synthesis_is_deterministic(name: str) -> None:
 
 
 def test_every_zone_group_and_the_build_site_has_a_loop() -> None:
-    assert {"hub", "mine", "mine_z4", "mine_z5", "build"} <= set(music.TRACK_NAMES)
+    assert {"hub", "mine", "mine_z4", "mine_z5", "mine_z6", "build"} <= set(music.TRACK_NAMES)
 
 
 @pytest.mark.parametrize("name", music.TRACK_NAMES)
@@ -52,3 +52,14 @@ def test_the_loudnorm_filter_uses_the_measured_values_and_a_linear_gain() -> Non
     measured = {"input_i": "-27.1", "input_tp": "-9.0", "input_lra": "4.2", "input_thresh": "-37.5", "target_offset": "0.3"}
     text = music.loudnorm_filter(measured)
     assert "linear=true" in text and "measured_I=-27.1" in text and f"I={music.TARGET_LUFS}" in text
+
+
+def test_gear_works_figures_turn_every_3_and_every_4_beats() -> None:
+    """Zone 6: notes fall only on multiples of 3 or 4, and the two figures meet on the multiples of 12."""
+    melody = music.TRACKS["mine_z6"]["melody"]
+    for index, note in enumerate(melody):
+        if note is not None:
+            assert index % 3 == 0 or index % 4 == 0
+        if index % 3 == 0 or index % 4 == 0:
+            assert note is not None
+    assert [index for index in range(len(melody)) if index % 3 == 0 and index % 4 == 0] == [0, 12, 24]

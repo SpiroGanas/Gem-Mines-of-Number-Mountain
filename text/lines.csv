@@ -686,3 +686,6 @@ vocab.simplest_form.term,simplest form,Word Gem term,0
 vocab.simplest_form.definition,Simplest form means the two numbers share no factor but one. Divide both by the GCF to get there.,Word Gem kid-sized definition,0
 vocab.gear_ratio.term,gear ratio,Word Gem term,0
 vocab.gear_ratio.definition,A gear ratio compares how two linked gears turn. A small gear turns more times than a big one.,Word Gem kid-sized definition,0
+badge.euclid.story_gcf_1,Euclid also found a clever way to get the GCF.,"Badge story, Zone 6 addition (Euclid's algorithm), line 1",0
+badge.euclid.story_gcf_2,Take the smaller number away from the bigger. Do it again and again.,"Badge story, Zone 6 addition, line 2 (repeated subtraction)",0
+badge.euclid.story_gcf_3,"When the two numbers match, that number is the GCF!","Badge story, Zone 6 addition, line 3",0

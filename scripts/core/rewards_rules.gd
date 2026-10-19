@@ -156,6 +156,22 @@ static func milestones_reached(rewards: Dictionary, mastered: Array[StringName],
 	return found
 
 
+## From this zone on, mastering a zone's last skill has its own celebration (Zones 1-3 find a museum
+## mineral instead; Zones 4 and 5 shipped without one and keep their behavior).
+const ZONE_DONE_FROM: int = 6
+
+
+## True when `zone` celebrates being finished and every one of its skills (`zone_ids`) is mastered.
+## Rewards calls it on a first-time mastery only, so a zone is celebrated once.
+static func zone_finished(zone: int, zone_ids: Array, mastered: Array[StringName]) -> bool:
+	if zone < ZONE_DONE_FROM or zone_ids.is_empty():
+		return false
+	for id: Variant in zone_ids:
+		if not mastered.has(StringName(str(id))):
+			return false
+	return true
+
+
 ## A museum case is open when the child holds at least one of that mineral.
 static func museum_open(rewards: Dictionary, mineral: StringName) -> bool:
 	return gem_count(rewards, mineral) > 0

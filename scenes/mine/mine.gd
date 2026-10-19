@@ -136,6 +136,7 @@ func _ready() -> void:
 	Rewards.mineral_found.connect(_on_mineral_found)
 	Rewards.badge_earned.connect(_on_badge_earned)
 	Rewards.word_gem_collected.connect(_on_word_gem_collected)
+	Rewards.zone_completed.connect(_on_zone_completed)
 	_door_button = Button.new()
 	_door_button.name = "DoorButton"
 	_door_button.text = Text.get_line(&"door.mine.offer")
@@ -200,6 +201,8 @@ func music_id() -> StringName:
 			return &"mine_z4"
 		5:
 			return &"mine_z5"
+		6:
+			return &"mine_z6"
 	return &"mine"
 
 
@@ -402,6 +405,11 @@ func _on_wind_down_head_up() -> void:
 
 func _on_skill_celebrated(_skill_id: StringName) -> void:
 	_pending_celebrations.append({"line_id": &"bolt.celebrate.mastery", "gem": RewardsRules.MASTERY_GEM})
+
+
+## Every skill of a zone is mastered (Zone 6 on): Bolt cheers for the whole zone.
+func _on_zone_completed(zone: int) -> void:
+	_pending_celebrations.append({"line_id": &"bolt.celebrate.zone_done", "params": {"n": zone}, "gem": RewardsRules.MASTERY_GEM})
 
 
 func _on_mineral_found(gem: StringName) -> void:

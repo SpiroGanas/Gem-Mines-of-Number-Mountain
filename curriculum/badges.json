@@ -1,5 +1,5 @@
 {
-  "_comment": "Mathematician badges (Sprint 19). A badge is earned when every skill in unlock.skills_mastered is mastered: by learning only, never by chance or purchase. The story is 4 to 6 short lines read in order (narrated from Phase 3); numbers in a line are params, never baked in. 'emblem' picks the code-drawn badge picture (BadgeArt); there are no portraits.",
+  "_comment": "Mathematician badges (Sprint 19). A badge is earned when every skill in unlock.skills_mastered is mastered: by learning only, never by chance or purchase. The story is 4 to 6 short lines read in order (narrated from Phase 3); numbers in a line are params, never baked in. 'story_more' (optional, Phase 4): more lines added to the end of the story once its skills_mastered are mastered too (Euclid's GCF story arrives with Zone 6). 'emblem' picks the code-drawn badge picture (BadgeArt); there are no portraits.",
   "schema_version": 1,
   "badges": [
     {
@@ -29,6 +29,14 @@
         {"line_id": "badge.euclid.story_4", "params": {}},
         {"line_id": "badge.euclid.story_5", "params": {}}
       ],
+      "story_more": {
+        "skills_mastered": ["gcf.find.by_listing"],
+        "story": [
+          {"line_id": "badge.euclid.story_gcf_1", "params": {}},
+          {"line_id": "badge.euclid.story_gcf_2", "params": {}},
+          {"line_id": "badge.euclid.story_gcf_3", "params": {}}
+        ]
+      },
       "unlock": {"skills_mastered": ["fac.list.find_all", "prime.classify.single"]}
     },
     {

@@ -9,6 +9,9 @@
 ## underground, Kenney stalactites and stalagmites line the top and bottom edges, tinted to the zone's
 ## rock; the surface workshop's key art is Number Mountain itself, drawn in code: its silhouette
 ## behind the hub with the mine's door glowing with electric light at its foot.
+##
+## Phase 4 (Zone 6, Gear Works, no artist): a warm bronze-and-steel tint with big quiet gears drawn in
+## the rock walls (GearArt). They never turn: the backdrop stays still while the child thinks.
 class_name Backdrop
 extends Control
 
@@ -19,7 +22,12 @@ const PALETTES: Dictionary = {
 	&"zone3": {"top": Color("#37305F"), "bottom": Color("#1A1D3A"), "rock": Color("#3E3768"), "lamps": true, "crystals": true},
 	&"zone4": {"top": Color("#2B3F5C"), "bottom": Color("#1A2238"), "rock": Color("#34486A"), "lamps": true, "crystals": false},
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
+	&"zone6": {"top": Color("#4A3B2C"), "bottom": Color("#1C1A24"), "rock": Color("#584634"), "lamps": true, "crystals": false, "gears": true},
 }
+## The deepest zone with its own palette (the others fall back to the nearest).
+const LAST_PALETTE_ZONE: int = 6
+## Zone 6's wall gears: where (as a share of the screen), how big (share of the height), how many teeth.
+const WALL_GEARS: Array[Vector4] = [Vector4(0.1, 0.2, 0.11, 24), Vector4(0.9, 0.32, 0.09, 16), Vector4(0.82, 0.12, 0.06, 12)]
 const STALACTITES_PATH: String = "res://assets/art/kenney/cave/stalactites.png"
 const STALAGMITES_PATH: String = "res://assets/art/kenney/cave/stalagmites.png"
 ## How tall the edge tiles are drawn, as a share of the screen height.
@@ -41,9 +49,9 @@ const CRYSTAL: Color = Color("#9B6BD6")
 		queue_redraw()
 
 
-## The palette for a zone number (1 to 5; others fall back to the nearest).
+## The palette for a zone number (1 to LAST_PALETTE_ZONE; others fall back to the nearest).
 static func palette_for_zone(zone: int) -> StringName:
-	return StringName("zone%d" % clampi(zone, 1, 5))
+	return StringName("zone%d" % clampi(zone, 1, LAST_PALETTE_ZONE))
 
 
 static func _texture(path: String) -> Texture2D:
@@ -83,11 +91,22 @@ func _draw() -> void:
 		_draw_edge(_texture(STALAGMITES_PATH), s.y * (1.0 - EDGE_HEIGHT), rock.lightened(0.1))
 	elif key_art:
 		_draw_mountain(rock)
+	if colors_now.get("gears", false):
+		_draw_wall_gears(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
 			var height: float = s.y * (0.05 + 0.02 * (index % 2))
 			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(CRYSTAL, 0.8))
+
+
+var _gear_art: GearArt = GearArt.new()
+
+
+## Big gears set into the rock (Zone 6), a little lighter than the rock so they read as part of it.
+func _draw_wall_gears(rock: Color) -> void:
+	for spot: Vector4 in WALL_GEARS:
+		_gear_art.draw(self, Vector2(size.x * spot.x, size.y * spot.y), size.y * spot.z, int(spot.w), 0.0, "", 0, false, rock.lightened(0.18))
 
 
 ## A row of edge tiles across the screen at `y`, tinted to the zone's rock.

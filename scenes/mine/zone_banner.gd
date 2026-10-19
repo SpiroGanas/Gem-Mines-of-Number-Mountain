@@ -38,4 +38,4 @@ func text() -> String:
 
 
 static func line_for(for_zone: int) -> StringName:
-	return StringName("z%d.zone.name" % clampi(for_zone, 1, 5))
+	return StringName("z%d.zone.name" % clampi(for_zone, 1, Backdrop.LAST_PALETTE_ZONE))

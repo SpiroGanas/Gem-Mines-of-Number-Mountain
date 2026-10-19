@@ -51,7 +51,7 @@ func test_every_headlamp_color_is_distinct_and_electric_light() -> void:
 
 func test_every_zone_has_a_palette_and_a_banner_name() -> void:
 	var palettes: Array[StringName] = []
-	for zone: int in range(1, 6):
+	for zone: int in range(1, Backdrop.LAST_PALETTE_ZONE + 1):
 		var palette: StringName = Backdrop.palette_for_zone(zone)
 		assert_bool(Backdrop.PALETTES.has(palette)).is_true()
 		assert_bool(palettes.has(palette)).override_failure_message("zone %d shares a tint" % zone).is_false()
