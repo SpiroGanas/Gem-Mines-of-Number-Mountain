@@ -1,5 +1,7 @@
 # Phase 4: Middle Mountain (Sprints 29–40)
 
+> **Changed 2026-10-19 (Spiro):** no narration and no AI voice. Sprint 22 (voice pipeline, `Narration` autoload), the read-aloud setting, narration coverage and the AI-voice listing note are dropped; the children this game is for read. Phones are supported (no phone exclusion). See `docs/decisions.md`, 2026-10-19.
+
 This document is the implementation plan for Phase 4 of *Gem Mines of Number Mountain*. It expands section 8.5 of the master plan (`docs/development-plan.md`) into enough detail that an experienced engineer, working with an AI coding agent, can build the phase. It assumes the conventions in `CLAUDE.md` (repository layout, Godot 4 syntax only, non-negotiable rules, content rules). The previous phase is `docs/phases/phase-3-public-release-readiness.md`; the next is `docs/phases/phase-5-deep-mountain.md`.
 
 Status: **provisional**. Phase 4 runs only if the game is live on Google Play after Phase 3 and Spiro confirms the roadmap.

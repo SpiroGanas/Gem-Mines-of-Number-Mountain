@@ -1,5 +1,7 @@
 # Phase 3: Public release readiness
 
+> **Changed 2026-10-19 (Spiro):** no narration and no AI voice. Sprint 22 (voice pipeline, `Narration` autoload), the read-aloud setting, narration coverage and the AI-voice listing note are dropped; the children this game is for read. Phones are supported (no phone exclusion). See `docs/decisions.md`, 2026-10-19.
+
 Detailed implementation plan for Phase 3 of *Gem Mines of Number Mountain*. The master plan is `docs/development-plan.md` (section 8.4 is the source for this phase). The previous phase is `docs/phases/phase-2-version-1-0.md`; the next is `docs/phases/phase-4-middle-mountain.md`. Everything in `CLAUDE.md` applies: the non-negotiable rules, the content rules, the "ask Spiro before" list and the definition of done.
 
 ## Overview
