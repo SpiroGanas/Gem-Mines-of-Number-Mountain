@@ -21,6 +21,8 @@ and one for the build site. Which screen plays which file:
     build.ogg    the build site and the crafting bench: a short, bright, steady loop
     mine_z7.ogg  the mine in Zone 7, Crystal Shards (Phase 4): glassy bells that ring only on the
                  halves, quarters and eighths of each 16 beats, like a crystal split into shards
+    mine_z9.ogg  the mine in Zone 9, Pattern Grotto (Phase 4): bells only on the Fibonacci beats
+                 (1, 2, 3, 5, 8, 13) of each 16 over slow chords
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -90,6 +92,15 @@ TRACKS = {
                    73, None, 76, None, 81, None, 83, None, 78, None, 76, None, 73, None, None, None],
         "chords": [[45, 52, 61], [42, 49, 57], [38, 45, 54], [40, 47, 56],
                    [45, 52, 61], [38, 45, 57], [40, 47, 56], [45, 52, 64]],
+    },
+    # Zone 9, Pattern Grotto: D major pentatonic bells only on the Fibonacci beats (1, 2, 3, 5, 8, 13) of
+    # each 16: a tune that grows like the sequence.
+    "mine_z9": {
+        "bpm": 64,
+        "melody": [None, 74, 76, 78, None, 81, None, None, 83, None, None, None, None, 81, None, None,
+                   None, 78, 76, 74, None, 76, None, None, 78, None, None, None, None, 74, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [47, 54, 62], [45, 52, 61],
+                   [38, 45, 54], [43, 50, 59], [45, 52, 61], [38, 45, 57]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {

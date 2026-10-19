@@ -69,3 +69,10 @@ def test_gear_works_figures_turn_every_3_and_every_4_beats() -> None:
         if index % 3 == 0 or index % 4 == 0:
             assert note is not None
     assert [index for index in range(len(melody)) if index % 3 == 0 and index % 4 == 0] == [0, 12, 24]
+
+
+def test_pattern_grotto_bells_ring_only_on_fibonacci_beats() -> None:
+    fibonacci_beats = {1, 2, 3, 5, 8, 13}
+    for index, note in enumerate(music.TRACKS["mine_z9"]["melody"]):
+        if note is not None:
+            assert index % 16 in fibonacci_beats

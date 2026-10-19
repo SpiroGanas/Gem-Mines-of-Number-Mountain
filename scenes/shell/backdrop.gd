@@ -26,9 +26,17 @@ const PALETTES: Dictionary = {
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
 	&"zone6": {"top": Color("#4A3B2C"), "bottom": Color("#1C1A24"), "rock": Color("#584634"), "lamps": true, "crystals": false, "gears": true},
 	&"zone7": {"top": Color("#2A3B63"), "bottom": Color("#141A30"), "rock": Color("#33446F"), "lamps": true, "crystals": true, "crystal_color": Color("#8FE3FF")},
+	# Zone 9, Pattern Grotto (Phase 4): deep plum with pink crystal glow and a golden spiral in the rock.
+	&"zone9": {"top": Color("#4A2E57"), "bottom": Color("#1A1428"), "rock": Color("#573866"), "lamps": true, "crystals": true, "crystal_color": Color("#FFB3E6"), "spiral": true},
 }
-## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
+## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks). Zone 9
+## has its own palette too; this becomes 9 once Zone 8's palette (built in parallel) joins it.
 const LAST_PALETTE_ZONE: int = 7
+## Zone 9's golden spiral in the rock: its center (share of the screen) and its biggest radius (share of
+## the height). Quarter arcs with Fibonacci radii, a little lighter than the rock.
+const SPIRAL_AT: Vector2 = Vector2(0.86, 0.3)
+const SPIRAL_RADIUS: float = 0.26
+const SPIRAL_TERMS: Array[int] = [1, 1, 2, 3, 5, 8, 13]
 ## Zones past the last one that has art fall back to it.
 const LAST_ZONE: int = 12
 ## Zone 6's wall gears: where (as a share of the screen), how big (share of the height), how many teeth.
@@ -103,11 +111,29 @@ func _draw() -> void:
 		_draw_mountain(rock)
 	if colors_now.get("gears", false):
 		_draw_wall_gears(rock)
+	if colors_now.get("spiral", false):
+		_draw_spiral(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
 			var height: float = s.y * (0.05 + 0.02 * (index % 2))
 			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(colors_now.get("crystal_color", CRYSTAL), 0.8))
+
+
+## Zone 9's golden spiral (still, like everything on the backdrop): quarter circles whose radii grow as
+## the Fibonacci numbers, each turning a quarter more, drawn into the rock.
+func _draw_spiral(rock: Color) -> void:
+	var unit: float = size.y * SPIRAL_RADIUS / float(SPIRAL_TERMS.back())
+	var center: Vector2 = Vector2(size.x * SPIRAL_AT.x, size.y * SPIRAL_AT.y)
+	var color: Color = rock.lightened(0.22)
+	var before: float = 0.0
+	for index: int in SPIRAL_TERMS.size():
+		var radius: float = SPIRAL_TERMS[index] * unit
+		var start: float = PI * 0.5 * index
+		# Each arc's center steps back by the radius before it, so the arcs join into one spiral.
+		center -= Vector2.from_angle(start) * (radius - before)
+		draw_arc(center, radius, start, start + PI * 0.5, 16, color, 3.0, true)
+		before = radius
 
 
 var _gear_art: GearArt = GearArt.new()
