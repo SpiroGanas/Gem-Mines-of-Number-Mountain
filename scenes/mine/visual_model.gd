@@ -2,7 +2,8 @@
 ## ten-frames (`ten_frame`, with an optional second set of dots for the second addend), number
 ## lines (`number_line`, with optional jump arcs), a balance scale (`balance`), arrays (`array`),
 ## equal groups (`groups`), gems lined up in pairs (`pairs`) and a number's digits with the part a
-## divisibility rule looks at lit up (`digits`, Zone 5). Gray-box shapes in code; the
+## divisibility rule looks at lit up (`digits`, Zone 5); Zone 7's crystals, fraction line, crystal
+## grids, depth gauge and ore mix are painted by CrystalArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -33,6 +34,9 @@ const HEIGHT_MULTIPLE_ARRAY: float = 4.6
 const HEIGHT_MULTIPLE_GROUPS: float = 4.0
 const HEIGHT_MULTIPLE_PAIRS: float = 3.4
 const HEIGHT_MULTIPLE_DIGITS: float = 3.2
+## Zone 7 pictures (CrystalArt): crystals and grids need room to read; the gauge is tall.
+const HEIGHT_MULTIPLE_CRYSTALS: float = 4.4
+const HEIGHT_MULTIPLE_GAUGE: float = 6.0
 const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
@@ -79,6 +83,10 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_PAIRS
 		&"digits":
 			height = HEIGHT_MULTIPLE_DIGITS
+		&"crystals", &"crystal_grid", &"ore_mix":
+			height = HEIGHT_MULTIPLE_CRYSTALS
+		&"depth_gauge":
+			height = HEIGHT_MULTIPLE_GAUGE
 	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_buttons()
 	queue_redraw()
@@ -261,6 +269,8 @@ func _draw() -> void:
 			_draw_pairs()
 		&"digits":
 			_draw_digits()
+		_:
+			CrystalArt.draw_visual(self, Rect2(Vector2(12, 12), size - Vector2(24, 24)), visual, get_theme_default_font())
 
 
 func _draw_piles() -> void:

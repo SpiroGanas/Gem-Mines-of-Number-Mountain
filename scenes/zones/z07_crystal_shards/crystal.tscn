@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z07_crystal_shards/crystal.gd" id="1_crystal"]
+
+[node name="Crystal" type="VBoxContainer"]
+script = ExtResource("1_crystal")

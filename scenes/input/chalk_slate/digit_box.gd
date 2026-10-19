@@ -34,6 +34,10 @@ const FLAGGED_EDGE: Color = Color("#FFD166")
 
 ## The stroke source. Defaults to the InputRouter autoload; tests inject their own.
 var router: Node
+## The box's size in touch-target multiples; the fraction slate makes smaller, square boxes so a top
+## and a bottom row fit the screen (set before the box enters the tree).
+var width_multiple: float = WIDTH_MULTIPLE
+var height_multiple: float = HEIGHT_MULTIPLE
 
 ## Points normalized to the box (0..1, y down).
 var _strokes: Array[PackedVector2Array] = []
@@ -45,7 +49,7 @@ var _board_style: StyleBoxFlat
 
 
 func _ready() -> void:
-	UI.make_touch_target(self, WIDTH_MULTIPLE, HEIGHT_MULTIPLE)
+	UI.make_touch_target(self, width_multiple, height_multiple)
 	_board_style = StyleBoxFlat.new()
 	_board_style.bg_color = BOARD
 	_board_style.set_corner_radius_all(24)

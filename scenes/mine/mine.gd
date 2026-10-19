@@ -505,7 +505,7 @@ func _overlay_up() -> bool:
 ## hint is keyed to the distractor the child picked or typed).
 static func misconception_of(problem: Problem, given: Variant) -> StringName:
 	for entry: Dictionary in problem.distractors:
-		if Problem.same(entry["value"], given):
+		if Problem.same_value(entry["value"], given): # 2/6 typed for the 1/3 distractor is that mistake
 			return StringName(entry["misconception"])
 	return &""
 
