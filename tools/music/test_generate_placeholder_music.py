@@ -43,6 +43,12 @@ def test_prime_caverns_bells_ring_only_on_prime_beats() -> None:
             assert index % 16 in primes
 
 
+def test_crystal_shards_bells_ring_only_on_the_even_beats() -> None:
+    for index, note in enumerate(music.TRACKS["mine_z7"]["melody"]):
+        if note is not None:
+            assert index % 2 == 0
+
+
 def test_the_loops_are_different_tunes() -> None:
     melodies = [tuple(music.TRACKS[name]["melody"]) for name in music.TRACK_NAMES]
     assert len(set(melodies)) == len(melodies)

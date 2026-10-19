@@ -41,7 +41,7 @@ func test_a_missing_recipe_file_gives_no_recipes() -> void:
 
 func test_the_shipped_builds_are_sound() -> void:
 	var builds: Array[BuildProject] = BuildProject.load_all()
-	assert_int(builds.size()).is_equal(2)
+	assert_int(builds.size()).is_equal(3) # the cart track, the balance elevator, the Alloy Mixer (Zone 7)
 	assert_array(BuildProject.validate(builds, SkillCatalog.load_all(), _has_line)).is_empty()
 
 

@@ -33,6 +33,8 @@ static func finished_params(build_id: StringName) -> Dictionary:
 			return {"a": 6, "c": 10, "filled": true}
 		&"balance_elevator":
 			return {"groups": 3, "size": 4, "balanced": true}
+		&"alloy_mixer":
+			return {"a": 2, "b": 3, "copper": 8, "tin": 12, "mixed": true}
 	return {}
 
 
@@ -58,6 +60,7 @@ func _make_row(build: BuildProject) -> Control:
 	if not built:
 		preview["filled"] = false
 		preview["balanced"] = false
+		preview["mixed"] = false
 	art.show_kind(build.id, preview)
 	row.add_child(art)
 	var words: VBoxContainer = VBoxContainer.new()

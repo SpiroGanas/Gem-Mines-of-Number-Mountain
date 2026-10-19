@@ -7,6 +7,8 @@
 ##   cart_track         params {a, c, filled}: a rail of a units, a gap to c, filled when solved
 ##   balance_elevator   params {groups, size, balanced}: crates on one pan, the counterweight on the
 ##                      other; balanced lifts the cage
+##   alloy_mixer        params {a, b, copper, tin, mixed}: Zone 7's ore hoppers and electric drum
+##                      (drawn by AlloyMixerArt, scenes/workshop/builds/alloy_mixer/)
 ## `phase` (0..1) moves the machines; the hub tweens it while the machine is on screen.
 class_name WorkshopArt
 extends Control
@@ -52,6 +54,8 @@ func _draw() -> void:
 			_draw_cart_track()
 		&"balance_elevator":
 			_draw_balance_elevator()
+		&"alloy_mixer":
+			AlloyMixerArt.draw(self, size, params, phase)
 
 
 func _box() -> Rect2:

@@ -9,6 +9,9 @@
 ## underground, Kenney stalactites and stalagmites line the top and bottom edges, tinted to the zone's
 ## rock; the surface workshop's key art is Number Mountain itself, drawn in code: its silhouette
 ## behind the hub with the mine's door glowing with electric light at its foot.
+##
+## Phase 4: Zone 7 (Crystal Shards) is deep teal-violet with glowing crystals in a cooler blue. A zone
+## without its own palette takes the deepest one before it.
 class_name Backdrop
 extends Control
 
@@ -19,7 +22,10 @@ const PALETTES: Dictionary = {
 	&"zone3": {"top": Color("#37305F"), "bottom": Color("#1A1D3A"), "rock": Color("#3E3768"), "lamps": true, "crystals": true},
 	&"zone4": {"top": Color("#2B3F5C"), "bottom": Color("#1A2238"), "rock": Color("#34486A"), "lamps": true, "crystals": false},
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
+	&"zone7": {"top": Color("#2A3B63"), "bottom": Color("#141A30"), "rock": Color("#33446F"), "lamps": true, "crystals": true, "crystal_color": Color("#8FE3FF")},
 }
+## Zones past the last one that has art fall back to it.
+const LAST_ZONE: int = 12
 const STALACTITES_PATH: String = "res://assets/art/kenney/cave/stalactites.png"
 const STALAGMITES_PATH: String = "res://assets/art/kenney/cave/stalagmites.png"
 ## How tall the edge tiles are drawn, as a share of the screen height.
@@ -41,9 +47,14 @@ const CRYSTAL: Color = Color("#9B6BD6")
 		queue_redraw()
 
 
-## The palette for a zone number (1 to 5; others fall back to the nearest).
+## The palette for a zone number: its own, or the deepest zone's before it that has one (zones
+## below 1 take Zone 1's).
 static func palette_for_zone(zone: int) -> StringName:
-	return StringName("zone%d" % clampi(zone, 1, 5))
+	for candidate: int in range(clampi(zone, 1, LAST_ZONE), 0, -1):
+		var name: StringName = StringName("zone%d" % candidate)
+		if PALETTES.has(name):
+			return name
+	return &"zone1"
 
 
 static func _texture(path: String) -> Texture2D:
@@ -87,7 +98,7 @@ func _draw() -> void:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
 			var height: float = s.y * (0.05 + 0.02 * (index % 2))
-			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(CRYSTAL, 0.8))
+			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(colors_now.get("crystal_color", CRYSTAL), 0.8))
 
 
 ## A row of edge tiles across the screen at `y`, tinted to the zone's rock.

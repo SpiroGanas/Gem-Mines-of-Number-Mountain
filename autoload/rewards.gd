@@ -24,6 +24,8 @@ signal build_step_finished(build_id: StringName, step: int, done: bool)
 signal badge_earned(badge_id: StringName)
 signal word_gem_collected(term_id: StringName)
 signal family_points_changed(total: int)
+## Every skill of a zone is now mastered, for the first time (Phase 4: zones with a zN.zone.done line).
+signal zone_completed(zone: int)
 
 var _session: Dictionary = {}
 var _recipes: Array[Recipe] = []
@@ -352,4 +354,7 @@ func _on_skill_mastered(skill_id: StringName, first_time: bool) -> void:
 		RewardsRules.add_gem(data(), mineral)
 		_session["minerals"].append(mineral)
 		mineral_found.emit(mineral)
+	var zone: int = Adaptive.catalog().skill(skill_id).zone
+	if RewardsRules.zone_complete(zones.get(zone, []), Adaptive.mastered()) and Text.has_line(RewardsRules.zone_done_line(zone)):
+		zone_completed.emit(zone)
 	SaveSystem.save_now()

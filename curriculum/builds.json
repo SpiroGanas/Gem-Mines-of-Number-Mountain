@@ -29,6 +29,20 @@
         {"step_id": "weights_2", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}},
         {"step_id": "weights_3", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}}
       ]
+    },
+    {
+      "id": "alloy_mixer",
+      "name_line_id": "build.alloy_mixer.name",
+      "intro_line_id": "build.alloy_mixer.intro",
+      "reward_line_id": "build.alloy_mixer.done",
+      "zone_unlocks": 7,
+      "locks_zone": false,
+      "unlock_after_skill": "ratio.describe.part_part",
+      "steps": [
+        {"step_id": "mix_1", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete", "difficulty": -1}},
+        {"step_id": "mix_2", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete"}},
+        {"step_id": "mix_3", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete"}}
+      ]
     }
   ]
 }

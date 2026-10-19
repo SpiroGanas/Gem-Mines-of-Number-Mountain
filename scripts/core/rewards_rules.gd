@@ -137,6 +137,21 @@ static func is_lit(rewards: Dictionary, day: String) -> bool:
 
 ## Museum minerals newly earned now that `mastered` skills are mastered. `zones` maps a zone
 ## number to its skill ids. Minerals already held are not given again.
+## True when every skill id of a zone (`zone_ids`, not empty) is mastered.
+static func zone_complete(zone_ids: Array, mastered: Array[StringName]) -> bool:
+	if zone_ids.is_empty():
+		return false
+	for id: Variant in zone_ids:
+		if not mastered.has(StringName(str(id))):
+			return false
+	return true
+
+
+## Bolt's line when a whole zone is mastered: zN.zone.done (Zone 7 has one).
+static func zone_done_line(zone: int) -> StringName:
+	return StringName("z%d.zone.done" % zone)
+
+
 static func milestones_reached(rewards: Dictionary, mastered: Array[StringName], zones: Dictionary) -> Array[StringName]:
 	var found: Array[StringName] = []
 	for milestone: Dictionary in MILESTONES:
