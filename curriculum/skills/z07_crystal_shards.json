@@ -228,7 +228,7 @@
     {
       "id": "negative.depth.read",
       "name": "Read depths below zero",
-      "prereqs": ["count.to_120.read"],
+      "prereqs": ["count.to_120.read", "fraction.part.of_whole"],
       "generator": "NegativeGenerator",
       "params": {"mode": "read", "min_depth": -30},
       "representations": ["pictorial"],
