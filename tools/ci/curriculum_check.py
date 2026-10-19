@@ -34,10 +34,11 @@ KNOWN_GENERATORS = frozenset({
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
     "MultFactsGenerator", "DivFactsGenerator", "FactorsGenerator", "MultiplesGenerator", "PrimeCompositeGenerator",
     "SieveGenerator", "DivisibilityGenerator", "FactorTreeGenerator", "FtaGenerator",
+    "GcfGenerator", "LcmGenerator", "GearGenerator", "SimplifyGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
-WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits"})
+WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits", "lists", "gears"})
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
 ZONE_STATUSES = frozenset({"detailed", "outline"})

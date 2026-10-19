@@ -127,7 +127,7 @@ func test_finishing_the_elevator_opens_zone_4() -> void:
 			screen.next_button().pressed.emit()
 	assert_bool(Rewards.is_built(&"balance_elevator")).is_true()
 	assert_bool(screen.celebration.visible).is_true()
-	assert_array(Adaptive.locked_zones()).is_empty()
+	assert_bool(Adaptive.locked_zones().has(4)).is_false()
 	assert_bool(Adaptive.frontier().has(zone_4_first)).is_true()
 
 

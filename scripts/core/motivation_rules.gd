@@ -62,7 +62,7 @@ static func family(save: Dictionary) -> Dictionary:
 
 
 ## The badge list from curriculum/badges.json: [{id, name_line_id, emblem, story: [{line_id, params}],
-## unlock: {skills_mastered: [...]}}].
+## story_more?: {skills_mastered: [...], story: [...]}, unlock: {skills_mastered: [...]}}].
 static func load_badges(path: String = BADGES_PATH) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var data: Variant = JsonUtil.parse_file(path)
@@ -71,6 +71,23 @@ static func load_badges(path: String = BADGES_PATH) -> Array[Dictionary]:
 			if entry is Dictionary:
 				result.append(entry)
 	return result
+
+
+## The story a badge tells now: its own lines, then its `story_more` lines once every skill those
+## list is mastered (Phase 4: Euclid's GCF story arrives with Zone 6). Pure.
+static func story_for(badge: Dictionary, mastered: Array[StringName]) -> Array[Dictionary]:
+	var lines: Array[Dictionary] = []
+	for entry: Variant in badge.get("story", []):
+		lines.append(entry)
+	var more: Variant = badge.get("story_more")
+	if not more is Dictionary:
+		return lines
+	for skill: Variant in more.get("skills_mastered", []):
+		if not mastered.has(StringName(str(skill))):
+			return lines
+	for entry: Variant in more.get("story", []):
+		lines.append(entry)
+	return lines
 
 
 static func has_badge(save: Dictionary, badge_id: StringName) -> bool:

@@ -7,7 +7,12 @@ REQUIRED_KEYS = (
     "answer_modes", "distractors", "visual", "hint_steps", "params", "meta",
 )
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
-VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits")
+VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits", "lists", "gears")
+LIST_KINDS = ("factors", "multiples", "recipe")
+MAX_LIST_ITEMS = 16
+MAX_LIST_ROWS = 2
+MAX_GEARS = 3
+GEAR_TEETH = (2, 200)
 DIGIT_FOCUS = ("last", "last_two", "sum", "sum_and_last", "recipe")
 TILTS = ("unknown", "level", "left", "right")
 
@@ -162,6 +167,43 @@ def check_visual(visual: dict, where: str) -> list[str]:
             errors.append(f"{where}: digits must be 1 to 4 digits from 0 to 9")
         if visual.get("focus") not in DIGIT_FOCUS:
             errors.append(f"{where}: unknown digits focus {visual.get('focus')!r}")
+    elif kind == "lists":
+        errors += _check_lists(visual, where)
+    elif kind == "gears":
+        teeth = visual.get("teeth")
+        if not isinstance(teeth, list) or not 1 <= len(teeth) <= MAX_GEARS:
+            return errors + [f"{where}: gears needs 1 to {MAX_GEARS} gears"]
+        for count in teeth:
+            if not is_int(count) or not GEAR_TEETH[0] <= count <= GEAR_TEETH[1]:
+                errors.append(f"{where}: a gear has {count!r} teeth, not {GEAR_TEETH[0]} to {GEAR_TEETH[1]}")
+        if "shaded" in visual and (not is_int(visual["shaded"]) or not 0 <= visual["shaded"] <= teeth[0]):
+            errors.append(f"{where}: shaded must be 0 to the first gear's teeth")
+    return errors
+
+
+def _check_lists(visual: dict, where: str) -> list[str]:
+    """A `lists` picture (Zone 6): a known kind, one or two rows, marks and lit positions that exist."""
+    errors: list[str] = []
+    if visual.get("kind") not in LIST_KINDS:
+        errors.append(f"{where}: unknown lists kind {visual.get('kind')!r}")
+    rows = visual.get("rows")
+    if not isinstance(rows, list) or not 1 <= len(rows) <= MAX_LIST_ROWS:
+        return errors + [f"{where}: lists needs 1 to {MAX_LIST_ROWS} rows"]
+    shown: list = []
+    for row in rows:
+        items = row.get("items") if isinstance(row, dict) else None
+        if not isinstance(row, dict) or not is_int(row.get("n")) or not isinstance(items, list) or not 1 <= len(items) <= MAX_LIST_ITEMS:
+            errors.append(f"{where}: each row needs n and 1 to {MAX_LIST_ITEMS} items")
+            continue
+        if not all(is_int(item) and item >= 1 for item in items):
+            errors.append(f"{where}: list items must be whole numbers above 0")
+        for index in row.get("lit", []):
+            if not is_int(index) or not 0 <= index < len(items):
+                errors.append(f"{where}: lit position {index!r} is off the row")
+        shown += items
+    for value in visual.get("marked", []):
+        if value not in shown:
+            errors.append(f"{where}: marked {value!r} is in no row")
     return errors
 
 
@@ -218,6 +260,14 @@ def check_input_meta(problem: dict) -> list[str]:
         for value in values:
             if not isinstance(value, list) or not value or not all(is_int(v) and v >= 1 for v in value):
                 errors.append(f"factor tree: {value!r} must be a list of pieces")
+    bench = meta.get("gear_bench")
+    if bench is not None:
+        tray = bench.get("tray", [])
+        if not isinstance(tray, list) or tray != sorted(tray) or len(tray) != len(values):
+            errors.append("gear bench: the tray must hold the answer and every wrong gear, smallest first")
+        for value in values:
+            if value not in tray:
+                errors.append(f"gear bench: gear {value!r} is not in the tray")
     labels = meta.get("label_lines")
     if labels is not None:
         for value in values:

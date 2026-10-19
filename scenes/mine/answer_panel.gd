@@ -13,6 +13,8 @@
 ##               meta.sieve_grid)
 ##   TREE        build a factor tree by splitting pieces with the pickaxe, then Done (Zone 5,
 ##               meta.factor_tree)
+##   GEAR        drag a gear from the tray onto the empty axle of the gear bench, watch it turn, then
+##               Go (Zone 6, meta.gear_bench)
 ##   SLATE       write the number with a finger or stylus on the ChalkSlate (Phase 2), one digit per
 ##               box. Takes the number pad's place when the skill lists the `handwriting` mode, the
 ##               device can read handwriting (DigitInk.is_available), a grown-up has not turned it off
@@ -31,7 +33,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR }
 
 const BOARD_SCENE: PackedScene = preload("res://scenes/input/build_board.tscn")
 const CHOICES_SCENE: PackedScene = preload("res://scenes/input/choice_buttons.tscn")
@@ -41,6 +43,7 @@ const ARRAY_SCENE: PackedScene = preload("res://scenes/input/array_builder.tscn"
 const SPLIT_SCENE: PackedScene = preload("res://scenes/mine/boulder_split/boulder_split.tscn")
 const SIEVE_SCENE: PackedScene = preload("res://scenes/zones/z05_prime_caverns/sieve_grid.tscn")
 const TREE_SCENE: PackedScene = preload("res://scenes/zones/z05_prime_caverns/factor_tree.tscn")
+const GEAR_SCENE: PackedScene = preload("res://scenes/zones/z06_gear_works/gear_bench.tscn")
 const SLATE_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/chalk_slate.tscn")
 const VISUAL_SCENE: PackedScene = preload("res://scenes/mine/visual_model.tscn")
 ## How often a blind guess is right when the answer is typed or built rather than picked from a
@@ -70,6 +73,7 @@ var _slate: ChalkSlate
 var _split: BoulderSplit
 var _sieve: SieveGrid
 var _tree: FactorTree
+var _gear_bench: GearBench
 var _example: PanelContainer
 var _enabled: bool = false
 
@@ -116,6 +120,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.SPLIT
 			if for_problem.meta.has("factor_tree"):
 				return InputKind.TREE
+			if for_problem.meta.has("gear_bench"):
+				return InputKind.GEAR
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
@@ -144,6 +150,8 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			for factor: Variant in spec.get("factors", []):
 				factors.append(int(factor))
 			return 1.0 / float(maxi(BoulderSplit.pairs_for(int(spec["value"]), factors).size(), 1))
+		InputKind.GEAR:
+			return 1.0 / float(maxi(for_problem.meta["gear_bench"].get("tray", []).size() - eliminated, 1))
 		_:
 			return FREE_RESPONSE_CHANCE
 	return 1.0 / float(maxi(options - eliminated, 1))
@@ -196,6 +204,10 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 			"product":
 				joiner = " × "
 		return joiner.join(parts)
+	if value is Dictionary and value.size() == 2 and value.has("num") and value.has("den"):
+		return "%d/%d" % [int(value["num"]), int(value["den"])] # a fraction (Zone 6 on)
+	if value is Dictionary and value.size() == 2 and value.has("a") and value.has("b"):
+		return "%d : %d" % [int(value["a"]), int(value["b"])] # a ratio (Zone 6 on)
 	return str(value)
 
 
@@ -230,6 +242,8 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_sieve()
 		InputKind.TREE:
 			_add_tree()
+		InputKind.GEAR:
+			_add_gear_bench()
 	set_enabled(_enabled)
 
 
@@ -258,6 +272,8 @@ func set_enabled(enabled: bool) -> void:
 		_sieve.set_enabled(enabled)
 	if _tree != null:
 		_tree.set_enabled(enabled)
+	if _gear_bench != null:
+		_gear_bench.set_enabled(enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
 		for button: Button in _visual.pile_buttons():
 			button.disabled = not enabled
@@ -393,6 +409,10 @@ func factor_tree() -> FactorTree:
 	return _tree
 
 
+func gear_bench() -> GearBench:
+	return _gear_bench
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -409,6 +429,7 @@ func _clear() -> void:
 	_split = null
 	_sieve = null
 	_tree = null
+	_gear_bench = null
 	_example = null
 
 
@@ -528,6 +549,19 @@ func _add_tree() -> void:
 	add_child(_tree)
 	_tree.setup(int(problem.meta["factor_tree"]["value"]))
 	_tree.submitted.connect(_on_value_given)
+
+
+## The gear bench (meta.gear_bench = {driver, turns, tray}); Go gives the teeth of the gear on the axle.
+func _add_gear_bench() -> void:
+	var spec: Dictionary = problem.meta["gear_bench"]
+	_gear_bench = GEAR_SCENE.instantiate()
+	_gear_bench.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_gear_bench)
+	var tray: Array[int] = []
+	for teeth: Variant in spec.get("tray", []):
+		tray.append(int(teeth))
+	_gear_bench.setup(int(spec["driver"]), tray, int(spec.get("turns", 1)))
+	_gear_bench.gear_chosen.connect(_on_value_given)
 
 
 ## The slate sits beside the picture, where the number pad would. If it cannot read (no

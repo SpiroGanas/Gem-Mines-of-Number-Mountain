@@ -35,6 +35,10 @@ static func table() -> Dictionary:
 		&"DivisibilityGenerator": DivisibilityGenerator.generate,
 		&"FactorTreeGenerator": FactorTreeGenerator.generate,
 		&"FtaGenerator": FtaGenerator.generate,
+		&"GcfGenerator": GcfGenerator.generate,
+		&"LcmGenerator": LcmGenerator.generate,
+		&"GearGenerator": GearGenerator.generate,
+		&"SimplifyGenerator": SimplifyGenerator.generate,
 	}
 
 

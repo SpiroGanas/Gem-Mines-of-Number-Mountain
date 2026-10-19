@@ -41,7 +41,7 @@ func test_a_missing_recipe_file_gives_no_recipes() -> void:
 
 func test_the_shipped_builds_are_sound() -> void:
 	var builds: Array[BuildProject] = BuildProject.load_all()
-	assert_int(builds.size()).is_equal(2)
+	assert_int(builds.size()).is_greater_equal(3) # cart track, balance elevator, Conveyor Sync (Zone 6)
 	assert_array(BuildProject.validate(builds, SkillCatalog.load_all(), _has_line)).is_empty()
 
 
@@ -53,6 +53,9 @@ func test_the_balance_elevator_opens_zone_4_and_the_cart_track_locks_nothing() -
 				assert_bool(build.locks_zone).is_true()
 			&"cart_track":
 				assert_bool(build.locks_zone).is_false()
+			&"conveyor_sync":
+				assert_int(build.zone_unlocks).is_equal(6)
+				assert_bool(build.locks_zone).is_true()
 
 
 func test_a_broken_build_fails_validation() -> void:

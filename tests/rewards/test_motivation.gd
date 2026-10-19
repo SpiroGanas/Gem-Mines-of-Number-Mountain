@@ -34,6 +34,22 @@ func test_the_four_badges_are_sound() -> void:
 	assert_array(ids).contains_exactly(["gauss", "euclid", "eratosthenes", "sophie_germain"])
 
 
+func test_euclid_tells_his_gcf_story_once_the_gcf_is_mastered() -> void:
+	var euclid: Dictionary = {}
+	for badge: Dictionary in MotivationRules.load_badges():
+		if badge["id"] == "euclid":
+			euclid = badge
+	var plain: Array[Dictionary] = MotivationRules.story_for(euclid, [&"fac.list.find_all", &"prime.classify.single"])
+	assert_int(plain.size()).is_equal(euclid["story"].size())
+	var longer: Array[Dictionary] = MotivationRules.story_for(euclid, [&"fac.list.find_all", &"prime.classify.single", &"gcf.find.by_listing"])
+	assert_int(longer.size()).is_equal(euclid["story"].size() + 3)
+	for entry: Dictionary in longer:
+		assert_bool(Text.has_line(StringName(str(entry["line_id"])))).is_true()
+	assert_str(String(longer.back()["line_id"])).is_equal("badge.euclid.story_gcf_3")
+	for skill: Variant in euclid["story_more"]["skills_mastered"]:
+		assert_bool(Adaptive.catalog().has_skill(StringName(str(skill)))).is_true()
+
+
 func test_a_badge_comes_only_when_every_listed_skill_is_mastered() -> void:
 	var save: Dictionary = SaveSchema.new_profile("t")
 	var badges: Array[Dictionary] = [{"id": "test", "unlock": {"skills_mastered": ["a.b.c", "d.e.f"]}}, {"id": "free", "unlock": {}}]

@@ -41,6 +41,8 @@ from checkers import (  # noqa: E402
     fact_family,
     factor_tree,
     factors,
+    gcf_lcm,
+    gears,
     missing_part,
     mult_facts,
     multiples,
@@ -49,6 +51,7 @@ from checkers import (  # noqa: E402
     place_value,
     prime_composite,
     regroup,
+    simplify,
     sieve,
     skip_count,
     subtraction,
@@ -77,6 +80,10 @@ CHECKERS = {
     "DivisibilityGenerator": divisibility.check,
     "FactorTreeGenerator": factor_tree.check,
     "FtaGenerator": factor_tree.check,
+    "GcfGenerator": gcf_lcm.check_gcf,
+    "LcmGenerator": gcf_lcm.check_lcm,
+    "GearGenerator": gears.check,
+    "SimplifyGenerator": simplify.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10
