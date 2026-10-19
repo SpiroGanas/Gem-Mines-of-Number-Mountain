@@ -4,7 +4,7 @@ Human-readable skill graph and vocabulary, checked by the math reviewer without 
 
 | File | What it holds |
 |---|---|
-| `skills/zNN_<zone>.json` | One file per zone (12 files). `"status": "detailed"` zones carry full skill records; `"status": "outline"` zones carry only `id` and `name` until their sprint. Zones 1-3 are detailed (45 skills, the MVP), and so are Zone 4, Factor Workshop (16 more, Sprint 15), and Zone 5, Prime Caverns (11 more, Sprint 18). |
+| `skills/zNN_<zone>.json` | One file per zone (12 files). `"status": "detailed"` zones carry full skill records; `"status": "outline"` zones carry only `id` and `name` until their sprint. Zones 1-3 are detailed (45 skills, the MVP), and so are Zone 4, Factor Workshop (16 more, Sprint 15), and Zone 5, Prime Caverns (11 more, Sprint 18). Phase 4: Zone 7, Crystal Shards, is detailed (20 skills, Sprint 32; fraction and decimal answers are exact Dictionaries, see `scripts/core/rational.gd`). |
 | `vocabulary.json` | Word Gems: every math term, the zone that introduces it, and the line ids of its name and kid-sized definition in `text/lines.csv`. `visual` is the small picture on the Word Gem card (a problem visual, drawn by the mine's visual model); `picture` stays `null` until commissioned art. |
 | `misconceptions.json` | The allowed names for problem distractors, each with a parent-facing description. Generators and tests reject any other name. |
 | `bkt_defaults.json` | Bayesian Knowledge Tracing parameters per skill type, plus `hint_weight` and the fact-skill `fluency_ms`. **Do not change without asking Spiro.** |
