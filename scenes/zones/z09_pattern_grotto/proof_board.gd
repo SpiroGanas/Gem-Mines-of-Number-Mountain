@@ -18,8 +18,9 @@ signal chosen(diagram_id: String)
 signal fitted
 
 const PICTURE_HEIGHT_MULTIPLE: float = 2.4
-## Fact buttons: two columns, one touch target tall, so the board fits a landscape phone.
-const FACT_WIDTH_MULTIPLE: float = 4.0
+## Fact buttons: two columns, one touch target tall, so the board fits a landscape phone. A fact wraps
+## onto two lines inside its button (fact_label).
+const FACT_WIDTH_MULTIPLE: float = 5.5
 const FIT_BUTTON_WIDTH: float = 3.2
 const GLIDE_SECONDS: float = 0.35
 
@@ -121,13 +122,32 @@ func _build_facts() -> void:
 		var id: String = str(_options[index]["value"])
 		var button: Button = Button.new()
 		button.name = "Fact_%s" % id
-		button.text = str(_options[index]["label"])
 		button.focus_mode = Control.FOCUS_NONE
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		UI.make_touch_target(button, FACT_WIDTH_MULTIPLE, 1.0)
+		button.add_child(_fact_label(str(_options[index]["label"])))
 		button.pressed.connect(_on_fact_chosen.bind(id))
 		_facts.add_child(button)
 		_fact_buttons[id] = button
+
+
+## A fact's words on two lines inside its button. A Button's own autowrap asks for the height of one
+## word a line (hundreds of pixels, off every screen); a Label filling the button wraps at its width.
+func _fact_label(text: String) -> Label:
+	var label: Label = Label.new()
+	label.name = "Words"
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+	return label
+
+
+## The words on a fact button (its Label child).
+func fact_text(diagram_id: String) -> String:
+	var button: Button = fact_button(diagram_id)
+	return (button.get_node("Words") as Label).text if button != null else ""
 
 
 ## How far the loose piece is in place: 0 apart, 1 fitted.
@@ -205,6 +225,7 @@ func _refresh() -> void:
 	_fit_button.disabled = not _enabled
 	for button: Button in _fact_buttons.values():
 		button.disabled = not _enabled
+		button.modulate.a = 1.0 if _enabled else 0.6 # the words dim with the button
 	_refresh_button(_picture.fit)
 
 

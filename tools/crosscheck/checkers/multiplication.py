@@ -22,7 +22,8 @@ MAX_SIDE = 10
 @lru_cache(maxsize=1)
 def line_texts() -> dict[str, str]:
     with LINES_CSV.open(encoding="utf-8", newline="") as handle:
-        return {row["id"]: row["text"] for row in csv.DictReader(handle)}
+        # A Scholar-mode row (the optional `mode` column) is a longer variant of the same id: skip it.
+        return {row["id"]: row["text"] for row in csv.DictReader(handle) if (row.get("mode") or "") != "scholar"}
 
 
 def add_groups(groups: int, size: int) -> int:

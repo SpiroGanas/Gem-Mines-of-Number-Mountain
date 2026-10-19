@@ -222,9 +222,11 @@ func toggle_coaching() -> void:
 ## (already in the schema, so no migration); ModeGate decides what each setting turns on.
 func _add_interface_row() -> void:
 	_content.add_child(_label(&"parent.dash.interface"))
-	var row: HBoxContainer = HBoxContainer.new()
+	# A flow row: the three long buttons wrap to the next line where the width runs out (phones, 4:3).
+	var row: HFlowContainer = HFlowContainer.new()
 	row.name = "InterfaceRow"
-	row.add_theme_constant_override(&"separation", 16)
+	row.add_theme_constant_override(&"h_separation", 16)
+	row.add_theme_constant_override(&"v_separation", 16)
 	_content.add_child(row)
 	var current: String = ModeGate.clean_setting(str(SaveSystem.data()["settings"].get("interface_mode", ModeGate.EXPLORER)))
 	for mode: String in ModeGate.SETTINGS:

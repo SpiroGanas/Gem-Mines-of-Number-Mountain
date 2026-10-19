@@ -13,7 +13,9 @@ func _ready() -> void:
 	build_frame(&"badge.case.title")
 	back_to = &"museum"
 	var grid: GridContainer = GridContainer.new()
-	grid.columns = 2 if Rewards.badges().size() <= 4 else 3 # five badges from Zone 9 on: two rows of three
+	# Two columns always: three (tried for Zone 9's fifth badge) pushed Bolt's column off a 16:9 screen;
+	# a third row scrolls instead.
+	grid.columns = 2
 	grid.add_theme_constant_override(&"h_separation", 24)
 	grid.add_theme_constant_override(&"v_separation", 24)
 	body.add_child(UI.vertical_scroll(grid)) # more badges than the height holds scroll (phones)

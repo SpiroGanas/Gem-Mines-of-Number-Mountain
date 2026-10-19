@@ -81,9 +81,11 @@ func _ready() -> void:
 	_go.theme_type_variation = &"GoButton"
 	_go.pressed.connect(submit)
 	row.add_child(_go)
+	# "Use the pad" on a row of its own: beside Erase and Go the row ran off a 16:9 screen.
 	_use_pad = _button(&"ui.keyboard.use_pad", "UsePadButton")
+	_use_pad.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_use_pad.pressed.connect(func() -> void: pad_requested.emit())
-	row.add_child(_use_pad)
+	add_child(_use_pad)
 	_refresh()
 
 

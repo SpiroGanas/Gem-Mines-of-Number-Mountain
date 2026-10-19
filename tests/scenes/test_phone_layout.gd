@@ -18,7 +18,7 @@ const SCREENS: Dictionary = {
 	&"crafting": {}, &"build_site": {}, &"build": {"build_id": "cart_track"}, &"badges": {}, &"glossary": {},
 	&"challenge_door": {"skill_id": "add.to_10.sums"},
 	&"parent_gate": {}, &"dashboard": {}, &"family_rewards": {}, &"profiles": {}, &"onboarding": {},
-	&"how_it_teaches": {},
+	&"how_it_teaches": {}, &"poems": {},
 }
 
 var _dir: String
@@ -44,6 +44,7 @@ func after_test() -> void:
 	DigitInk.reset()
 	ParentGateScreen.forget_lock()
 	DeviceSettings.use_shared(null)
+	ScholarMode.reset_overrides()
 	SaveSystem.use_directory(SaveSystem.DEFAULT_DIR)
 	TestWindow.restore(get_window())
 	get_tree().paused = false
@@ -159,7 +160,9 @@ func test_the_pause_menu_fits() -> void:
 
 
 ## A skill (and whether the slate is on) whose problems get `kind`, found by generating problems.
+## KEYBOARD (Scholar mode's keyboard entry, Zone 8) is asked for with keyboard entry allowed.
 func _skill_for(kind: AnswerPanel.InputKind) -> Array:
+	var keyboard: bool = kind == AnswerPanel.InputKind.KEYBOARD
 	for id: StringName in _catalog.ids():
 		var skill: Skill = _catalog.skill(id)
 		if not GeneratorRegistry.callable_for(skill).is_valid():
@@ -167,7 +170,7 @@ func _skill_for(kind: AnswerPanel.InputKind) -> Array:
 		for seed_value: int in 4:
 			var problem: Problem = GeneratorRegistry.make_problem(skill, 100 + seed_value)
 			for slate: bool in [false, true]:
-				if AnswerPanel.choose_input(problem, slate) == kind:
+				if AnswerPanel.choose_input(problem, slate, keyboard) == kind:
 					return [id, slate]
 	return []
 
@@ -179,6 +182,9 @@ func _mine_with(kind: AnswerPanel.InputKind) -> MineScreen:
 		return null
 	DigitInk.availability_override = found[1]
 	DigitInk.recognizer_override = FakeRecognizer.new()
+	# Keyboard entry needs Scholar mode and a key pressed this session; every other input runs without.
+	ScholarMode.forced_setting = "scholar" if kind == AnswerPanel.InputKind.KEYBOARD else "explorer"
+	ScholarMode.forced_keyboard = kind == AnswerPanel.InputKind.KEYBOARD
 	for seed_value: int in [11, 12, 13, 14]:
 		var mine: MineScreen = load(MINE_SCENE).instantiate()
 		mine.animation_speed = 25.0
