@@ -51,6 +51,15 @@
     {"id": "hundredth", "zone": 7, "term_line_id": "vocab.hundredth.term", "definition_line_id": "vocab.hundredth.definition", "picture": null, "visual": {"type": "crystal_grid", "cells": 100, "grids": [{"wholes": 0, "lit": 1}]}},
     {"id": "percent", "zone": 7, "term_line_id": "vocab.percent.term", "definition_line_id": "vocab.percent.definition", "picture": null, "visual": {"type": "crystal_grid", "cells": 100, "grids": [{"wholes": 0, "lit": 25}]}},
     {"id": "ratio", "zone": 7, "term_line_id": "vocab.ratio.term", "definition_line_id": "vocab.ratio.definition", "picture": null, "visual": {"type": "ore_mix", "a": 2, "b": 3}},
-    {"id": "negative", "zone": 7, "term_line_id": "vocab.negative.term", "definition_line_id": "vocab.negative.definition", "picture": null, "visual": {"type": "depth_gauge", "min": -10, "max": 10, "labeled_every": 5, "markers": [-5]}}
+    {"id": "negative", "zone": 7, "term_line_id": "vocab.negative.term", "definition_line_id": "vocab.negative.definition", "picture": null, "visual": {"type": "depth_gauge", "min": -10, "max": 10, "labeled_every": 5, "markers": [-5]}},
+    {"id": "sequence", "zone": 9, "term_line_id": "vocab.sequence.term", "definition_line_id": "vocab.sequence.definition", "picture": null, "visual": {"type": "pattern", "terms": [3, 5, 7, 9, 11], "blanks": [], "style": "numbers"}},
+    {"id": "term", "zone": 9, "term_line_id": "vocab.term.term", "definition_line_id": "vocab.term.definition", "picture": null, "visual": {"type": "pattern", "terms": [2, 4, 6, 8], "blanks": [], "style": "crystals"}},
+    {"id": "rule", "zone": 9, "term_line_id": "vocab.rule.term", "definition_line_id": "vocab.rule.definition", "picture": null, "visual": {"type": "pattern", "terms": [1, 4, 7, 10], "blanks": [], "style": "numbers", "steps": [3, 3, 3], "step_op": "plus"}},
+    {"id": "triangular_number", "zone": 9, "term_line_id": "vocab.triangular_number.term", "definition_line_id": "vocab.triangular_number.definition", "picture": null, "visual": {"type": "figurate", "kind": "triangle", "n": 4}},
+    {"id": "square_number", "zone": 9, "term_line_id": "vocab.square_number.term", "definition_line_id": "vocab.square_number.definition", "picture": null, "visual": {"type": "figurate", "kind": "square", "n": 4}},
+    {"id": "fibonacci", "zone": 9, "term_line_id": "vocab.fibonacci.term", "definition_line_id": "vocab.fibonacci.definition", "picture": null, "visual": {"type": "fib_squares", "terms": [1, 1, 2, 3, 5, 8]}},
+    {"id": "golden_ratio", "zone": 9, "term_line_id": "vocab.golden_ratio.term", "definition_line_id": "vocab.golden_ratio.definition", "picture": null, "visual": {"type": "fib_squares", "terms": [1, 1, 2, 3, 5, 8, 13]}},
+    {"id": "proof", "zone": 9, "term_line_id": "vocab.proof.term", "definition_line_id": "vocab.proof.definition", "picture": null, "visual": {"type": "proof", "diagram": "staircases", "n": 4, "fitted": true}},
+    {"id": "syllable", "zone": 9, "term_line_id": "vocab.syllable.term", "definition_line_id": "vocab.syllable.definition", "picture": null, "visual": {"type": "poem_shape", "lines": [1, 1, 2, 3, 5, 8], "highlight": 3, "counts": true}}
   ]
 }

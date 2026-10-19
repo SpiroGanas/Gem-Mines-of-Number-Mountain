@@ -11,7 +11,15 @@ REQUIRED_KEYS = (
 HINT_KINDS = ("repeat_highlight", "visual_model", "worked_example", "easier_problem")
 VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits",
                 "lists", "gears",
-                "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix")
+                "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
+                "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape")
+# Zone 9 picture limits (Problem in scripts/core/problem.gd draws within these).
+MAX_PATTERN_TERMS = 6
+MAX_FIGURATE_N = 20
+PAIRING_RANGE = (2, 100)
+MAX_FIB_SQUARES = 8
+FIGURATE_KINDS = ("triangle", "square", "two_triangles")
+WALL_TILES = (2, 6)
 LIST_KINDS = ("factors", "multiples", "recipe")
 MAX_LIST_ITEMS = 16
 MAX_LIST_ROWS = 2
@@ -214,8 +222,46 @@ def check_visual(visual: dict, where: str) -> list[str]:
                 errors.append(f"{where}: a gear has {count!r} teeth, not {GEAR_TEETH[0]} to {GEAR_TEETH[1]}")
         if "shaded" in visual and (not is_int(visual["shaded"]) or not 0 <= visual["shaded"] <= teeth[0]):
             errors.append(f"{where}: shaded must be 0 to the first gear's teeth")
+    elif kind in ("pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape"):
+        errors += _check_zone9_visual(visual, where)
     else:
         errors += _check_zone7_visual(visual, where)
+    return errors
+
+
+def _check_zone9_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 9 pictures can be drawn: tile rows that fit, known figures, Fibonacci squares in order."""
+    errors: list[str] = []
+    kind = visual["type"]
+    if kind == "pattern":
+        terms = visual.get("terms", [])
+        if not isinstance(terms, list) or not 1 <= len(terms) <= MAX_PATTERN_TERMS or not all(is_int(t) and t >= 0 for t in terms):
+            return [f"{where}: a pattern row has 1 to {MAX_PATTERN_TERMS} whole numbers"]
+        if any(not is_int(b) or not 0 <= b < len(terms) for b in visual.get("blanks", [])):
+            errors.append(f"{where}: a blank is off the row")
+        if visual.get("style") not in ("crystals", "numbers"):
+            errors.append(f"{where}: unknown pattern style {visual.get('style')!r}")
+        if "steps" in visual and (len(visual["steps"]) != len(terms) - 1 or visual.get("step_op") not in ("plus", "times")):
+            errors.append(f"{where}: steps go between the tiles, plus or times")
+        if "figure" in visual and (visual["figure"] not in ("triangle", "square") or visual.get("first_index", 0) < 1):
+            errors.append(f"{where}: a figure row is triangles or squares from index 1")
+    elif kind == "figurate":
+        if visual.get("kind") not in FIGURATE_KINDS or not is_int(visual.get("n")) or not 1 <= visual["n"] <= MAX_FIGURATE_N:
+            errors.append(f"{where}: figurate {visual} is not a known kind of size 1 to {MAX_FIGURATE_N}")
+    elif kind == "pairing":
+        if not is_int(visual.get("n")) or not PAIRING_RANGE[0] <= visual["n"] <= PAIRING_RANGE[1]:
+            errors.append(f"{where}: pairing n must be {PAIRING_RANGE[0]} to {PAIRING_RANGE[1]}")
+    elif kind == "fib_squares":
+        terms = visual.get("terms", [])
+        if not 2 <= len(terms) <= MAX_FIB_SQUARES or any(terms[i] != terms[i - 1] + terms[i - 2] for i in range(2, len(terms))):
+            errors.append(f"{where}: {terms} are not 2 to {MAX_FIB_SQUARES} Fibonacci numbers in order")
+    elif kind == "proof":
+        if not isinstance(visual.get("diagram"), str) or not is_int(visual.get("n")) or visual["n"] < 1 or not isinstance(visual.get("fitted"), bool):
+            errors.append(f"{where}: proof picture {visual} is malformed")
+    elif kind == "poem_shape":
+        lines = visual.get("lines", [])
+        if not lines or not is_int(visual.get("highlight")) or not 0 <= visual["highlight"] < len(lines):
+            errors.append(f"{where}: the poem shape's lit line is off the poem")
     return errors
 
 
@@ -364,6 +410,25 @@ def check_input_meta(problem: dict) -> list[str]:
     ride = meta.get("depth_gauge")
     if ride is not None and not (is_int(problem["answer"]) and ride["min"] <= problem["answer"] <= ride["max"] and ride["min"] <= ride["start"] <= ride["max"]):
         errors.append("depth gauge: the cab cannot ride to the answer")
+    wall = meta.get("pattern_wall")
+    if wall is not None:
+        terms, tiles = wall.get("terms", []), wall.get("tiles", [])
+        if terms.count(None) != 1 or len(terms) > MAX_PATTERN_TERMS:
+            errors.append(f"pattern wall: exactly one gap in at most {MAX_PATTERN_TERMS} tiles")
+        if not WALL_TILES[0] <= len(tiles) <= WALL_TILES[1] or tiles != sorted(tiles) or len(set(tiles)) != len(tiles):
+            errors.append("pattern wall: 2 to 6 different tiles, smallest first")
+        for value in values:
+            if not is_int(value) or value not in tiles:
+                errors.append(f"pattern wall: {value!r} is not a tile")
+    board = meta.get("proof_board")
+    if board is not None:
+        if board.get("choices") != sorted(values) or board.get("diagram") != problem["answer"]:
+            errors.append("proof board: the choices are the answer and every wrong answer, sorted, around the answer's diagram")
+        if "label_lines" not in meta:
+            errors.append("proof board: the choices need label lines")
+    label_line = meta.get("label_line")
+    if label_line is not None and not (isinstance(label_line, str) and label_line.count(".") >= 2):
+        errors.append(f"label_line {label_line!r} is not a line id")
     labels = meta.get("label_lines")
     if labels is not None:
         for value in values:

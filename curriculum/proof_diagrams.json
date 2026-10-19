@@ -1,0 +1,11 @@
+{
+  "_comment": "Proof-without-words diagrams (Zone 9, proof.words.match). The picture is drawn in code (PatternArt, visual type 'proof'); the answer of a problem is a diagram id and its button reads label_line_id. 'explains' is for grown-ups and the math reviewer (never shown to the child). n is the picture's size.",
+  "schema_version": 1,
+  "diagrams": [
+    {"id": "staircases", "label_line_id": "z9.proof.fact_staircases", "min_n": 3, "max_n": 6, "explains": "Two staircases of 1 + 2 + ... + n gems fit into an n by (n + 1) rectangle, so the sum is half of n x (n + 1) (Gauss's sum)."},
+    {"id": "two_triangles", "label_line_id": "z9.proof.fact_two_triangles", "min_n": 3, "max_n": 6, "explains": "The staircases of n rows and n - 1 rows fit into an n by n square: T(n) + T(n - 1) = n x n."},
+    {"id": "odd_layers", "label_line_id": "z9.proof.fact_odd_layers", "min_n": 3, "max_n": 6, "explains": "L-shaped layers of 1, 3, 5, ... gems stack into a square: the first n odd numbers add up to n x n."},
+    {"id": "array_turn", "label_line_id": "z9.proof.fact_array_turn", "min_n": 3, "max_n": 6, "explains": "An n by (n + 2) array turned a quarter turn is an (n + 2) by n array with the same gems: a x b = b x a."},
+    {"id": "fib_squares", "label_line_id": "z9.proof.fact_fib_squares", "min_n": 4, "max_n": 7, "explains": "Squares whose sides are the first n Fibonacci numbers fit together into a rectangle of F(n) by F(n + 1)."}
+  ]
+}

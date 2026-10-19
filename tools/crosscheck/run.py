@@ -42,7 +42,10 @@ from checkers import (  # noqa: E402
     fact_family,
     factor_tree,
     factors,
+    fibonacci,
+    figurate,
     fractions,
+    gauss,
     gcf_lcm,
     gears,
     missing_part,
@@ -53,8 +56,10 @@ from checkers import (  # noqa: E402
     parity,
     place_value,
     prime_composite,
+    proof_poem,
     ratio,
     regroup,
+    sequences,
     simplify,
     sieve,
     skip_count,
@@ -95,6 +100,13 @@ CHECKERS = {
     "PercentGenerator": decimals.check,
     "RatioGenerator": ratio.check,
     "NegativeGenerator": negatives.check,
+    # Zone 9 (Phase 4)
+    "SequenceGenerator": sequences.check,
+    "FigurateGenerator": figurate.check,
+    "FibGenerator": fibonacci.check,
+    "GaussGenerator": gauss.check,
+    "ProofGenerator": proof_poem.check_proof,
+    "FibPoemGenerator": proof_poem.check_poem,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

@@ -218,6 +218,54 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 				errors.append("%s: shaded must be 0 to the first gear's teeth" % where)
 		&"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix":
 			errors.append_array(zone7_visual_errors(visual, where))
+		&"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape":
+			errors.append_array(zone9_visual_errors(visual, where))
+	return errors
+
+
+## The Zone 9 pictures (Problem.VISUAL_TYPES) must be drawable: rows of tiles that fit, figures of a size
+## PatternArt draws, Fibonacci squares that are Fibonacci numbers in order, known proof diagrams.
+static func zone9_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"pattern":
+			var terms: Array = visual.get("terms", [])
+			if terms.is_empty() or terms.size() > Problem.MAX_PATTERN_TERMS:
+				errors.append("%s: a pattern row has 1 to %d tiles" % [where, Problem.MAX_PATTERN_TERMS])
+			for term: Variant in terms:
+				if not term is int or term < 0:
+					errors.append("%s: pattern tile %s is not a whole number" % [where, term])
+			for blank: Variant in visual.get("blanks", []):
+				if not blank is int or blank < 0 or blank >= terms.size():
+					errors.append("%s: blank %s is off the row" % [where, blank])
+			if not ["crystals", "numbers"].has(str(visual.get("style", ""))):
+				errors.append("%s: unknown pattern style '%s'" % [where, visual.get("style")])
+			if visual.has("steps") and (visual["steps"].size() != terms.size() - 1 or not ["plus", "times"].has(str(visual.get("step_op", "")))):
+				errors.append("%s: a pattern needs one step between each pair of tiles, plus or times" % where)
+			if visual.has("figure") and (not ["triangle", "square"].has(str(visual["figure"])) or int(visual.get("first_index", 0)) < 1):
+				errors.append("%s: a figure row is triangles or squares from index 1 on" % where)
+		&"figurate":
+			if not Problem.FIGURATE_KINDS.has(str(visual.get("kind", ""))) or int(visual.get("n", 0)) < 1 or int(visual.get("n", 0)) > Problem.MAX_FIGURATE_N:
+				errors.append("%s: figurate %s is not a known kind of size 1 to %d" % [where, visual, Problem.MAX_FIGURATE_N])
+		&"pairing":
+			if int(visual.get("n", 0)) < Problem.PAIRING_RANGE.x or int(visual.get("n", 0)) > Problem.PAIRING_RANGE.y:
+				errors.append("%s: pairing n must be %d to %d" % [where, Problem.PAIRING_RANGE.x, Problem.PAIRING_RANGE.y])
+		&"fib_squares":
+			var terms: Array = visual.get("terms", [])
+			if terms.size() < 2 or terms.size() > Problem.MAX_FIB_SQUARES:
+				errors.append("%s: 2 to %d Fibonacci squares" % [where, Problem.MAX_FIB_SQUARES])
+			for index: int in range(2, terms.size()):
+				if int(terms[index]) != int(terms[index - 1]) + int(terms[index - 2]):
+					errors.append("%s: %s are not Fibonacci numbers in order" % [where, terms])
+					break
+		&"proof":
+			if not Problem.PROOF_DIAGRAMS.has(str(visual.get("diagram", ""))) or int(visual.get("n", 0)) < 1 or not visual.get("fitted") is bool:
+				errors.append("%s: proof %s is not a known diagram" % [where, visual])
+		&"poem_shape":
+			var lines: Array = visual.get("lines", [])
+			var highlight: int = int(visual.get("highlight", -1))
+			if lines.is_empty() or highlight < 0 or highlight >= lines.size():
+				errors.append("%s: the poem shape's lit line is off the poem" % where)
 	return errors
 
 
@@ -397,6 +445,30 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 			and Rational.normalize_ratio(int(answer["a"]), int(answer["b"])) == Problem.canonical(answer))
 		if not lowest:
 			errors.append("%s: a simplest-form answer %s is not in lowest terms" % [where, answer])
+	if meta.has("pattern_wall"):
+		var wall: Dictionary = meta["pattern_wall"]
+		var terms: Array = wall.get("terms", [])
+		var tiles: Array = Problem.canonical(wall.get("tiles", []))
+		if terms.count(null) != 1 or terms.size() > Problem.MAX_PATTERN_TERMS:
+			errors.append("%s: a pattern wall has exactly one gap in at most %d tiles" % [where, Problem.MAX_PATTERN_TERMS])
+		if tiles.size() < 2 or tiles.size() > 6 or tiles != Problem.sorted_values(tiles):
+			errors.append("%s: the wall's tiles must be 2 to 6 numbers, smallest first" % where)
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is int or not tiles.has(value):
+				errors.append("%s: %s is not a tile on the wall" % [where, value])
+	if meta.has("proof_board"):
+		var board: Dictionary = meta["proof_board"]
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		if Problem.sorted_values(values) != Problem.canonical(board.get("choices", [])):
+			errors.append("%s: the proof board's choices must be the answer and every wrong answer" % where)
+		if str(board.get("diagram", "")) != str(problem.answer) or not meta.has("label_lines"):
+			errors.append("%s: the proof board shows the answer's diagram, with label lines" % where)
+	if meta.has("label_line"):
+		if not Text.has_line(StringName(str(meta["label_line"]))) or not Text.required_params(StringName(str(meta["label_line"]))).has("n"):
+			errors.append("%s: label line '%s' must exist and take {n}" % [where, meta["label_line"]])
 	if meta.has("label_lines"):
 		var labels: Dictionary = meta["label_lines"]
 		var values: Array = [problem.answer]

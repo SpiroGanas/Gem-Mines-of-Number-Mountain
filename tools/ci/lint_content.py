@@ -395,6 +395,14 @@ MATH_TERMS = {
     r"percent": "percent",
     r"ratios?": "ratio",
     r"negative": "negative",
+    # Zone 9 (Phase 4; "rule" and "term" are Word Gems too, but too common as plain words to match)
+    r"sequences?": "sequence",
+    r"triangular numbers?": "triangular_number",
+    r"square numbers?": "square_number",
+    r"fibonacci": "fibonacci",
+    r"golden ratio": "golden_ratio",
+    r"syllables?": "syllable",
+    r"proofs?": "proof",
 }
 # Lines for grown-ups and the Word Gem lines themselves are not checked.
 TERM_EXEMPT_PREFIXES = ("parent.", "vocab.", "debug.")

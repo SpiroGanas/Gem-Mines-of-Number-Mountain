@@ -143,7 +143,8 @@ func test_every_vocabulary_term_resolves_to_real_lines() -> void:
 	# Zone 6, Gear Works: 7 of its own plus the fraction previews' fraction, numerator, denominator, unit fraction
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 6).size()).is_equal(11)
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 7).size()).is_equal(9) # Zone 7, Crystal Shards
-	assert_int(vocabulary["terms"].size()).is_equal(51)
+	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 9).size()).is_equal(9) # Zone 9, Pattern Grotto
+	assert_int(vocabulary["terms"].size()).is_equal(60)
 	for entry: Dictionary in vocabulary["terms"]:
 		assert_bool(Text.has_line(StringName(entry["term_line_id"]))).override_failure_message("missing " + entry["term_line_id"]).is_true()
 		assert_bool(Text.has_line(StringName(entry["definition_line_id"]))).override_failure_message("missing " + entry["definition_line_id"]).is_true()
