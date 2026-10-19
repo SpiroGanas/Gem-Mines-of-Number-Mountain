@@ -5,6 +5,16 @@ extends GdUnitTestSuite
 const FAST: float = 25.0
 
 
+# Sizes here are the tablet design's: the headless 64x64 window would count as a phone (UI.is_compact),
+# where target multiples keep their design-canvas size instead (tests/scenes/test_phone_layout.gd).
+func before_test() -> void:
+	TestWindow.use_design_size(get_window())
+
+
+func after_test() -> void:
+	TestWindow.restore(get_window())
+
+
 func _rock(index: int = 0) -> Rock:
 	var rock: Rock = load("res://scenes/mine/rock.tscn").instantiate()
 	rock.rock_index = index

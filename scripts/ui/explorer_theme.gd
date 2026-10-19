@@ -56,8 +56,12 @@ const WORD_GEM_SIZE: int = 40
 const FOCUS_OUTLINE: Color = Color("#FFFFFF")
 
 
-## Builds a fresh theme. target_px is the minimum touch-target size (UI.min_target_px()).
-static func build(target_px: int) -> Theme:
+## Builds a fresh theme. target_px is the minimum touch-target size (UI.min_target_px()); it sizes
+## the buttons' padding so a plain button is about one target tall. layout_px (UI.layout_unit_px(),
+## the target or, on a phone, the design canvas's 64 px; 0 means target_px) sizes panel padding.
+static func build(target_px: int, layout_px: int = 0) -> Theme:
+	if layout_px <= 0:
+		layout_px = target_px
 	var theme: Theme = Theme.new()
 	theme.default_font_size = BODY_SIZE
 	var regular: Font = load(FONT_REGULAR_PATH)
@@ -93,7 +97,7 @@ static func build(target_px: int) -> Theme:
 	_style_button(theme, &"WordGemButton", target_px, LAVENDER, LAVENDER_HOVER, LAVENDER_PRESSED)
 	theme.set_font_size(&"font_size", &"WordGemButton", WORD_GEM_SIZE)
 
-	var panel: StyleBoxFlat = _box(NAVY_LIGHT, OFF_WHITE, CORNER_RADIUS, int(target_px * 0.33))
+	var panel: StyleBoxFlat = _box(NAVY_LIGHT, OFF_WHITE, CORNER_RADIUS, int(layout_px * 0.33))
 	theme.set_stylebox(&"panel", &"PanelContainer", panel)
 	return theme
 
