@@ -22,11 +22,10 @@ Never break these. If a task seems to require breaking one, stop and ask.
    - Never store handwriting images. Strokes are discarded after recognition.
    - Never collect location, contacts, camera, microphone or advertising IDs.
 3. **No new dependency, plugin or SDK without asking Spiro first.** Every approved one gets an entry in `docs/sdk-audit.md`, because the app must pass Google Play's **Families Policy** for children's apps.
-4. **Every child-facing string comes from the text table** (`text/lines.csv`) through the `Text` autoload, using a stable line ID. Never hard-code child-facing text in scenes or scripts; CI fails on hard-coded strings. This is what keeps adding narration in Phase 3 cheap. The MVP has no narration, because Charlie reads well.
+4. **Every child-facing string comes from the text table** (`text/lines.csv`) through the `Text` autoload, using a stable line ID. Never hard-code child-facing text in scenes or scripts; CI fails on hard-coded strings. The game has **no narration and no AI voice** (Spiro's decision, 2026-10-19: the children it is for read); the text table keeps every word in one place for review and any future change.
 5. **Text is written for a strong first-grade reader.**
    - Short sentences, and a picture alongside every instruction.
    - Math terms are tappable for a picture and a kid-sized definition.
-   - From Phase 3, a read-aloud setting must make every screen usable without reading.
 6. **Child-facing answer input never uses `LineEdit` or `TextEdit`.** Those pop up the system keyboard in tablet mode. Use the `NumberPad`, `ChalkSlate` (handwriting) or tap/drag targets. A `LineEdit` is allowed only in the parent area.
 7. **Touch targets are at least 64 dp.** Use `UI.min_target_px()`; never hard-code pixel sizes for interactive controls.
 8. **Wrong answers never cost anything.** No lost gems, no game-over, no timers or countdowns in Explorer mode, no streak resets. Missed days *pause* the lantern streak.
@@ -37,7 +36,7 @@ Never break these. If a task seems to require breaking one, stop and ask.
 
 ## Content rules (family requirements)
 
-Apply to all art, narration, story, examples, word problems and minerals:
+Apply to all art, story, examples, word problems and minerals:
 
 - **Never include:**
   - Alcohol, gambling (or gambling-like mechanics), tobacco or smoking.
@@ -52,11 +51,10 @@ Apply to all art, narration, story, examples, word problems and minerals:
 
 - **Explorer mode** (about ages 5–8): sentences of 12 words or fewer, first-grade vocabulary, one instruction per line.
 - **Use real math terms, always with a kid explanation the first time:** "When we swap ten ones for one ten, that's called **regrouping**." Record each term as a Word Gem in `curriculum/vocabulary.json`.
-- **Numbers** in lines are placeholders such as `{n}`, `{a}` or `{b}`, filled in at runtime. From Phase 3, the narration manager speaks them by splicing pre-generated number clips. Never bake a specific number into a line.
+- **Numbers** in lines are placeholders such as `{n}`, `{a}` or `{b}`, filled in at runtime. Never bake a specific number into a line.
 - **Every line has a stable ID:**
   - Format: `zone.context.purpose`, e.g. `z1.dig.prompt_build_number`.
   - Never reuse or rename an ID. Deprecate it and add a new one.
-  - From Phase 3, changing a line's text marks it for audio regeneration.
 
 ---
 
@@ -70,7 +68,7 @@ Apply to all art, narration, story, examples, word problems and minerals:
 | Android | Target SDK **36**, ABIs **arm64-v8a + x86_64**, landscape only, AAB for Play, APK for local testing |
 | Java | JDK 17 (Temurin) |
 | Tests | GdUnit4 (Godot), pytest (Python tools) |
-| Offline tools | Python 3.12 in `tools/` (voice pipeline, cross-checker, BKT fitting, handwriting model training with PyTorch and numpy, which are build-time only and listed in `docs/sdk-audit.md`) |
+| Offline tools | Python 3.12 in `tools/` (cross-checker, BKT fitting, handwriting model training with PyTorch and numpy, which are build-time only and listed in `docs/sdk-audit.md`) |
 | Dev machine | Windows. Use forward slashes in scripts, and keep shell commands working in Git Bash. |
 
 ### Godot 4 syntax only
@@ -99,7 +97,7 @@ If unsure whether an API exists in 4.7, check the Godot docs instead of guessing
 ```
 project.godot
 .godot-version
-autoload/            # Singletons: Text, SaveSystem, Adaptive, Rewards, InputRouter, UI (Narration and Profiles arrive in Phase 3)
+autoload/            # Singletons: Text, SaveSystem, Adaptive, Rewards, InputRouter, UI, Profiles (Phase 3)
 scenes/
   shell/             # title, hub, pause, settings, parent_area/
   mine/              # mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
@@ -117,22 +115,20 @@ curriculum/
   skills/zNN_*.json  # skill graph: id, prereqs, generator, params, representations, terms
   vocabulary.json  misconceptions.json  bkt_defaults.json  recipes.json  builds.json  badges.json  rare_numbers.json
 text/
-  lines.csv          # id, text, context, voice_version (voice_version used from Phase 3)
-narration/
-  audio/             # Phase 3. GENERATED. Never hand-edit.
+  lines.csv          # id, text, context, voice_version (unused: no narration), mode (Scholar-mode variants, Phase 4)
 assets/              # art, fonts (Andika), sfx, music. Every file needs a LICENSE entry in assets/CREDITS.md.
 addons/              # gdUnit4
 android/plugins/digit_ink/   # EMPTY placeholder: recognition runs in GDScript, not in a plugin (README explains)
 tests/               # GdUnit4 tests mirroring autoload/, scripts/ and scenes/; helpers/ has InputSim and TestWindow
 tools/
-  voice/  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/  qa/
+  crosscheck/  bkt/  handwriting/  ci/  sfx/  music/  qa/
 status.md            # session handoff: read first, keep current
 docs/                # development-plan.md, gdd.md, decisions.md, sdk-audit.md, phases/, art/, qa/ (release checklist, screenshots), reviews/
 private/             # GITIGNORED: Charlie's exported logs and handwriting samples. Never commit or upload.
 ```
 
 **Commit:** `*.uid` files (Godot 4.4+) and `export_presets.cfg` without secrets.
-**Never commit:** `.godot/`, `build/`, `private/`, keystores, or API keys. Keys live in environment variables (`ELEVENLABS_API_KEY`, etc.).
+**Never commit:** `.godot/`, `build/`, `private/`, keystores, or API keys. Keys live in environment variables, never in the repo.
 
 ---
 
@@ -156,10 +152,6 @@ GODOT_BIN="$GODOT" ./addons/gdUnit4/runtest.sh -a res://tests/generators/test_pl
 # the cross-check needs GODOT set and the project imported once)
 python -m pytest tools
 python tools/crosscheck/run.py --all --n 10000
-
-# Narration (Phase 3+): list lines missing audio / regenerate changed lines (calls a paid API; ask first)
-python tools/voice/generate.py --dry-run
-python tools/voice/generate.py --changed
 
 # Lint: fails on hard-coded child-facing strings, LineEdit in child scenes, banned content keywords, network code
 python tools/ci/lint_content.py
@@ -203,9 +195,8 @@ Report results honestly. If something fails or couldn't be run, say so.
 | Autoload | Responsibility |
 |---|---|
 | `Text` | Looks up line IDs, fills number placeholders, returns display text for speech bubbles and prompts |
-| `Narration` (Phase 3) | Plays line IDs with params; splices number clips; emits `word_spoken(index)` for highlighting; replay button; respects the profile's read-aloud setting |
 | `SaveSystem` | Atomic JSON saves to `user://` (write `.tmp`, then rename; keep `.bak`); `schema_version`; migrations |
-| `Profiles` | Active child profile (up to 4 per device, from Phase 3) |
+| `Profiles` | Up to 4 child profiles per device; the active child's save lives in `SaveSystem.profile_dir()` (Phase 3, save schema v3) |
 | `Adaptive` | BKT state per skill, next-problem selection, spaced review, hint ladder, placement |
 | `Rewards` | Coins, gems, inventory, badges, lantern streak, family reward points |
 | `InputRouter` | Maps touch, pen, mouse and keyboard to the same game actions; handles palm rejection during pen strokes |
@@ -270,9 +261,9 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 - **Primary devices:**
   - **ARM 2-in-1 Chromebook** in laptop (trackpad and keyboard), tent (touch) and tablet (touch and stylus) postures, switching mid-session.
   - **Android tablet:** touch, maybe a stylus.
-- **Also supported (public release):** Intel/AMD Chromebooks, **mouse-only Chromebooks** (every interaction must work with click and drag), smaller tablets.
+- **Also supported (public release):** Intel/AMD Chromebooks, **mouse-only Chromebooks** (every interaction must work with click and drag), smaller tablets and Android phones.
 - **Layout:**
-  - Landscape only. Design for 16:9, 16:10, 3:2 and 4:3.
+  - Landscape only. Design for 16:9, 16:10, 3:2 and 4:3, and for landscape phones (about 20:9; `UI.is_compact()`, `tests/scenes/test_phone_layout.gd`).
   - Use anchors and containers, not absolute positions.
   - Test window resize.
 - **No multi-finger gestures.** Drag-and-drop must work identically with finger, pen and mouse (through `InputRouter`).
@@ -298,13 +289,13 @@ Scenes talk to autoloads through **signals and methods**, never by reaching into
 - **Ask Spiro before:**
   - Adding dependencies or plugins.
   - Changing the save schema, BKT thresholds or curriculum prerequisites.
-  - Running paid API calls (voice generation).
+  - Running paid API calls.
   - Upgrading Godot.
   - Changing export or permission settings.
   - Anything touching `private/`.
 - **Definition of done:**
   1. Works on the 2-in-1 (all postures) and the tablet with touch and stylus, and with mouse/keyboard where relevant.
-  2. All child-facing text comes from the text table (and, from Phase 3, is narrated).
+  2. All child-facing text comes from the text table.
   3. Generators pass the tests and the cross-check.
   4. Saves survive app close and update.
   5. Lint passes.

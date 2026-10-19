@@ -1,5 +1,7 @@
 # Gem Mines of Number Mountain: Software Development Plan
 
+> **Changed 2026-10-19 (Spiro):** no narration and no AI voice. Sprint 22 (voice pipeline, `Narration` autoload), the read-aloud setting, narration coverage and the AI-voice listing note are dropped; the children this game is for read. Phones are supported (no phone exclusion). See `docs/decisions.md`, 2026-10-19.
+
 **Prepared for:** Charlie (age 6, Grade 1) and family
 **Plan date:** October 15, 2026
 **Plan version:** 2.1. Version 2.0 covered the self-built game, the ARM 2-in-1 Chromebook with stylus, a new Android tablet and a publish-ready design. Version 2.1 moves AI-voice narration out of the MVP to Phase 3, because Charlie reads well.
