@@ -54,7 +54,7 @@ func test_crafting_the_big_pickaxe_from_twelve_garnets_works_end_to_end() -> voi
 	assert_bool(Rewards.owns(&"pickaxe_t2")).is_true()
 	assert_that(Rewards.pickaxe()).is_equal(&"pickaxe_t2")
 	assert_bool(bench.celebration.visible).is_true()
-	var on_disk: Dictionary = JsonUtil.parse_file(_dir.path_join("profile.json"))
+	var on_disk: Dictionary = JsonUtil.parse_file(SaveSystem.profile_dir().path_join("profile.json"))
 	assert_array(on_disk["workshop"]["crafted"]).contains(["tool.pickaxe.tier2"]) # saved at once
 
 

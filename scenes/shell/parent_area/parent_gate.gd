@@ -1,32 +1,30 @@
-## The parental gate in front of the grown-up area (P1-S09-03): a two-digit times one-digit question
-## on the NumberPad (ParentGateRules). Three misses lock it for 30 seconds; no countdown is shown.
-## Passing opens the dashboard; Back returns to the workshop.
+## The parental gate in front of the grown-up area (P1-S09-03; reviewed in Sprint 23): two
+## multiplication questions in a row on the NumberPad (ParentGateRules, shown by GatePanel). Three
+## misses lock it for 30 seconds (longer after each lock); no countdown is shown. Passing opens the
+## dashboard, or the screen named in setup's "then" (the title screen's add-a-child button opens the
+## profiles page); Back returns to the hub, or to setup's "back_to". Back never skips the gate: the
+## grown-up screens are only reached through `passed`.
 class_name ParentGateScreen
 extends ShellScreen
 
-## The lock and the miss count outlive the screen: Back and then "Grown-ups" again make a new
-## screen, and the 30 seconds (and the three tries) must not start over.
-static var _remembered_locked_until_ms: int = 0
-static var _remembered_misses: int = 0
-
-var rules: ParentGateRules
 ## Milliseconds now; tests replace it to move time.
 var now_ms: Callable = func() -> int: return Time.get_ticks_msec()
 
-var _question: Label
-var _feedback: Label
-var _pad: NumberPad
+var _panel: GatePanel
 var _back_button: Button
-var _unlock_timer: Timer
+var _then: StringName = &"dashboard"
+var _then_args: Dictionary = {}
+var _back_to: StringName = &"hub"
+
+
+func setup(args: Dictionary) -> void:
+	_then = args.get("then", &"dashboard")
+	_then_args = args.get("then_args", {})
+	_back_to = args.get("back_to", &"hub")
 
 
 func _ready() -> void:
 	super()
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.randomize()
-	rules = ParentGateRules.new(rng)
-	rules.locked_until_ms = _remembered_locked_until_ms
-	rules.misses = _remembered_misses
 	var center: CenterContainer = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
@@ -39,79 +37,42 @@ func _ready() -> void:
 	title.text = Text.get_line(&"parent.gate.title")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(title)
-	_question = Label.new()
-	_question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(_question)
-	_feedback = Label.new()
-	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_feedback.add_theme_color_override(&"font_color", Bolt.NOTE_COLOR)
-	column.add_child(_feedback)
-	_pad = load("res://scenes/input/number_pad.tscn").instantiate()
-	_pad.max_digits = 3
-	_pad.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	column.add_child(_pad)
-	_pad.submitted.connect(_on_submitted)
+	_panel = GatePanel.new()
+	_panel.name = "GatePanel"
+	_panel.now_ms = func() -> int: return now_ms.call()
+	_panel.passed.connect(func() -> void: request_screen.emit(_then, _then_args))
+	column.add_child(_panel)
 	_back_button = Button.new()
 	_back_button.name = "BackButton"
 	_back_button.text = Text.get_line(&"ui.common.back")
 	_back_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	UI.make_touch_target(_back_button, 3.0, 1.25)
-	_back_button.pressed.connect(request_screen.emit.bind(&"hub", {}))
+	_back_button.pressed.connect(func() -> void: request_screen.emit(_back_to, {}))
 	column.add_child(_back_button)
-	_unlock_timer = Timer.new()
-	_unlock_timer.one_shot = true
-	_unlock_timer.timeout.connect(_on_unlocked)
-	add_child(_unlock_timer)
-	_show_question()
-	if rules.is_locked(now_ms.call()):
-		_lock_pad()
 
 
 ## Forgets a lock from an earlier visit (tests).
 static func forget_lock() -> void:
-	_remembered_locked_until_ms = 0
-	_remembered_misses = 0
+	GatePanel.forget_lock()
+
+
+## The gate's rules (the current question and the lock).
+var rules: ParentGateRules:
+	get:
+		return _panel.rules
+
+
+func gate_panel() -> GatePanel:
+	return _panel
 
 
 func number_pad() -> NumberPad:
-	return _pad
+	return _panel.number_pad()
 
 
 func question_text() -> String:
-	return _question.text
+	return _panel.question_text()
 
 
 func feedback_text() -> String:
-	return _feedback.text
-
-
-func _show_question() -> void:
-	_question.text = Text.get_line(&"parent.gate.question", {"a": rules.a, "b": rules.b})
-
-
-func _on_submitted(value: int) -> void:
-	_pad.clear()
-	var result: ParentGateRules.Result = rules.submit(value, now_ms.call())
-	_remembered_locked_until_ms = rules.locked_until_ms
-	_remembered_misses = rules.misses
-	match result:
-		ParentGateRules.Result.PASSED:
-			request_screen.emit(&"dashboard", {})
-		ParentGateRules.Result.MISSED:
-			_feedback.text = Text.get_line(&"parent.gate.missed")
-			_show_question()
-		ParentGateRules.Result.LOCKED:
-			_show_question()
-			_lock_pad()
-
-
-## "Wait" with the pad asleep until the lock ends; no countdown is shown.
-func _lock_pad() -> void:
-	_feedback.text = Text.get_line(&"parent.gate.wait")
-	_pad.set_enabled(false)
-	_unlock_timer.start(float(maxi(rules.locked_until_ms - now_ms.call(), 1)) / 1000.0)
-
-
-func _on_unlocked() -> void:
-	_feedback.text = ""
-	_pad.set_enabled(true)
+	return _panel.feedback_text()

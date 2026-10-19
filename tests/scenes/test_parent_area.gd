@@ -46,8 +46,14 @@ func _type(pad: NumberPad, value: int) -> void:
 	pad.submit()
 
 
+## Answers both gate questions right (Sprint 23: two in a row open the gate).
+func _pass(gate: ParentGateScreen) -> void:
+	for question: int in ParentGateRules.QUESTIONS_TO_PASS:
+		_type(gate.number_pad(), gate.rules.answer())
+
+
 func _copy_fixture_log() -> void:
-	SaveStore.new(_dir).write_attempts(SaveStore.new(_dir).read_attempts_file("res://tests/save/fixtures/attempts_sample.jsonl"))
+	SaveStore.new(SaveSystem.profile_dir()).write_attempts(SaveStore.new(SaveSystem.profile_dir()).read_attempts_file("res://tests/save/fixtures/attempts_sample.jsonl"))
 
 
 func test_the_right_answer_opens_the_dashboard() -> void:
@@ -55,6 +61,10 @@ func test_the_right_answer_opens_the_dashboard() -> void:
 	assert_str(gate.question_text()).is_equal(Text.get_line(&"parent.gate.question", {"a": gate.rules.a, "b": gate.rules.b}))
 	var requested: Array[StringName] = []
 	gate.request_screen.connect(func(id: StringName, _args: Dictionary) -> void: requested.append(id))
+	_type(gate.number_pad(), gate.rules.answer())
+	assert_array(requested).is_empty() # one right answer is not enough
+	assert_str(gate.feedback_text()).is_equal(Text.get_line(&"parent.gate.one_more"))
+	assert_str(gate.gate_panel().step_text()).is_equal(Text.get_line(&"parent.gate.step", {"n": 2, "total": 2}))
 	_type(gate.number_pad(), gate.rules.answer())
 	assert_array(requested).contains_exactly([&"dashboard"])
 
@@ -120,7 +130,7 @@ func test_the_device_switches_for_handwriting_and_coaching() -> void:
 	assert_bool(SaveSystem.data()["settings"]["handwriting_coaching"]).is_true()
 	# handwriting is a device choice (device file); coaching is the child's (their save)
 	assert_bool(DeviceSettings.new(_dir + "/device_settings.cfg").handwriting_enabled()).is_false()
-	assert_str(FileAccess.get_file_as_string(_dir + "/profile.json")).contains("\"handwriting_coaching\": true")
+	assert_str(FileAccess.get_file_as_string(SaveSystem.profile_dir() + "/profile.json")).contains("\"handwriting_coaching\": true")
 	var row: Button = dash.find_child("HandwritingSwitch", true, false).get_node("Button") as Button
 	assert_str(row.text).is_equal(Text.get_line(&"parent.dash.off"))
 	assert_float(row.custom_minimum_size.y).is_greater_equal(float(UI.min_target_px()))
@@ -199,7 +209,7 @@ func test_the_lock_outlives_leaving_the_gate_and_coming_back() -> void:
 	var later: ParentGateScreen = _gate_at(40000) # the 30 seconds are over
 	assert_str(later.feedback_text()).is_empty()
 	later.request_screen.connect(func(id: StringName, _args: Dictionary) -> void: requested.append(id))
-	_type(later.number_pad(), later.rules.answer())
+	_pass(later)
 	assert_array(requested).contains_exactly([&"dashboard"])
 
 

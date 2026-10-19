@@ -18,7 +18,7 @@ const ERR_MISSING_MIGRATION: String = "missing_migration"
 
 ## Registered migrations: from-version (int) -> Callable(data: Dictionary) -> Dictionary.
 static func default_migrations() -> Dictionary:
-	return {1: SaveMigrationV1ToV2.apply}
+	return {1: SaveMigrationV1ToV2.apply, 2: SaveMigrationV2ToV3.apply}
 
 
 ## Returns {ok: bool, data: Dictionary, from_version: int, error: String}.

@@ -158,8 +158,9 @@ func test_v1_to_v2_adds_the_phase_2_records_and_keeps_everything_else() -> void:
 	var result: Dictionary = SaveMigrator.migrate(v1)
 	assert_bool(result["ok"]).is_true()
 	assert_int(result["from_version"]).is_equal(1)
-	var v2: Dictionary = result["data"]
-	assert_int(v2["schema_version"]).is_equal(2)
+	# The v1 -> v2 step on its own (migrate() goes on to the current version).
+	var v2: Dictionary = SaveMigrationV1ToV2.apply(v1.duplicate(true))
+	v2["schema_version"] = 2
 	assert_str(v2["device_id"]).is_equal("")
 	assert_array(v2["workshop"]["crafted"]).is_empty()
 	assert_dict(v2["workshop"]["builds"]).is_empty()

@@ -1,0 +1,9 @@
+{
+  "_comment": "Generic placement (Phase 3 plan section 3.6, Sprint 23). A parent picks a starting grade (K = 0 ... 6) when a profile is made; each skill of a listed zone starts with that zone's BKT prior instead of its bkt_defaults.json prior, and the placement quest starts from the grade's probes. A grade with no row uses the highest row below it (grades 4-6 use grade 3). Values are the plan's starting points, not fitted: changing them needs Spiro's sign-off (BKT defaults are on the ask list). Charlie keeps his Star seed (Placement.SEED_SETS).",
+  "grades": {
+    "0": {"zones": {"1": 0.2}, "probes": ["count.to_20.objects"]},
+    "1": {"zones": {"1": 0.5, "2": 0.2}, "probes": ["count.to_120.read", "add.to_10.sums"]},
+    "2": {"zones": {"1": 0.7, "2": 0.7, "3": 0.4}, "probes": ["pv.tens_ones.read", "add.to_20.sums", "skip.by_2.to_40"]},
+    "3": {"zones": {"1": 0.85, "2": 0.85, "3": 0.85, "4": 0.5, "5": 0.3}, "probes": ["add.to_100.regroup", "mult.equal_groups.total", "pv.regroup.untrade"]}
+  }
+}

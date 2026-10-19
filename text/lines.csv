@@ -600,3 +600,67 @@ hub.museum.geode_fact,A geode is a plain rock with crystals hiding inside.,Museu
 hub.museum.geode_how,Finish a weekly Deep Dig to find it.,Museum: how to earn the geode,0
 vocab.divide.term,divide,Word Gem term (added after the Sprint 21 math pre-review),0
 vocab.divide.definition,To divide is to share into equal groups. The ÷ sign means divide.,Word Gem kid-sized definition,0
+ui.title.who,Who is playing? Tap your picture.,Title screen: profile switcher heading with two to four children (Sprint 23),0
+parent.gate.step,Question {n} of {total},parent_gate: which of the two gate questions this is (Sprint 23 gate review),0
+parent.gate.one_more,Right. One more question.,parent_gate: the first of the two answers was right,0
+parent.onboard.gate_title,"Welcome, grown-up",parent_onboarding: screen 1 heading (set the gate),0
+parent.onboard.gate_body,Settings live behind a grown-up gate. Answer two multiplication questions to open it.,"parent_onboarding: screen 1, what the gate is",0
+parent.onboard.profile_title,Add your child,parent_onboarding: screen 2 heading (the first profile),0
+parent.onboard.profile_body,Type a first name or nickname. Pick a picture and a school grade.,"parent_onboarding: screen 2, the only personal data is the nickname",0
+parent.onboard.avatar,Picture,parent_onboarding and profiles page: avatar choice label,0
+parent.onboard.grade,School grade (K is kindergarten),parent_onboarding and profiles page: starting grade label (generic placement),0
+parent.onboard.grade_k,K,parent_onboarding: kindergarten grade button,0
+parent.onboard.grade_n,{n},parent_onboarding: grade 1 to 6 button,0
+parent.onboard.session_title,Set a play time,parent_onboarding: screen 3 heading (session limit),0
+parent.onboard.session_body,The game winds down gently after this time. No countdown is ever shown.,"parent_onboarding: screen 3, the soft session limit",0
+parent.onboard.start,Start,parent_onboarding: finish and hand the child to Bolt,0
+parent.teach.title,How this game teaches,parent_teaches: page heading (Sprint 23),0
+parent.teach.intro,Gem Mines teaches number sense one small skill at a time. Here is how it decides what comes next.,parent_teaches: intro,0
+parent.teach.map_title,The skill map,parent_teaches: section heading,0
+parent.teach.map_body,Every skill builds on the ones before it. A skill opens once the skills under it are learned.,parent_teaches: the prerequisite graph and the frontier,0
+parent.teach.mastery_title,Mastery,parent_teaches: section heading,0
+parent.teach.mastery_body,"A skill is mastered when the game is sure it is learned. It needs right answers on two days, not just lucky guesses.","parent_teaches: BKT mastery, the two-day rule and the guessing guard",0
+parent.teach.review_title,Spaced review,parent_teaches: section heading,0
+parent.teach.review_body,"Mastered skills come back after 1, 3, 7, 21 and 60 days. A missed review sends the skill back to practice.",parent_teaches: review intervals,0
+parent.teach.hints_title,The hint ladder,parent_teaches: section heading,0
+parent.teach.hints_body,"After a miss, Bolt helps one step at a time. First a highlight, then a picture, then a worked example. Last comes an easier problem.",parent_teaches: the four hint rungs,0
+parent.teach.placement_title,The first survey,parent_teaches: section heading,0
+parent.teach.placement_body,The first dig is a short survey of the mountain. It starts at the grade you picked and finds a starting point.,parent_teaches: generic placement,0
+parent.teach.mistakes_title,Mistakes are free,parent_teaches: section heading,0
+parent.teach.mistakes_body,"A wrong answer never costs gems or coins. There are no timers, no game over and no purchases.",parent_teaches: rule 8 and no purchases,0
+parent.teach.privacy_title,Privacy,parent_teaches: section heading,0
+parent.teach.privacy_body,Progress stays on this device. The game never uses the internet. Handwriting is read and then forgotten.,parent_teaches: privacy summary,0
+parent.teach.privacy_url,Privacy policy: https://spiroganas.github.io/gem-mines/privacy,parent_teaches: the privacy policy address as plain text (no link: no browser and no network). PLACEHOLDER until Spiro confirms the address,0
+parent.profiles.title,Children on this device,parent_profiles: page heading,0
+parent.profiles.count,{n} of {max} children,parent_profiles: how many profiles,0
+parent.profiles.playing,Playing now,parent_profiles: the active child,0
+parent.profiles.play_as,Play as this child,parent_profiles: make this child the active one,0
+parent.profiles.change_avatar,Change picture,parent_profiles: next avatar,0
+parent.profiles.delete,Delete,parent_profiles: delete a child (asks twice),0
+parent.profiles.ask_first,Delete {name}?,parent_profiles: first delete confirmation,0
+parent.profiles.ask_second,This removes all of {name}'s progress. Delete for good?,parent_profiles: second delete confirmation,0
+parent.profiles.yes_delete,"Yes, delete",parent_profiles: first confirmation button,0
+parent.profiles.delete_for_good,Delete for good,parent_profiles: second confirmation button,0
+parent.profiles.keep,Keep,parent_profiles: cancel a delete,0
+parent.profiles.deleted,{name} was deleted. You can bring them back for 30 days.,parent_profiles: deleted (moved to the trash),0
+parent.profiles.delete_failed,That child could not be deleted.,parent_profiles: delete error,0
+parent.profiles.last_one,The last child cannot be deleted.,parent_profiles: one profile left,0
+parent.profiles.renamed,Name saved.,parent_profiles: rename done,0
+parent.profiles.add_title,Add a child,parent_profiles: section heading,0
+parent.profiles.add,Add child,parent_profiles: make the new profile,0
+parent.profiles.need_name,Type a name first.,parent_profiles: add pressed with no nickname,0
+parent.profiles.added,{name} was added.,parent_profiles: profile made,0
+parent.profiles.full,There are already four children on this device.,parent_profiles: the four-profile limit,0
+parent.profiles.trash_title,Recently deleted,parent_profiles: trash heading,0
+parent.profiles.trash_body,Deleted children stay here for 30 days.,parent_profiles: trash explanation,0
+parent.profiles.restore,Bring back,parent_profiles: restore from the trash,0
+parent.profiles.restored,{name} is back.,parent_profiles: restored,0
+parent.dash.children,Children,parent_dashboard: opens the profiles page,0
+parent.dash.how_it_teaches,How this game teaches,parent_dashboard: opens the explainer page,0
+parent.dash.child,Child: {name},parent_dashboard: whose progress the page shows,0
+parent.dash.no_name,(no name yet),parent_dashboard: a profile without a nickname,0
+parent.dash.import_into,Import into {name},parent_dashboard: replace this child's progress with a file,0
+parent.dash.import_new,Import as a new child,parent_dashboard: add a progress file as another profile,0
+parent.dash.import_added,Added {name} from the file.,parent_dashboard: import as a new child done,0
+parent.dash.import_full,There are already four children. Delete one first.,parent_dashboard: import as new with four profiles,0
+parent.sync.result_added,added as a new child,parent_dashboard: import/export log result,0

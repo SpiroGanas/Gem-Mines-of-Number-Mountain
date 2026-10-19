@@ -1,4 +1,4 @@
-## The shape of the save file (schema version 2) and its defaults.
+## The shape of the save file (schema version 3) and its defaults.
 ##
 ## Version 2 (Phase 2, docs/decisions.md "Save schema v2") adds, in one step:
 ##   device_id    the random id of the device that last wrote this save (DeviceSettings.device_id();
@@ -8,13 +8,21 @@
 ##   family       family reward points and the parent's goals (Sprint 19)
 ## Everything about the child is in this one document, so Phase 3 profiles can keep one per child.
 ##
+## Version 3 (Phase 3, Sprint 23, docs/decisions.md "Save schema v3: profiles") adds:
+##   profile      {id, avatar_id, created_at, last_played_at, welcomed}: which profile this document
+##                is (the folder user://save/profiles/<id>/ holds it), the code-drawn avatar on the
+##                title screen, the last day played and whether Bolt has said hello (FirstRunScreen).
+##                The nickname stays in child.nickname and the per-child settings stay in settings
+##                (Profile.from_save reads them all). The profile index lives in its own file
+##                (ProfileIndex); this document is still the one source of truth about the child.
+##
 ## CLAUDE.md: every save carries schema_version, and any change to this structure
 ## needs Spiro's sign-off, a migration in scripts/save/migrations/ and a fixture in
 ## tests/save/fixtures/. Never break an existing save.
 class_name SaveSchema
 extends RefCounted
 
-const CURRENT_VERSION: int = 2
+const CURRENT_VERSION: int = 3
 
 
 ## A brand-new profile. now_iso is an ISO 8601 UTC timestamp supplied by the caller
@@ -51,6 +59,7 @@ static func new_profile(now_iso: String) -> Dictionary:
 			"challenge": {"closed_until": {}, "passed": []},
 		},
 		"family": {"points": 0, "awarded": [], "goals": []},
+		"profile": {"id": "", "avatar_id": "bolt", "created_at": now_iso, "last_played_at": "", "welcomed": true},
 	}
 
 
@@ -78,6 +87,8 @@ static func validate(data: Dictionary) -> PackedStringArray:
 	}
 	if int(data.get("schema_version", 0)) >= 2:
 		expected_types.merge({"workshop": TYPE_DICTIONARY, "motivation": TYPE_DICTIONARY, "family": TYPE_DICTIONARY})
+	if int(data.get("schema_version", 0)) >= 3:
+		expected_types["profile"] = TYPE_DICTIONARY
 	for key: String in expected_types:
 		if typeof(data.get(key)) != expected_types[key]:
 			problems.append("'%s' is missing or has the wrong type" % key)
