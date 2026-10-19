@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Gem Mines of Number Mountain: Play Store feature graphic source (1024 x 500). Code-drawn.
+     Number Mountain in cross-section: one band per zone, deeper is harder (Zone 1 at the top, Zone 5
+     at the bottom), each with its gems; electric lamps line the shaft and Bolt's headlamp shines in
+     Zone 1. Band colours from scenes/shell/backdrop.gd, gem colours from scenes/mine/gem_art.gd.
+     No text (Play overlays the title and buttons on part of this image). Render with marketing/render.sh. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7F9CF5"/>
+      <stop offset="1" stop-color="#C9D6FF"/>
+    </linearGradient>
+    <clipPath id="mountain">
+      <polygon points="80,500 400,60 470,110 560,30 700,170 760,140 980,500"/>
+    </clipPath>
+    <radialGradient id="lamp" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFE9A8" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFE9A8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#sky)"/>
+  <!-- far hills -->
+  <path d="M0 420 Q160 330 300 400 T620 380 T1024 360 L1024 500 L0 500 Z" fill="#9FB5F0"/>
+  <!-- the mountain: bands for Zones 1-5, top to bottom -->
+  <g clip-path="url(#mountain)">
+    <rect x="0" y="0" width="1024" height="140" fill="#5E7F8C"/>
+    <rect x="0" y="140" width="1024" height="80" fill="#2C4A58"/>
+    <rect x="0" y="220" width="1024" height="70" fill="#47323E"/>
+    <rect x="0" y="290" width="1024" height="70" fill="#37305F"/>
+    <rect x="0" y="360" width="1024" height="70" fill="#2B3F5C"/>
+    <rect x="0" y="430" width="1024" height="70" fill="#23453F"/>
+    <!-- the shaft and the tunnels -->
+    <rect x="520" y="110" width="34" height="390" fill="#141F2A"/>
+    <rect x="300" y="186" width="420" height="22" rx="11" fill="#141F2A"/>
+    <rect x="250" y="262" width="520" height="20" rx="10" fill="#141F2A"/>
+    <rect x="220" y="332" width="580" height="20" rx="10" fill="#141F2A"/>
+    <rect x="190" y="402" width="660" height="20" rx="10" fill="#141F2A"/>
+    <rect x="160" y="470" width="720" height="20" rx="10" fill="#141F2A"/>
+    <!-- electric lamps along the shaft -->
+    <circle cx="537" cy="160" r="22" fill="url(#lamp)"/><circle cx="537" cy="160" r="6" fill="#FFE9A8"/>
+    <circle cx="537" cy="245" r="22" fill="url(#lamp)"/><circle cx="537" cy="245" r="6" fill="#FFE9A8"/>
+    <circle cx="537" cy="318" r="22" fill="url(#lamp)"/><circle cx="537" cy="318" r="6" fill="#FFE9A8"/>
+    <circle cx="537" cy="388" r="22" fill="url(#lamp)"/><circle cx="537" cy="388" r="6" fill="#FFE9A8"/>
+    <circle cx="537" cy="456" r="22" fill="url(#lamp)"/><circle cx="537" cy="456" r="6" fill="#FFE9A8"/>
+    <!-- gems in each band -->
+    <g stroke="#1F2945" stroke-width="3" stroke-linejoin="round">
+      <polygon points="380,166 392,154 404,166 392,182" fill="#9AD8F5"/>
+      <polygon points="640,170 650,160 660,170 650,184" fill="#9AD8F5"/>
+      <polygon points="330,246 344,232 358,246 344,264" fill="#C0394B"/>
+      <polygon points="690,240 702,228 714,240 702,256" fill="#C0394B"/>
+      <polygon points="300,316 314,302 328,316 314,334" fill="#E0B84A"/>
+      <polygon points="720,312 732,300 744,312 732,328" fill="#E0B84A"/>
+      <polygon points="270,386 284,372 298,386 284,404" fill="#2E9E5B"/>
+      <polygon points="760,382 772,370 784,382 772,398" fill="#5CC8C8"/>
+      <polygon points="240,456 256,440 272,456 256,476" fill="#9B6BD6"/>
+      <polygon points="800,452 814,438 828,452 814,470" fill="#B98AE8"/>
+    </g>
+  </g>
+  <!-- snow cap -->
+  <polygon points="400,60 470,110 560,30 610,80 590,95 560,72 520,110 470,128 430,100 380,88" fill="#F5F7FF"/>
+  <!-- Bolt in Zone 1's tunnel: body, tracks, headlamp and its beam -->
+  <polygon points="462,178 340,160 340,204" fill="#FFE9A8" fill-opacity="0.55"/>
+  <rect x="456" y="168" width="40" height="30" rx="8" fill="#4F8FDB" stroke="#1F2945" stroke-width="3"/>
+  <rect x="452" y="196" width="48" height="10" rx="5" fill="#3A3A4A"/>
+  <circle cx="462" cy="178" r="6" fill="#FFE9A8" stroke="#1F2945" stroke-width="2"/>
+  <circle cx="484" cy="180" r="3" fill="#1F2945"/>
+</svg>

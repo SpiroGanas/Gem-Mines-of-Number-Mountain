@@ -119,3 +119,12 @@ def test_the_budget_counts_only_exported_files(tmp_path: Path) -> None:
     assert perf.shipped_bytes(root) == 2048 + len('exclude_filter="tools/*, *.md"\n')
     assert perf.check_content_budget(root, budget_mb=0.001) == ["exported files are 0.0 MB, over the 0 MB content budget"]
     assert perf.check_content_budget(root) == []
+
+
+def test_the_budget_skips_folders_godot_ignores(tmp_path: Path) -> None:
+    root = make_tree(tmp_path, {
+        "assets/a.bin": b"x" * 10,
+        "marketing/.gdignore": b"",
+        "marketing/export/icon-512.png": b"x" * 5000,
+    })
+    assert perf.shipped_bytes(root) == 10

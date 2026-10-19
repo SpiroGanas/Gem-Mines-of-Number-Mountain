@@ -80,6 +80,9 @@ jobs:
       - name: Static performance checks (no per-frame allocations, OGG audio, size budget)
         run: python3 tools/ci/perf_check.py
 
+      - name: SDK audit lists every addon and Android plugin (Families Policy)
+        run: python3 tools/ci/check_sdk_audit.py
+
   # P1-S11-04: a debug APK on every merge to main (and on demand), for adb installs on the
   # devices. It uses a throwaway debug keystore made here, so nothing secret is involved.
   android-debug:

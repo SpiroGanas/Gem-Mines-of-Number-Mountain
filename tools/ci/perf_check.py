@@ -149,12 +149,16 @@ def exclude_patterns(root: Path) -> list[str]:
 
 def shipped_bytes(root: Path) -> int:
     patterns = exclude_patterns(root)
+    # Godot never imports or exports a folder holding a .gdignore (marketing/, docs/qa/).
+    ignored = [marker.parent.relative_to(root).as_posix() + "/" for marker in root.rglob(".gdignore")]
     total = 0
     for path in root.rglob("*"):
         if not path.is_file():
             continue
         rel = path.relative_to(root).as_posix()
         if rel.split("/")[0] in ALWAYS_SKIPPED or any(fnmatch.fnmatch(rel, pattern) for pattern in patterns):
+            continue
+        if any(rel.startswith(folder) for folder in ignored):
             continue
         total += path.stat().st_size
     return total
