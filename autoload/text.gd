@@ -225,7 +225,7 @@ func scholar_text_on() -> bool:
 	return ScholarMode.is_on(ModeGate.Feature.LONGER_TEXT)
 
 
-## A Word Gem: {term: String, text: String, picture: Texture2D or null, visual: Dictionary}.
+## A Word Gem: {term: String, text: String, scholar_text: String (the formal definition, "" if none), picture: Texture2D or null, visual: Dictionary}.
 ## Empty when the term id is unknown. Words come from the text table; the picture
 ## and the line ids come from curriculum/vocabulary.json.
 func term_definition(term_id: StringName) -> Dictionary:
@@ -241,6 +241,7 @@ func term_definition(term_id: StringName) -> Dictionary:
 	return {
 		"term": get_line(StringName(entry["term_line_id"])),
 		"text": get_line(StringName(entry["definition_line_id"])),
+		"scholar_text": get_line(StringName(entry["scholar_definition_line_id"])) if entry.has("scholar_definition_line_id") else "",
 		"picture": picture,
 		"visual": entry.get("visual", {}),
 		"zone": int(entry.get("zone", 0)),

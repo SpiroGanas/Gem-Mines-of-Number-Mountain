@@ -127,3 +127,41 @@ def test_ci_installs_the_pinned_sdk_platform() -> None:
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
     assert f'"platforms;android-{pinned}"' in workflow
     assert f"build-tools;{pinned}." in workflow
+
+
+# --- Phase 5, Web export (docs/decisions.md; the web build makes no network calls of its own) -------------------------
+
+WEB_WORKFLOW = ROOT / ".github" / "workflows" / "web-deploy.yml"
+
+
+def web_preset() -> dict[str, object]:
+    return parse_presets()["Web"]
+
+
+def test_web_preset_exists_and_is_single_threaded() -> None:
+    # Threads need cross-origin isolation headers that GitHub Pages cannot send; the single-threaded
+    # template runs without them and adds no service-worker code.
+    options: dict[str, str] = web_preset()["options"]  # type: ignore[assignment]
+    assert web_preset().get("platform") == "Web"
+    assert options.get("variant/thread_support") == "false"
+    assert options.get("variant/extensions_support") == "false"
+    assert options.get("progressive_web_app/enabled") == "false", "no service worker, no offline cache"
+
+
+def test_web_preset_keeps_dev_folders_and_the_android_plugin_out() -> None:
+    excluded = str(web_preset().get("exclude_filter", ""))
+    for pattern in MUST_EXCLUDE + ("addons/digit_ink/*",):
+        assert pattern in excluded, f"Web: exclude_filter must contain {pattern}"
+
+
+def test_no_preset_anywhere_mentions_the_internet_permission_as_on() -> None:
+    text = PRESETS.read_text(encoding="utf-8")
+    assert "permissions/internet=true" not in text
+    assert "android.permission.INTERNET" not in text
+
+
+def test_web_workflow_uses_only_first_party_actions_and_deploys_on_tags() -> None:
+    workflow = WEB_WORKFLOW.read_text(encoding="utf-8")
+    uses = set(re.findall(r"uses:\s*([\w./-]+)@", workflow))
+    assert uses <= {"actions/checkout", "actions/upload-pages-artifact", "actions/deploy-pages", "actions/upload-artifact"}, uses
+    assert "tags:" in workflow and "deploy-pages" in workflow

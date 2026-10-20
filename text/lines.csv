@@ -1260,7 +1260,7 @@ vocab.proof.definition,A proof shows that a fact is always true. A picture can b
 vocab.syllable.term,syllable,Word Gem term,0
 vocab.syllable.definition,A syllable is one beat in a word. Clap once for each beat.,Word Gem kid-sized definition,0
 z9.poem.prompt_single,Line {k} of a Fib poem needs {n} syllable. Which line fits?,"Zone 9: pick the poem line with the right syllable count (n = 1, the singular)",0
-z9.hint.example_poem_single,Line {k} needs {n} syllable. Clap once for it.,"Worked example: a Fib poem line of one syllable (n = 1)",0
+z9.hint.example_poem_single,Line {k} needs {n} syllable. Clap once for it.,Worked example: a Fib poem line of one syllable (n = 1),0
 z10.zone.name,Clockwork Depths,Zone 10 name on its banner,0
 z10.zone.done,You wound up every clock in Clockwork Depths!,Celebration: every Zone 10 skill is mastered,0
 z10.mod.prompt_remainder,Share {a} gems into groups of {n}. How many gems are left over?,Zone 10: the remainder of a division,0
@@ -1504,3 +1504,318 @@ z11.door.unlock,"Unlock {c}: raise it to the power {d}. On a loop of {n}, that i
 z11.door.same,The private key brings back the number we locked!,Zone 11: the door's punchline,0
 bolt.misconception.shifted_backward,Coding moves forward. Move each letter the other way.,Targeted hint after the shifted_backward mistake,0
 z11.coins.pair,{x} and {y},Zone 11: the two coin counts on an answer button,0
+rank.apprentice.name,Apprentice,Master Miner rank: 0 to 20 skills mastered,0
+rank.digger.name,Digger,Master Miner rank: 21 to 60 skills mastered,0
+rank.surveyor.name,Surveyor,Master Miner rank: 61 to 100 skills mastered,0
+rank.engineer.name,Engineer,Master Miner rank: 101 to 140 skills mastered,0
+rank.master_miner.name,Master Miner,Master Miner rank: 141 or more skills mastered and Zone 10 finished,0
+rank.core_keeper.name,Core Keeper,Master Miner rank: every zone finished,0
+ui.hub.rank,Rank: {rank},Workshop: the Master Miner rank (worked out from skills mastered),0
+parent.dash.rank,Master Miner rank: {rank},Parent dashboard: the child's rank,0
+vocab.digit.scholar_definition,A digit is one of the symbols 0 to 9 used to write numbers in base ten.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.numeral.scholar_definition,"A numeral is a written name for a number, made from digits.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.tens.scholar_definition,The tens place has value ten. A digit there counts groups of 10.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.ones.scholar_definition,The ones place has value one. A digit there counts single units.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.hundred.scholar_definition,One hundred equals 10 × 10. It is the value of the hundreds place.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.regrouping.scholar_definition,Regrouping renames a number by trading 1 of a place for 10 of the next place down.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.greater_than.scholar_definition,a > b means a is further right than b on the number line.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.less_than.scholar_definition,a < b means a is further left than b on the number line.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.equal.scholar_definition,a = b means a and b name the same number.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.sum.scholar_definition,The sum of numbers is the result of adding them.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.difference.scholar_definition,The difference of two numbers is the result of subtracting one from the other.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.fact_family.scholar_definition,"A fact family is the set of addition, subtraction, multiplication or division facts that share three numbers.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.inverse.scholar_definition,"Two operations are inverses when each undoes the other, like + and −.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.even.scholar_definition,An integer is even when it is a multiple of 2.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.odd.scholar_definition,An integer is odd when it leaves remainder 1 after division by 2.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.array.scholar_definition,"An array arranges objects in r rows and c columns, so it holds r × c objects.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.row.scholar_definition,A row is a horizontal line of entries in an array or table.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.column.scholar_definition,A column is a vertical line of entries in an array or table.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.equal_groups.scholar_definition,Equal groups are collections that each hold the same count.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.multiply.scholar_definition,To multiply a × b is to add b copies of a. The result is the product.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.commutative.scholar_definition,An operation is commutative when a ∘ b = b ∘ a for all a and b.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.factor.scholar_definition,A factor of n is a whole number that divides n with remainder 0.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.multiple.scholar_definition,A multiple of n is n × k for some whole number k.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.prime.scholar_definition,A prime is a whole number greater than 1 whose only factors are 1 and itself.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.composite.scholar_definition,A composite is a whole number greater than 1 that has a factor other than 1 and itself.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.divide.scholar_definition,"To divide a by b is to find how many copies of b make a, or the size of each of b equal shares.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.recipe.scholar_definition,A recipe lists the parts needed to build something.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.sieve.scholar_definition,A sieve removes the multiples of each prime in turn. The numbers that remain are the primes.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.prime_factorization.scholar_definition,A prime factorization writes n as a product of primes.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.divisible.scholar_definition,a is divisible by b when a = b × k for some whole number k.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.fundamental_theorem.scholar_definition,"Every integer greater than 1 is a product of primes, in exactly one way apart from order.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.common_factor.scholar_definition,A common factor of a and b divides both a and b.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.gcf.scholar_definition,"The GCF of a and b is the largest number that divides both. Also called gcd(a, b).","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.common_multiple.scholar_definition,A common multiple of a and b is a multiple of both a and b.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.lcm.scholar_definition,"The LCM of a and b is the smallest positive common multiple. Also written lcm(a, b).","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.coprime.scholar_definition,Integers are coprime when their GCF is 1.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.simplest_form.scholar_definition,A fraction is in simplest form when its numerator and denominator are coprime.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.gear_ratio.scholar_definition,"A gear ratio is the ratio of two meshed gears' tooth counts, which sets how their turns compare.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.fraction.scholar_definition,A fraction a/b stands for a parts of size 1/b. It is the quotient a ÷ b.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.numerator.scholar_definition,"In a/b, the numerator a counts the equal parts taken.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.denominator.scholar_definition,"In a/b, the denominator b is the number of equal parts in one whole. It cannot be 0.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.unit_fraction.scholar_definition,"A unit fraction has numerator 1, so it has the form 1/n.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.equivalent.scholar_definition,"Fractions are equivalent when they name the same number, like 1/2 and 2/4.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.mixed_number.scholar_definition,"A mixed number is a whole number plus a proper fraction, like 2 1/2.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.improper_fraction.scholar_definition,An improper fraction has a numerator greater than or equal to its denominator.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.decimal.scholar_definition,"A decimal writes a number in base ten with a point. Places after the point are tenths, hundredths and so on.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.tenth.scholar_definition,"A tenth is 1/10, which is 0.1.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.hundredth.scholar_definition,"A hundredth is 1/100, which is 0.01.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.percent.scholar_definition,Percent means per hundred. n% equals n/100.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.ratio.scholar_definition,A ratio a : b compares two quantities by division.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.negative.scholar_definition,A negative number is less than 0. It lies left of 0 on the number line.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.power.scholar_definition,A power b^n is b multiplied by itself n times.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.base.scholar_definition,"In b^n the base is b. In base k, place values are powers of k.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.exponent.scholar_definition,In b^n the exponent n counts the factors of b.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.square_number.scholar_definition,A square number is n² = n × n for a whole number n.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.cube_number.scholar_definition,A cube number is n³ = n × n × n for a whole number n.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.square_root.scholar_definition,The square root √n is the non-negative number whose square is n.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.binary.scholar_definition,Binary is base two. Its digits are 0 and 1 and its place values are powers of 2.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.scientific_notation.scholar_definition,"Scientific notation writes a number as m × 10^e, with 1 ≤ m < 10.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.lever.scholar_definition,A lever balances when force × distance from the pivot is equal on both sides.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.sequence.scholar_definition,A sequence is an ordered list of numbers.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.term.scholar_definition,"A term is one entry of a sequence, or one part of a sum.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.rule.scholar_definition,A rule gives each term of a sequence from the position or the earlier terms.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.triangular_number.scholar_definition,The nth triangular number is T(n) = 1 + 2 + … + n = n(n + 1)/2.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.fibonacci.scholar_definition,"The Fibonacci numbers start 1, 1 and then F(n) = F(n − 1) + F(n − 2).","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.golden_ratio.scholar_definition,"The golden ratio is (1 + √5)/2, about 1.618. Ratios of neighboring Fibonacci numbers approach it.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.proof.scholar_definition,"A proof is a chain of statements, each justified by an assumption or an earlier statement.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.syllable.scholar_definition,A syllable is a unit of spoken sound with one vowel sound.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.remainder.scholar_definition,Dividing a by n gives a = q × n + r with 0 ≤ r < n. The remainder is r.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.modulo.scholar_definition,a mod n is the remainder of a divided by n.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.congruent.scholar_definition,a ≡ b (mod n) means a and b leave the same remainder on division by n.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.identity.scholar_definition,"An identity element e satisfies e ∘ a = a for every a. For + it is 0, for × it is 1.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.group_inverse.scholar_definition,"The inverse of a is the element b with a ∘ b = e, where e is the identity.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.closure.scholar_definition,A set is closed under an operation when combining members always gives a member.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.group.scholar_definition,"A group is a set with an operation that is closed, has an identity, and gives every element an inverse.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.cyclic.scholar_definition,"A group is cyclic when one element, repeated, produces every element.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.cipher.scholar_definition,A cipher is a rule for changing the letters of a message so only a key holder can read it.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.key.scholar_definition,A key is the secret information that fixes how a cipher encodes and decodes.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.encode.scholar_definition,To encode is to apply a cipher to a message and so get the coded text.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.decode.scholar_definition,To decode is to reverse a cipher and so recover the message.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.modular_inverse.scholar_definition,"The inverse of a modulo n is the number x with a × x ≡ 1 (mod n). It exists exactly when gcd(a, n) = 1.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.euclid_algorithm.scholar_definition,"The Euclidean algorithm finds gcd(a, b) by replacing (a, b) with (b, a mod b) until the remainder is 0.","Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.public_key.scholar_definition,A public key is the part of a key pair that anyone may use to encrypt a message.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.private_key.scholar_definition,A private key is the part of a key pair kept secret. It decrypts messages made with the public key.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+z10.mod.prompt_remainder,Divide {a} by {n}. What is the remainder? That is {a} mod {n}.,Zone 10: the remainder of a division (Scholar variant),0,scholar
+z10.mod.prompt_stop,"On a loop of {n} stations, start at {s} and move {k} stops. At which station do you stop?",Zone 10: where a cart stops on a loop (Scholar variant),0,scholar
+z10.group.prompt_identity_add,"In this addition table on a loop of {n}, which number is the identity?",Zone 10: the identity of an addition table (Scholar variant),0,scholar
+z10.group.prompt_identity_mul,"In this multiplication table on a loop of {n}, which number is the identity?",Zone 10: the identity of a multiplication table (Scholar variant),0,scholar
+z10.group.prompt_inverse,Find the inverse of {a} under addition on a loop of {n}. It is the number that gives 0 when added to {a}.,Zone 10: the undo partner of a number (Scholar variant),0,scholar
+z10.group.prompt_cyclic,Start at 0 on a loop of {n} and add {g} each time. How many additions return you to 0?,Zone 10: how many jumps until a cyclic walk returns to 0 (Scholar variant),0,scholar
+z11.cipher.prompt_encode,Apply a Caesar shift of {k} to each letter. What is the coded word?,Zone 11: encode a word with a Caesar shift (Scholar variant),0,scholar
+z11.cipher.prompt_decode,A Caesar shift of {k} was applied to each letter. What was the original word?,Zone 11: decode a Caesar shift (Scholar variant),0,scholar
+z11.euclid.prompt_gcd,Apply the Euclidean algorithm. What is the GCF of {a} and {b}?,Zone 11: the GCF with the Euclid machine (Scholar variant),0,scholar
+z11.euclid.prompt_count,Apply the Euclidean algorithm to {a} and {b}. How many divisions are needed before the remainder is 0?,Zone 11: count the steps of the Euclid machine (Scholar variant),0,scholar
+z11.rsa.prompt_encrypt,"Compute {m} to the power {e}, then reduce it on a loop of {n}.",Zone 11: lock a number with the public key (Scholar variant),0,scholar
+z11.rsa.prompt_decrypt,"Compute {c} to the power {d}, then reduce it on a loop of {n}.",Zone 11: unlock a number with the private key (Scholar variant),0,scholar
+notation.set.integers_words,the integers,Scholar notation: words for the symbol ℤ (shown instead of it in Explorer mode),0
+notation.set.rationals_words,the rational numbers,Scholar notation: words for the symbol ℚ,0
+notation.set.reals_words,the real numbers,Scholar notation: words for the symbol ℝ,0
+z12.proof.prompt_assumption,Which step is where the proof starts?,Zone 12: find the first step of a proof,0
+z12.proof.prompt_conclusion,Which step is where the proof ends?,Zone 12: find the last step of a proof,0
+z12.proof.prompt_order,Put the steps in the order of the proof.,Zone 12: order the steps of a proof,0
+z12.proof.prompt_justify,Why is step {k} true?,Zone 12: pick the reason for a step,0
+z12.proof.prompt_contradiction,Which step cannot be true if step 1 is true?,Zone 12: spot the clash,0
+z12.sets.prompt_integer,Is the number on the card an integer?,Zone 12: is it an integer,0
+z12.sets.prompt_rational,Can the number on the card be written as a fraction?,Zone 12: is it rational,0
+z12.sets.prompt_real,Which is the smallest ring the number fits in?,Zone 12: the smallest number ring,0
+z12.sets.ring_integer,Integers,Zone 12: ring name,0
+z12.sets.ring_rational,Rational numbers,Zone 12: ring name,0
+z12.sets.ring_real,Real numbers,Zone 12: ring name,0
+z12.mystery.prompt_goldbach,Which two primes add up to {n}?,Zone 12: Goldbach pair,0
+z12.mystery.prompt_twin,Find the next twin primes after {p}. What is the smaller one?,Zone 12: next twin primes,0
+z12.why.assume,We start with it.,Zone 12: reason chip,0
+z12.why.meaning,That is what the word means.,Zone 12: reason chip,0
+z12.why.arithmetic,We worked it out.,Zone 12: reason chip,0
+z12.why.previous,It follows from the steps before.,Zone 12: reason chip,0
+z12.why.build,We build it from the list.,Zone 12: reason chip,0
+z12.why.prime_recipe,Every number bigger than 1 has a prime recipe.,Zone 12: reason chip,0
+z12.why.reasoning,It follows from earlier steps.,Zone 12: reason chip,0
+z12.why.contradiction,It clashes with the start.,Zone 12: reason chip,0
+z12.why.even_square,A square is even only if its number is even.,Zone 12: reason chip,0
+z12.builder.how,Tap a step to place it. Then tap Why and pick a reason.,Proof builder: how to play,0
+z12.builder.step,Step {n},Proof builder: slot name,0
+z12.builder.empty,Tap a step below,Proof builder: empty slot,0
+z12.builder.why,Why?,Proof builder: reason button,0
+z12.builder.check,Check,Proof builder: check button,0
+z12.builder.hint,Hint,Proof builder: hint button,0
+z12.builder.back,Back,Proof builder: leave button,0
+z12.builder.done,The proof is complete!,Proof builder: finished,0
+z12.builder.fb_order,Not quite. A step needs the steps it uses to come first.,Proof builder: wrong order,0
+z12.builder.fb_justification,Not quite. Think about why this step is true.,Proof builder: wrong reason,0
+z12.builder.fb_missing,Fill every step first. Then check.,Proof builder: empty steps,0
+z12.builder.fb_duplicate,Not quite. Each step is used once.,Proof builder: tile used twice,0
+z12.builder.hint1,Try the lit step next.,Proof builder: hint 1,0
+z12.builder.hint2,Here is the next step.,Proof builder: hint 2,0
+z12.builder.hint3,And here is why it is true.,Proof builder: hint 3,0
+z12.builder.pick_reason,Pick the reason for this step.,Proof builder: reason chooser,0
+z12.proof.fb.n_plus_one_is_prime,Not quite. N might not be prime. It only needs a prime factor that is not on the list.,Proof builder: decoy feedback,0
+z12.proof.fb.assumes_conclusion,Not quite. We cannot use the very thing we want to prove.,Proof builder: decoy feedback,0
+z12.proof.fb.checked_one_example,Not quite. One example is not a proof for every number.,Proof builder: decoy feedback,0
+z12.proof.fb.decimal_is_fraction,Not quite. 1.414 only gets close to the square root of 2.,Proof builder: decoy feedback,0
+z12.proof.fb.forgot_lowest_terms,"Not quite. In lowest terms, a and b share no factor.",Proof builder: decoy feedback,0
+z12.proof.practice.title,Even plus even,Practice proof title,0
+z12.proof.practice.intro,Let's prove that even plus even is even.,Practice proof intro,0
+z12.proof.practice.s1,"Take two even numbers, a and b.",Practice proof step,0
+z12.proof.practice.s2,An even number is made of pairs. So a and b are piles of pairs.,Practice proof step,0
+z12.proof.practice.s3,Put the piles together. Every gem is in a pair. So a + b is even.,Practice proof step,0
+z12.proof.practice.d1,"2 + 4 = 6 is even, so it is always true.",Practice proof decoy,0
+z12.proof.euclid.title,Infinitely many primes,Euclid proof title,0
+z12.proof.euclid.intro,Let's prove that the primes never end.,Euclid proof intro,0
+z12.proof.euclid.s1,Pretend there are only a few primes. Make a list of all of them.,Euclid proof step,0
+z12.proof.euclid.s2,Multiply all the primes on the list. Call the answer P.,Euclid proof step,0
+z12.proof.euclid.s3,Add 1 to P. Call the new number N.,Euclid proof step,0
+z12.proof.euclid.s4,Each listed prime divides P. So dividing N by it leaves 1.,Euclid proof step,0
+z12.proof.euclid.s5,"N is bigger than 1, so N has a prime recipe. Some prime divides N.",Euclid proof step,0
+z12.proof.euclid.s6,That prime is not on the list. Each listed prime leaves 1.,Euclid proof step,0
+z12.proof.euclid.s7,But the list had every prime. That is a contradiction. So the primes never end.,Euclid proof step,0
+z12.proof.euclid.d1,N must be a prime number.,Euclid proof decoy,0
+z12.proof.euclid.d2,"The primes never end, so the list is never complete.",Euclid proof decoy,0
+z12.proof.sqrt2.title,The square root of 2,Square root of 2 proof title,0
+z12.proof.sqrt2.intro,Let's prove that the square root of 2 is not a fraction.,Square root of 2 proof intro,0
+z12.proof.sqrt2.s1,Pretend the square root of 2 is a over b. Say a over b is in lowest terms.,Square root of 2 proof step,0
+z12.proof.sqrt2.s2,Square both sides. Then a × a = 2 × b × b.,Square root of 2 proof step,0
+z12.proof.sqrt2.s3,So a × a is even. A square is even only if its number is even. So a is even.,Square root of 2 proof step,0
+z12.proof.sqrt2.s4,Write a as 2 × k. Then b × b = 2 × k × k.,Square root of 2 proof step,0
+z12.proof.sqrt2.s5,So b × b is even. Then b is even too.,Square root of 2 proof step,0
+z12.proof.sqrt2.s6,Now a and b are both even. But they share no factor. That is a contradiction. So the square root of 2 is not a fraction.,Square root of 2 proof step,0
+z12.proof.sqrt2.d1,"The square root of 2 is 1.414, which is 1414 over 1000.",Square root of 2 proof decoy,0
+z12.proof.sqrt2.d2,a and b may share a factor of 2. That is fine.,Square root of 2 proof decoy,0
+z12.proof.prompt_build,Build the proof. Place each step and say why it is true.,Zone 12: the guided proof rock,0
+z12.mini.even_plus_even.1,Pick any two even numbers.,Zone 12: a short proof step,0
+z12.mini.even_plus_even.2,An even number is made of pairs.,Zone 12: a short proof step,0
+z12.mini.even_plus_even.3,Put both piles of pairs together.,Zone 12: a short proof step,0
+z12.mini.even_plus_even.4,Every gem is still in a pair. So the sum is even.,Zone 12: a short proof step,0
+z12.mini.odd_plus_one.1,Take any odd number.,Zone 12: a short proof step,0
+z12.mini.odd_plus_one.2,An odd number has one gem left over.,Zone 12: a short proof step,0
+z12.mini.odd_plus_one.3,Add 1. The two spare gems make a pair.,Zone 12: a short proof step,0
+z12.mini.odd_plus_one.4,Now every gem is in a pair. So the next number is even.,Zone 12: a short proof step,0
+z12.mini.sum_to_four.1,Add 1 + 2 + 3 + 4.,Zone 12: a short proof step,0
+z12.mini.sum_to_four.2,"Pair 1 with 4, and 2 with 3. Each pair makes 5.",Zone 12: a short proof step,0
+z12.mini.sum_to_four.3,Two pairs of 5 make 10. So the sum is 10.,Zone 12: a short proof step,0
+z12.mini.double_is_even.1,Take any whole number.,Zone 12: a short proof step,0
+z12.mini.double_is_even.2,A double is two equal piles of that number.,Zone 12: a short proof step,0
+z12.mini.double_is_even.3,Two equal piles can be paired up. So a double is even.,Zone 12: a short proof step,0
+z12.mini.multiple_of_six.1,Take a multiple of 6.,Zone 12: a short proof step,0
+z12.mini.multiple_of_six.2,A multiple of 6 is some groups of 6.,Zone 12: a short proof step,0
+z12.mini.multiple_of_six.3,Each group of 6 splits into 3 pairs.,Zone 12: a short proof step,0
+z12.mini.multiple_of_six.4,Every gem is in a pair. So a multiple of 6 is even.,Zone 12: a short proof step,0
+z12.mini.square_of_even.1,Take any even number.,Zone 12: a short proof step,0
+z12.mini.square_of_even.2,An even number is 2 times a whole number.,Zone 12: a short proof step,0
+z12.mini.square_of_even.3,Its square is 2 times a whole number too. So it is even.,Zone 12: a short proof step,0
+z12.mini.seven_even.1,Pretend 7 is an even number.,Zone 12: a short proof step,0
+z12.mini.seven_even.2,Even numbers split into two equal piles.,Zone 12: a short proof step,0
+z12.mini.seven_even.3,Splitting 7 gems always leaves one over.,Zone 12: a short proof step,0
+z12.mini.seven_even.4,So 7 gems make two equal piles.,Zone 12: a short proof step,0
+z12.mini.big_prime_even.1,Pretend a prime bigger than 2 is even.,Zone 12: a short proof step,0
+z12.mini.big_prime_even.2,An even number can be divided by 2.,Zone 12: a short proof step,0
+z12.mini.big_prime_even.3,So 2 is a factor of that prime.,Zone 12: a short proof step,0
+z12.mini.big_prime_even.4,But a prime has only itself and 1 as factors.,Zone 12: a short proof step,0
+z12.mini.biggest_number.1,"Pretend there is a biggest whole number, called b.",Zone 12: a short proof step,0
+z12.mini.biggest_number.2,Add 1 to b. Call the answer c.,Zone 12: a short proof step,0
+z12.mini.biggest_number.3,c is a whole number that is bigger than b.,Zone 12: a short proof step,0
+z12.mini.all_odd.1,Pretend every whole number is odd.,Zone 12: a short proof step,0
+z12.mini.all_odd.2,The number 2 is a whole number.,Zone 12: a short proof step,0
+z12.mini.all_odd.3,But 2 is one pair with nothing left over.,Zone 12: a short proof step,0
+z12.mini.smallest_fraction.1,Pretend there is a smallest fraction above 0.,Zone 12: a short proof step,0
+z12.mini.smallest_fraction.2,Cut that fraction in half.,Zone 12: a short proof step,0
+z12.mini.smallest_fraction.3,"The half is still above 0, and it is smaller.",Zone 12: a short proof step,0
+z12.hint.example_parts_assumption,Step {n} is where the proof starts.,Worked example: the first step,0
+z12.hint.example_parts_conclusion,Step {n} is where the proof ends.,Worked example: the last step,0
+z12.hint.example_order,The proof starts with step {n}. Then each step builds on the one before.,Worked example: the order of a proof,0
+z12.hint.example_justify_assume,Step {k} is where we start. We take it as given.,Worked example: a starting step,0
+z12.hint.example_justify_meaning,Step {k} is true because of what a word means.,Worked example: a step true by meaning,0
+z12.hint.example_justify_arithmetic,Step {k} is true because we worked it out.,Worked example: a step true by arithmetic,0
+z12.hint.example_justify_previous,Step {k} is true because of the steps before it.,Worked example: a step that follows,0
+z12.hint.example_contradiction,Step {k} clashes with step 1. They cannot both be true.,Worked example: a clash,0
+z12.hint.example_guided,"In a proof, every step has a reason.",Worked example: a guided proof,0
+z12.hint.example_set_integer,It sits in the integer ring.,Worked example: the smallest ring is integers,0
+z12.hint.example_set_rational,"It sits in the rational ring, but not the integer ring.",Worked example: the smallest ring is rational,0
+z12.hint.example_set_real,"It sits in the real ring, outside the rational ring.",Worked example: the smallest ring is real,0
+z12.hint.example_integer_yes,Yes. It is a whole number or its opposite.,Worked example: it is an integer,0
+z12.hint.example_integer_no,No. It sits between whole numbers.,Worked example: it is not an integer,0
+z12.hint.example_rational_yes,Yes. It can be written as a fraction.,Worked example: it is rational,0
+z12.hint.example_rational_no,No. No fraction is exactly this number.,Worked example: it is not rational,0
+z12.hint.example_goldbach,{p} + {q} = {n}. Both {p} and {q} are prime.,Worked example: a Goldbach pair,0
+z12.hint.example_twin,"{q} and {r} are both prime, and they are 2 apart.",Worked example: twin primes,0
+vocab.assume.term,assume,Word Gem term,0
+vocab.assume.definition,"To assume is to pretend something is true, to see what follows.",Word Gem kid-sized definition,0
+vocab.assume.scholar_definition,An assumption is a statement taken as true at the start of an argument.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.contradiction.term,contradiction,Word Gem term,0
+vocab.contradiction.definition,A contradiction is when two facts cannot both be true. It shows a pretend was wrong.,Word Gem kid-sized definition,0
+vocab.contradiction.scholar_definition,A contradiction is a pair of statements that cannot both be true. Proof by contradiction assumes the opposite of a claim and reaches one.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.integer.term,integer,Word Gem term,0
+vocab.integer.definition,"An integer is a whole number or its opposite. Like −3, 0, 8.",Word Gem kid-sized definition,0
+vocab.integer.scholar_definition,The integers are the whole numbers and their negatives.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.rational.term,rational number,Word Gem term,0
+vocab.rational.definition,"A rational number is one whole number over another, like 1/2.",Word Gem kid-sized definition,0
+vocab.rational.scholar_definition,A rational number is a number a/b with a and b integers and b not 0.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.irrational.term,irrational number,Word Gem term,0
+vocab.irrational.definition,An irrational number cannot be written as a fraction. The square root of 2 is one.,Word Gem kid-sized definition,0
+vocab.irrational.scholar_definition,An irrational number is a real number that is not rational. Its decimal never ends and never repeats.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+vocab.real_number.term,real number,Word Gem term,0
+vocab.real_number.definition,A real number is any number on the number line.,Word Gem kid-sized definition,0
+vocab.real_number.scholar_definition,The real numbers are the rational and irrational numbers together.,"Word Gem formal definition (shown in Scholar mode, below the kid-sized one)",0
+z12.zone.name,The Infinite Core,Zone 12 name on its banner,0
+z12.zone.done,You finished the Infinite Core. The whole mountain is yours!,Celebration: every Zone 12 skill is mastered,0
+ui.museum.journal,Journal,Museum button: the Mathematician's Journal (Zone 12),0
+z12.journal.title,Mathematician's Journal,Zone 12 journal title,0
+z12.journal.how,Pick a page.,Zone 12 journal: how,0
+z12.journal.hello,This is the Mathematician's Journal. Every page is a proof or a mystery.,Zone 12 journal: Bolt's hello,0
+z12.journal.rings,Number rings,Zone 12 journal: the number rings room,0
+z12.journal.mysteries,Unsolved Mysteries,Zone 12 journal: the mysteries room,0
+z12.proofpage.done,You built a real proof! Mathematicians do this every day.,Zone 12: a proof page is finished,0
+z12.rings.title,Number rings,Number rings room title,0
+z12.rings.hello,Three rings hold the numbers we know. Tap the smallest ring each number fits in.,Number rings: Bolt's hello,0
+z12.rings.right,Yes! That is its smallest ring.,Number rings: right,0
+z12.rings.wrong,Not quite. Let's look again.,Number rings: not quite,0
+z12.rings.next,Next number,Number rings: next button,0
+z12.mysteries.title,Unsolved Mysteries,Mysteries room title,0
+z12.mysteries.goldbach_name,Goldbach,Mysteries: first case button,0
+z12.mysteries.twin_name,Twin primes,Mysteries: second case button,0
+z12.mysteries.goldbach_note,Every even number above 2 seems to be two primes added. People have checked it for huge numbers. No one has proven it for every number. That is why it is a mystery.,Mysteries: Goldbach's guess,0
+z12.mysteries.twin_note,"Twin primes are two primes 2 apart, like 11 and 13. Do they go on forever? No one knows. That is why it is a mystery.",Mysteries: the twin primes,0
+z12.mysteries.goldbach_pick,Even number,Mysteries: Goldbach stepper title,0
+z12.mysteries.twin_pick,Start after,Mysteries: twin primes stepper title,0
+z12.mysteries.goldbach_ask,Tap two primes that add up to {n}.,Mysteries: Goldbach ask,0
+z12.mysteries.twin_ask,Tap the smaller prime of the first twin primes after {p}.,Mysteries: twin primes ask,0
+z12.mysteries.goldbach_yes,"Yes! {p} + {q} = {n}, and both are prime.",Mysteries: a Goldbach pair,0
+z12.mysteries.goldbach_no,"{p} + {q} = {s}, not {n}. Try two others.",Mysteries: not a Goldbach pair,0
+z12.mysteries.twin_yes,Yes! {q} and {r} are twin primes.,Mysteries: the first twin primes,0
+z12.mysteries.twin_later,"{q} and {r} are twin primes, but there is an earlier pair.",Mysteries: later twin primes,0
+z12.mysteries.twin_no,Not quite. Look for two primes just 2 apart.,Mysteries: not twin primes,0
+badge.euclid_proof.name,Euclid's Proof Badge,Mathematician badge name,0
+badge.euclid_proof.story_1,Euclid wrote a proof about primes more than two thousand years ago.,Badge story line 1,0
+badge.euclid_proof.story_2,He asked: do the primes ever stop?,Badge story line 2,0
+badge.euclid_proof.story_3,He pretended they did. He made a list of every prime.,Badge story line 3,0
+badge.euclid_proof.story_4,Then he built a number the list had missed. The pretend could not be true.,Badge story line 4,0
+badge.euclid_proof.story_5,So the primes never end. You built that proof yourself.,Badge story line 5,0
+bolt.misconception.picked_conclusion_as_assumption,Not quite. The last step is where the proof ends. Look for where it starts.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.picked_assumption_as_conclusion,Not quite. The first step is where the proof starts. Look for where it ends.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.picked_middle_step,Not quite. A middle step leads from the start to the end.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.reversed_chain,Not quite. A proof starts with what we take as given.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.swapped_two_steps,Not quite. Two steps are the wrong way round. Each step builds on the one before.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.circular_reasoning,Not quite. The first step is where we start. The steps after it follow from the steps before.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.mixed_up_reason,Not quite. Did we start with it? Does a word give it? Did we work it out?,Bolt's gentle hint for a named mistake,0
+bolt.misconception.missed_contradiction,Not quite. Look for the step that cannot be true together with step 1.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.n_plus_one_is_prime,Not quite. N might not be prime. It only needs a prime factor that is not on the list.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.assumes_conclusion,Not quite. We cannot use the very thing we want to prove.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.checked_one_example,Not quite. One example is not a proof for every number.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.decimal_is_fraction,Not quite. 1.414 only gets close to the square root of 2.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.forgot_lowest_terms,"Not quite. In lowest terms, a and b share no factor.",Bolt's gentle hint for a named mistake,0
+bolt.misconception.even_square_not_even,"Not quite. If a square is even, its number is even too.",Bolt's gentle hint for a named mistake,0
+bolt.misconception.negative_not_integer,Not quite. Negative whole numbers are integers too.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.root_never_integer,"Not quite. The square root of 4 is 2, a whole number.",Bolt's gentle hint for a named mistake,0
+bolt.misconception.fraction_is_integer,Not quite. A number between two whole numbers is not an integer.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.integer_not_rational,Not quite. Any whole number is a fraction over 1.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.decimal_not_rational,Not quite. A decimal like 0.75 is a fraction: 75 over 100.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.sqrt_always_rational,Not quite. No fraction is exactly the square root of 2.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.picked_bigger_ring,Not quite. A smaller ring holds this number too. Look inside.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.used_composite,Not quite. Both numbers must be prime.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.sum_off,Not quite. Add the two primes. Do they make the number?,Bolt's gentle hint for a named mistake,0
+bolt.misconception.gap_not_two,Not quite. Twin primes are exactly 2 apart.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.not_both_prime,Not quite. Both numbers of a twin pair must be prime.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.gave_larger_prime,Not quite. We want the smaller prime of the pair.,Bolt's gentle hint for a named mistake,0
+bolt.misconception.mixed_up_set,Not quite. Integers are whole numbers and their opposites.,Bolt's gentle hint for a named mistake,0
+z12.builder.slot,{mark}{step}  {body},Proof builder: a slot's button (mark is '! ' for a step to fix),0
+z12.builder.tile,{mark}{body},Proof builder: a tray button (mark is '* ' for the lit step),0

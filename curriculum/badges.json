@@ -8,14 +8,47 @@
       "emblem": "pairs",
       "zone": 2,
       "story": [
-        {"line_id": "badge.gauss.story_1", "params": {}},
-        {"line_id": "badge.gauss.story_2", "params": {}},
-        {"line_id": "badge.gauss.story_3", "params": {"a": 1, "b": 100}},
-        {"line_id": "badge.gauss.story_4", "params": {"a": 1, "b": 100, "c": 2, "d": 99}},
-        {"line_id": "badge.gauss.story_5", "params": {"n": 101}},
-        {"line_id": "badge.gauss.story_6", "params": {}}
+        {
+          "line_id": "badge.gauss.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss.story_3",
+          "params": {
+            "a": 1,
+            "b": 100
+          }
+        },
+        {
+          "line_id": "badge.gauss.story_4",
+          "params": {
+            "a": 1,
+            "b": 100,
+            "c": 2,
+            "d": 99
+          }
+        },
+        {
+          "line_id": "badge.gauss.story_5",
+          "params": {
+            "n": 101
+          }
+        },
+        {
+          "line_id": "badge.gauss.story_6",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["add.to_100.regroup", "add.three_addends.to_20"]}
+      "unlock": {
+        "skills_mastered": [
+          "add.to_100.regroup",
+          "add.three_addends.to_20"
+        ]
+      }
     },
     {
       "id": "euclid",
@@ -23,21 +56,52 @@
       "emblem": "factors",
       "zone": 4,
       "story": [
-        {"line_id": "badge.euclid.story_1", "params": {}},
-        {"line_id": "badge.euclid.story_2", "params": {}},
-        {"line_id": "badge.euclid.story_3", "params": {}},
-        {"line_id": "badge.euclid.story_4", "params": {}},
-        {"line_id": "badge.euclid.story_5", "params": {}}
+        {
+          "line_id": "badge.euclid.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid.story_5",
+          "params": {}
+        }
       ],
       "story_more": {
-        "skills_mastered": ["gcf.find.by_listing"],
+        "skills_mastered": [
+          "gcf.find.by_listing"
+        ],
         "story": [
-          {"line_id": "badge.euclid.story_gcf_1", "params": {}},
-          {"line_id": "badge.euclid.story_gcf_2", "params": {}},
-          {"line_id": "badge.euclid.story_gcf_3", "params": {}}
+          {
+            "line_id": "badge.euclid.story_gcf_1",
+            "params": {}
+          },
+          {
+            "line_id": "badge.euclid.story_gcf_2",
+            "params": {}
+          },
+          {
+            "line_id": "badge.euclid.story_gcf_3",
+            "params": {}
+          }
         ]
       },
-      "unlock": {"skills_mastered": ["fac.list.find_all", "prime.classify.single"]}
+      "unlock": {
+        "skills_mastered": [
+          "fac.list.find_all",
+          "prime.classify.single"
+        ]
+      }
     },
     {
       "id": "eratosthenes",
@@ -45,13 +109,33 @@
       "emblem": "sieve",
       "zone": 5,
       "story": [
-        {"line_id": "badge.eratosthenes.story_1", "params": {}},
-        {"line_id": "badge.eratosthenes.story_2", "params": {}},
-        {"line_id": "badge.eratosthenes.story_3", "params": {}},
-        {"line_id": "badge.eratosthenes.story_4", "params": {}},
-        {"line_id": "badge.eratosthenes.story_5", "params": {}}
+        {
+          "line_id": "badge.eratosthenes.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.eratosthenes.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.eratosthenes.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.eratosthenes.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.eratosthenes.story_5",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["sieve.mark.multiples_of", "sieve.find.primes_to_100"]}
+      "unlock": {
+        "skills_mastered": [
+          "sieve.mark.multiples_of",
+          "sieve.find.primes_to_100"
+        ]
+      }
     },
     {
       "id": "sophie_germain",
@@ -59,13 +143,33 @@
       "emblem": "prime_star",
       "zone": 5,
       "story": [
-        {"line_id": "badge.sophie_germain.story_1", "params": {}},
-        {"line_id": "badge.sophie_germain.story_2", "params": {}},
-        {"line_id": "badge.sophie_germain.story_3", "params": {}},
-        {"line_id": "badge.sophie_germain.story_4", "params": {}},
-        {"line_id": "badge.sophie_germain.story_5", "params": {}}
+        {
+          "line_id": "badge.sophie_germain.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.sophie_germain.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.sophie_germain.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.sophie_germain.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.sophie_germain.story_5",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["pf.tree.build", "pf.fta.unique"]}
+      "unlock": {
+        "skills_mastered": [
+          "pf.tree.build",
+          "pf.fta.unique"
+        ]
+      }
     },
     {
       "id": "gauss_staircase",
@@ -73,14 +177,41 @@
       "emblem": "staircase",
       "zone": 9,
       "story": [
-        {"line_id": "badge.gauss_staircase.story_1", "params": {}},
-        {"line_id": "badge.gauss_staircase.story_2", "params": {}},
-        {"line_id": "badge.gauss_staircase.story_3", "params": {}},
-        {"line_id": "badge.gauss_staircase.story_4", "params": {}},
-        {"line_id": "badge.gauss_staircase.story_5", "params": {"n": 4, "m": 5, "t": 10}},
-        {"line_id": "badge.gauss_staircase.story_6", "params": {}}
+        {
+          "line_id": "badge.gauss_staircase.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss_staircase.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss_staircase.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss_staircase.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.gauss_staircase.story_5",
+          "params": {
+            "n": 4,
+            "m": 5,
+            "t": 10
+          }
+        },
+        {
+          "line_id": "badge.gauss_staircase.story_6",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["gauss.sum.pairing", "gauss.sum.formula"]}
+      "unlock": {
+        "skills_mastered": [
+          "gauss.sum.pairing",
+          "gauss.sum.formula"
+        ]
+      }
     },
     {
       "id": "noether",
@@ -88,13 +219,33 @@
       "emblem": "table",
       "zone": 10,
       "story": [
-        {"line_id": "badge.noether.story_1", "params": {}},
-        {"line_id": "badge.noether.story_2", "params": {}},
-        {"line_id": "badge.noether.story_3", "params": {}},
-        {"line_id": "badge.noether.story_4", "params": {}},
-        {"line_id": "badge.noether.story_5", "params": {}}
+        {
+          "line_id": "badge.noether.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.noether.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.noether.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.noether.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.noether.story_5",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["group.closure.verify", "group.inverse.find"]}
+      "unlock": {
+        "skills_mastered": [
+          "group.closure.verify",
+          "group.inverse.find"
+        ]
+      }
     },
     {
       "id": "ramanujan",
@@ -102,13 +253,35 @@
       "emblem": "cubes",
       "zone": 10,
       "story": [
-        {"line_id": "badge.ramanujan.story_1", "params": {}},
-        {"line_id": "badge.ramanujan.story_2", "params": {}},
-        {"line_id": "badge.ramanujan.story_3", "params": {}},
-        {"line_id": "badge.ramanujan.story_4", "params": {}},
-        {"line_id": "badge.ramanujan.story_5", "params": {"n": 1729}}
+        {
+          "line_id": "badge.ramanujan.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.ramanujan.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.ramanujan.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.ramanujan.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.ramanujan.story_5",
+          "params": {
+            "n": 1729
+          }
+        }
       ],
-      "unlock": {"skills_mastered": ["fig.triangular.build", "group.cyclic.generate"]}
+      "unlock": {
+        "skills_mastered": [
+          "fig.triangular.build",
+          "group.cyclic.generate"
+        ]
+      }
     },
     {
       "id": "fermat",
@@ -116,14 +289,68 @@
       "emblem": "lock",
       "zone": 11,
       "story": [
-        {"line_id": "badge.fermat.story_1", "params": {}},
-        {"line_id": "badge.fermat.story_2", "params": {}},
-        {"line_id": "badge.fermat.story_3", "params": {}},
-        {"line_id": "badge.fermat.story_4", "params": {"p": 7}},
-        {"line_id": "badge.fermat.story_5", "params": {}}
+        {
+          "line_id": "badge.fermat.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.fermat.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.fermat.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.fermat.story_4",
+          "params": {
+            "p": 7
+          }
+        },
+        {
+          "line_id": "badge.fermat.story_5",
+          "params": {}
+        }
       ],
-      "unlock": {"skills_mastered": ["rsa.toy.keygen", "modinv.find.small"]}
+      "unlock": {
+        "skills_mastered": [
+          "rsa.toy.keygen",
+          "modinv.find.small"
+        ]
+      }
+    },
+    {
+      "id": "euclid_proof",
+      "name_line_id": "badge.euclid_proof.name",
+      "emblem": "infinity",
+      "zone": 12,
+      "story": [
+        {
+          "line_id": "badge.euclid_proof.story_1",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid_proof.story_2",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid_proof.story_3",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid_proof.story_4",
+          "params": {}
+        },
+        {
+          "line_id": "badge.euclid_proof.story_5",
+          "params": {}
+        }
+      ],
+      "unlock": {
+        "skills_mastered": [
+          "proof.euclid.infinite_primes"
+        ]
+      }
     }
-
   ]
 }

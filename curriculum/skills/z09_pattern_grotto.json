@@ -14,6 +14,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["sequence", "term"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_wrong_step", "repeated_last_term"]
     },
@@ -27,6 +28,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["sequence", "term"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_wrong_step", "averaged_neighbors_wrong"]
     },
@@ -40,6 +42,7 @@
       "answer_modes": ["tap"],
       "terms": ["sequence", "rule"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["confused_start_and_step", "added_wrong_step"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["sequence", "term"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_ratio", "off_by_one_exponent", "continued_by_adding"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["tap"],
       "terms": ["sequence", "rule"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["swapped_types", "missed_the_pattern"]
     },
@@ -79,6 +84,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["triangular_number"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_square", "off_by_one_n"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["square_number"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_triangular", "off_by_one_n"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["triangular_number", "square_number", "proof"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_same_triangular_twice_wrong_n", "used_triangular", "off_by_one_n"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["fibonacci", "sequence"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_wrong_pair", "doubled_last"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["fibonacci", "term"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_wrong_pair", "doubled_last"]
     },
@@ -144,6 +154,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["fibonacci", "golden_ratio"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["inverted_ratio", "place_shift", "rounded_down"]
     },
@@ -157,6 +168,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["sum", "triangular_number"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_halve", "used_n_squared", "off_by_one_n"]
     },
@@ -170,6 +182,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["sum", "triangular_number"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_halve", "used_n_squared", "off_by_one_n"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["drag", "tap"],
       "terms": ["proof"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_diagram"]
     },
@@ -196,6 +210,7 @@
       "answer_modes": ["tap"],
       "terms": ["syllable", "fibonacci"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_line_count", "counted_words", "off_by_one_syllable"]
     }

@@ -2,18 +2,340 @@
   "zone": 12,
   "zone_id": "z12_infinite_core",
   "name": "The Infinite Core",
-  "status": "outline",
+  "status": "detailed",
   "skills": [
-    {"id": "proof.parts.identify", "name": "Identify the parts of a proof"},
-    {"id": "proof.order.chain", "name": "Put proof steps in order"},
-    {"id": "proof.justify.step", "name": "Justify a proof step"},
-    {"id": "proof.euclid.infinite_primes", "name": "Euclid: there are infinitely many primes"},
-    {"id": "proof.contradiction.recognize", "name": "Recognize proof by contradiction"},
-    {"id": "proof.sqrt2.irrational", "name": "Prove that the square root of 2 is irrational"},
-    {"id": "sets.integer.classify", "name": "Classify integers"},
-    {"id": "sets.rational.classify", "name": "Classify rational numbers"},
-    {"id": "sets.real.classify", "name": "Classify real numbers"},
-    {"id": "mystery.goldbach.find_pair", "name": "Goldbach: find a prime pair"},
-    {"id": "mystery.twin.next_pair", "name": "Twin primes: find the next pair"}
+    {
+      "id": "proof.parts.identify",
+      "name": "Identify the parts of a proof",
+      "prereqs": [
+        "sieve.find.primes_to_100",
+        "euclid.basic.gcd"
+      ],
+      "generator": "ProofStepsGenerator",
+      "params": {
+        "mode": "parts"
+      },
+      "representations": [
+        "pictorial"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "proof",
+        "assume"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "picked_conclusion_as_assumption",
+        "picked_assumption_as_conclusion",
+        "picked_middle_step"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "proof.order.chain",
+      "name": "Put proof steps in order",
+      "prereqs": [
+        "proof.parts.identify"
+      ],
+      "generator": "ProofStepsGenerator",
+      "params": {
+        "mode": "order"
+      },
+      "representations": [
+        "pictorial"
+      ],
+      "answer_modes": [
+        "drag"
+      ],
+      "terms": [
+        "proof"
+      ],
+      "bkt_type": "procedure",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "reversed_chain",
+        "swapped_two_steps"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "proof.justify.step",
+      "name": "Say why a proof step is true",
+      "prereqs": [
+        "proof.order.chain"
+      ],
+      "generator": "ProofStepsGenerator",
+      "params": {
+        "mode": "justify"
+      },
+      "representations": [
+        "abstract"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "proof",
+        "assume"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "circular_reasoning",
+        "mixed_up_reason"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "proof.euclid.infinite_primes",
+      "name": "Euclid: there are infinitely many primes",
+      "prereqs": [
+        "proof.justify.step",
+        "pf.tree.build"
+      ],
+      "generator": "ProofBuilderGenerator",
+      "params": {
+        "mode": "guided",
+        "proof_id": "proof.euclid.infinite_primes"
+      },
+      "representations": [
+        "concrete"
+      ],
+      "answer_modes": [
+        "drag"
+      ],
+      "terms": [
+        "proof",
+        "assume",
+        "contradiction",
+        "prime"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "n_plus_one_is_prime",
+        "assumes_conclusion"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "proof.contradiction.recognize",
+      "name": "Spot a contradiction",
+      "prereqs": [
+        "proof.euclid.infinite_primes"
+      ],
+      "generator": "ProofStepsGenerator",
+      "params": {
+        "mode": "contradiction"
+      },
+      "representations": [
+        "pictorial"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "contradiction",
+        "assume"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "missed_contradiction"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "proof.sqrt2.irrational",
+      "name": "Prove that the square root of 2 is irrational",
+      "prereqs": [
+        "proof.contradiction.recognize",
+        "simplify.fraction.gcf"
+      ],
+      "generator": "ProofBuilderGenerator",
+      "params": {
+        "mode": "guided",
+        "proof_id": "proof.sqrt2.irrational"
+      },
+      "representations": [
+        "concrete"
+      ],
+      "answer_modes": [
+        "drag"
+      ],
+      "terms": [
+        "proof",
+        "irrational",
+        "contradiction"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "forgot_lowest_terms",
+        "even_square_not_even",
+        "decimal_is_fraction"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "sets.integer.classify",
+      "name": "Is it an integer?",
+      "prereqs": [
+        "negative.depth.read",
+        "euclid.basic.gcd"
+      ],
+      "generator": "NumberSetsGenerator",
+      "params": {
+        "mode": "integer"
+      },
+      "representations": [
+        "concrete"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "integer"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "negative_not_integer",
+        "root_never_integer",
+        "fraction_is_integer",
+        "mixed_up_set"
+      ],
+      "notation_level": 1
+    },
+    {
+      "id": "sets.rational.classify",
+      "name": "Is it a rational number?",
+      "prereqs": [
+        "sets.integer.classify",
+        "fraction.equivalent.build"
+      ],
+      "generator": "NumberSetsGenerator",
+      "params": {
+        "mode": "rational"
+      },
+      "representations": [
+        "concrete"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "rational"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "integer_not_rational",
+        "decimal_not_rational",
+        "sqrt_always_rational"
+      ],
+      "notation_level": 1
+    },
+    {
+      "id": "sets.real.classify",
+      "name": "Find the smallest ring a number fits in",
+      "prereqs": [
+        "sets.rational.classify",
+        "proof.sqrt2.irrational"
+      ],
+      "generator": "NumberSetsGenerator",
+      "params": {
+        "mode": "real"
+      },
+      "representations": [
+        "concrete"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "integer",
+        "rational",
+        "irrational",
+        "real_number"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "picked_bigger_ring",
+        "fraction_is_integer",
+        "decimal_not_rational",
+        "sqrt_always_rational",
+        "root_never_integer",
+        "negative_not_integer"
+      ],
+      "notation_level": 1
+    },
+    {
+      "id": "mystery.goldbach.find_pair",
+      "name": "Goldbach: find two primes that add up",
+      "prereqs": [
+        "sieve.find.primes_to_100",
+        "euclid.basic.gcd"
+      ],
+      "generator": "MysteryGenerator",
+      "params": {
+        "mode": "goldbach",
+        "min_n": 4,
+        "max_n": 100
+      },
+      "representations": [
+        "pictorial"
+      ],
+      "answer_modes": [
+        "tap"
+      ],
+      "terms": [
+        "prime"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "used_composite",
+        "sum_off"
+      ],
+      "notation_level": 0
+    },
+    {
+      "id": "mystery.twin.next_pair",
+      "name": "Twin primes: find the next pair",
+      "prereqs": [
+        "sieve.find.primes_to_100",
+        "euclid.basic.gcd"
+      ],
+      "generator": "MysteryGenerator",
+      "params": {
+        "mode": "twin",
+        "min_p": 2,
+        "max_p": 190
+      },
+      "representations": [
+        "pictorial"
+      ],
+      "answer_modes": [
+        "number_pad",
+        "handwriting",
+        "keyboard"
+      ],
+      "terms": [
+        "prime"
+      ],
+      "bkt_type": "concept",
+      "is_fact_skill": false,
+      "misconceptions": [
+        "gap_not_two",
+        "not_both_prime",
+        "gave_larger_prime"
+      ],
+      "notation_level": 0
+    }
   ]
 }

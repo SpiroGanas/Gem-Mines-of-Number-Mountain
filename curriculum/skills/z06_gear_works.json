@@ -14,6 +14,7 @@
       "answer_modes": ["tap"],
       "terms": ["common_factor", "factor"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["included_non_factor", "missed_largest", "factors_of_one_number"]
     },
@@ -24,9 +25,10 @@
       "generator": "GcfGenerator",
       "params": {"mode": "gcf", "min": 4, "max_n": 60, "coprime_rate": 0.2},
       "representations": ["pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["gcf", "common_factor"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["picked_smallest_common", "picked_lcm", "picked_prime_factor_only", "picked_smaller_number"]
     },
@@ -37,9 +39,10 @@
       "generator": "GcfGenerator",
       "params": {"mode": "factorization", "min": 6, "max_n": 120, "max_factors": 4},
       "representations": ["pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["gcf", "prime_factorization"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["multiplied_all_primes", "took_union", "picked_prime_factor_only"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["tap"],
       "terms": ["coprime"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["shared_even_only", "missed_common_factor", "assumed_primes_only", "assumed_common_factor"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["drag"],
       "terms": ["common_multiple", "multiple"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["listed_product_only", "off_by_one_multiple", "multiples_of_one_number"]
     },
@@ -76,9 +81,10 @@
       "generator": "LcmGenerator",
       "params": {"mode": "lcm", "min": 2, "max_n": 15},
       "representations": ["pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["lcm", "common_multiple"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["picked_product", "picked_gcf", "picked_sum"]
     },
@@ -89,9 +95,10 @@
       "generator": "LcmGenerator",
       "params": {"mode": "factorization", "min": 6, "max_n": 60, "max_factors": 4},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["lcm", "prime_factorization"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["took_intersection", "dropped_highest_power", "picked_product"]
     },
@@ -102,9 +109,10 @@
       "generator": "LcmGenerator",
       "params": {"mode": "relation", "min": 4, "max_n": 30},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["gcf", "lcm"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["added_instead_of_multiplied", "picked_product", "picked_gcf"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["drag", "tap"],
       "terms": ["gear_ratio"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["inverted_ratio", "subtracted_teeth", "same_size_gear"]
     },
@@ -128,9 +137,10 @@
       "generator": "GearGenerator",
       "params": {"mode": "sync", "min_teeth": 6, "max_teeth": 24},
       "representations": ["concrete"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["lcm", "gear_ratio"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_gcf", "counted_other_gear", "teeth_not_turns"]
     },
@@ -141,9 +151,10 @@
       "generator": "FractionGenerator",
       "params": {"mode": "unit", "max_den": 12},
       "representations": ["concrete", "pictorial"],
-      "answer_modes": ["number_pad", "handwriting_fraction", "tap"],
+      "answer_modes": ["number_pad", "handwriting_fraction", "tap", "keyboard"],
       "terms": ["fraction", "unit_fraction", "denominator"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["inverted", "counted_shaded_as_denominator"]
     },
@@ -154,9 +165,10 @@
       "generator": "FractionGenerator",
       "params": {"mode": "part", "max_den": 12},
       "representations": ["concrete", "pictorial", "abstract"],
-      "answer_modes": ["number_pad", "handwriting_fraction", "tap"],
+      "answer_modes": ["number_pad", "handwriting_fraction", "tap", "keyboard"],
       "terms": ["fraction", "numerator", "denominator"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["inverted", "unshaded_count", "off_by_one_numerator"]
     },
@@ -170,6 +182,7 @@
       "answer_modes": ["tap"],
       "terms": ["simplest_form", "gcf"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["divided_numerator_only", "partially_simplified", "swapped_num_den"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["tap"],
       "terms": ["gear_ratio", "simplest_form"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["partially_simplified", "inverted_ratio", "divided_one_term_only"]
     }

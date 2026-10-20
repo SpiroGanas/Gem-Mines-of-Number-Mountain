@@ -11,9 +11,10 @@
       "generator": "MultFactsGenerator",
       "params": {"table_min": 0, "table_max": 5, "other_min": 0, "other_max": 5},
       "representations": ["concrete", "pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["multiply"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["off_by_group", "added_factors", "digit_swap"]
     },
@@ -24,9 +25,10 @@
       "generator": "MultFactsGenerator",
       "params": {"table_min": 6, "table_max": 10, "other_min": 2, "other_max": 10},
       "representations": ["pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["multiply"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["off_by_group", "added_factors", "digit_swap"]
     },
@@ -37,9 +39,10 @@
       "generator": "MultFactsGenerator",
       "params": {"table_min": 2, "table_max": 10, "other_min": 2, "other_max": 10},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["multiply"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["off_by_group", "added_factors", "digit_swap"]
     },
@@ -50,9 +53,10 @@
       "generator": "DivFactsGenerator",
       "params": {"mode": "share", "divisor_min": 2, "divisor_max": 5, "quotient_min": 2, "quotient_max": 5},
       "representations": ["concrete"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["equal_groups"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["multiplied_instead", "off_by_one"]
     },
@@ -63,9 +67,10 @@
       "generator": "DivFactsGenerator",
       "params": {"mode": "facts", "divisor_min": 2, "divisor_max": 5, "quotient_min": 2, "quotient_max": 10},
       "representations": ["concrete", "pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["equal_groups", "divide"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["multiplied_instead", "off_by_one"]
     },
@@ -76,9 +81,10 @@
       "generator": "DivFactsGenerator",
       "params": {"mode": "facts", "divisor_min": 6, "divisor_max": 10, "quotient_min": 2, "quotient_max": 10},
       "representations": ["pictorial", "abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["equal_groups", "divide"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["multiplied_instead", "off_by_one"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["drag"],
       "terms": ["factor", "array"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["rows_cols_swapped", "off_by_one"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["tap"],
       "terms": ["factor"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["multiple_not_factor", "missing_one_and_n", "no_check_made"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["drag"],
       "terms": ["factor"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_split"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["drag"],
       "terms": ["factor"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["multiple_not_factor", "missing_one_and_n", "skip_middle_pair"]
     },
@@ -144,6 +154,7 @@
       "answer_modes": ["drag"],
       "terms": ["multiple"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_b", "factor_not_multiple"]
     },
@@ -157,6 +168,7 @@
       "answer_modes": ["tap"],
       "terms": ["multiple", "factor"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_b", "factor_not_multiple", "no_check_made"]
     },
@@ -167,9 +179,10 @@
       "generator": "MultiplesGenerator",
       "params": {"mode": "common", "min": 2, "max": 9},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["multiple"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_the_product", "factor_not_multiple", "off_by_b"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["tap"],
       "terms": ["prime", "composite"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["two_is_not_prime", "odd_means_prime", "square_is_prime", "no_check_made"]
     },
@@ -196,6 +210,7 @@
       "answer_modes": ["drag"],
       "terms": ["prime", "composite"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["two_is_not_prime", "odd_means_prime", "square_is_prime"]
     },
@@ -206,9 +221,10 @@
       "generator": "PrimeCompositeGenerator",
       "params": {"mode": "pairs", "max": 36},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap"],
+      "answer_modes": ["number_pad", "tap", "keyboard"],
       "terms": ["prime", "factor"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["counted_factors_not_pairs", "missing_one_and_n", "off_by_one", "one_is_prime", "two_is_not_prime", "odd_means_prime", "square_is_prime", "no_check_made"]
     }

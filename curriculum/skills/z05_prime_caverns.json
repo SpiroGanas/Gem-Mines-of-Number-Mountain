@@ -14,6 +14,7 @@
       "answer_modes": ["tap"],
       "terms": ["sieve", "multiple"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["crossed_p_itself", "missed_p_squared", "missed_last_multiple"]
     },
@@ -27,6 +28,7 @@
       "answer_modes": ["tap"],
       "terms": ["sieve", "prime"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["one_is_prime", "square_is_prime", "odd_means_prime", "crossed_p_itself"]
     },
@@ -40,6 +42,7 @@
       "answer_modes": ["tap"],
       "terms": ["sieve", "prime"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["one_is_prime", "square_is_prime", "odd_means_prime", "crossed_p_itself"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["tap"],
       "terms": ["divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["mixed_up_5_and_10", "no_check_made"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["tap"],
       "terms": ["divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["last_digit_only_for_3", "three_means_nine", "no_check_made"]
     },
@@ -79,6 +84,7 @@
       "answer_modes": ["tap"],
       "terms": ["divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["even_means_div_by_4", "only_one_rule_for_6", "no_check_made"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["tap"],
       "terms": ["divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["mixed_up_5_and_10", "last_digit_only_for_3", "three_means_nine", "even_means_div_by_4", "only_one_rule_for_6", "no_check_made"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["drag"],
       "terms": ["prime_factorization", "prime"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["stopped_at_composite", "missing_repeated_factor"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["tap"],
       "terms": ["prime_factorization"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["stopped_at_composite", "missing_repeated_factor", "one_is_prime", "product_mismatch"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["tap"],
       "terms": ["prime_factorization"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["stopped_at_composite", "product_mismatch", "no_check_made"]
     },
@@ -144,6 +154,7 @@
       "answer_modes": ["tap"],
       "terms": ["fundamental_theorem", "prime_factorization"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["tree_with_composite_leaf", "product_mismatch"]
     }

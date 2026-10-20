@@ -106,6 +106,10 @@ func _draw() -> void:
 				draw_rect(Rect2(front.position + back, front.size), ink, false, 1.5)
 				for corner: Vector2 in [front.position, front.position + Vector2(front.size.x, 0.0), front.end, front.position + Vector2(0.0, front.size.y)]:
 					draw_line(corner, corner + back, ink, 1.5)
+		&"infinity":
+			# The lemniscate: two loops side by side, a line that never ends.
+			for side_sign: float in [-1.0, 1.0]:
+				draw_arc(center + Vector2(side_sign * r * 0.5, 0.0), r * 0.5, 0.0, TAU, 20, ink, 3.0)
 		&"lock":
 			draw_arc(center + Vector2(0, -r * 0.2), r * 0.45, PI, TAU, 14, ink, 3.0)
 			draw_rect(Rect2(center + Vector2(-r * 0.7, -r * 0.2), Vector2(r * 1.4, r * 1.0)), ink)

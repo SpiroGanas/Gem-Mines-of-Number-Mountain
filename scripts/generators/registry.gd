@@ -67,6 +67,11 @@ static func table() -> Dictionary:
 		&"EuclidGenerator": EuclidGenerator.generate,
 		&"DiophantineGenerator": DiophantineGenerator.generate,
 		&"RsaGenerator": RsaGenerator.generate,
+		# Zone 12, The Infinite Core (Phase 5)
+		&"ProofStepsGenerator": ProofStepsGenerator.generate,
+		&"ProofBuilderGenerator": ProofBuilderGenerator.generate,
+		&"NumberSetsGenerator": NumberSetsGenerator.generate,
+		&"MysteryGenerator": MysteryGenerator.generate,
 	}
 
 

@@ -152,7 +152,8 @@ func test_every_vocabulary_term_resolves_to_real_lines() -> void:
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 9).size()).is_equal(8)
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 10).size()).is_equal(8) # Zone 10, Clockwork Depths
 	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 11).size()).is_equal(8) # Zone 11, Cipher Vault
-	assert_int(vocabulary["terms"].size()).is_equal(84)
+	assert_int(vocabulary["terms"].filter(func(entry: Dictionary) -> bool: return int(entry["zone"]) == 12).size()).is_equal(6) # Zone 12, The Infinite Core
+	assert_int(vocabulary["terms"].size()).is_equal(90)
 	for entry: Dictionary in vocabulary["terms"]:
 		assert_bool(Text.has_line(StringName(entry["term_line_id"]))).override_failure_message("missing " + entry["term_line_id"]).is_true()
 		assert_bool(Text.has_line(StringName(entry["definition_line_id"]))).override_failure_message("missing " + entry["definition_line_id"]).is_true()

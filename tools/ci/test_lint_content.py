@@ -413,3 +413,31 @@ def test_rule12_the_secret_message_keeps_nothing_and_sends_nothing(tmp_path: Pat
     assert messages(lint.check_secret_message(root)) == ["12:scenes/zones/z11_cipher_vault/secret_message_extra.tscn:1"]
     (tmp_path / "scenes/zones/z11_cipher_vault/secret_message_extra.tscn").unlink()
     assert lint.check_secret_message(tmp_path) == []
+
+
+# ---------------------------------------------------------------------------
+# Rules 13 and 14: Scholar mode (Phase 5)
+# ---------------------------------------------------------------------------
+
+VOCAB = '{"terms": [{"id": "prime", "definition_line_id": "vocab.prime.definition", "scholar_definition_line_id": "vocab.prime.scholar_definition"}]}'
+
+
+def test_a_word_gem_needs_both_definitions(tmp_path: Path) -> None:
+    lines = "id,text,context,voice_version\nvocab.prime.definition,A prime has two factors.,ctx,0\n"
+    root = make_tree(tmp_path, {"text/lines.csv": lines, "curriculum/vocabulary.json": VOCAB})
+    assert [f.rule for f in lint.check_word_gem_definitions(root)] == ["13"]
+    both = lines + "vocab.prime.scholar_definition,A prime is greater than 1.,ctx,0\n"
+    root = make_tree(tmp_path / "ok", {"text/lines.csv": both, "curriculum/vocabulary.json": VOCAB})
+    assert lint.check_word_gem_definitions(root) == []
+
+
+def test_formal_symbols_are_only_for_scholar_lines(tmp_path: Path) -> None:
+    lines = (
+        "id,text,context,voice_version,mode\n"
+        "z1.a.b,Is 5 ≡ 2?,ctx,0,\n"
+        "z1.a.c,Is 5 ≡ 2?,ctx,0,scholar\n"
+        "vocab.x.scholar_definition,a ≤ b,ctx,0,\n"
+        "parent.x.note,Shows 2⁵,ctx,0,\n"
+    )
+    root = make_tree(tmp_path, {"text/lines.csv": lines})
+    assert messages(lint.check_explorer_glyphs(root)) == ["14:text/lines.csv:2"]

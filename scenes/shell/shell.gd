@@ -38,6 +38,10 @@ const SCREEN_PATHS: Dictionary = {
 	&"poems": "res://scenes/zones/z09_pattern_grotto/fib_poem.tscn",
 	&"secret_message": "res://scenes/zones/z11_cipher_vault/secret_message.tscn",
 	&"rsa_door": "res://scenes/zones/z11_cipher_vault/rsa_door.tscn",
+	&"journal": "res://scenes/zones/z12_infinite_core/journal.tscn",
+	&"proof_page": "res://scenes/zones/z12_infinite_core/proof_page.tscn",
+	&"number_rings": "res://scenes/zones/z12_infinite_core/number_rings.tscn",
+	&"mysteries": "res://scenes/zones/z12_infinite_core/mysteries.tscn",
 }
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing: nothing to pause there, and the parent area has no pause

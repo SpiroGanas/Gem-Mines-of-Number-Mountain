@@ -35,9 +35,11 @@ const PALETTES: Dictionary = {
 	&"zone10": {"top": Color("#2E4A4F"), "bottom": Color("#121C24"), "rock": Color("#38565A"), "lamps": true, "crystals": true, "crystal_color": Color("#F2D98B"), "clock": true},
 	# Zone 11, Cipher Vault (Phase 5): night blue with silver-green light and a still keyhole set in the rock.
 	&"zone11": {"top": Color("#243C5A"), "bottom": Color("#0F1824"), "rock": Color("#2E4A66"), "lamps": true, "crystals": true, "crystal_color": Color("#A8F0D8"), "keyhole": true},
+	# Zone 12, The Infinite Core (Phase 5): deep violet with a white-gold glow and a still set of rings in the rock.
+	&"zone12": {"top": Color("#3B2F66"), "bottom": Color("#140F2B"), "rock": Color("#46387A"), "lamps": true, "crystals": true, "crystal_color": Color("#FFF2B8"), "core": true},
 }
 ## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
-const LAST_PALETTE_ZONE: int = 11
+const LAST_PALETTE_ZONE: int = 12
 ## Zone 9's golden spiral in the rock: its center (share of the screen) and its biggest radius (share of
 ## the height). Quarter arcs with Fibonacci radii, a little lighter than the rock.
 const SPIRAL_AT: Vector2 = Vector2(0.86, 0.3)
@@ -125,6 +127,8 @@ func _draw() -> void:
 		_draw_clock_face(rock)
 	if colors_now.get("keyhole", false):
 		_draw_keyhole(rock)
+	if colors_now.get("core", false):
+		_draw_core_rings(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
@@ -176,6 +180,17 @@ func _draw_keyhole(rock: Color) -> void:
 	draw_arc(center, radius, 0.0, TAU, 32, color, 4.0, true)
 	draw_rect(Rect2(center + Vector2(-radius * 0.35, radius * 0.8), Vector2(radius * 0.7, radius * 2.2)), color, false, 4.0)
 	draw_rect(Rect2(center + Vector2(-radius * 2.2, -radius * 2.2), Vector2(radius * 4.4, radius * 6.4)), color, false, 3.0)
+
+
+## Zone 12's core set into the rock (still, like everything on the backdrop): three nested rings (the integers inside the
+## rational numbers inside the real numbers) round a small bright center, a little lighter than the rock.
+func _draw_core_rings(rock: Color) -> void:
+	var center: Vector2 = Vector2(size.x * 0.86, size.y * 0.32)
+	var radius: float = size.y * 0.2
+	var color: Color = rock.lightened(0.22)
+	for ring: int in 3:
+		draw_arc(center, radius * (0.4 + 0.3 * float(ring)), 0.0, TAU, 48, color, 3.0, true)
+	draw_circle(center, radius * 0.1, color)
 
 
 var _gear_art: GearArt = GearArt.new()

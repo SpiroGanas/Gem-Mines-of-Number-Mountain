@@ -14,6 +14,7 @@
       "answer_modes": ["tap", "number_pad", "handwriting_fraction", "keyboard"],
       "terms": ["fraction", "denominator"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["counted_ticks_not_gaps", "inverted"]
     },
@@ -27,6 +28,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["equivalent", "fraction"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["added_to_both", "scaled_numerator_only", "copied_numerator"]
     },
@@ -40,6 +42,7 @@
       "answer_modes": ["tap"],
       "terms": ["fraction", "denominator"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["compared_denominators", "reversed_symbol"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["tap"],
       "terms": ["fraction", "denominator"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["bigger_denominator_bigger", "compared_numerators_only"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["number_pad", "handwriting_fraction", "tap", "keyboard"],
       "terms": ["fraction", "denominator"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["added_denominators", "off_by_one_numerator"]
     },
@@ -79,6 +84,7 @@
       "answer_modes": ["number_pad", "handwriting_fraction", "tap", "keyboard"],
       "terms": ["fraction", "denominator", "equivalent"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["added_denominators", "added_numerators_only"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["number_pad", "handwriting_fraction", "tap", "keyboard"],
       "terms": ["mixed_number", "improper_fraction"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["dropped_whole", "added_whole_to_numerator", "swapped_quotient_remainder"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["decimal", "tenth"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["place_shift", "read_as_whole"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["decimal", "hundredth"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["place_shift", "dropped_zero", "read_as_whole"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["decimal", "fraction"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["wrote_numerator_as_decimal", "place_shift"]
     },
@@ -144,6 +154,7 @@
       "answer_modes": ["tap"],
       "terms": ["decimal"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["longer_is_bigger", "ignored_whole", "reversed_symbol"]
     },
@@ -157,6 +168,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["percent"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["counted_unlit", "place_shift"]
     },
@@ -170,6 +182,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["percent", "fraction"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["wrote_numerator_as_percent", "place_shift"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["tap"],
       "terms": ["ratio"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["part_to_whole", "inverted_ratio"]
     },
@@ -196,6 +210,7 @@
       "answer_modes": ["number_pad", "handwriting", "tap", "keyboard"],
       "terms": ["ratio"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["added_instead_of_scaled", "scaled_one_part"]
     },
@@ -209,6 +224,7 @@
       "answer_modes": ["number_pad", "tap", "keyboard"],
       "terms": ["negative"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["dropped_sign", "off_by_one"]
     },
@@ -222,6 +238,7 @@
       "answer_modes": ["tap"],
       "terms": ["negative", "greater_than"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["bigger_magnitude_bigger"]
     },
@@ -235,6 +252,7 @@
       "answer_modes": ["number_pad", "tap", "keyboard"],
       "terms": ["negative"],
       "bkt_type": "procedure",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["wrong_direction", "dropped_sign"]
     }

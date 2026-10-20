@@ -25,6 +25,7 @@ var _workshop_button: Button
 var _build_button: Button
 var _deep_dig_button: Button
 var _family_label: Label
+var _rank_label: Label
 var _shelf: HBoxContainer
 var _machine_loop: Tween
 
@@ -95,6 +96,10 @@ func _add_workshop_doors() -> void:
 	_deep_dig_button.pressed.connect(request_screen.emit.bind(&"mine", {"deep_dig": true}))
 	_workshop_button.pressed.connect(request_screen.emit.bind(&"crafting", {}))
 	_build_button.pressed.connect(request_screen.emit.bind(&"build_site", {}))
+
+
+func rank_label() -> Label:
+	return _rank_label
 
 
 func deep_dig_button() -> Button:
@@ -180,6 +185,12 @@ func _refresh() -> void:
 		_family_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_coins_label.get_parent().add_child(_family_label)
 	_family_label.text = Text.get_line(&"family.hub.points", {"n": Rewards.family_points()})
+	if _rank_label == null:
+		_rank_label = Label.new()
+		_rank_label.name = "RankLabel"
+		_rank_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_coins_label.get_parent().add_child(_rank_label)
+	_rank_label.text = Text.get_line(&"ui.hub.rank", {"rank": Text.get_line(RankRules.name_line(Rewards.rank_for()))})
 
 
 func _on_dig_pressed() -> void:

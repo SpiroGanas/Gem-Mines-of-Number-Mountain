@@ -97,6 +97,10 @@
 ##   coin_puzzle    {a, b, c, max}: the coin puzzle. More and Less on each pile (0 to max coins), Done. The answer is
 ##                  [a-coins, b-coins] (an Array of two ints), and the buttons read it with meta.array_label "coins".
 ##   array_label    "coins": an Array answer of two counts reads "2 and 1" ("coins" joins "sum", "product" and "words").
+## Zone 12 (The Infinite Core, Phase 5) adds, under the `drag` mode:
+##   proof_builder  {proof_id}: the proof builder (Zone 12). The child places the steps of the guided proof curriculum/proofs/<proof_id>.json
+##                  in their slots, picks the reason for each and presses Check (ProofValidator judges it). The answer is the
+##                  proof id (String), given when the proof is complete.
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -176,7 +180,13 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ##             "48 = 2 × 18 + 12", the first `upto` of them (-1: all, 0: only the bars)
 ## coins       {a, b, c}: an a-coin, a b-coin (2 to 12 each) and the total c (1 to 250) to pay
 ## and notation {form: "congruence", a, b, n}: the card a ≡ b (mod n), with a and b on the same station of the loop of n
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape", &"clock_track", &"cayley", &"cipher", &"euclid", &"coins"]
+## The Zone 12 pictures (The Infinite Core, Phase 5; drawn by CoreArt, scenes/zones/z12_infinite_core/core_art.gd):
+## statements  {cards: [{line_id, n}], lit?: int, arrows?: bool}: 1 to 8 numbered cards of a proof, each reading its text line;
+##             the card numbered `lit` is lit; `arrows` draws an arrow from each card to the next
+## number_card {form: "int" | "frac" | "decimal" | "root", a, b?, scale?, rings?: bool, lit?: "integer" | "rational" | "real"}: a
+##             number written on a card (an integer a, a fraction a over b with b 2 to 12, a decimal a / 10^scale with scale 1 to 3,
+##             or the square root of a); `rings` draws the three nested number rings, `lit` lights the smallest ring it fits in
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape", &"clock_track", &"cayley", &"cipher", &"euclid", &"coins", &"statements", &"number_card"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
 const MAX_LIST_ITEMS: int = 16

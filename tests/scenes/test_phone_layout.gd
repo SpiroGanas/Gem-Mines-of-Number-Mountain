@@ -19,6 +19,7 @@ const SCREENS: Dictionary = {
 	&"challenge_door": {"skill_id": "add.to_10.sums"},
 	&"parent_gate": {}, &"dashboard": {}, &"family_rewards": {}, &"profiles": {}, &"onboarding": {},
 	&"how_it_teaches": {}, &"poems": {}, &"secret_message": {}, &"rsa_door": {},
+	&"journal": {}, &"proof_page": {"proof_id": "proof.practice.even_plus_even"}, &"number_rings": {}, &"mysteries": {},
 }
 
 var _dir: String

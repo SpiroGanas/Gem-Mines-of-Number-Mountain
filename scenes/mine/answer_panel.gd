@@ -50,6 +50,8 @@
 ## Zone 11 (Phase 5) adds, under the `drag` mode:
 ##   WHEEL       the cipher wheel: turn it until the code spells a word, then Set (meta.cipher_wheel)
 ##   COINS       the coin puzzle: More and Less on each pile, then Done (meta.coin_puzzle)
+## Zone 12 (Phase 5) adds, under the `drag` mode:
+##   BUILDER     the proof builder: place the steps of a guided proof, say why, then Check (meta.proof_builder)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
 ## "friend" of the problem (show_hint).
@@ -64,7 +66,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, VAULT, TOWER, LEVER, SCI_PAD, BASE_PAD, KEYBOARD, PATTERN, PROOF, TRACK, DIAL, TABLE, WHEEL, COINS }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, VAULT, TOWER, LEVER, SCI_PAD, BASE_PAD, KEYBOARD, PATTERN, PROOF, TRACK, DIAL, TABLE, WHEEL, COINS, BUILDER }
 
 ## The inputs a typed answer can take, which keyboard entry replaces in Scholar mode.
 const TYPED_KINDS: Array[InputKind] = [InputKind.NUMBER_PAD, InputKind.SLATE, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD, InputKind.FRACTION_SLATE, InputKind.DECIMAL_SLATE, InputKind.SCI_PAD, InputKind.BASE_PAD]
@@ -94,6 +96,7 @@ const PROOF_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/
 const TRACK_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/circular_track.tscn")
 const DIAL_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/clock_lock.tscn")
 const TABLE_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/mixing_table.tscn")
+const BUILDER_SCENE: PackedScene = preload("res://scenes/zones/z12_infinite_core/proof_builder.tscn")
 const WHEEL_SCENE: PackedScene = preload("res://scenes/zones/z11_cipher_vault/cipher_wheel.tscn")
 const COINS_SCENE: PackedScene = preload("res://scenes/zones/z11_cipher_vault/coin_puzzle.tscn")
 ## The number pad's digits unless meta.pad_digits asks for more (Zones 8 and 9).
@@ -111,6 +114,8 @@ const EXAMPLE_PICTURE_KINDS: Array[InputKind] = [InputKind.CHOICES, InputKind.NU
 ## few options (a random number on the pad, a random pile on the board). Used by the adaptive
 ## engine's guessing guard; deliberately generous.
 const FREE_RESPONSE_CHANCE: float = 0.05
+## A guided proof is never finished by a lucky guess (Zone 12).
+const BUILDER_CHANCE: float = 0.001
 ## The answer buttons show the answer and at most this many distractors.
 const MAX_CHOICE_DISTRACTORS: int = 3
 
@@ -156,6 +161,7 @@ var _track: CircularTrack
 var _dial: ClockLock
 var _table: MixingTable
 var _wheel: CipherWheel
+var _builder: ProofBuilder
 var _coins: CoinPuzzle
 var _example: PanelContainer
 var _enabled: bool = false
@@ -261,6 +267,8 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.WHEEL
 			if for_problem.meta.has("coin_puzzle"):
 				return InputKind.COINS
+			if for_problem.meta.has("proof_builder"):
+				return InputKind.BUILDER
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
@@ -313,6 +321,8 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			options = int(for_problem.meta["cipher_wheel"]["max"]) # a shift of 1 to max
 		InputKind.COINS:
 			options = (int(for_problem.meta["coin_puzzle"]["max"]) + 1) * (int(for_problem.meta["coin_puzzle"]["max"]) + 1)
+		InputKind.BUILDER:
+			return BUILDER_CHANCE # a whole proof: no lucky guess
 		InputKind.CRYSTAL:
 			options = int(for_problem.meta["crystal"]["den"]) + 1 # light 0 to den shards
 		InputKind.ALLOY:
@@ -474,13 +484,15 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_wheel()
 		InputKind.COINS:
 			_add_coins()
+		InputKind.BUILDER:
+			_add_builder()
 	set_enabled(_enabled)
 
 
 ## True when the input needs the screen's whole height on a phone (five rows of array cells, each a
 ## 64 dp target, take nearly all of a 360 dp phone): the mine then moves Bolt beside the panel.
 func wants_height() -> bool:
-	return input_kind == InputKind.ARRAY
+	return input_kind == InputKind.ARRAY or input_kind == InputKind.BUILDER
 
 
 ## True while the panel takes answers (false under the Word Gem card, the stroke demo or an animation).
@@ -510,7 +522,7 @@ func set_enabled(enabled: bool) -> void:
 		_tree.set_enabled(enabled)
 	if _gear_bench != null:
 		_gear_bench.set_enabled(enabled)
-	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _vault, _tower, _lever, _power_pad, _keyboard, _pattern_wall, _proof_board, _track, _dial, _table, _wheel, _coins]:
+	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _vault, _tower, _lever, _power_pad, _keyboard, _pattern_wall, _proof_board, _track, _dial, _table, _wheel, _coins, _builder]:
 		if widget != null:
 			widget.call(&"set_enabled", enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
@@ -723,6 +735,10 @@ func coin_puzzle() -> CoinPuzzle:
 	return _coins
 
 
+func proof_builder() -> ProofBuilder:
+	return _builder
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -756,6 +772,7 @@ func _clear() -> void:
 	_table = null
 	_wheel = null
 	_coins = null
+	_builder = null
 	_example = null
 
 
@@ -1184,6 +1201,15 @@ func _add_wheel() -> void:
 	add_child(_wheel)
 	_wheel.setup(problem.meta["cipher_wheel"])
 	_wheel.submitted.connect(_on_value_given)
+
+
+## The proof builder (meta.proof_builder = {proof_id}); a complete proof gives the proof's id.
+func _add_builder() -> void:
+	_builder = BUILDER_SCENE.instantiate()
+	_builder.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_builder)
+	_builder.setup(problem.meta["proof_builder"])
+	_builder.submitted.connect(_on_value_given)
 
 
 ## The coin puzzle (meta.coin_puzzle = {a, b, c, max}); Done gives [a-coins, b-coins].
