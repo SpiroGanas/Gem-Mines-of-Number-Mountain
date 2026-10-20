@@ -48,7 +48,10 @@ var _terms: Array[StringName] = []
 var _links: Dictionary = {}
 var _label: RichTextLabel
 var _note_label: Label
-var _chips: HFlowContainer
+## The container the chips are in now: _chip_flow under the line, or (phones) _chip_row beside it.
+var _chips: Container
+var _chip_flow: HFlowContainer
+var _chip_row: HBoxContainer
 var _figure: _BoltArt
 var _pose: StringName = &"idle"
 var _pose_tween: Tween
@@ -89,11 +92,45 @@ func _ready() -> void:
 	_note_label.add_theme_color_override(&"font_color", NOTE_COLOR)
 	_note_label.visible = false
 	column.add_child(_note_label)
-	_chips = HFlowContainer.new()
-	_chips.add_theme_constant_override(&"h_separation", 12)
-	_chips.add_theme_constant_override(&"v_separation", 12)
+	_chip_flow = HFlowContainer.new()
+	_chip_flow.add_theme_constant_override(&"h_separation", 12)
+	_chip_flow.add_theme_constant_override(&"v_separation", 12)
+	_chip_flow.visible = false
+	column.add_child(_chip_flow)
+	_chips = _chip_flow
+	if UI.is_compact():
+		# On a phone the chips can sit in one row beside the line instead of under it (set_chips_beside):
+		# the bubble is then about one target tall, which leaves the answer input room below it.
+		_chip_row = HBoxContainer.new()
+		_chip_row.add_theme_constant_override(&"separation", 12)
+		_chip_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_chip_row.visible = false
+		var row: HBoxContainer = HBoxContainer.new()
+		row.add_theme_constant_override(&"separation", 12)
+		column.remove_child(_label)
+		row.add_child(_label)
+		_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		# The underlined words are text-sized anyway; the chips are the line's touch targets here.
+		_label.remove_from_group(UI.TARGET_GROUP)
+		_label.custom_minimum_size = Vector2(UI.target_size(BUBBLE_WIDTH_MULTIPLE, 1.0).x * 0.5, 0.0)
+		row.add_child(_chip_row)
+		column.add_child(row)
+		column.move_child(row, 0)
+		set_chips_beside(true)
+
+
+## Phones only (the mine): true puts the Word Gem chips in one row beside the line (a wide, short
+## bubble), false back under it (a narrow bubble beside a tall answer input). No effect on a tablet.
+func set_chips_beside(beside: bool) -> void:
+	var target: Container = _chip_row if beside and _chip_row != null else _chip_flow
+	if target == _chips:
+		return
+	for chip: Node in _chips.get_children():
+		_chips.remove_child(chip)
+		target.add_child(chip)
 	_chips.visible = false
-	column.add_child(_chips)
+	_chips = target
+	_chips.visible = _chips.get_child_count() > 0
 
 
 ## Bolt takes a pose (POSES). Every pose but think eases back to idle on its own.
@@ -306,11 +343,21 @@ class _BoltArt extends Control:
 			for path: String in Bolt.DRIVE_TEXTURE_PATHS:
 				_drive.append(load(path))
 
+	## The bubble's tail and its outline, filled in place on every redraw: the pose tweens redraw
+	## every frame, so _draw must not allocate (tools/ci/perf_check.py rule 1b).
+	var _tail: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+	var _tail_edge: PackedVector2Array = PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+
 	func _draw() -> void:
 		# The bubble's tail, pointing from the bubble (at the right edge) to Bolt's head.
-		var tail: PackedVector2Array = PackedVector2Array([Vector2(size.x, size.y * 0.3), Vector2(size.x, size.y * 0.52), Vector2(size.x * 0.8, size.y * 0.28)])
-		draw_colored_polygon(tail, Bolt.BUBBLE_FILL)
-		draw_polyline(PackedVector2Array([tail[0], tail[2], tail[1]]), Bolt.BUBBLE_EDGE, 3.0, true)
+		_tail[0] = Vector2(size.x, size.y * 0.3)
+		_tail[1] = Vector2(size.x, size.y * 0.52)
+		_tail[2] = Vector2(size.x * 0.8, size.y * 0.28)
+		draw_colored_polygon(_tail, Bolt.BUBBLE_FILL)
+		_tail_edge[0] = _tail[0]
+		_tail_edge[1] = _tail[2]
+		_tail_edge[2] = _tail[1]
+		draw_polyline(_tail_edge, Bolt.BUBBLE_EDGE, 3.0, true)
 		# The robot: body over tracks, each at its own aspect, in the left 80% of the figure.
 		var width: float = size.x * 0.8
 		var body_texture: Texture2D = _body

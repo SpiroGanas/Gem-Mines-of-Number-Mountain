@@ -17,8 +17,14 @@ var _rocks: Array[Rock] = []
 
 func _ready() -> void:
 	columns = COLUMNS_FOR_WALL
-	add_theme_constant_override(&"h_separation", 24)
-	add_theme_constant_override(&"v_separation", 24)
+	_fit_screen()
+	UI.metrics_changed.connect(_fit_screen)
+
+
+## Half the gaps on a phone (UI.is_compact), so three rows of rocks fit beside Bolt.
+func _fit_screen() -> void:
+	add_theme_constant_override(&"h_separation", UI.spacing(24))
+	add_theme_constant_override(&"v_separation", UI.spacing(24))
 
 
 ## Replaces the wall with `count` fresh rocks.

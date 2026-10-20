@@ -1,5 +1,7 @@
 # Phase 3: Public release readiness
 
+> **Changed 2026-10-19 (Spiro):** no narration and no AI voice. Sprint 22 (voice pipeline, `Narration` autoload), the read-aloud setting, narration coverage and the AI-voice listing note are dropped; the children this game is for read. Phones are supported (no phone exclusion). See `docs/decisions.md`, 2026-10-19.
+
 Detailed implementation plan for Phase 3 of *Gem Mines of Number Mountain*. The master plan is `docs/development-plan.md` (section 8.4 is the source for this phase). The previous phase is `docs/phases/phase-2-version-1-0.md`; the next is `docs/phases/phase-4-middle-mountain.md`. Everything in `CLAUDE.md` applies: the non-negotiable rules, the content rules, the "ask Spiro before" list and the definition of done.
 
 ## Overview
@@ -280,12 +282,9 @@ Charlie's placement is seeded from his Star results. For other families, the par
 
 Design rules already in `CLAUDE.md` apply: landscape only; anchors and containers; 16:9, 16:10, 3:2 and 4:3; 64 dp targets; no multi-finger gestures; 60 fps.
 
-**Mouse-only path.** `InputRouter` already maps mouse to the same actions. Phase 3 adds a capability check at startup: `DisplayServer.is_touchscreen_available()` (verify in Godot docs; present in 4.x) and whether the `digit_ink` plugin loaded. If no touchscreen, `ChalkSlate` is hidden from the answer-mode chooser and `NumberPad` is the default; drag targets grow their drop tolerance by 25%. Every screen must be completable with click and drag only (see Testing).
+**Mouse-only path.** `InputRouter` already maps mouse to the same actions. Phase 3 adds a capability check at startup: `DisplayServer.is_touchscreen_available()` (verify in Godot docs; present in 4.x) and whether the digit network's weights loaded (`DigitInk.is_available`; corrected 2026-10-19: recognition runs in GDScript, there is no plugin). Built as `DeviceCaps` (`scripts/input/device_caps.gd`). If no touchscreen, `ChalkSlate` is hidden from the answer-mode chooser and `NumberPad` is the default; drag targets grow their drop tolerance by 25%. Every screen must be completable with click and drag only (see Testing).
 
-**Phone exclusion.** Done in two layers, both on the "ask Spiro before changing export settings" list:
-
-1. In the Godot Android export preset, use the custom Gradle build and add a `<compatible-screens>` block (or `<supports-screens android:smallScreens="false" android:normalScreens="false" android:requiresSmallestWidthDp="600"/>`) to the manifest template under `android/build/`. **Verify the exact mechanism in the Godot 4.7 Android export docs**; Godot exposes some of these as preset options and others need the manifest template edit.
-2. In Play Console, exclude phones with the device catalog rules (screen size, min RAM).
+**Phones are supported** (Spiro, 2026-10-19; this replaces the earlier phone-exclusion plan). Both export presets keep every screen size on (`screen/support_small`, `support_normal`, `support_large`, `support_xlarge` all `true`), and no Play Console device catalog rule excludes phones. Layouts must fit a landscape phone (about 20:9, roughly 360 dp tall) with 64 dp targets: `tools/qa/capture_screens.tscn` captures two phone sizes too (`20x9`, 2400x1080 at 420 dpi, and `20x9_small`, 1600x720 at 320 dpi), and `tests/scenes/test_phone_layout.gd` checks every screen, every answer input, the hint states and the overlays at those phone metrics and at 16:9, 16:10, 3:2 and 4:3 (compact layouts: `UI.is_compact()`, `docs/decisions.md` "Phone layout pass"). `check_manifest.py` fails if anything shuts phones out.
 
 The manifest must still contain **no `INTERNET` permission**. After each export, `python tools/ci/check_manifest.py build/gem-mines.aab` (new, uses `bundletool` or `aapt2` from the Android SDK) fails if `INTERNET`, `ACCESS_FINE_LOCATION`, `CAMERA`, `RECORD_AUDIO`, `READ_CONTACTS` or `com.google.android.gms.permission.AD_ID` appear. Keep this check in CI.
 
@@ -298,10 +297,10 @@ Everything here must describe what the app *actually does*; the privacy policy i
 | Artefact | Location | Content |
 |---|---|---|
 | Privacy policy | `docs/privacy-policy.md`, published via GitHub Pages at a stable URL that is also entered in Play Console | What is stored on the device (nickname, skill states, attempt history, inventory, settings); what is never collected (location, contacts, camera, microphone, advertising ID, accounts, analytics, handwriting images); that nothing leaves the device unless a parent exports a file; no ads; no purchases; no third-party SDKs that collect data; contact email; effective date; how a parent deletes data (delete the profile or uninstall). |
-| Data safety form answers | `docs/compliance/data-safety.md` | "Does your app collect or share any of the required user data types?" → No. Document the reasoning per data type and note the `digit_ink` plugin processes strokes in memory only. |
+| Data safety form answers | `docs/compliance/data-safety.md` | "Does your app collect or share any of the required user data types?" → No. Document the reasoning per data type and note the GDScript digit reader (`scripts/input/`) processes strokes in memory only (corrected 2026-10-19: no `digit_ink` plugin, no LiteRT). |
 | Target audience & content | `docs/compliance/target-audience.md` | Age groups 6–8 and 9–12; "designed for children"; no ads; no third-party ads SDKs; app meets Families Policy. |
 | Content rating | `docs/compliance/content-rating.md` | IARC questionnaire answers: no violence, no user interaction/sharing, no purchases, no location. |
-| SDK audit | `docs/sdk-audit.md` | One row per dependency: name, version, purpose, shipped in APK?, network?, data?, Families-Policy status. Expected rows: Godot engine, GdUnit4 (not shipped), `digit_ink` (own code, LiteRT runtime, no network), font Andika (OFL), art/audio packs (licenses in `assets/CREDITS.md`). |
+| SDK audit | `docs/sdk-audit.md` | One row per dependency: name, version, purpose, shipped in APK?, network?, data?, Families-Policy status. Expected rows: Godot engine, GdUnit4 (not shipped), `digit_ink` (own GDScript code, no plugin and no LiteRT since 2026-10-17, no network), font Andika (OFL), art/audio packs (licenses in `assets/CREDITS.md`). |
 | Parental gate review | `docs/compliance/parental-gate.md` | Description of the gate, why it meets Google's guidance, test evidence. |
 | Families Policy self-check | `docs/compliance/families-self-check.md` | Checklist walk-through of Google's current policy page, dated, with the policy version. Re-run every release. |
 | AI voice disclosure | store listing text | Optional good practice: "Bolt's voice is a licensed AI voice." Also record the provider licence terms and the date checked in `docs/decisions.md`. |
@@ -317,7 +316,7 @@ Assets (`marketing/` directory, gitignored except for the source `.svg`/`.kra` f
 | Screenshots | at least 4 for tablets, 16:10 and 16:9 | Dig loop, Chalk Slate, Museum, Parent dashboard (with a fictional profile, never Charlie's real data) |
 | Short trailer | 30–60 s MP4, landscape | Screen capture from the emulator; music from the licensed pack |
 | Short description | 80 chars | |
-| Full description | up to 4,000 chars | Mentions: offline, no ads, no purchases, read-aloud, ages 6–12, licensed AI voice note |
+| Full description | up to 4,000 chars | Mentions: offline, no ads, no purchases, ages 6–12 (no read-aloud and no AI voice: there is no narration, Spiro 2026-10-19) |
 
 Testing tracks:
 
@@ -417,7 +416,7 @@ Playtest focus: none for Charlie; the second adult reviews the privacy policy fo
 
 ### Sprint 25 (May 3–7): Broad device support
 
-**Goal.** The game runs well on other families' hardware: x86_64 Chromebooks, mouse-only devices, small and older tablets. Phones are excluded. Tester families are recruited.
+**Goal.** The game runs well on other families' hardware: x86_64 Chromebooks, mouse-only devices, small and older tablets, and Android phones (supported, Spiro 2026-10-19). Tester families are recruited.
 
 | ID | Branch | Item | Done when |
 |---|---|---|---|
@@ -425,7 +424,7 @@ Playtest focus: none for Charlie; the second adult reviews the privacy policy fo
 | P3-S25-02 | `feat/mouse-only-path` | Capability detection; hide `ChalkSlate` without touch; drop-tolerance; cursor feedback on drags | Every screen completed with mouse only (checklist in Testing) |
 | P3-S25-03 | `fix/small-tablet-layout` | Layout fixes at 1280×800 8" and 4:3; target sizes still ≥ 64 dp | Screenshots per screen at 4 aspect ratios reviewed |
 | P3-S25-04 | `perf/low-end` | Atlases, loading screens, no hot-path allocations; profile on 2 GB emulator | 60 fps in the dig loop and hub on the low-end profile |
-| P3-S25-05 | `chore/phone-exclusion` | Manifest template / preset settings and Play device catalog rules (ask Spiro) | Phone emulator cannot install; `check_manifest.py` asserts the screen attributes |
+| P3-S25-05 | `feat/phone-layouts` | Phones are supported (Spiro, 2026-10-19): every screen size on in the presets; layouts fit a landscape phone | Phone emulator installs and every screen fits; `check_manifest.py` fails if phones are shut out |
 | P3-S25-06 | `chore/emulator-matrix` | Document and script the emulator profiles (`tools/ci/emulators.md`, AVD creation commands) | A fresh machine can recreate the matrix |
 | P3-S25-07 | (no code) | Recruit tester families: 12+ if personal account, 3–5 otherwise; prepare the tester email and feedback form | Tester list with opted-in Google accounts ready for Sprint 26 |
 
@@ -448,7 +447,7 @@ Playtest focus: Charlie plays on the x86_64 emulator with a mouse only (novel fo
 
 | ID | Branch | Item | Done when |
 |---|---|---|---|
-| P3-S26-01 | `content/store-assets` | Icon, feature graphic, screenshots, trailer, descriptions (with the AI-voice note) | All assets uploaded and the listing saves without errors |
+| P3-S26-01 | `content/store-assets` | Icon, feature graphic, screenshots, trailer, descriptions (no AI-voice note: no narration, Spiro 2026-10-19) | All assets uploaded and the listing saves without errors |
 | P3-S26-02 | `chore/release-build-rc1` | Release-signed AAB from CI; keystore via env vars; `check_manifest.py` green | Build uploaded to the closed track |
 | P3-S26-03 | (Play Console) | Create closed testing track, add tester emails or group, publish the test; note the start date | 12+ testers opted in (personal) by day 1 |
 | P3-S26-04 | `docs/tester-guide` | One-page tester guide: install steps, what to try, how to send feedback (form link), reminder that no data leaves the device | Sent with the invitation |
@@ -522,7 +521,7 @@ Playtest focus: Charlie's regular weekend session on the release build; no chang
 | **Mouse-only pass** | Every screen completed with click and drag only (x86_64 emulator without touch and Windows editor `--no-touch`); `ChalkSlate` never appears | Manual, Sprint 25 and every release |
 | **Keyboard-only pass** | Every screen reachable with Tab/Enter/arrows in laptop posture (focus neighbours set on all controls) | Manual, Sprint 25 and every release |
 | **Touch-only and stylus-only passes** | Unchanged from Phase 2 | Every Friday |
-| **Layout smoke test** | Instantiate every scene at 1920×1080, 1920×1200, 2160×1440, 1280×960; assert every interactive control ≥ `UI.min_target_px()` and nothing overflows the viewport | CI, headless |
+| **Layout smoke test** | `tests/scenes/test_phone_layout.gd` (`LayoutAudit`): every screen and answer input at 1920×1080, 1920×1200, 1620×1080, 1440×1080 and two landscape phones (2400×1080 @ 420 dpi, 1600×720 @ 320 dpi, via `TestWindow.use_phone`); every visible tappable control is on screen, ≥ `UI.min_target_px()` and overlaps no other | CI, headless |
 | **Airplane-mode session** | Full 20-minute session with Wi-Fi off on each real device and the x86_64 emulator; also confirm install works with no data connection after download | Manual, every release |
 | **Permissions** | `tools/ci/check_manifest.py` on every exported AAB/APK | CI |
 | **Privacy policy matches behaviour** | Checklist in `docs/compliance/policy-verification.md`: for each sentence in the policy, the evidence (manifest dump, code path, test name). Re-run when the policy or the manifest changes. | Manual, Sprint 24 and before every store submission |
@@ -537,7 +536,7 @@ Phase 3 is complete when all of these hold:
 1. **Public Version 1.0 is live on Google Play** for the declared age groups (6–8 and 9–12), after Google's children's-app review, with the same build on the internal track.
 2. Narration coverage is 100% for Zones 1–5, numbers and phrases; a non-reading child can complete a session with read-aloud on (walkthrough passed twice).
 3. Up to four profiles work; Version 1.0 saves migrated on both of Charlie's devices with no loss.
-4. The AAB includes arm64-v8a and x86_64, excludes phones, requests no `INTERNET` or other banned permission, and installs on the full emulator matrix.
+4. The AAB includes arm64-v8a and x86_64, supports phones, requests no `INTERNET` or other banned permission, and installs on the full emulator matrix.
 5. Every screen passes touch-only, stylus-only, mouse-only and keyboard-only passes.
 6. Privacy policy, data safety form, target audience, content rating, SDK audit, parental-gate review and Families self-check are complete and consistent with the build.
 7. The closed test ran (14 consecutive days with 12+ testers on a personal account) and all launch-blocker feedback is fixed.
@@ -565,7 +564,7 @@ Phase 3 is complete when all of these hold:
 3. **Read-aloud defaults.** Recommendation: on by default for `starting_grade <= 1`, off for Charlie's profile, always toggleable in the pause menu with a picture toggle.
 4. **Pricing.** Options: free; paid upfront; free with a one-time "unlock the deep mountain" purchase (still no ads, no loot boxes). Recommendation for the 1.0 launch: **free**, which keeps the data-safety and content-rating answers simplest and removes a purchase flow from the children's-app review; revisit at Phase 4 when Zones 6+ ship.
 5. **Account type consequences.** If the organization account from Sprint 1 is verified, submit directly in Sprint 28 and still run the closed test for feedback. If on a personal account, the 14-day closed test with 12+ testers is on the critical path: it must start no later than May 11 to finish by May 25.
-6. **Phone exclusion mechanism and x86_64.** Both change export settings. Recommendation: `requiresSmallestWidthDp=600` plus Play device catalog rules; include x86_64 unless the download exceeds 150 MB.
+6. **Phones and x86_64.** Decided 2026-10-19: phones are supported (no exclusion); include x86_64 unless the download exceeds 150 MB.
 7. **AI-voice disclosure in the listing.** Recommendation: include the one-line note; it costs nothing and matches the plan's "good practice" advice.
 8. **Save schema change for profiles** (Sprint 23) needs explicit sign-off before the migration is written.
 

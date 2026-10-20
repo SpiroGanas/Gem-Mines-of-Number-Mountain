@@ -71,7 +71,7 @@ func test_purchases_persist_and_change_the_headlamp() -> void:
 	SaveSystem.data()["rewards"]["coins"] = 60
 	assert_bool(Rewards.buy(&"headlamp_green")).is_true()
 	assert_str(Rewards.headlamp()).is_equal("green")
-	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	var on_disk: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]
 	assert_int(on_disk["rewards"]["coins"]).is_equal(40)
 	assert_bool(on_disk["rewards"]["inventory"].has("headlamp_green")).is_true()
 	assert_str(on_disk["rewards"]["bolt"]["headlamp"]).is_equal("green")

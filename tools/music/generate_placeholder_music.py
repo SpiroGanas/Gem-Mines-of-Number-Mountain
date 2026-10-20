@@ -16,7 +16,16 @@ and one for the build site. Which screen plays which file:
     mine_z4.ogg  the mine in Zone 4, Factor Workshop: a busy little mallet tune, like a workbench
     mine_z5.ogg  the mine in Zone 5, Prime Caverns: high crystal bells that ring only on prime
                  beats (2, 3, 5, 7, 11, 13 of each 16) over slow, spacious chords
+    mine_z6.ogg  the mine in Zone 6, Gear Works (Phase 4): two interlocking figures, one every 3 beats
+                 and one every 4, that meet on beat 12 (their least common multiple), over steady chords
     build.ogg    the build site and the crafting bench: a short, bright, steady loop
+    mine_z7.ogg  the mine in Zone 7, Crystal Shards (Phase 4): glassy bells that ring only on the
+                 halves, quarters and eighths of each 16 beats, like a crystal split into shards
+    mine_z8.ogg  the mine in Zone 8, Power Tower (Phase 4): a climbing bell figure that rings only on
+                 the beats that are powers of 2 (1, 2, 4, 8) and the downbeat, each note higher, like
+                 the doubling elevator going up the tower
+    mine_z9.ogg  the mine in Zone 9, Pattern Grotto (Phase 4): bells only on the Fibonacci beats
+                 (1, 2, 3, 5, 8, 13) of each 16 over slow chords
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -68,6 +77,42 @@ TRACKS = {
                    None, None, 74, 76, None, 79, None, 76, None, None, None, 74, None, 71, None, None],
         "chords": [[40, 47, 55], [36, 43, 52], [43, 50, 59], [38, 45, 54],
                    [40, 47, 55], [36, 43, 52], [38, 45, 54], [40, 47, 59]],
+    },
+    # Zone 6, Gear Works: G major pentatonic. A low "gear" note every 3 beats and a high one every 4
+    # beats line up only on the beats that are multiples of 12 (the least common multiple).
+    "mine_z6": {
+        "bpm": 68,
+        "melody": [79, None, None, 67, 81, None, 67, None, 83, 67, None, None, 79, None, None, 67,
+                   81, None, 67, None, 83, 67, None, None, 74, None, None, 67, 76, None, 67, None,
+                   79, 67, None, None],
+        "chords": [[43, 50, 59], [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59],
+                   [40, 47, 55], [36, 43, 52], [38, 45, 54], [43, 50, 59]],
+    },
+    # Zone 7, Crystal Shards: A major pentatonic glass bells on the even beats only (the shards of 16).
+    "mine_z7": {
+        "bpm": 62,
+        "melody": [81, None, 76, None, 78, None, None, None, 76, None, 73, None, 71, None, None, None,
+                   73, None, 76, None, 81, None, 83, None, 78, None, 76, None, 73, None, None, None],
+        "chords": [[45, 52, 61], [42, 49, 57], [38, 45, 54], [40, 47, 56],
+                   [45, 52, 61], [38, 45, 57], [40, 47, 56], [45, 52, 64]],
+    },
+    # Zone 8, Power Tower: D major pentatonic bells on beats 0, 1, 2, 4 and 8 of each 16 (the downbeat and
+    # the powers of 2), climbing like the doubling elevator, over slow chords.
+    "mine_z8": {
+        "bpm": 64,
+        "melody": [62, 66, 69, None, 74, None, None, None, 78, None, None, None, None, None, None, None,
+                   64, 69, 71, None, 76, None, None, None, 81, None, None, None, None, None, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 55], [45, 52, 61],
+                   [38, 45, 54], [35, 42, 50], [43, 50, 59], [38, 45, 57]],
+    },
+    # Zone 9, Pattern Grotto: D major pentatonic bells only on the Fibonacci beats (1, 2, 3, 5, 8, 13) of
+    # each 16: a tune that grows like the sequence.
+    "mine_z9": {
+        "bpm": 64,
+        "melody": [None, 74, 76, 78, None, 81, None, None, 83, None, None, None, None, 81, None, None,
+                   None, 78, 76, 74, None, 76, None, None, 78, None, None, None, None, 74, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [47, 54, 62], [45, 52, 61],
+                   [38, 45, 54], [43, 50, 59], [45, 52, 61], [38, 45, 57]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {
@@ -158,13 +203,15 @@ def loudnorm_filter(measured: dict[str, str]) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--track", action="append", choices=TRACK_NAMES,
+                        help="write only this loop (repeatable); default: every loop")
     args = parser.parse_args(argv)
     if shutil.which("ffmpeg") is None:
         print("ffmpeg is required to write OGG files", file=sys.stderr)
         return 1
     args.out.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
-        for name in TRACK_NAMES:
+        for name in args.track or TRACK_NAMES:
             wav_path = Path(tmp) / f"{name}.wav"
             write_wav(wav_path, synthesize(name))
             out = args.out / f"{name}.ogg"

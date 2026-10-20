@@ -5,6 +5,16 @@ extends GdUnitTestSuite
 const BOX: Rect2 = Rect2(0, 0, 500, 300)
 
 
+# Sizes here are the tablet design's: the headless 64x64 window would count as a phone (UI.is_compact),
+# where target multiples keep their design-canvas size instead (tests/scenes/test_phone_layout.gd).
+func before_test() -> void:
+	TestWindow.use_design_size(get_window())
+
+
+func after_test() -> void:
+	TestWindow.restore(get_window())
+
+
 func _pile(hundreds: int, tens: int, ones: int) -> Dictionary:
 	return {"hundreds": hundreds, "tens": tens, "ones": ones}
 

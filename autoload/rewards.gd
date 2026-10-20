@@ -14,6 +14,8 @@ signal lantern_lit(day: String, streak: int)
 ## A museum mineral was found (its case opens).
 signal mineral_found(gem: StringName)
 signal skill_celebrated(skill_id: StringName)
+## Every skill of `zone` is now mastered (Zone 6 on; RewardsRules.zone_finished). Fired once.
+signal zone_completed(zone: int)
 signal purchased(item: StringName)
 signal headlamp_changed(color: String)
 ## A recipe was crafted in the workshop (Sprint 16).
@@ -352,4 +354,7 @@ func _on_skill_mastered(skill_id: StringName, first_time: bool) -> void:
 		RewardsRules.add_gem(data(), mineral)
 		_session["minerals"].append(mineral)
 		mineral_found.emit(mineral)
+	var zone: int = Adaptive.catalog().skill(skill_id).zone
+	if RewardsRules.zone_finished(zone, zones.get(zone, []), Adaptive.mastered()):
+		zone_completed.emit(zone)
 	SaveSystem.save_now()

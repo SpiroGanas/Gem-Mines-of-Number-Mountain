@@ -34,11 +34,24 @@ KNOWN_GENERATORS = frozenset({
     "SkipCountGenerator", "ParityGenerator", "ArraysGenerator", "MultiplicationGenerator",
     "MultFactsGenerator", "DivFactsGenerator", "FactorsGenerator", "MultiplesGenerator", "PrimeCompositeGenerator",
     "SieveGenerator", "DivisibilityGenerator", "FactorTreeGenerator", "FtaGenerator",
+    # Zone 6 (Phase 4, Sprint 29)
+    "GcfGenerator", "LcmGenerator", "GearGenerator", "SimplifyGenerator",
+    # Zone 7 (Phase 4, Sprint 32)
+    "FractionGenerator", "DecimalGenerator", "PercentGenerator", "RatioGenerator", "NegativeGenerator",
+    # Zone 8 (Phase 4, Sprint 35)
+    "ExponentGenerator", "RootGenerator", "BaseGenerator", "SciNotationGenerator", "LeverGenerator",
+    # Zone 9 (Phase 4, Sprint 39)
+    "SequenceGenerator", "FigurateGenerator", "FibGenerator", "GaussGenerator", "ProofGenerator", "FibPoemGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
-WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits"})
-ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting"})
+WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance", "array", "groups", "pairs", "digits",
+                              "lists", "gears",
+                              "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
+                              "power_tower", "notation", "cube_blocks", "lamps", "lever",
+                              "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape"})
+# handwriting_fraction (Phase 4): the two-row slate for a fraction answer, numerator over denominator.
+ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting", "handwriting_fraction"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
 ZONE_STATUSES = frozenset({"detailed", "outline"})
 ZONE_COUNT = 12
@@ -246,7 +259,7 @@ def check_skill_map(
                 errors.append(f"{where}: {key} must be a non-empty list without duplicates")
             elif not set(values) <= allowed_values:
                 errors.append(f"{where}: {key} has unknown values {sorted(set(values) - allowed_values)}")
-        if _is_str_list(skill["answer_modes"]) and "handwriting" in skill["answer_modes"] and not (
+        if _is_str_list(skill["answer_modes"]) and {"handwriting", "handwriting_fraction"} & set(skill["answer_modes"]) and not (
                 {"number_pad", "keyboard"} & set(skill["answer_modes"])):
             errors.append(f"{where}: handwriting replaces the number pad, so the skill must also list number_pad")
         if not _is_str_list(skill["terms"]):

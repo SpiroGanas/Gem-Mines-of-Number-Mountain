@@ -94,6 +94,10 @@ class _Canvas extends Control:
 		set(value):
 			progress = value
 			queue_redraw()
+	## The part of a stroke drawn so far, refilled in place: `progress` is tweened, so _draw runs every
+	## frame of the demo and must not allocate (tools/ci/perf_check.py rule 1b).
+	## (Used directly, never through a local copy: a packed array copied and then written is a new array.)
+	var _line: PackedVector2Array = PackedVector2Array()
 
 	func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, size), BOARD)
@@ -106,15 +110,15 @@ class _Canvas extends Control:
 			var done: float = clampf((progress - share * index) / share, 0.0, 1.0)
 			if done <= 0.0:
 				continue
-			var line: PackedVector2Array = PackedVector2Array()
 			var count: int = maxi(ceili(done * float(strokes[index].size() - 1)), 1)
+			_line.resize(count + 1)
 			for point_index: int in count + 1:
-				line.append(strokes[index][mini(point_index, strokes[index].size() - 1)] * size)
+				_line[point_index] = strokes[index][mini(point_index, strokes[index].size() - 1)] * size
 			if done < 1.0:
 				var exact: float = done * float(strokes[index].size() - 1)
 				var whole: int = mini(floori(exact), strokes[index].size() - 2)
-				line[line.size() - 1] = strokes[index][whole].lerp(strokes[index][whole + 1], exact - float(whole)) * size
-			draw_polyline(line, CHALK, width, true)
-			tip = line[line.size() - 1]
+				_line[_line.size() - 1] = strokes[index][whole].lerp(strokes[index][whole + 1], exact - float(whole)) * size
+			draw_polyline(_line, CHALK, width, true)
+			tip = _line[_line.size() - 1]
 		if progress < 1.0:
 			draw_circle(tip, width * 1.2, DOT)

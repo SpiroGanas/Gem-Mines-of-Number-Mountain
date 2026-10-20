@@ -92,6 +92,9 @@ func _ready() -> void:
 	router.pointer_cancelled.connect(_on_pointer_cancelled)
 	resized.connect(_layout)
 	sort_children.connect(_layout)
+	# The pickaxe is top-level, so it is placed by hand: also when the screen moves the split without
+	# resizing it (the mine making room for a hint on a phone, a window resize).
+	set_notify_transform(true)
 
 
 func _exit_tree() -> void:
@@ -106,6 +109,8 @@ func _exit_tree() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PAUSED and _dragging:
 		_drop_pickaxe_back()
+	elif what == NOTIFICATION_TRANSFORM_CHANGED:
+		_layout()
 
 
 ## A resting palm the pen took over from was holding the pickaxe: it goes back, no split is made.
@@ -330,10 +335,11 @@ func _on_pointer_up(pos: Vector2, _kind: InputRouter.DeviceKind, _index: int) ->
 	_pickaxe.global_position = _rest # dropped on nothing: it goes back, nothing is lost
 
 
-## The split point nearest `pos` within the snap radius, or -1.
+## The split point nearest `pos` within the snap radius, or -1. Without a touch screen the radius is
+## 25% bigger (DeviceCaps.drop_scale, the mouse-only path).
 func _notch_under(pos: Vector2) -> int:
 	var best: int = -1
-	var best_distance: float = float(UI.min_target_px()) * SNAP_RADIUS_MULTIPLE
+	var best_distance: float = float(UI.min_target_px()) * SNAP_RADIUS_MULTIPLE * DeviceCaps.drop_scale()
 	for index: int in _notches.size():
 		var rect: Rect2 = _notches[index].get_global_rect()
 		var distance: float = 0.0 if rect.has_point(pos) else rect.get_center().distance_to(pos) - rect.size.x / 2.0

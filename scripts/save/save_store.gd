@@ -12,6 +12,9 @@
 ## Write order: serialize -> write .tmp -> copy the current good profile to .bak -> rename
 ## .tmp over profile.json. At every instant at least one complete, valid copy exists, and
 ## read_profile() finds it: profile.json first, then .tmp, then .bak.
+##
+## The profile index (ProfileIndex, schema v3) is written the same way under another file name:
+## SaveStore.new(dir, "index.json") gives index.json, index.json.tmp and index.json.bak.
 class_name SaveStore
 extends RefCounted
 
@@ -34,10 +37,17 @@ const CRASH_MID_RENAME: StringName = &"mid_rename"    # profile.json removed, .t
 
 var dir: String
 var crash_after: StringName = &""
+## The document this store writes atomically (profile.json unless another name is given).
+var main_file: String = PROFILE_FILE
+var _tmp_file: String = TMP_FILE
+var _bak_file: String = BAK_FILE
 
 
-func _init(save_dir: String) -> void:
+func _init(save_dir: String, file_name: String = PROFILE_FILE) -> void:
 	dir = save_dir
+	main_file = file_name
+	_tmp_file = file_name + ".tmp"
+	_bak_file = file_name + ".bak"
 
 
 ## Atomically replaces profile.json with `data`. Returns OK or an error code.
@@ -46,7 +56,7 @@ func write_profile(data: Dictionary) -> Error:
 	if make_error != OK:
 		return make_error
 	var text: String = JSON.stringify(data, "\t")
-	var tmp_path: String = _path(TMP_FILE)
+	var tmp_path: String = _path(_tmp_file)
 	var file: FileAccess = FileAccess.open(tmp_path, FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
@@ -62,9 +72,9 @@ func write_profile(data: Dictionary) -> Error:
 
 	# Keep the previous save as .bak, but only if it is itself valid. Copying a corrupt
 	# profile.json over a good .bak would destroy the only good copy.
-	var profile_path: String = _path(PROFILE_FILE)
+	var profile_path: String = _path(main_file)
 	if _read_valid(profile_path) != null:
-		var copy_error: Error = DirAccess.copy_absolute(profile_path, _path(BAK_FILE))
+		var copy_error: Error = DirAccess.copy_absolute(profile_path, _path(_bak_file))
 		if copy_error != OK:
 			return copy_error
 	if crash_after == CRASH_AFTER_BAK:
@@ -90,7 +100,7 @@ func write_profile(data: Dictionary) -> Error:
 ##   the parent dashboard can mention it.
 func read_profile() -> Dictionary:
 	var any_file: bool = false
-	for candidate: Array in [[PROFILE_FILE, SOURCE_PROFILE], [TMP_FILE, SOURCE_TMP], [BAK_FILE, SOURCE_BACKUP]]:
+	for candidate: Array in [[main_file, SOURCE_PROFILE], [_tmp_file, SOURCE_TMP], [_bak_file, SOURCE_BACKUP]]:
 		var path: String = _path(candidate[0])
 		if not FileAccess.file_exists(path):
 			continue

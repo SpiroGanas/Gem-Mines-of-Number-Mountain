@@ -91,7 +91,7 @@ func test_every_term_is_a_word_gem_with_text() -> void:
 
 
 func test_answer_modes_and_representations_are_valid() -> void:
-	var modes: Array[StringName] = [&"tap", &"drag", &"number_pad", &"keyboard", &"handwriting"]
+	var modes: Array[StringName] = [&"tap", &"drag", &"number_pad", &"keyboard", &"handwriting", &"handwriting_fraction"]
 	var representations: Array[StringName] = [&"concrete", &"pictorial", &"abstract"]
 	for id: StringName in _catalog.ids():
 		var skill: Skill = _catalog.skill(id)
@@ -100,3 +100,65 @@ func test_answer_modes_and_representations_are_valid() -> void:
 			assert_bool(modes.has(mode)).is_true()
 		for representation: StringName in skill.representations:
 			assert_bool(representations.has(representation)).is_true()
+
+
+## Every skill whose prerequisites are all in `mastered` and that is not mastered itself.
+func _frontier(mastered: Dictionary) -> Array[StringName]:
+	var open: Array[StringName] = []
+	for id: StringName in _catalog.ids():
+		if mastered.has(id):
+			continue
+		var ready: bool = true
+		for prereq: StringName in _catalog.skill(id).prereqs:
+			ready = ready and mastered.has(prereq)
+		if ready:
+			open.append(id)
+	return open
+
+
+func test_zone_9_opens_only_after_zone_7() -> void:
+	# Every Zone 9 skill needs a Zone 7 skill somewhere below it (the music, banner and backdrop follow
+	# the deepest zone on the frontier, so Zone 9 must never show up before Zone 7).
+	for skill: Skill in _catalog.skills_in_zone(9):
+		var below: Array[StringName] = skill.prereqs.duplicate()
+		var seen: Dictionary = {}
+		var reaches_7: bool = false
+		while not below.is_empty():
+			var id: StringName = below.pop_back()
+			if seen.has(id):
+				continue
+			seen[id] = true
+			reaches_7 = reaches_7 or _catalog.skill(id).zone == 7
+			below.append_array(_catalog.skill(id).prereqs)
+		assert_bool(reaches_7).override_failure_message(String(skill.id) + " can open before Zone 7").is_true()
+	# A child with every skill below Zone 7 mastered still meets no Zone 9 skill.
+	var mastered: Dictionary = {}
+	for id: StringName in _catalog.ids():
+		if _catalog.skill(id).zone < 7:
+			mastered[id] = true
+	for id: StringName in _frontier(mastered):
+		assert_int(_catalog.skill(id).zone).override_failure_message(String(id)).is_less(9)
+
+
+func test_zone_9_opens_only_after_zone_8() -> void:
+	# Spiro, 2026-10-19: Zone 9 comes after Zone 8, so Zone 8's banner, backdrop and music get their
+	# turn (the mine shows the deepest zone on the frontier). Every Zone 9 skill needs a Zone 8 skill
+	# somewhere below it, and a child with every skill below Zone 8 mastered still meets no Zone 9 skill.
+	for skill: Skill in _catalog.skills_in_zone(9):
+		var below: Array[StringName] = skill.prereqs.duplicate()
+		var seen: Dictionary = {}
+		var reaches_8: bool = false
+		while not below.is_empty():
+			var id: StringName = below.pop_back()
+			if seen.has(id):
+				continue
+			seen[id] = true
+			reaches_8 = reaches_8 or _catalog.skill(id).zone == 8
+			below.append_array(_catalog.skill(id).prereqs)
+		assert_bool(reaches_8).override_failure_message(String(skill.id) + " can open before Zone 8").is_true()
+	var mastered: Dictionary = {}
+	for id: StringName in _catalog.ids():
+		if _catalog.skill(id).zone < 8:
+			mastered[id] = true
+	for id: StringName in _frontier(mastered):
+		assert_int(_catalog.skill(id).zone).override_failure_message(String(id)).is_less(9)

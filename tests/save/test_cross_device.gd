@@ -162,3 +162,120 @@ func test_a_round_trip_two_in_one_to_tablet_and_back_keeps_everything() -> void:
 	assert_bool(two_in_one.last_import_report["replaced"]).is_true()
 	assert_int(two_in_one.data()["rewards"]["coins"]).is_equal(55)
 	assert_int(int(JsonUtil.parse_file(two_in_one.backups()[0])["rewards"]["coins"])).is_equal(40)
+
+
+# --- One child per file (Phase 3, Sprint 23) ---------------------------------------------------------
+
+
+func test_a_bundle_names_the_child_it_holds() -> void:
+	var tablet: Node = _device("tablet")
+	tablet.data()["child"]["nickname"] = "Charlie"
+	var path: String = _dir.path_join("charlie.json")
+	tablet.export_bundle(path)
+	var bundle: Dictionary = JsonUtil.parse_file(path)
+	assert_str(bundle["profile_id"]).is_equal(tablet.profile_id())
+	assert_str(bundle["nickname"]).is_equal("Charlie")
+	assert_str(bundle["profile"]["profile"]["id"]).is_equal(tablet.profile_id())
+	assert_str(ProgressBundle.problem_with(bundle)).is_equal("") # the checksum still holds
+	assert_dict(ProgressBundle.summary(bundle)).is_equal({"profile_id": tablet.profile_id(), "nickname": "Charlie"})
+
+
+func test_only_the_active_child_is_exported() -> void:
+	var tablet: Node = _device("tablet")
+	tablet.data()["child"]["nickname"] = "Charlie"
+	tablet.data()["rewards"]["coins"] = 70
+	tablet.save_now()
+	var ada: String = tablet.create_profile(Profiles.new_document("Ada", &"gem", 1, 20, "2027-04-19T10:00:00Z"))
+	tablet.switch_profile(ada)
+	var path: String = _dir.path_join("ada.json")
+	tablet.export_bundle(path)
+	var bundle: Dictionary = JsonUtil.parse_file(path)
+	assert_str(bundle["nickname"]).is_equal("Ada")
+	assert_int(int(bundle["profile"]["rewards"]["coins"])).is_equal(0)
+
+
+func test_a_file_can_be_added_as_a_new_child() -> void:
+	var tablet: Node = _device("tablet")
+	tablet.data()["child"]["nickname"] = "Charlie"
+	tablet.data()["rewards"]["coins"] = 70
+	tablet.append_attempt(_attempt("2027-04-18T10:00:00Z"))
+	var path: String = _dir.path_join("charlie.json")
+	tablet.export_bundle(path)
+	var family: Node = _device("family")
+	family.data()["child"]["nickname"] = "Ada"
+	family.save_now()
+	var ada: String = family.profile_id()
+	assert_int(family.import_bundle(path, false, true)).is_equal(OK)
+	var added: String = family.last_import_report["added"]
+	assert_str(added).is_equal(tablet.profile_id()) # its own id, free on this device
+	assert_int(family.profile_entries().size()).is_equal(2)
+	assert_str(family.profile_id()).is_equal(ada) # adding does not switch
+	assert_str(family.data()["child"]["nickname"]).is_equal("Ada")
+	assert_str(family.sync_log()[0]["result"]).is_equal("added")
+	family.switch_profile(added)
+	assert_str(family.data()["child"]["nickname"]).is_equal("Charlie")
+	assert_int(family.data()["rewards"]["coins"]).is_equal(70)
+	assert_int(family.read_attempts()["entries"].size()).is_equal(1)
+	# The same file added again gets a new id: two copies never share a folder.
+	family.import_bundle(path, false, true)
+	assert_str(family.last_import_report["added"]).is_not_equal(added)
+	assert_int(family.profile_entries().size()).is_equal(3)
+
+
+func test_adding_a_fifth_child_from_a_file_is_refused() -> void:
+	var source: Node = _device("source")
+	var path: String = _dir.path_join("x.json")
+	source.export_bundle(path)
+	var full: Node = _device("full")
+	for name: String in ["A", "B", "C"]:
+		full.create_profile(Profiles.new_document(name, &"bolt", 1, 20, "2027-04-19T10:00:00Z"))
+	assert_int(full.profile_entries().size()).is_equal(ProfileIndex.MAX_PROFILES)
+	assert_int(full.import_bundle(path, false, true)).is_equal(ERR_UNAVAILABLE)
+	assert_str(full.last_import_report["error"]).is_equal(SaveSystem.ERR_FULL)
+	assert_int(full.profile_entries().size()).is_equal(ProfileIndex.MAX_PROFILES)
+
+
+func test_replacing_keeps_this_profiles_id_and_leaves_the_other_children_alone() -> void:
+	var tablet: Node = _device("tablet")
+	tablet.data()["child"]["nickname"] = "Charlie"
+	tablet.data()["rewards"]["coins"] = 70
+	var path: String = _dir.path_join("charlie.json")
+	tablet.export_bundle(path)
+	var chromebook: Node = _device("chromebook")
+	chromebook.data()["child"]["nickname"] = "Ada"
+	chromebook.data()["rewards"]["coins"] = 4
+	chromebook.save_now()
+	var ada: String = chromebook.profile_id()
+	var sam: String = chromebook.create_profile(Profiles.new_document("Sam", &"cart", 2, 20, "2027-04-19T10:00:00Z"))
+	chromebook.switch_profile(sam)
+	chromebook.data()["updated_at"] = "2000-01-01T00:00:00Z"
+	assert_int(chromebook.import_bundle(path)).is_equal(OK) # "replace this profile": Sam's
+	assert_bool(chromebook.last_import_report["replaced"]).is_true()
+	assert_str(chromebook.profile_id()).is_equal(sam)
+	assert_str(chromebook.data()["profile"]["id"]).is_equal(sam)
+	assert_str(chromebook.data()["child"]["nickname"]).is_equal("Charlie")
+	assert_int(chromebook.data()["rewards"]["coins"]).is_equal(70)
+	chromebook.switch_profile(ada)
+	assert_int(chromebook.data()["rewards"]["coins"]).is_equal(4) # Ada untouched
+
+
+func test_a_bundle_from_before_profiles_still_imports() -> void:
+	var bundle: Dictionary = {"format": ProgressBundle.FORMAT, "bundle_version": 1, "exported_at": "2027-03-01T10:00:00Z", "device_id": "", "profile": JsonUtil.parse_file("res://tests/save/fixtures/v2.json"), "attempts": []}
+	bundle["checksum"] = ProgressBundle.checksum_of(bundle)
+	var path: String = _dir.path_join("v2_bundle.json")
+	_write(path, JSON.stringify(bundle, "\t", false, true))
+	var target: Node = _device("target")
+	target.data()["updated_at"] = "2000-01-01T00:00:00Z"
+	assert_int(target.import_bundle(path)).is_equal(OK)
+	assert_str(target.data()["child"]["nickname"]).is_equal("Charlie")
+	assert_int(target.data()["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
+	assert_str(target.data()["profile"]["id"]).is_equal(target.profile_id())
+
+
+func _attempt(ts: String) -> Attempt:
+	var attempt: Attempt = Attempt.new()
+	attempt.skill_id = &"count.to_20.objects"
+	attempt.ts = ts
+	attempt.session_id = "s1"
+	attempt.correct = true
+	return attempt

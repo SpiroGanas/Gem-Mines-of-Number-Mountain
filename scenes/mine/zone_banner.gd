@@ -21,7 +21,8 @@ func _ready() -> void:
 	sign.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(sign)
 	_label = Label.new()
-	_label.theme_type_variation = &"HeadingLabel"
+	# On a phone (UI.is_compact) the name is in the body size, so the banner fits above the wall.
+	_label.theme_type_variation = &"" if UI.is_compact() else &"HeadingLabel"
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	add_child(_label)
 	show_zone(zone)
@@ -37,5 +38,10 @@ func text() -> String:
 	return _label.text
 
 
+## The zone's name line: zN.zone.name, or the deepest zone's before it that has one.
 static func line_for(for_zone: int) -> StringName:
-	return StringName("z%d.zone.name" % clampi(for_zone, 1, 5))
+	for zone_now: int in range(clampi(for_zone, 1, Backdrop.LAST_ZONE), 0, -1):
+		var line: StringName = StringName("z%d.zone.name" % zone_now)
+		if Text.has_line(line):
+			return line
+	return &"z1.zone.name"

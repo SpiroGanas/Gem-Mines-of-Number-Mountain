@@ -63,8 +63,10 @@ static func _prompt_errors(problem: Problem, where: String) -> Array[String]:
 		if not problem.prompt_params.has(name):
 			errors.append("%s: prompt '%s' needs {%s}" % [where, problem.prompt_line_id, name])
 	for key: Variant in problem.prompt_params:
-		if not problem.prompt_params[key] is int:
-			errors.append("%s: prompt param %s is not a whole number" % [where, key])
+		var value: Variant = problem.prompt_params[key]
+		# Whole numbers, or (Zone 7) an exact decimal or fraction the Text table formats; never a float.
+		if not value is int and not (Rational.is_decimal(value) or Rational.is_fraction(value)):
+			errors.append("%s: prompt param %s is not a whole number or an exact decimal" % [where, key])
 	return errors
 
 
@@ -81,10 +83,10 @@ static func _distractor_errors(problem: Problem, skill: Skill, allowed_names: Ar
 		if not skill.misconceptions.has(name):
 			errors.append("%s: misconception '%s' is not listed for the skill" % [where, name])
 		var canon: Variant = Problem.canonical(entry["value"])
-		if Problem.same(canon, problem.answer):
+		if problem.same_answer(canon, problem.answer):
 			errors.append("%s: distractor equals the answer (%s)" % [where, canon])
 		for earlier: Variant in seen:
-			if Problem.same(earlier, canon):
+			if problem.same_answer(earlier, canon):
 				errors.append("%s: duplicate distractor value %s" % [where, canon])
 		seen.append(canon)
 	if problem.answer_modes.has(&"tap") and problem.distractors.is_empty():
@@ -202,6 +204,217 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 					errors.append("%s: %s is not a digit" % [where, digit])
 			if not ["last", "last_two", "sum", "sum_and_last", "recipe"].has(str(visual.get("focus", ""))):
 				errors.append("%s: unknown digits focus '%s'" % [where, visual.get("focus")])
+		&"lists":
+			errors.append_array(_lists_errors(visual, where))
+		&"gears":
+			var teeth: Variant = visual.get("teeth")
+			if not teeth is Array or teeth.is_empty() or teeth.size() > Problem.MAX_GEARS:
+				errors.append("%s: gears needs 1 to %d gears" % [where, Problem.MAX_GEARS])
+				return errors
+			for count: Variant in teeth:
+				if not count is int or count < Problem.GEAR_TEETH_RANGE.x or count > Problem.GEAR_TEETH_RANGE.y:
+					errors.append("%s: a gear has %s teeth, not %d to %d" % [where, count, Problem.GEAR_TEETH_RANGE.x, Problem.GEAR_TEETH_RANGE.y])
+			if visual.has("shaded") and (not visual["shaded"] is int or visual["shaded"] < 0 or visual["shaded"] > int(teeth[0])):
+				errors.append("%s: shaded must be 0 to the first gear's teeth" % where)
+		&"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix":
+			errors.append_array(zone7_visual_errors(visual, where))
+		&"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever":
+			errors.append_array(zone8_visual_errors(visual, where))
+		&"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape":
+			errors.append_array(zone9_visual_errors(visual, where))
+	return errors
+
+
+## The Zone 8 pictures (Problem.VISUAL_TYPES) must be drawable: towers of 0 to 10 floors, notation of a
+## known form, cubes up to 8 a side, lamp rows that fit their places with digits below the base, levers
+## with hooks 1 to 8 steps out.
+static func zone8_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"power_tower":
+			var base: int = int(visual.get("base", 0))
+			var exp: int = int(visual.get("exp", -1))
+			if base < 2 or base > ExponentGenerator.MAX_TOWER_BASE or exp < 0 or exp > ExponentGenerator.MAX_TOWER_FLOORS or not visual.get("values") is bool:
+				errors.append("%s: a power tower needs base 2 to 12, 0 to 10 floors and values true or false" % where)
+		&"notation":
+			match str(visual.get("form", "")):
+				"power":
+					if int(visual.get("base", -1)) < 0 or int(visual.get("exp", -1)) < 0:
+						errors.append("%s: a power needs a base and an exponent of at least 0" % where)
+				"root":
+					var n: int = int(visual.get("n", -1))
+					var root: int = roundi(sqrt(float(maxi(n, 0))))
+					if n < 1 or root * root != n:
+						errors.append("%s: a root card shows only perfect squares" % where)
+				"sci":
+					if not Notation.is_normalized_sci({"mantissa": int(visual.get("mantissa", 0)), "scale": int(visual.get("scale", -1)), "exp": int(visual.get("exp", 0))}):
+						errors.append("%s: a scientific-notation card must be normalized" % where)
+				_:
+					errors.append("%s: unknown notation form '%s'" % [where, visual.get("form")])
+		&"cube_blocks":
+			if int(visual.get("n", 0)) < 1 or int(visual.get("n", 0)) > ExponentGenerator.MAX_CUBE_SIDE:
+				errors.append("%s: a cube of blocks is 1 to 8 a side" % where)
+		&"lamps":
+			var base: int = int(visual.get("base", 0))
+			var places: int = int(visual.get("places", 0))
+			var rows: Variant = visual.get("rows")
+			if base < 2 or base > 10 or places < 1 or places > BaseGenerator.MAX_PLACES or not ["lamps", "dials", "digits"].has(str(visual.get("style", ""))):
+				errors.append("%s: lamps need base 2 to 10, 1 to %d places and a known style" % [where, BaseGenerator.MAX_PLACES])
+			elif not rows is Array or rows.is_empty() or rows.size() > 3:
+				errors.append("%s: lamps show 1 to 3 rows" % where)
+			else:
+				for row: Variant in rows:
+					if not row is Array or row.size() > places:
+						errors.append("%s: a row of %s does not fit %d places" % [where, row, places])
+						continue
+					for digit: Variant in row:
+						if int(digit) < 0 or int(digit) >= base:
+							errors.append("%s: digit %s is not a base-%d digit" % [where, digit, base])
+		&"lever":
+			for side: String in ["left", "right"]:
+				var hook: Variant = visual.get(side)
+				if not hook is Dictionary or int(hook.get("d", 0)) < 1 or int(hook.get("d", 0)) > 8 or int(hook.get("w", -1)) < 0 or int(hook.get("w", -1)) > 64:
+					errors.append("%s: the %s weight must hang 1 to 8 steps out and weigh 0 to 64" % [where, side])
+					return errors
+			var tilt: String = str(visual.get("tilt", ""))
+			if not Problem.TILTS.has(tilt):
+				errors.append("%s: unknown tilt '%s'" % [where, tilt])
+			elif tilt != "unknown":
+				var left: int = int(visual["left"]["w"]) * int(visual["left"]["d"])
+				var right: int = int(visual["right"]["w"]) * int(visual["right"]["d"])
+				var expected: String = "level" if left == right else ("left" if left > right else "right")
+				if tilt != expected:
+					errors.append("%s: moments %d and %d should tilt %s" % [where, left, right, expected])
+	return errors
+
+
+## The Zone 9 pictures (Problem.VISUAL_TYPES) must be drawable: rows of tiles that fit, figures of a size
+## PatternArt draws, Fibonacci squares that are Fibonacci numbers in order, known proof diagrams.
+static func zone9_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"pattern":
+			var terms: Array = visual.get("terms", [])
+			if terms.is_empty() or terms.size() > Problem.MAX_PATTERN_TERMS:
+				errors.append("%s: a pattern row has 1 to %d tiles" % [where, Problem.MAX_PATTERN_TERMS])
+			for term: Variant in terms:
+				if not term is int or term < 0:
+					errors.append("%s: pattern tile %s is not a whole number" % [where, term])
+			for blank: Variant in visual.get("blanks", []):
+				if not blank is int or blank < 0 or blank >= terms.size():
+					errors.append("%s: blank %s is off the row" % [where, blank])
+			if not ["crystals", "numbers"].has(str(visual.get("style", ""))):
+				errors.append("%s: unknown pattern style '%s'" % [where, visual.get("style")])
+			if visual.has("steps") and (visual["steps"].size() != terms.size() - 1 or not ["plus", "times"].has(str(visual.get("step_op", "")))):
+				errors.append("%s: a pattern needs one step between each pair of tiles, plus or times" % where)
+			if visual.has("figure") and (not ["triangle", "square"].has(str(visual["figure"])) or int(visual.get("first_index", 0)) < 1):
+				errors.append("%s: a figure row is triangles or squares from index 1 on" % where)
+		&"figurate":
+			if not Problem.FIGURATE_KINDS.has(str(visual.get("kind", ""))) or int(visual.get("n", 0)) < 1 or int(visual.get("n", 0)) > Problem.MAX_FIGURATE_N:
+				errors.append("%s: figurate %s is not a known kind of size 1 to %d" % [where, visual, Problem.MAX_FIGURATE_N])
+		&"pairing":
+			if int(visual.get("n", 0)) < Problem.PAIRING_RANGE.x or int(visual.get("n", 0)) > Problem.PAIRING_RANGE.y:
+				errors.append("%s: pairing n must be %d to %d" % [where, Problem.PAIRING_RANGE.x, Problem.PAIRING_RANGE.y])
+		&"fib_squares":
+			var terms: Array = visual.get("terms", [])
+			if terms.size() < 2 or terms.size() > Problem.MAX_FIB_SQUARES:
+				errors.append("%s: 2 to %d Fibonacci squares" % [where, Problem.MAX_FIB_SQUARES])
+			for index: int in range(2, terms.size()):
+				if int(terms[index]) != int(terms[index - 1]) + int(terms[index - 2]):
+					errors.append("%s: %s are not Fibonacci numbers in order" % [where, terms])
+					break
+		&"proof":
+			if not Problem.PROOF_DIAGRAMS.has(str(visual.get("diagram", ""))) or int(visual.get("n", 0)) < 1 or not visual.get("fitted") is bool:
+				errors.append("%s: proof %s is not a known diagram" % [where, visual])
+		&"poem_shape":
+			var lines: Array = visual.get("lines", [])
+			var highlight: int = int(visual.get("highlight", -1))
+			if lines.is_empty() or highlight < 0 or highlight >= lines.size():
+				errors.append("%s: the poem shape's lit line is off the poem" % where)
+	return errors
+
+
+## A `lists` picture: a known kind, one or two rows of whole numbers, marks and lit positions that exist.
+static func _lists_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	if not Problem.LIST_KINDS.has(str(visual.get("kind", ""))):
+		errors.append("%s: unknown lists kind '%s'" % [where, visual.get("kind")])
+	var rows: Variant = visual.get("rows")
+	if not rows is Array or rows.is_empty() or rows.size() > Problem.MAX_LIST_ROWS:
+		errors.append("%s: lists needs 1 to %d rows" % [where, Problem.MAX_LIST_ROWS])
+		return errors
+	var shown: Array = []
+	for row: Variant in rows:
+		var items: Variant = row.get("items") if row is Dictionary else null
+		if not row is Dictionary or not row.get("n") is int or not items is Array or items.is_empty() or items.size() > Problem.MAX_LIST_ITEMS:
+			errors.append("%s: each row needs n and 1 to %d items" % [where, Problem.MAX_LIST_ITEMS])
+			continue
+		for item: Variant in items:
+			if not item is int or item < 1:
+				errors.append("%s: list item %s is not a whole number above 0" % [where, item])
+		for index: Variant in row.get("lit", []):
+			if not index is int or index < 0 or index >= items.size():
+				errors.append("%s: lit position %s is off the row" % [where, index])
+		shown.append_array(items)
+	for value: Variant in visual.get("marked", []):
+		if not shown.has(value):
+			errors.append("%s: marked %s is in no row" % [where, value])
+	return errors
+
+
+## The Zone 7 pictures (Problem.VISUAL_TYPES) must be drawable: shard counts the crystal can cut, lit
+## counts that fit, gauge markers on the gauge.
+static func zone7_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"crystals":
+			var entries: Variant = visual.get("crystals")
+			if not entries is Array or entries.is_empty() or entries.size() > 2:
+				errors.append("%s: crystals needs 1 or 2 crystals" % where)
+				return errors
+			if not ["crystal", "bar"].has(str(visual.get("shape", ""))):
+				errors.append("%s: unknown crystal shape '%s'" % [where, visual.get("shape")])
+			if int(visual.get("wholes", 0)) < 0 or int(visual.get("wholes", 0)) > 9:
+				errors.append("%s: 0 to 9 whole crystals" % where)
+			for entry: Dictionary in entries:
+				var den: int = int(entry.get("den", 0))
+				var lit: int = int(entry.get("lit", -1)) + int(entry.get("second", 0))
+				if den < 1 or den > 24 or int(entry.get("lit", -1)) < 0 or int(entry.get("second", 0)) < 0 or lit > den:
+					errors.append("%s: crystal %s does not fit (1 to 24 shards, lit within)" % [where, entry])
+		&"fraction_line":
+			var den: int = int(visual.get("den", 0))
+			var marker: Dictionary = visual.get("marker", {})
+			if den < 2 or int(visual.get("wholes", 0)) < 1 or int(visual.get("ticks", 0)) != den * int(visual.get("wholes", 0)) + 1:
+				errors.append("%s: a fraction line needs den >= 2 and ticks = den * wholes + 1" % where)
+			elif int(marker.get("den", 0)) != den or int(marker.get("num", -1)) < 0 or int(marker.get("num", -1)) > den * int(visual["wholes"]):
+				errors.append("%s: the marker %s is not on a tick" % [where, marker])
+		&"crystal_grid":
+			var cells: int = int(visual.get("cells", 0))
+			if cells != 10 and cells != 100:
+				errors.append("%s: a crystal grid has 10 or 100 cells" % where)
+			for entry: Dictionary in visual.get("grids", []):
+				if int(entry.get("lit", -1)) < 0 or int(entry.get("lit", -1)) > cells or int(entry.get("wholes", -1)) < 0 or int(entry.get("wholes", -1)) > 9:
+					errors.append("%s: grid %s does not fit" % [where, entry])
+			if visual.get("grids", []).is_empty() or visual.get("grids", []).size() > 2:
+				errors.append("%s: a crystal grid shows 1 or 2 numbers" % where)
+		&"depth_gauge":
+			var low: int = int(visual.get("min", 0))
+			var high: int = int(visual.get("max", 0))
+			if low >= 0 or high <= 0 or int(visual.get("labeled_every", 0)) < 1:
+				errors.append("%s: a depth gauge runs from below 0 to above 0" % where)
+			for marker: Variant in visual.get("markers", []):
+				if int(marker) < low or int(marker) > high:
+					errors.append("%s: marker %s is off the gauge" % [where, marker])
+			for jump: Dictionary in visual.get("jumps", []):
+				for end: String in ["from", "to"]:
+					if not jump.get(end) is int or jump[end] < low or jump[end] > high:
+						errors.append("%s: jump %s %s is off the gauge" % [where, end, jump.get(end)])
+		&"ore_mix":
+			var a: int = int(visual.get("a", -1))
+			var b: int = int(visual.get("b", -1))
+			var groups: int = int(visual.get("groups", 1))
+			if a < 0 or b < 0 or a + b < 1 or a + b > 72 or groups < 1 or a % groups != 0 or b % groups != 0:
+				errors.append("%s: ore mix %s does not split into its groups" % [where, visual])
 	return errors
 
 
@@ -261,6 +474,67 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 			product *= int(leaf)
 		if product != int(meta["factor_tree"]["value"]):
 			errors.append("%s: the tree's leaves do not multiply to its value" % where)
+	if meta.has("gear_bench"):
+		var bench: Dictionary = meta["gear_bench"]
+		var tray: Array = Problem.canonical(bench.get("tray", []))
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		if tray.size() != values.size() or Problem.sorted_values(tray) != tray:
+			errors.append("%s: the gear tray must hold the answer and every wrong gear, smallest first" % where)
+		for value: Variant in values:
+			if not tray.has(Problem.canonical(value)):
+				errors.append("%s: gear %s is not in the tray" % [where, value])
+	if meta.has("crystal"):
+		var spec: Dictionary = meta["crystal"]
+		var den: int = int(spec.get("den", 0))
+		if den < 2 or den > FractionGenerator.MAX_TAP_SHARDS:
+			errors.append("%s: a crystal to tap needs 2 to %d shards" % [where, FractionGenerator.MAX_TAP_SHARDS])
+		# Lighting k of den shards gives k/den: the answer must be one of those.
+		var reachable: bool = false
+		for k: int in range(0, den + 1):
+			reachable = reachable or problem.is_correct(Rational.normalize(k, maxi(den, 1)))
+		if not reachable:
+			errors.append("%s: no way to light the crystal gives the answer" % where)
+	if meta.has("alloy"):
+		var mixer: Dictionary = meta["alloy"]
+		if not problem.answer is int or problem.answer < 0 or problem.answer > int(mixer.get("max", -1)):
+			errors.append("%s: the tin hopper cannot hold the answer" % where)
+	if meta.has("depth_gauge"):
+		var ride: Dictionary = meta["depth_gauge"]
+		if not problem.answer is int or problem.answer < int(ride["min"]) or problem.answer > int(ride["max"]) or int(ride["start"]) < int(ride["min"]) or int(ride["start"]) > int(ride["max"]):
+			errors.append("%s: the cab cannot ride to the answer" % where)
+	errors.append_array(_zone8_meta_errors(problem, where))
+	if bool(meta.get("simplest_form", false)):
+		# Judged by form (Problem.same_answer), so the answer itself must be in lowest terms.
+		var answer: Variant = problem.answer
+		var lowest: bool = Rational.is_canonical(answer) or (Rational.is_ratio(answer) \
+			and Rational.normalize_ratio(int(answer["a"]), int(answer["b"])) == Problem.canonical(answer))
+		if not lowest:
+			errors.append("%s: a simplest-form answer %s is not in lowest terms" % [where, answer])
+	if meta.has("pattern_wall"):
+		var wall: Dictionary = meta["pattern_wall"]
+		var terms: Array = wall.get("terms", [])
+		var tiles: Array = Problem.canonical(wall.get("tiles", []))
+		if terms.count(null) != 1 or terms.size() > Problem.MAX_PATTERN_TERMS:
+			errors.append("%s: a pattern wall has exactly one gap in at most %d tiles" % [where, Problem.MAX_PATTERN_TERMS])
+		if tiles.size() < 2 or tiles.size() > 6 or tiles != Problem.sorted_values(tiles):
+			errors.append("%s: the wall's tiles must be 2 to 6 numbers, smallest first" % where)
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is int or not tiles.has(value):
+				errors.append("%s: %s is not a tile on the wall" % [where, value])
+	if meta.has("proof_board"):
+		var board: Dictionary = meta["proof_board"]
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		if Problem.sorted_values(values) != Problem.canonical(board.get("choices", [])):
+			errors.append("%s: the proof board's choices must be the answer and every wrong answer" % where)
+		if str(board.get("diagram", "")) != str(problem.answer) or not meta.has("label_lines"):
+			errors.append("%s: the proof board shows the answer's diagram, with label lines" % where)
+	if meta.has("label_line"):
+		if not Text.has_line(StringName(str(meta["label_line"]))) or not Text.required_params(StringName(str(meta["label_line"]))).has("n"):
+			errors.append("%s: label line '%s' must exist and take {n}" % [where, meta["label_line"]])
 	if meta.has("label_lines"):
 		var labels: Dictionary = meta["label_lines"]
 		var values: Array = [problem.answer]
@@ -271,6 +545,36 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 				errors.append("%s: no label line for answer %s" % [where, key])
 			elif not Text.has_line(StringName(labels[key])):
 				errors.append("%s: label line '%s' is not in the text table" % [where, labels[key]])
+	return errors
+
+
+## Zone 8's inputs must be able to give the answer: the vault lock and base pad hold its digits, the
+## cab can stop on its floor, the lever's weight range holds it, the pad has room for its digits, and a
+## {base, digits} or scientific-notation answer is canonical.
+static func _zone8_meta_errors(problem: Problem, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	var meta: Dictionary = problem.meta
+	var answer: Variant = problem.answer
+	if Notation.is_base_number(answer) and not Notation.is_canonical_base_number(answer):
+		errors.append("%s: the answer %s is not a canonical base-%s number" % [where, answer, answer["base"]])
+	if Notation.is_sci(answer) and not Notation.is_normalized_sci(answer):
+		errors.append("%s: the answer %s is not normalized scientific notation" % [where, answer])
+	for key: String in ["vault_lock", "base_pad"]:
+		if meta.has(key):
+			var spec: Dictionary = meta[key]
+			if not Notation.is_base_number(answer) or int(spec["base"]) != int(answer["base"]) or answer["digits"].size() > int(spec["places"]) or int(spec["places"]) > BaseGenerator.MAX_PLACES:
+				errors.append("%s: the %s cannot show the answer %s" % [where, key, answer])
+	if meta.has("tower"):
+		var tower: Dictionary = meta["tower"]
+		if not answer is int or answer < 0 or answer > int(tower["floors"]) or int(tower["floors"]) > ExponentGenerator.MAX_TOWER_FLOORS:
+			errors.append("%s: the cab cannot stop on floor %s" % [where, answer])
+	if meta.has("lever"):
+		if not answer is int or answer < 0 or answer > int(meta["lever"]["max"]):
+			errors.append("%s: the lever cannot hold the weight %s" % [where, answer])
+	if meta.has("pad_digits") and answer is int and str(answer).length() > int(meta["pad_digits"]):
+		errors.append("%s: the pad has %s digits, the answer needs more" % [where, meta["pad_digits"]])
+	if meta.has("sci_pad") and (not Notation.is_sci(answer) or int(answer["exp"]) > int(meta["sci_pad"]["max_exp"])):
+		errors.append("%s: the scientific-notation pad cannot give %s" % [where, answer])
 	return errors
 
 

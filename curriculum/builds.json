@@ -29,6 +29,48 @@
         {"step_id": "weights_2", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}},
         {"step_id": "weights_3", "scene": "res://scenes/workshop/builds/balance_elevator.tscn", "skill_id": "mult.equal_groups.total", "params": {}}
       ]
+    },
+    {
+      "id": "conveyor_sync",
+      "name_line_id": "build.conveyor_sync.name",
+      "intro_line_id": "build.conveyor_sync.intro",
+      "reward_line_id": "build.conveyor_sync.done",
+      "zone_unlocks": 6,
+      "locks_zone": true,
+      "unlock_after_skill": "mul.common.first",
+      "steps": [
+        {"step_id": "belts_1", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {"difficulty": -1}},
+        {"step_id": "belts_2", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {}},
+        {"step_id": "belts_3", "scene": "res://scenes/workshop/builds/conveyor_sync/conveyor_sync.tscn", "skill_id": "mul.common.first", "params": {}}
+      ]
+    },
+    {
+      "id": "alloy_mixer",
+      "name_line_id": "build.alloy_mixer.name",
+      "intro_line_id": "build.alloy_mixer.intro",
+      "reward_line_id": "build.alloy_mixer.done",
+      "zone_unlocks": 7,
+      "locks_zone": false,
+      "unlock_after_skill": "ratio.describe.part_part",
+      "steps": [
+        {"step_id": "mix_1", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete", "difficulty": -1}},
+        {"step_id": "mix_2", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete"}},
+        {"step_id": "mix_3", "scene": "res://scenes/workshop/builds/alloy_mixer/alloy_mixer.tscn", "skill_id": "ratio.scale.alloy", "params": {"representation": "concrete"}}
+      ]
+    },
+    {
+      "id": "counterweight_elevator",
+      "name_line_id": "build.counterweight_elevator.name",
+      "intro_line_id": "build.counterweight_elevator.intro",
+      "reward_line_id": "build.counterweight_elevator.done",
+      "zone_unlocks": 8,
+      "locks_zone": false,
+      "unlock_after_skill": "exp.powers_of_two.list",
+      "steps": [
+        {"step_id": "weight_1", "scene": "res://scenes/workshop/builds/counterweight_elevator/counterweight_elevator.tscn", "skill_id": "lever.counterweight.balance", "params": {"representation": "concrete", "difficulty": -1}},
+        {"step_id": "weight_2", "scene": "res://scenes/workshop/builds/counterweight_elevator/counterweight_elevator.tscn", "skill_id": "lever.counterweight.balance", "params": {"representation": "concrete"}},
+        {"step_id": "weight_3", "scene": "res://scenes/workshop/builds/counterweight_elevator/counterweight_elevator.tscn", "skill_id": "lever.counterweight.balance", "params": {"representation": "concrete"}}
+      ]
     }
   ]
 }

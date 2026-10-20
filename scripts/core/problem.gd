@@ -10,6 +10,18 @@
 ##   Dictionary                 {tens, ones}, {hundreds, tens, ones} or {rows, cols}
 ##   bool                       true / false (is the scale balanced? is it even?)
 ##   String                     a fact such as "12 - 5 = 7"
+##   {num, den}                 a fraction in lowest terms, positive den (Zone 6 on, Rational);
+##                              its answer button reads "3/4"
+##   {whole, num, den}          a mixed number, num < den (Zone 7)
+##   {mantissa, scale}          a decimal, mantissa / 10^scale, no trailing zeros (Zone 7)
+##   {a, b}                     a ratio a : b in lowest terms, order kept (Zone 6 on); "2 : 3"
+##   {base, digits}             a number in base 2 to 10, digits most significant first, no leading
+##                              zero (Zone 8, Notation); its answer button reads "1101"
+##   {mantissa, scale, exp}     scientific notation mantissa / 10^scale × 10^exp, normalized (Zone 8)
+##   {op, terms}                a written-out calculation, op "mul" or "add": 3 × 3 × 3 × 3 (Zone 8)
+## The Zone 8 shapes are judged by exact form (34 × 10⁴ is not 3.4 × 10⁵ here).
+## A fraction, mixed number, decimal or ratio answer is right in any form of the same value (2/4 for
+## 1/2, 0.50 for 0.5, 4 : 6 for 2 : 3) unless meta.simplest_form is true; see is_correct().
 ##
 ## Optional `meta` keys that pick or shape the answer input (AnswerPanel reads them):
 ##   tools          ["ten", "one"] or ["hundred", "ten", "one"]: build on the BuildBoard
@@ -31,6 +43,45 @@
 ##                  smallest first. The precrossed rocks are crossed from the start and stay so.
 ##   factor_tree    {value}: build the factor tree of value by splitting pieces with the pickaxe
 ##                  (Zone 5); the answer is the leaves, smallest first.
+##   gear_bench     {driver, turns, tray: [int]}: drag a gear from the tray onto the empty axle beside
+##                  the driver gear (Zone 6, GearBench); the answer is the chosen gear's teeth, and
+##                  the tray holds the answer and every wrong gear.
+##   crystal        {den, shaded?: int, match?: {num, den}}: tap shards of a crystal cut into den equal
+##                  shards to light them, then Done (Zone 7). The answer is the lit fraction, normalized.
+##                  `match` draws a second crystal with that fraction lit to copy (equivalence).
+##   alloy          {a, b, given: int, max: int}: the alloy mixer (Zone 7). The recipe is a copper to b
+##                  tin; `given` copper is in the hopper; the child sets the tin scoops (0..max) and
+##                  presses Mix. The answer is the tin count (int).
+##   depth_gauge    {min, max, start}: the depth gauge (Zone 7). The child moves the elevator cab up
+##                  and down from `start` and presses Stop; the answer is the cab's level (int).
+##   signed         true: the number pad gets a minus key (the answer may be below zero).
+##   decimal_places int: the pad or slate takes a decimal with this many places after the point.
+##   percent        true: the answer buttons read "75%" (the answer is the percent as an int).
+##   pad_digits     int: the number pad takes this many digits (default 3; powers of 10 need 7) (Zone 8).
+##   vault_lock     {base, places}: the vault lock (Zone 8): tap lamps (base 2) or turn dials (other bases)
+##                  in `places` places, then Open. The answer is the {base, digits} the lock shows.
+##   base_pad       {base, places}: the base pad, digit keys 0 to base - 1 only, for a {base, digits}
+##                  answer typed in (binary sums) (Zone 8).
+##   tower          {base, floors, start}: the tower elevator (Zone 8): floor k is base^k meters up; the
+##                  child rides the cab and presses Stop here. The answer is the floor (int).
+##   lever          {left_w, left_d, right_d, max}: the counterweight lever (Zone 8): set the right weight
+##                  (0..max) with More and Less, then Balance. The answer is the weight (int).
+##   sci_pad        {max_exp}: the scientific-notation pad, a first number with one place after the point
+##                  and a power of 10 (Zone 8). The answer is {mantissa, scale, exp}.
+##   simplest_form  true: the answer must be in lowest terms (Zone 6's simplify skills). is_correct()
+##                  and GeneratorKit.add_distractor then compare by exact form, so 6/9 is a wrong
+##                  answer for 2/3 (`partially_simplified`) instead of an equal one.
+## Zone 9 (Pattern Grotto, Phase 4) adds:
+##   pattern_wall   {terms: Array (null at the gap), tiles: [int]}: the pattern wall. The child drags a
+##                  crystal tile into the gap of the row (or taps a tile) and presses Done; the answer
+##                  is the tile's number (int). The tiles are the answer and every wrong answer.
+##   proof_board    {diagram, n, choices: [id]}: the proof board. The child fits the loose piece into
+##                  place and picks the fact it proves; the answer is a diagram id (String) and each
+##                  choice's button reads meta.label_lines[id].
+##   label_line     a line id with {n}: answer buttons for whole numbers read that line ("Add 4").
+##   array_label    "words" (as well as "sum" and "product"): an Array answer of Fib poem word ids
+##                  reads as the words ("glowing crystal").
+##   pad_digits     int: the number pad takes this many digits (4 for answers up to 5050; default 3).
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -49,8 +100,65 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## digits      {digits: [int], focus: "last" | "last_two" | "sum" | "sum_and_last" | "recipe",
 ##             recipe?: [int]}: a number's digits with the part a divisibility rule looks at lit up,
 ##             plus "1 + 2 + 6 = 9" under a digit sum or "= 2 × 2 × 3" under a recipe (Zone 5)
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits"]
+## lists       {kind: "factors" | "multiples" | "recipe", rows: [{n, items: [int], lit?: [index]}],
+##             marked: [int]}: one or two rows such as "12: 1, 2, 3, 4, 6, 12" (Zone 6). Values in
+##             `marked` are ringed wherever they show; `lit` rings items of one row by position (the
+##             shared primes of two prime recipes). At most MAX_LIST_ITEMS items a row.
+## gears       {teeth: [int], shaded?: int, marks?: bool}: one to three meshing gears of 2 to 200 teeth
+##             with their tooth counts; `shaded` colors that many teeth of the first gear (simplest
+##             form); `marks` draws the marked teeth that start together (Zone 6)
+## The Zone 7 pictures (drawn by CrystalArt, scenes/zones/z07_crystal_shards/crystal_art.gd):
+## crystals    {crystals: [{den, lit, second?}], shape: "crystal" | "bar", wholes?: int, joiner?:
+##             "plus" | "versus"}: crystals (round, cut into den wedge shards) or bars (cut into den
+##             strips) side by side, `lit` shards lit and `second` more lit in another color; `wholes`
+##             whole crystals stand in front (mixed numbers)
+## fraction_line {den, wholes, marker: {num, den}}: a number line from 0 to `wholes` with a tick at
+##             every 1/den and a gem at the marker
+## crystal_grid {wholes, lit, cells: 10 | 100}: `wholes` full grids, then a grid of `cells` (a ten-shard
+##             strip or a 10 by 10 grid) with `lit` cells lit (tenths, hundredths, percents)
+## depth_gauge {min, max, labeled_every, markers: [int], jumps?: [{from, to}]}: the vertical depth gauge,
+##             0 at the mountain's base, cab markers, and an elevator move as a jump
+## ore_mix     {a, b, groups?: int}: a copper ores and b tin ores (round and square lumps); `groups`
+##             rings them into that many equal mixes
+## The Zone 8 pictures (drawn by PowerArt, scenes/zones/z08_power_tower/power_art.gd, and the notation
+## scenes in scenes/ui/math/):
+## power_tower {base, exp, values: bool}: the ground floor is 1 and each of `exp` floors (0 to 10)
+##             multiplies by `base` (2 to 12); with `values` each floor shows its height
+## notation    {form: "power", base, exp} | {form: "root", n} | {form: "sci", mantissa, scale, exp}: the
+##             math written out large (a raised exponent, a root sign, × 10 with a raised power); in
+##             Explorer mode the words ("2 to the power 5") sit under it
+## cube_blocks {n}: a big cube n blocks a side (1 to 8)
+## lamps       {base, rows: [[digits]], places, style: "lamps" | "dials" | "digits", show_places, plus?}: one
+##             to three numbers in a base, right-aligned in `places` places (1 to 8), as lit lamps, dials or
+##             digit columns, each place's worth written under it; `plus` draws the rows as a sum
+## lever       {left: {w, d}, right: {w, d}, tilt, products?}: weights (0 is an empty hook) at 1 to 8 steps
+##             from the middle; tilt as for `balance`; `products` writes w × d under each weight
+## The Zone 9 pictures (drawn by PatternArt, scenes/zones/z09_pattern_grotto/pattern_art.gd):
+## pattern     {terms: [int], blanks: [index], style: "crystals" | "numbers", steps?: [int], step_op?:
+##             "plus" | "times", figure?: "triangle" | "square", first_index?: int}: a row of tiles (at
+##             most MAX_PATTERN_TERMS), "?" at each blank; `steps` are drawn between the tiles ("+3",
+##             "×2"); `figure` draws each tile's triangle or square of gems (figure first_index, ...)
+## figurate    {kind: "triangle" | "square" | "two_triangles", n, fitted?: bool}: gems in a triangle
+##             (rows 1..n), a square (n by n), or the staircases of n and n - 1 rows (two colors and
+##             shapes), apart or fitted into an n by n square
+## pairing     {n}: 1..n on top and n..1 below, each column joined and adding to n + 1
+## fib_squares {terms: [int]}: squares with these Fibonacci sides fitted into a golden rectangle
+## proof       {diagram, n, fitted: bool}: a proof-without-words picture (curriculum/proof_diagrams.json)
+## poem_shape  {lines: [int], highlight: index, counts: bool}: a Fib poem's beat dots, one row a line
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
+const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
+const MAX_LIST_ITEMS: int = 16
+const MAX_LIST_ROWS: int = 2
+const MAX_GEARS: int = 3
+const GEAR_TEETH_RANGE: Vector2i = Vector2i(2, 200)
+## Zone 9 picture limits: tiles in a pattern row, the figurate size, the pairing row, Fibonacci squares.
+const MAX_PATTERN_TERMS: int = 6
+const MAX_FIGURATE_N: int = 20
+const PAIRING_RANGE: Vector2i = Vector2i(2, 100)
+const MAX_FIB_SQUARES: int = 8
+const FIGURATE_KINDS: Array[String] = ["triangle", "square", "two_triangles"]
+const PROOF_DIAGRAMS: Array[String] = ["staircases", "two_triangles", "odd_layers", "array_turn", "fib_squares"]
 
 var skill_id: StringName = &""
 ## The seed that produced this problem; the same seed always gives the same problem.
@@ -82,10 +190,42 @@ func answer_digits() -> int:
 	return str(answer).length() if answer is int and answer >= 0 else 0
 
 
+## The boxes a fraction answer needs on the slate: {num: digits, den: digits} (empty when the answer
+## is not a fraction). Derived from the answer, like answer_digits().
+func fraction_digits() -> Dictionary:
+	if not Rational.is_fraction(answer) or int(answer["num"]) < 0:
+		return {}
+	return {"num": str(int(answer["num"])).length(), "den": str(int(answer["den"])).length()}
+
+
 ## True if `given` is the right answer. Comparison is canonical: 34 and 34.0 match,
-## StringName and String match, and the order of an Array matters.
+## StringName and String match, and the order of an Array matters. A fraction, mixed number, decimal
+## or ratio is right in any equal form (2/4 for 1/2) unless meta.simplest_form asks for lowest terms.
 func is_correct(given: Variant) -> bool:
-	return same(given, answer)
+	return same_answer(given, answer)
+
+
+## True when two answers count as the same for this problem: by exact form (same()) when
+## meta.simplest_form is set, else by value (same_value()). is_correct(), the distractor
+## de-duplication in GeneratorKit and the mine's mistake lookup all use it, so 6/9 stays the named
+## mistake `partially_simplified` on a simplest-form problem about 2/3 instead of a right answer.
+func same_answer(a: Variant, b: Variant) -> bool:
+	if bool(meta.get("simplest_form", false)):
+		return same(a, b)
+	return same_value(a, b)
+
+
+## True when two answers are equal in value: fractions, mixed numbers and decimals by their exact
+## value (1/2, 2/4, 0 1/2 and 0.50 are all equal), ratios by cross-multiplying (2 : 3 and 4 : 6),
+## anything else as same() does. Never through a float.
+static func same_value(a: Variant, b: Variant) -> bool:
+	var x: Dictionary = Rational.value_of(canonical(a))
+	var y: Dictionary = Rational.value_of(canonical(b))
+	if not x.is_empty() and not y.is_empty():
+		return x == y
+	if Rational.is_ratio(a) and Rational.is_ratio(b):
+		return int(a["a"]) * int(b["b"]) == int(b["a"]) * int(a["b"]) and (int(a["a"]) == 0) == (int(b["a"]) == 0)
+	return same(a, b)
 
 
 ## True when two answers are the same in canonical form. Values of different kinds (a number and

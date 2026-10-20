@@ -13,10 +13,12 @@ func _ready() -> void:
 	build_frame(&"badge.case.title")
 	back_to = &"museum"
 	var grid: GridContainer = GridContainer.new()
+	# Two columns always: three (tried for Zone 9's fifth badge) pushed Bolt's column off a 16:9 screen;
+	# a third row scrolls instead.
 	grid.columns = 2
 	grid.add_theme_constant_override(&"h_separation", 24)
 	grid.add_theme_constant_override(&"v_separation", 24)
-	body.add_child(grid)
+	body.add_child(UI.vertical_scroll(grid)) # more badges than the height holds scroll (phones)
 	for badge: Dictionary in Rewards.badges():
 		grid.add_child(_make_badge(badge))
 	_story = VBoxContainer.new()
@@ -74,7 +76,7 @@ func _show_story(badge: Dictionary) -> void:
 	heading.theme_type_variation = &"HeadingLabel"
 	heading.text = Text.get_line(StringName(str(badge["name_line_id"])))
 	_story.add_child(heading)
-	for entry: Dictionary in badge.get("story", []):
+	for entry: Dictionary in MotivationRules.story_for(badge, Adaptive.mastered()):
 		var line: Label = Label.new()
 		line.text = Text.get_line(StringName(str(entry["line_id"])), entry.get("params", {}))
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

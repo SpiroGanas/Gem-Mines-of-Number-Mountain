@@ -4,8 +4,13 @@
 ## file work.
 ##
 ##   {"format": "gem-mines-progress", "bundle_version": 1, "exported_at": "...Z",
-##    "device_id": "...", "checksum": "sha256...",
+##    "device_id": "...", "checksum": "sha256...", "profile_id": "p_...", "nickname": "...",
 ##    "profile": {...the save...}, "attempts": [{...attempts.jsonl lines...}]}
+##
+## Since Sprint 23 a bundle holds one child (one profile): profile_id and nickname say which, so the
+## parent sees whose file it is before choosing "replace this profile" or "add as a new child". Both
+## are copies of what the save itself holds (profile.id, child.nickname), so the checksum still covers
+## the profile and the attempts only, and a bundle without them (exported before Sprint 23) imports.
 ##
 ## Importing: SaveMerge decides (the newer profile wins; an older one waits for the parent's choice)
 ## and the replaced one is backed up; the attempt logs are merged, each attempt once. The checksum
@@ -24,8 +29,25 @@ const ERR_CHECKSUM: String = "checksum"
 
 static func make(profile: Dictionary, attempts: Array, now_iso: String, device_id: String = "") -> Dictionary:
 	var bundle: Dictionary = {"format": FORMAT, "bundle_version": VERSION, "exported_at": now_iso, "device_id": device_id, "profile": profile.duplicate(true), "attempts": attempts.duplicate(true)}
+	var who: Dictionary = summary(bundle)
+	bundle["profile_id"] = who["profile_id"]
+	bundle["nickname"] = who["nickname"]
 	bundle["checksum"] = checksum_of(bundle)
 	return bundle
+
+
+## Whose progress a bundle holds: {profile_id, nickname}, read from the save inside it ("" when the
+## save predates profiles).
+static func summary(bundle: Dictionary) -> Dictionary:
+	var profile: Variant = bundle.get("profile")
+	if not profile is Dictionary:
+		return {"profile_id": "", "nickname": ""}
+	var block: Variant = profile.get("profile")
+	var child: Variant = profile.get("child")
+	return {
+		"profile_id": str(block.get("id", "")) if block is Dictionary else "",
+		"nickname": str(child.get("nickname", "")) if child is Dictionary else "",
+	}
 
 
 ## SHA-256 of the profile and the attempts. Both are first put through JSON and back, so the sum is

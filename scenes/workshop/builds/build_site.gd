@@ -1,13 +1,16 @@
 ## The Build Site (Sprint 16): the mine-engineering projects. Each row shows the machine, how far the
 ## build has come and a button to start or go on. A build appears once its skill opens; a build that
-## opens a zone tells the child so (the balance elevator opens Zone 4). Finished machines also run
-## in the hub.
+## opens a zone tells the child so (the balance elevator opens Zone 4, Conveyor Sync Zone 6). Finished
+## machines also run in the hub.
 class_name BuildSiteScreen
 extends WorkshopScreen
 
 const ROW_BUTTON_WIDTH_MULTIPLE: float = 3.5
-## The zone the balance elevator opens (curriculum/builds.json); Bolt points the way to it.
-const ELEVATOR_ZONE: int = 4
+## Bolt's line pointing at a build that keeps its zone closed (locks_zone), by build id.
+const ZONE_HINT_LINES: Dictionary[StringName, StringName] = {
+	&"balance_elevator": &"build.site.elevator_hint",
+	&"conveyor_sync": &"build.site.conveyor_hint",
+}
 
 var _buttons: Dictionary[StringName, Button] = {}
 
@@ -17,13 +20,16 @@ func _ready() -> void:
 	build_frame(&"build.site.title")
 	var list: VBoxContainer = VBoxContainer.new()
 	list.add_theme_constant_override(&"separation", 20)
-	list.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(list)
+	body.add_child(UI.vertical_scroll(list)) # every zone adds builds: the list scrolls when it is long
 	var any_open: bool = false
 	for build: BuildProject in Rewards.builds():
 		list.add_child(_make_row(build))
 		any_open = any_open or Rewards.is_build_open(build.id)
-	bolt_node.say(_bolt_line(any_open), {"n": ELEVATOR_ZONE})
+	var hint: BuildProject = _zone_hint_build()
+	if hint != null:
+		bolt_node.say(ZONE_HINT_LINES[hint.id], {"n": hint.zone_unlocks})
+	else:
+		bolt_node.say(&"build.site.hello" if any_open else &"build.site.nothing_yet")
 
 
 ## The machine picture of a finished build, as the hub and the build site draw it.
@@ -33,6 +39,12 @@ static func finished_params(build_id: StringName) -> Dictionary:
 			return {"a": 6, "c": 10, "filled": true}
 		&"balance_elevator":
 			return {"groups": 3, "size": 4, "balanced": true}
+		&"conveyor_sync":
+			return {"a": 4, "b": 6, "synced": true}
+		&"alloy_mixer":
+			return {"a": 2, "b": 3, "copper": 8, "tin": 12, "mixed": true}
+		&"counterweight_elevator":
+			return {"w": 8, "d": 2, "r": 4, "x": 4, "balanced": true}
 	return {}
 
 
@@ -40,10 +52,13 @@ func button_for(build_id: StringName) -> Button:
 	return _buttons.get(build_id)
 
 
-func _bolt_line(any_open: bool) -> StringName:
-	if Adaptive.locked_zones().has(ELEVATOR_ZONE) and Rewards.is_build_open(&"balance_elevator"):
-		return &"build.site.elevator_hint"
-	return &"build.site.hello" if any_open else &"build.site.nothing_yet"
+## The open build that still keeps its zone closed, the earliest first (Bolt points the way), or null.
+func _zone_hint_build() -> BuildProject:
+	var locked: Array[int] = Adaptive.locked_zones()
+	for build: BuildProject in Rewards.builds():
+		if ZONE_HINT_LINES.has(build.id) and locked.has(build.zone_unlocks) and Rewards.is_build_open(build.id):
+			return build
+	return null
 
 
 func _make_row(build: BuildProject) -> Control:
@@ -58,6 +73,8 @@ func _make_row(build: BuildProject) -> Control:
 	if not built:
 		preview["filled"] = false
 		preview["balanced"] = false
+		preview["synced"] = false
+		preview["mixed"] = false
 	art.show_kind(build.id, preview)
 	row.add_child(art)
 	var words: VBoxContainer = VBoxContainer.new()

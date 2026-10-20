@@ -2,7 +2,12 @@
 ## ten-frames (`ten_frame`, with an optional second set of dots for the second addend), number
 ## lines (`number_line`, with optional jump arcs), a balance scale (`balance`), arrays (`array`),
 ## equal groups (`groups`), gems lined up in pairs (`pairs`) and a number's digits with the part a
-## divisibility rule looks at lit up (`digits`, Zone 5). Gray-box shapes in code; the
+## divisibility rule looks at lit up (`digits`, Zone 5), rows of factors, multiples or prime recipes
+## (`lists`, Zone 6) and meshing gears (`gears`, Zone 6); Zone 7's crystals, fraction line, crystal
+## grids, depth gauge and ore mix are painted by CrystalArt; Zone 8's power tower, cube of blocks, lamps
+## and lever by PowerArt, and its notation cards (2⁵, √49, 3.4 × 10⁵) by a MathNotation child, with the
+## words underneath in Explorer mode; Zone 9's pattern rows, figures, pairing rows, Fibonacci squares,
+## proofs and poem shapes by PatternArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -33,6 +38,22 @@ const HEIGHT_MULTIPLE_ARRAY: float = 4.6
 const HEIGHT_MULTIPLE_GROUPS: float = 4.0
 const HEIGHT_MULTIPLE_PAIRS: float = 3.4
 const HEIGHT_MULTIPLE_DIGITS: float = 3.2
+const HEIGHT_MULTIPLE_LISTS: float = 3.0
+const HEIGHT_MULTIPLE_GEARS: float = 4.0
+## List items: the widest box and the font size of the numbers in it.
+const LIST_ITEM_MAX: float = 72.0
+const LIST_FONT: int = 28
+## Zone 7 pictures (CrystalArt): crystals and grids need room to read; the gauge is tall.
+const HEIGHT_MULTIPLE_CRYSTALS: float = 4.4
+const HEIGHT_MULTIPLE_GAUGE: float = 6.0
+## Zone 8 pictures (PowerArt): the tower is tall; notation, lamps and the lever are wide and short.
+const HEIGHT_MULTIPLE_TOWER: float = 5.0
+const HEIGHT_MULTIPLE_NOTATION: float = 3.0
+const HEIGHT_MULTIPLE_LAMPS: float = 3.2
+const HEIGHT_MULTIPLE_LEVER: float = 3.6
+## Zone 9 pictures (PatternArt): a row of tiles, and gems in shapes (figures, proofs, golden rectangles).
+const HEIGHT_MULTIPLE_PATTERN: float = 3.2
+const HEIGHT_MULTIPLE_FIGURES: float = 4.4
 const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
@@ -50,12 +71,19 @@ var visual: Dictionary = {}
 var tappable: bool = false
 ## A smaller picture (hint pictures added above an input), COMPACT_SCALE of the normal height.
 var compact: bool = false
+## The picture's least width in touch targets (beside the wider Zone 7 pads it is narrower). Set
+## before the model enters the tree.
+var width_multiple: float = 6.0
 
 var _buttons: Array[Button] = []
+## One GearArt per gear a `gears` picture can hold (each keeps its own point buffer).
+var _gear_arts: Array[GearArt] = [GearArt.new(), GearArt.new(), GearArt.new()]
+## The notation card of a `notation` picture (Zone 8), or null.
+var _notation: MathNotation
 
 
 func _ready() -> void:
-	UI.make_touch_target(self, 6.0, HEIGHT_MULTIPLE_LINE)
+	UI.make_touch_target(self, width_multiple, HEIGHT_MULTIPLE_LINE)
 	resized.connect(_on_resized)
 
 
@@ -79,7 +107,30 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_PAIRS
 		&"digits":
 			height = HEIGHT_MULTIPLE_DIGITS
-	UI.make_touch_target(self, 6.0, height * (COMPACT_SCALE if compact else 1.0))
+		&"lists":
+			height = HEIGHT_MULTIPLE_LISTS
+		&"gears":
+			height = HEIGHT_MULTIPLE_GEARS
+		&"crystals", &"crystal_grid", &"ore_mix":
+			height = HEIGHT_MULTIPLE_CRYSTALS
+		&"depth_gauge":
+			height = HEIGHT_MULTIPLE_GAUGE
+		&"power_tower", &"cube_blocks":
+			height = HEIGHT_MULTIPLE_TOWER
+		&"notation":
+			height = HEIGHT_MULTIPLE_NOTATION
+		&"lamps":
+			height = HEIGHT_MULTIPLE_LAMPS * (1.0 + 0.35 * maxf(float(visual.get("rows", []).size()) - 1.0, 0.0))
+		&"lever":
+			height = HEIGHT_MULTIPLE_LEVER
+		&"pattern":
+			height = HEIGHT_MULTIPLE_FIGURES if visual.has("figure") else HEIGHT_MULTIPLE_PATTERN
+		&"figurate", &"proof", &"fib_squares", &"poem_shape":
+			height = HEIGHT_MULTIPLE_FIGURES
+		&"pairing":
+			height = HEIGHT_MULTIPLE_PATTERN
+	UI.make_touch_target(self, width_multiple, height * (COMPACT_SCALE if compact else 1.0))
+	_rebuild_notation()
 	_rebuild_buttons()
 	queue_redraw()
 
@@ -261,6 +312,16 @@ func _draw() -> void:
 			_draw_pairs()
 		&"digits":
 			_draw_digits()
+		&"lists":
+			_draw_lists()
+		&"gears":
+			_draw_gears()
+		&"notation":
+			draw_style_box(_panel_style(), Rect2(Vector2.ZERO, size)) # the card behind the MathNotation child
+		_:
+			var area: Rect2 = Rect2(Vector2(12, 12), size - Vector2(24, 24))
+			if not PowerArt.draw_visual(self, area, visual, get_theme_default_font()) and not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()):
+				PatternArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 9
 
 
 func _draw_piles() -> void:
@@ -522,6 +583,100 @@ func _draw_digits() -> void:
 		draw_string(font, Vector2((size.x - caption_size.x) / 2.0, top + box_side + 24.0 + LABEL_SIZE), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, MARKER_COLOR)
 
 
+## Where each item of a `lists` picture goes: one row per number, a label box for the number and one
+## box per item, all inside `box` and sized to the longest row. Returns [{row, index (-1 for the
+## label), rect}]. Pure.
+static func list_cells(rows: Array, box: Rect2) -> Array[Dictionary]:
+	var cells: Array[Dictionary] = []
+	if rows.is_empty():
+		return cells
+	var longest: int = 1
+	for row: Variant in rows:
+		longest = maxi(longest, row.get("items", []).size())
+	var gap: float = 8.0
+	var height: float = minf((box.size.y - gap * (rows.size() - 1)) / float(rows.size()), LIST_ITEM_MAX)
+	var width: float = minf((box.size.x - gap * longest) / float(longest + 1.5), LIST_ITEM_MAX)
+	var label_width: float = width * 1.5
+	var total_width: float = label_width + (width + gap) * longest
+	var left: float = box.position.x + (box.size.x - total_width) / 2.0
+	var top: float = box.position.y + (box.size.y - (height + gap) * rows.size() + gap) / 2.0
+	for row_index: int in rows.size():
+		var y: float = top + row_index * (height + gap)
+		cells.append({"row": row_index, "index": -1, "rect": Rect2(left, y, label_width, height)})
+		for index: int in rows[row_index].get("items", []).size():
+			cells.append({"row": row_index, "index": index, "rect": Rect2(left + label_width + gap + index * (width + gap), y, width, height)})
+	return cells
+
+
+## Rows such as "12: 1 2 3 4 6 12". A marked value (or a lit position) gets a thick headlamp-yellow
+## ring and a dot above it, so color is never the only clue. A recipe row puts × between its primes.
+func _draw_lists() -> void:
+	var rows: Array = visual.get("rows", [])
+	var marked: Array = visual.get("marked", [])
+	var recipe: bool = str(visual.get("kind", "")) == "recipe"
+	var font: Font = get_theme_default_font()
+	for cell: Dictionary in list_cells(rows, Rect2(Vector2.ZERO, size).grow(-8.0)):
+		var rect: Rect2 = cell["rect"]
+		var row: Dictionary = rows[cell["row"]]
+		var index: int = cell["index"]
+		var font_size: int = clampi(int(rect.size.y * 0.5), 14, LIST_FONT)
+		var text: String
+		var on: bool = false
+		if index < 0:
+			text = ("%d =" if recipe else "%d:") % int(row["n"])
+		else:
+			var value: int = int(row["items"][index])
+			text = str(value)
+			on = marked.has(value) or row.get("lit", []).has(index)
+			draw_rect(rect, Color(1, 1, 1, 0.08), true)
+			draw_rect(rect, MARKER_COLOR if on else Color(LINE_COLOR, 0.4), false, 5.0 if on else 1.5)
+			if on:
+				draw_circle(Vector2(rect.get_center().x, rect.position.y + 5.0), 4.0, MARKER_COLOR)
+			if recipe and index > 0:
+				var sign_size: Vector2 = font.get_string_size("×", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+				draw_string(font, Vector2(rect.position.x - sign_size.x / 2.0 - 4.0, rect.get_center().y + font_size * 0.35), "×", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, LINE_COLOR)
+		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
+		draw_string(font, Vector2(rect.get_center().x - text_size.x / 2.0, rect.get_center().y + font_size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, MARKER_COLOR if on else LINE_COLOR)
+
+
+## The centers and radii of a `gears` picture's gears in a row, meshing, scaled to fit `box`. Pure.
+static func gear_layout(teeth: Array, box: Rect2) -> Array[Dictionary]:
+	var placed: Array[Dictionary] = []
+	if teeth.is_empty():
+		return placed
+	var scales: Array[float] = []
+	var span: float = 0.0
+	var tallest: float = 0.0
+	for count: Variant in teeth:
+		var scale: float = GearArt.radius_for(int(count), 1.0)
+		scales.append(scale)
+		span += scale * 2.0
+		tallest = maxf(tallest, scale * 2.0)
+	span -= 0.16 * (teeth.size() - 1) * scales.min() # neighbours' teeth overlap where they mesh
+	var unit: float = minf(box.size.x / span, box.size.y / tallest)
+	var x: float = box.position.x + (box.size.x - span * unit) / 2.0
+	for index: int in teeth.size():
+		var radius: float = scales[index] * unit
+		if index > 0:
+			x -= 0.16 * scales.min() * unit
+		placed.append({"center": Vector2(x + radius, box.get_center().y), "radius": radius})
+		x += radius * 2.0
+	return placed
+
+
+## Meshing gears with their tooth counts; the marked teeth face each other where the gears meet.
+func _draw_gears() -> void:
+	var teeth: Array = visual.get("teeth", [])
+	var layout: Array[Dictionary] = gear_layout(teeth, Rect2(Vector2.ZERO, size).grow(-10.0))
+	var marks: bool = bool(visual.get("marks", false))
+	for index: int in mini(layout.size(), _gear_arts.size()):
+		var count: int = int(teeth[index])
+		var step: float = TAU / float(GearArt.drawn_teeth(count))
+		var facing: float = (0.0 if index % 2 == 0 else PI) - step * 0.36
+		var shaded: int = int(visual.get("shaded", 0)) if index == 0 else 0
+		_gear_arts[index].draw(self, layout[index]["center"], layout[index]["radius"] * 0.95, count, facing, str(count), shaded, marks)
+
+
 func _panel_style() -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(1, 1, 1, 0.06)
@@ -529,6 +684,27 @@ func _panel_style() -> StyleBoxFlat:
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(16)
 	return style
+
+
+# --- Notation cards (Zone 8) -------------------------------------------------------------------
+
+
+## The notation card's MathNotation (null unless the picture is `notation`).
+func notation() -> MathNotation:
+	return _notation
+
+
+func _rebuild_notation() -> void:
+	if _notation != null:
+		remove_child(_notation)
+		_notation.queue_free()
+		_notation = null
+	if visual_type() != &"notation":
+		return
+	_notation = MathNotation.make(visual, COMPACT_SCALE * 0.9 if compact else 0.9)
+	_notation.name = "Notation"
+	add_child(_notation)
+	_notation.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
 # --- Tappable piles ---------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 ## Recognition runs on the device in GDScript (DigitNet, StrokeRaster): no plugin, no library, no
 ## network, and the strokes are discarded as soon as a box is read (docs/decisions.md, Sprint 13).
 ## The slate is offered only where it can work: the weights file loads, and the device has a touch
-## screen (a mouse-only Chromebook uses the NumberPad). On the desktop editor, which has no touch
+## screen (a mouse-only Chromebook uses the NumberPad; DeviceCaps answers, and --no-touch simulates it). On the desktop editor, which has no touch
 ## screen, the project setting gem_mines/debug/force_slate (default false) turns the slate on for a
 ## developer with a mouse.
 class_name DigitInk
@@ -37,7 +37,9 @@ static func is_available() -> bool:
 		return false
 	if availability_override != null:
 		return bool(availability_override)
-	return DisplayServer.is_touchscreen_available() or bool(ProjectSettings.get_setting(FORCE_SETTING, false))
+	if DeviceCaps.no_touch_flag():
+		return false # --no-touch simulates a mouse-only device, even with force_slate on
+	return DeviceCaps.has_touchscreen() or bool(ProjectSettings.get_setting(FORCE_SETTING, false))
 
 
 ## The recognizer the slate should use. Without the weights it is a FakeRecognizer, which only

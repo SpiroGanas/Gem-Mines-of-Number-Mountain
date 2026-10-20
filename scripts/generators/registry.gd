@@ -35,6 +35,28 @@ static func table() -> Dictionary:
 		&"DivisibilityGenerator": DivisibilityGenerator.generate,
 		&"FactorTreeGenerator": FactorTreeGenerator.generate,
 		&"FtaGenerator": FtaGenerator.generate,
+		&"GcfGenerator": GcfGenerator.generate,
+		&"LcmGenerator": LcmGenerator.generate,
+		&"GearGenerator": GearGenerator.generate,
+		&"SimplifyGenerator": SimplifyGenerator.generate,
+		&"FractionGenerator": FractionGenerator.generate,
+		&"DecimalGenerator": DecimalGenerator.generate,
+		&"PercentGenerator": PercentGenerator.generate,
+		&"RatioGenerator": RatioGenerator.generate,
+		&"NegativeGenerator": NegativeGenerator.generate,
+		# Zone 8, Power Tower (Phase 4)
+		&"ExponentGenerator": ExponentGenerator.generate,
+		&"RootGenerator": RootGenerator.generate,
+		&"BaseGenerator": BaseGenerator.generate,
+		&"SciNotationGenerator": SciNotationGenerator.generate,
+		&"LeverGenerator": LeverGenerator.generate,
+		# Zone 9, Pattern Grotto (Phase 4)
+		&"SequenceGenerator": SequenceGenerator.generate,
+		&"FigurateGenerator": FigurateGenerator.generate,
+		&"FibGenerator": FibGenerator.generate,
+		&"GaussGenerator": GaussGenerator.generate,
+		&"ProofGenerator": ProofGenerator.generate,
+		&"FibPoemGenerator": FibPoemGenerator.generate,
 	}
 
 

@@ -4,6 +4,7 @@
 ##   factors     Euclid: a rectangle of blocks
 ##   sieve       Eratosthenes: a grid with crossed-out squares
 ##   prime_star  Sophie Germain: a four-pointed prime star
+##   staircase   Gauss's staircases (Zone 9): two staircases of blocks fitted into a rectangle
 ## A badge not earned yet is drawn dim and grey, so the shape still shows what to look forward to.
 class_name BadgeArt
 extends Control
@@ -69,3 +70,13 @@ func _draw() -> void:
 				var reach: float = r if i % 2 == 0 else r * 0.4
 				star.append(center + Vector2(cos(angle), sin(angle)) * reach)
 			draw_colored_polygon(star, ink)
+		&"staircase":
+			# Rows of 1 to 4 solid blocks and the turned staircase as outlines: a 4 by 5 rectangle.
+			var cell: float = r * 0.42
+			for row: int in 4:
+				for col: int in 5:
+					var spot: Rect2 = Rect2(center + Vector2(-2.5 * cell + col * cell, -2.0 * cell + row * cell), Vector2(cell - 2, cell - 2))
+					if col <= row:
+						draw_rect(spot, ink)
+					else:
+						draw_rect(spot, ink, false, 1.5)

@@ -167,16 +167,16 @@ func test_the_pause_menu_is_hidden_at_start() -> void:
 
 
 func test_leaving_a_screen_saves() -> void:
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_false()
+	assert_bool(FileAccess.file_exists(SaveSystem.profile_dir().path_join("profile.json"))).is_false()
 	_press("PlayButton")
 	await _until_screen(&"hub")
-	assert_bool(FileAccess.file_exists(_dir.path_join("profile.json"))).is_true()
+	assert_bool(FileAccess.file_exists(SaveSystem.profile_dir().path_join("profile.json"))).is_true()
 
 
 func test_a_posture_change_saves() -> void:
 	SaveSystem.data()["rewards"]["coins"] = 77
 	InputRouter.posture_changed.emit(Vector2i(1280, 800))
-	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	var on_disk: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]
 	assert_int(on_disk["rewards"]["coins"]).is_equal(77)
 
 
@@ -187,7 +187,7 @@ func test_toggling_read_aloud_persists_to_the_save() -> void:
 	assert_bool(toggle.button_pressed).is_false()
 	toggle.button_pressed = true # emits toggled
 	assert_bool(SaveSystem.data()["settings"]["read_aloud"]).is_true()
-	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	var on_disk: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]
 	assert_bool(on_disk["settings"]["read_aloud"]).is_true()
 	assert_str(toggle.text).is_equal("Read aloud: On")
 
@@ -307,9 +307,10 @@ func test_grown_ups_go_through_the_gate_and_the_parent_area_cannot_be_paused() -
 	assert_bool(_shell.is_paused()).is_false()
 	var gate: ParentGateScreen = _shell.current_screen()
 	var pad: NumberPad = gate.number_pad()
-	for digit: String in str(gate.rules.answer()):
-		pad.press_digit(int(digit))
-	pad.submit()
+	for question: int in ParentGateRules.QUESTIONS_TO_PASS: # two questions in a row (Sprint 23)
+		for digit: String in str(gate.rules.answer()):
+			pad.press_digit(int(digit))
+		pad.submit()
 	await _until_screen(&"dashboard")
 	_shell.toggle_pause()
 	assert_bool(_shell.is_paused()).is_false()
@@ -355,6 +356,7 @@ func test_settings_turn_the_music_and_sounds_up_and_down() -> void:
 
 func test_a_new_miner_meets_bolt_picks_a_name_and_starts_the_placement_quest_alone() -> void:
 	SaveSystem.data()["child"]["nickname"] = ""
+	SaveSystem.mark_onboarded() # a Version 1.0 device with a blank name: no parent onboarding
 	_shell.change_screen(&"title")
 	await _until_screen(&"title")
 	_press("PlayButton")

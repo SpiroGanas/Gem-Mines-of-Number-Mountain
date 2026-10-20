@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z07_crystal_shards/alloy_mixer.gd" id="1_mixer"]
+
+[node name="AlloyMixer" type="VBoxContainer"]
+script = ExtResource("1_mixer")

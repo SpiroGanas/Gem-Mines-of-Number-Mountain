@@ -54,7 +54,7 @@ func test_crafting_the_big_pickaxe_from_twelve_garnets_works_end_to_end() -> voi
 	assert_bool(Rewards.owns(&"pickaxe_t2")).is_true()
 	assert_that(Rewards.pickaxe()).is_equal(&"pickaxe_t2")
 	assert_bool(bench.celebration.visible).is_true()
-	var on_disk: Dictionary = JsonUtil.parse_file(_dir.path_join("profile.json"))
+	var on_disk: Dictionary = JsonUtil.parse_file(SaveSystem.profile_dir().path_join("profile.json"))
 	assert_array(on_disk["workshop"]["crafted"]).contains(["tool.pickaxe.tier2"]) # saved at once
 
 
@@ -127,7 +127,7 @@ func test_finishing_the_elevator_opens_zone_4() -> void:
 			screen.next_button().pressed.emit()
 	assert_bool(Rewards.is_built(&"balance_elevator")).is_true()
 	assert_bool(screen.celebration.visible).is_true()
-	assert_array(Adaptive.locked_zones()).is_empty()
+	assert_bool(Adaptive.locked_zones().has(4)).is_false()
 	assert_bool(Adaptive.frontier().has(zone_4_first)).is_true()
 
 

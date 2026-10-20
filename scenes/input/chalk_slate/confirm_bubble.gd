@@ -48,6 +48,12 @@ func ask(value: int) -> void:
 	visible = true
 
 
+## Shows any question line (Zone 7: "Did you write 3 over 4?", "Did you write 2.75?").
+func ask_line(line_id: StringName, params: Dictionary) -> void:
+	_question.text = Text.get_line(line_id, params)
+	visible = true
+
+
 func close() -> void:
 	visible = false
 

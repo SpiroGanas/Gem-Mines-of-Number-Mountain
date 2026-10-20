@@ -3,6 +3,10 @@
 ## grown-up can enter the real name in the parent area), and Bolt hands off to the placement quest
 ## ("let's explore the mountain"). Three short steps, a picture (Bolt) beside every line, and one
 ## big button per step, so a first-grade reader can start alone.
+##
+## Phase 3 profiles: a child whose grown-up already typed a nickname (parent onboarding, or a profile
+## made in the parent area) skips the name step: Bolt says hello and then "let's explore". Finishing
+## the first run marks the profile as welcomed (profile.welcomed in the save, schema v3).
 class_name FirstRunScreen
 extends ShellScreen
 
@@ -70,7 +74,7 @@ func show_step(next: Step) -> void:
 		Step.HELLO:
 			_bolt.say(&"bolt.first_run.hello")
 			_bolt.note(&"bolt.first_run.lamp")
-			_add_next(&"ui.common.next", show_step.bind(Step.NAME))
+			_add_next(&"ui.common.next", show_step.bind(Step.READY if has_nickname() else Step.NAME))
 		Step.NAME:
 			_bolt.say(&"bolt.first_run.name")
 			_bolt.note(&"bolt.first_run.grownup")
@@ -93,6 +97,11 @@ func show_step(next: Step) -> void:
 			_add_next(&"ui.first_run.start", start_digging)
 
 
+## True when a grown-up already gave this child a nickname (the name step is skipped).
+func has_nickname() -> bool:
+	return not str(SaveSystem.data()["child"].get("nickname", "")).is_empty()
+
+
 ## Saves the chosen preset name as the nickname and moves on.
 func choose_name(line_id: StringName) -> void:
 	_sfx.play(&"select")
@@ -104,6 +113,8 @@ func choose_name(line_id: StringName) -> void:
 ## The hand-off: the first dig is the placement quest.
 func start_digging() -> void:
 	_sfx.play(&"tap")
+	SaveSystem.data()["profile"]["welcomed"] = true
+	SaveSystem.save_now()
 	if Adaptive.needs_placement() and not Adaptive.placement_active():
 		Adaptive.start_placement()
 	request_screen.emit(&"mine", {})

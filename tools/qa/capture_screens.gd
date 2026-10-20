@@ -1,9 +1,11 @@
 ## Captures every child screen at the four aspect ratios the game supports (16:9, 16:10, 3:2, 4:3)
-## for the Sprint 20 accessibility pass (P2-S20-05). Developer tool: not exported (tools/* is in the
+## for the Sprint 20 accessibility pass (P2-S20-05), and on two landscape phones (Phase 3: phones are
+## supported): 20:9 at 420 dpi and a small 1600x720 phone at 320 dpi. PHONE_DPI plays the phone's
+## density through UI.simulate_dpi, so touch targets and compact layouts match the device. Developer tool: not exported (tools/* is in the
 ## presets' exclude filter) and never run by the game.
 ##
 ## Run with a real renderer (headless has none), e.g. on Linux:
-##   xvfb-run -s "-screen 0 1920x1200x24" "$GODOT" --path . --rendering-driver opengl3 res://tools/qa/capture_screens.tscn
+##   xvfb-run -s "-screen 0 2400x1200x24" "$GODOT" --path . --rendering-driver opengl3 res://tools/qa/capture_screens.tscn
 ## Writes docs/qa/screens-1.0/<ratio>/<screen>.jpg (half size) and docs/qa/draw-calls-1.0.md (draw
 ## calls and canvas items per screen, from the renderer's own counters; meaningful on any GPU, while
 ## frame times are only meaningful on the real devices) and quits. A demo save in a temp folder
@@ -16,7 +18,11 @@ const RATIOS: Dictionary = {
 	"16x10": Vector2i(1920, 1200),
 	"3x2": Vector2i(1620, 1080),
 	"4x3": Vector2i(1440, 1080),
+	"20x9": Vector2i(2400, 1080),
+	"20x9_small": Vector2i(1600, 720),
 }
+## Screen density per ratio for the phones (the others use the display's own).
+const PHONE_DPI: Dictionary = {"20x9": 420, "20x9_small": 320}
 const SCREENS: Array[StringName] = [&"title", &"hub", &"mine", &"crafting", &"build_site", &"museum", &"badges", &"glossary", &"garage", &"settings"]
 const SETTLE_FRAMES: int = 45
 const DRAW_CALLS_PATH: String = "res://docs/qa/draw-calls-1.0.md"
@@ -59,6 +65,7 @@ func _capture_all() -> void:
 	for ratio: String in RATIOS:
 		DisplayServer.window_set_size(RATIOS[ratio])
 		get_window().size = RATIOS[ratio]
+		UI.simulate_dpi(int(PHONE_DPI.get(ratio, 0)))
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR.path_join(ratio)))
 		var shell: Shell = load("res://scenes/shell/shell.tscn").instantiate()
 		shell.fade_seconds = 0.0

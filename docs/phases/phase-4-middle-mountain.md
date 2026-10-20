@@ -1,5 +1,7 @@
 # Phase 4: Middle Mountain (Sprints 29–40)
 
+> **Changed 2026-10-19 (Spiro):** no narration and no AI voice. Sprint 22 (voice pipeline, `Narration` autoload), the read-aloud setting, narration coverage and the AI-voice listing note are dropped; the children this game is for read. Phones are supported (no phone exclusion). See `docs/decisions.md`, 2026-10-19.
+
 This document is the implementation plan for Phase 4 of *Gem Mines of Number Mountain*. It expands section 8.5 of the master plan (`docs/development-plan.md`) into enough detail that an experienced engineer, working with an AI coding agent, can build the phase. It assumes the conventions in `CLAUDE.md` (repository layout, Godot 4 syntax only, non-negotiable rules, content rules). The previous phase is `docs/phases/phase-3-public-release-readiness.md`; the next is `docs/phases/phase-5-deep-mountain.md`.
 
 Status: **provisional**. Phase 4 runs only if the game is live on Google Play after Phase 3 and Spiro confirms the roadmap.
@@ -306,8 +308,8 @@ Google Play raises the target API level every August 31. Sprint 38 (Aug 2–6, 2
 1. **Read the requirement.** Check the current Play target-API requirement and the Godot Android export docs for the pinned 4.7.x version. Note the required target SDK and the minimum Godot version that supports it.
 2. **Decide on Godot.** If the pinned 4.7.x cannot target the new SDK, propose the smallest upgrade (a 4.7 patch first, then 4.8 only if required). **Ask Spiro before upgrading** (`CLAUDE.md`). Record the decision in `docs/decisions.md`.
 3. **Update the toolchain in a branch** `chore/platform-update-2027`: `.godot-version`, Android Studio SDK (`sdkmanager "platforms;android-NN"`), build tools, JDK if the Godot docs changed the recommendation, Gradle build template (re-install from the editor: Project → Install Android Build Template, verify in Godot docs for 4.7 wording).
-4. **Update `export_presets.cfg`:** `gradle_build/target_sdk`, keep `min_sdk` at Godot's default, ABIs stay `arm64-v8a` + `x86_64`, permissions stay empty (no `INTERNET`), screen-size settings keep phones excluded. Diff the preset and confirm nothing else changed.
-5. **Re-run the SDK audit** (`docs/sdk-audit.md`): the digit_ink AAR and its LiteRT dependency versions, with no new transitive dependencies. Rebuild the Kotlin plugin: `cd android/plugins/digit_ink && ./gradlew assembleRelease && cd - && python tools/ci/copy_plugin.py`.
+4. **Update `export_presets.cfg`:** `gradle_build/target_sdk`, keep `min_sdk` at Godot's default, ABIs stay `arm64-v8a` + `x86_64`, permissions stay empty (no `INTERNET`), screen-size settings keep every size on (phones are supported). Diff the preset and confirm nothing else changed.
+5. **Re-run the SDK audit** (`docs/sdk-audit.md`, `tools/ci/check_sdk_audit.py`), with no new dependencies. (Corrected 2026-10-19: there is no Kotlin plugin or LiteRT to rebuild; handwriting runs in GDScript. The maintained procedure is `docs/platform-update.md`.)
 6. **Full regression:** `--import`, all GdUnit4 suites, all cross-checks, lint, debug APK on both of Charlie's devices (all postures, touch, stylus, keyboard), emulator matrix (tablet, resizable/desktop, x86_64 Chromebook), airplane-mode session, save from the previous version loads, handwriting accuracy spot check (20 digits per device).
 7. **CI:** update the Godot version in `.github/workflows/ci.yml` and the `tools/ci/` scripts; confirm the Friday build job passes.
 8. **Release** via the standard checklist as a maintenance update (`v1.4.1-platform`). Staged rollout. Watch Play Console vitals for 48 hours.
@@ -581,7 +583,7 @@ Dates follow the master plan. Sprints 29, 31 and 34 are 4-day holiday weeks; eve
 |---|---|---|---|
 | P4-S38-01 | `chore/platform-update-2027` | Read requirements; propose Godot patch/upgrade; **ask Spiro**; record decision | `docs/decisions.md` entry |
 | P4-S38-02 | same | Toolchain, `.godot-version`, Gradle template, `export_presets.cfg` target SDK; permissions unchanged | Preset diff reviewed; no `INTERNET` |
-| P4-S38-03 | same | Rebuild digit_ink AAR; SDK audit refreshed | `docs/sdk-audit.md` updated |
+| P4-S38-03 | same | SDK audit refreshed (no AAR to rebuild: handwriting is GDScript) | `docs/sdk-audit.md` updated |
 | P4-S38-04 | same | CI workflow and `tools/ci/` updated | CI green |
 | P4-S38-05 | same | Full regression per the procedure; old-save upgrade test | All green on both devices and the emulator matrix |
 | P4-S38-06 | `chore/release-1.4.1` | Maintenance release, staged rollout, tag `v1.4.1-platform` | Rollout started |

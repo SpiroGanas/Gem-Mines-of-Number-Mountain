@@ -9,6 +9,12 @@
 ## underground, Kenney stalactites and stalagmites line the top and bottom edges, tinted to the zone's
 ## rock; the surface workshop's key art is Number Mountain itself, drawn in code: its silhouette
 ## behind the hub with the mine's door glowing with electric light at its foot.
+##
+## Phase 4 (Zone 6, Gear Works, no artist): a warm bronze-and-steel tint with big quiet gears drawn in
+## the rock walls (GearArt). They never turn: the backdrop stays still while the child thinks.
+## Zone 7 (Crystal Shards) is deep teal-violet with glowing crystals in a cooler blue. Zone 8 (Power
+## Tower) is dusk violet with warm lamp-gold crystals and the tower's lit floors rising in the rock,
+## each floor narrower than the one below. A zone without its own palette takes the deepest one before it.
 class_name Backdrop
 extends Control
 
@@ -19,7 +25,24 @@ const PALETTES: Dictionary = {
 	&"zone3": {"top": Color("#37305F"), "bottom": Color("#1A1D3A"), "rock": Color("#3E3768"), "lamps": true, "crystals": true},
 	&"zone4": {"top": Color("#2B3F5C"), "bottom": Color("#1A2238"), "rock": Color("#34486A"), "lamps": true, "crystals": false},
 	&"zone5": {"top": Color("#23453F"), "bottom": Color("#141F2A"), "rock": Color("#2C5049"), "lamps": true, "crystals": true},
+	&"zone6": {"top": Color("#4A3B2C"), "bottom": Color("#1C1A24"), "rock": Color("#584634"), "lamps": true, "crystals": false, "gears": true},
+	&"zone7": {"top": Color("#2A3B63"), "bottom": Color("#141A30"), "rock": Color("#33446F"), "lamps": true, "crystals": true, "crystal_color": Color("#8FE3FF")},
+	# Zone 8, Power Tower (Phase 4): dusk violet with gold lamplight and a doubling tower in the rock.
+	&"zone8": {"top": Color("#3A2F5C"), "bottom": Color("#17142B"), "rock": Color("#463A6E"), "lamps": true, "crystals": true, "crystal_color": Color("#FFE27A"), "tower": true},
+	# Zone 9, Pattern Grotto (Phase 4): deep plum with pink crystal glow and a golden spiral in the rock.
+	&"zone9": {"top": Color("#4A2E57"), "bottom": Color("#1A1428"), "rock": Color("#573866"), "lamps": true, "crystals": true, "crystal_color": Color("#FFB3E6"), "spiral": true},
 }
+## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
+const LAST_PALETTE_ZONE: int = 9
+## Zone 9's golden spiral in the rock: its center (share of the screen) and its biggest radius (share of
+## the height). Quarter arcs with Fibonacci radii, a little lighter than the rock.
+const SPIRAL_AT: Vector2 = Vector2(0.86, 0.3)
+const SPIRAL_RADIUS: float = 0.26
+const SPIRAL_TERMS: Array[int] = [1, 1, 2, 3, 5, 8, 13]
+## Zones past the last one that has art fall back to it.
+const LAST_ZONE: int = 12
+## Zone 6's wall gears: where (as a share of the screen), how big (share of the height), how many teeth.
+const WALL_GEARS: Array[Vector4] = [Vector4(0.1, 0.2, 0.11, 24), Vector4(0.9, 0.32, 0.09, 16), Vector4(0.82, 0.12, 0.06, 12)]
 const STALACTITES_PATH: String = "res://assets/art/kenney/cave/stalactites.png"
 const STALAGMITES_PATH: String = "res://assets/art/kenney/cave/stalagmites.png"
 ## How tall the edge tiles are drawn, as a share of the screen height.
@@ -41,9 +64,14 @@ const CRYSTAL: Color = Color("#9B6BD6")
 		queue_redraw()
 
 
-## The palette for a zone number (1 to 5; others fall back to the nearest).
+## The palette for a zone number: its own, or the deepest zone's before it that has one (zones
+## below 1 take Zone 1's).
 static func palette_for_zone(zone: int) -> StringName:
-	return StringName("zone%d" % clampi(zone, 1, 5))
+	for candidate: int in range(clampi(zone, 1, LAST_ZONE), 0, -1):
+		var name: StringName = StringName("zone%d" % candidate)
+		if PALETTES.has(name):
+			return name
+	return &"zone1"
 
 
 static func _texture(path: String) -> Texture2D:
@@ -83,11 +111,53 @@ func _draw() -> void:
 		_draw_edge(_texture(STALAGMITES_PATH), s.y * (1.0 - EDGE_HEIGHT), rock.lightened(0.1))
 	elif key_art:
 		_draw_mountain(rock)
+	if colors_now.get("gears", false):
+		_draw_wall_gears(rock)
+	if colors_now.get("tower", false):
+		_draw_wall_tower(rock)
+	if colors_now.get("spiral", false):
+		_draw_spiral(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
 			var height: float = s.y * (0.05 + 0.02 * (index % 2))
-			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(CRYSTAL, 0.8))
+			draw_colored_polygon(PackedVector2Array([base + Vector2(-12, 0), base + Vector2(0, -height), base + Vector2(12, 0)]), Color(colors_now.get("crystal_color", CRYSTAL), 0.8))
+
+
+## Zone 9's golden spiral (still, like everything on the backdrop): quarter circles whose radii grow as
+## the Fibonacci numbers, each turning a quarter more, drawn into the rock.
+func _draw_spiral(rock: Color) -> void:
+	var unit: float = size.y * SPIRAL_RADIUS / float(SPIRAL_TERMS.back())
+	var center: Vector2 = Vector2(size.x * SPIRAL_AT.x, size.y * SPIRAL_AT.y)
+	var color: Color = rock.lightened(0.22)
+	var before: float = 0.0
+	for index: int in SPIRAL_TERMS.size():
+		var radius: float = SPIRAL_TERMS[index] * unit
+		var start: float = PI * 0.5 * index
+		# Each arc's center steps back by the radius before it, so the arcs join into one spiral.
+		center -= Vector2.from_angle(start) * (radius - before)
+		draw_arc(center, radius, start, start + PI * 0.5, 16, color, 3.0, true)
+		before = radius
+
+
+var _gear_art: GearArt = GearArt.new()
+
+
+## Big gears set into the rock (Zone 6), a little lighter than the rock so they read as part of it.
+func _draw_wall_gears(rock: Color) -> void:
+	for spot: Vector4 in WALL_GEARS:
+		_gear_art.draw(self, Vector2(size.x * spot.x, size.y * spot.y), size.y * spot.z, int(spot.w), 0.0, "", 0, false, rock.lightened(0.18))
+
+
+## The Power Tower in the rock (Zone 8): floors stacked up the right side, each narrower than the one
+## below, with a lit electric window on each floor. Still, like every backdrop.
+func _draw_wall_tower(rock: Color) -> void:
+	var floor_height: float = size.y * 0.07
+	for index: int in 6:
+		var width: float = size.x * (0.09 - 0.009 * index)
+		var box: Rect2 = Rect2(Vector2(size.x * 0.87 - width * 0.5, size.y * 0.8 - floor_height * float(index + 1)), Vector2(width, floor_height * 0.88))
+		draw_rect(box, rock.lightened(0.16))
+		draw_circle(box.get_center(), floor_height * 0.16, LAMP_BULB)
 
 
 ## A row of edge tiles across the screen at `y`, tinted to the zone's rock.

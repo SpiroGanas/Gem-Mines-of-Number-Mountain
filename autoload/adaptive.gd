@@ -58,6 +58,9 @@ func start_session() -> String:
 	_last_activity_unix = session_started_unix
 	_session_skills.clear()
 	engine.scheduler.reset_session()
+	# The profile's last day played (the title tiles and the parent summary; schema v3).
+	if SaveSystem.data().get("profile") is Dictionary:
+		SaveSystem.data()["profile"]["last_played_at"] = clock.today()
 	session_started.emit(session_id)
 	return session_id
 

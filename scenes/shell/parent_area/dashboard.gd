@@ -7,6 +7,12 @@
 ## sits behind the parent gate, and it is the one screen where a LineEdit (the nickname) is allowed.
 ## The numbers come from ProgressReport over the save and the attempt log; nothing here leaves the
 ## device unless the parent exports it.
+##
+## Profiles (Sprint 23): everything here is about the active child, named at the top. With two or more
+## children a row of avatar buttons picks which child the page shows (it makes that child the active
+## one). "Children" opens the profiles page (add, rename, delete); "How this game teaches" opens the
+## parent explainer. A progress file is one child: "Import into <name>" replaces this child's progress
+## (newest wins, as before) and "Import as a new child" adds it as another profile (up to four).
 class_name DashboardScreen
 extends ShellScreen
 
@@ -57,6 +63,7 @@ func refresh() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_child(title)
+	_add_profile_picker()
 	if bool(SaveSystem.last_load_report.get("recovered", false)):
 		_content.add_child(_label(&"parent.dash.recovered"))
 	var entries: Array = SaveSystem.read_attempts()["entries"]
@@ -127,10 +134,17 @@ func refresh() -> void:
 	name_row.add_child(_nickname)
 	_content.add_child(_switch_row(&"HandwritingSwitch", &"parent.dash.handwriting", DeviceSettings.shared().handwriting_enabled(), toggle_handwriting))
 	_content.add_child(_switch_row(&"CoachingSwitch", &"parent.dash.coaching", bool(SaveSystem.data()["settings"].get("handwriting_coaching", false)), toggle_coaching))
+	_add_interface_row()
 	if StrokeCapture.is_enabled():
 		var capture: Button = _button(&"parent.dash.capture", func() -> void: request_screen.emit(&"capture", {}))
 		capture.name = "CaptureButton"
 		_content.add_child(capture)
+	var children: Button = _button(&"parent.dash.children", func() -> void: request_screen.emit(&"profiles", {"back_to": &"dashboard"}))
+	children.name = "ChildrenButton"
+	_content.add_child(children)
+	var teaches: Button = _button(&"parent.dash.how_it_teaches", func() -> void: request_screen.emit(&"how_it_teaches", {"back_to": &"dashboard"}))
+	teaches.name = "HowItTeachesButton"
+	_content.add_child(teaches)
 	var family: Button = _button(&"parent.dash.family", func() -> void: request_screen.emit(&"family_rewards", {}))
 	family.name = "FamilyButton"
 	_content.add_child(family)
@@ -144,8 +158,13 @@ func refresh() -> void:
 	export_button.name = "ExportButton"
 	transfer.add_child(export_button)
 	var import_button: Button = _button(&"parent.dash.import", _open_import_dialog)
+	import_button.text = Text.get_line(&"parent.dash.import_into", {"name": _active_name()})
 	import_button.name = "ImportButton"
 	transfer.add_child(import_button)
+	var import_new: Button = _button(&"parent.dash.import_new", _open_import_new_dialog)
+	import_new.name = "ImportNewButton"
+	import_new.disabled = not Profiles.can_add()
+	transfer.add_child(import_new)
 	_status = Label.new()
 	_status.name = "StatusLabel"
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -198,6 +217,36 @@ func toggle_coaching() -> void:
 	refresh()
 
 
+## Explorer, Scholar or Auto for this child (Scholar mode part 1, Phase 4 Sprint 37): three buttons, the
+## current one pressed, and a note saying what each does. Kept in the save's settings.interface_mode
+## (already in the schema, so no migration); ModeGate decides what each setting turns on.
+func _add_interface_row() -> void:
+	_content.add_child(_label(&"parent.dash.interface"))
+	# A flow row: the three long buttons wrap to the next line where the width runs out (phones, 4:3).
+	var row: HFlowContainer = HFlowContainer.new()
+	row.name = "InterfaceRow"
+	row.add_theme_constant_override(&"h_separation", 16)
+	row.add_theme_constant_override(&"v_separation", 16)
+	_content.add_child(row)
+	var current: String = ModeGate.clean_setting(str(SaveSystem.data()["settings"].get("interface_mode", ModeGate.EXPLORER)))
+	for mode: String in ModeGate.SETTINGS:
+		var button: Button = _button(StringName("parent.dash.interface_" + mode), set_interface_mode.bind(mode))
+		button.name = "Interface_" + mode
+		button.toggle_mode = true
+		button.button_pressed = mode == current
+		row.add_child(button)
+	var note: Label = _label(&"parent.dash.interface_note")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_content.add_child(note)
+
+
+## Sets this child's interface setting ("explorer", "scholar" or "auto") and saves.
+func set_interface_mode(mode: String) -> void:
+	SaveSystem.data()["settings"]["interface_mode"] = ModeGate.clean_setting(mode)
+	SaveSystem.save_now()
+	refresh()
+
+
 func set_nickname(nickname: String) -> void:
 	var cleaned: String = nickname.strip_edges().left(20)
 	if cleaned == str(SaveSystem.data()["child"].get("nickname", "")):
@@ -218,13 +267,28 @@ func export_to(path: String) -> Error:
 	return error
 
 
-## Imports a bundle from `path` and refreshes every number. A file older than this device's progress
-## changes nothing yet: the parent chooses "Keep this device's progress" (the default) or "Use the
-## file anyway" (Sprint 17). `use_older` is that second choice.
-func import_from(path: String, use_older: bool = false) -> Error:
-	var error: Error = SaveSystem.import_bundle(path, use_older)
+## Imports a bundle from `path` into the active child and refreshes every number. A file older than
+## this child's progress changes nothing yet: the parent chooses "Keep this device's progress" (the
+## default) or "Use the file anyway" (Sprint 17). `use_older` is that second choice. `as_new` adds the
+## file as a new child instead (Sprint 23).
+func import_from(path: String, use_older: bool = false, as_new: bool = false) -> Error:
+	var error: Error = SaveSystem.import_bundle(path, use_older, as_new)
 	var report: Dictionary = SaveSystem.last_import_report
 	var line: StringName = &"parent.dash.import_failed"
+	if as_new:
+		refresh()
+		if error == OK:
+			var added: Profile = Profiles.get_profile(report["added"])
+			_status.text = Text.get_line(&"parent.dash.import_added", {"name": added.nickname if added != null else ""})
+		elif report["error"] == SaveSystem.ERR_FULL:
+			_status.text = Text.get_line(&"parent.dash.import_full")
+		elif report["error"] == ProgressBundle.ERR_CHECKSUM:
+			_status.text = Text.get_line(&"parent.dash.import_changed")
+		else:
+			_status.text = Text.get_line(&"parent.dash.import_failed")
+		_pending_older = ""
+		_older_row.visible = false
+		return error
 	if error == OK and report["replaced"]:
 		line = &"parent.dash.imported"
 	elif error == OK and report["older"]:
@@ -357,3 +421,43 @@ func _open_import_dialog() -> void:
 	var dialog: FileDialog = _dialog(FileDialog.FILE_MODE_OPEN_FILE)
 	dialog.file_selected.connect(import_from)
 	dialog.popup_centered_ratio(0.8)
+
+
+func _open_import_new_dialog() -> void:
+	var dialog: FileDialog = _dialog(FileDialog.FILE_MODE_OPEN_FILE)
+	dialog.file_selected.connect(func(path: String) -> void: import_from(path, false, true))
+	dialog.popup_centered_ratio(0.8)
+
+
+## Shows a child's progress here: makes them the active child (Profiles.select) and rebuilds the page.
+func show_profile(profile_id: String) -> void:
+	if Profiles.select(profile_id):
+		refresh()
+
+
+## "Child: <name>", and with two or more children a button per child to see theirs instead.
+func _add_profile_picker() -> void:
+	var row: HBoxContainer = HBoxContainer.new()
+	row.name = "ProfilePicker"
+	row.add_theme_constant_override(&"separation", 16)
+	_content.add_child(row)
+	var label: Label = _label(&"parent.dash.child", {"name": _active_name()})
+	label.name = "ActiveChild"
+	row.add_child(label)
+	var profiles: Array[Profile] = Profiles.list()
+	if profiles.size() < 2:
+		return
+	for profile: Profile in profiles:
+		var button: Button = _button(&"parent.dash.no_name", show_profile.bind(profile.id))
+		button.name = "Show_%s" % profile.id
+		if profile.nickname != "":
+			button.text = profile.nickname
+		button.toggle_mode = true
+		button.set_pressed_no_signal(profile.id == SaveSystem.profile_id())
+		AvatarArt.attach(button, profile.avatar_id)
+		row.add_child(button)
+
+
+func _active_name() -> String:
+	var nickname: String = str(SaveSystem.data()["child"].get("nickname", ""))
+	return nickname if nickname != "" else Text.get_line(&"parent.dash.no_name")

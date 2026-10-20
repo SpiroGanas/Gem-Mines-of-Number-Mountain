@@ -64,3 +64,16 @@ venv/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Store listing work (Phase 3 plan, 3.10): keep the listing text, the render script, the SVG/KRA
+# sources (keep each under 2 MB) and the exported release graphics in marketing/export/; ignore the
+# rest (drafts, trailer captures, raw screenshots).
+marketing/*
+!marketing/.gdignore
+!marketing/listing.md
+!marketing/render.sh
+!marketing/src/
+marketing/src/*
+!marketing/src/*.svg
+!marketing/src/*.kra
+!marketing/export/

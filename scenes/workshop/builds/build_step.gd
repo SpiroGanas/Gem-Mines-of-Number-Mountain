@@ -24,7 +24,7 @@ func _ready() -> void:
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	art = WorkshopArt.new()
 	art.name = "MachineArt"
-	art.custom_minimum_size = UI.target_size(6.0, 2.6)
+	art.custom_minimum_size = UI.picture_size(6.0, 2.6)
 	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_child(art)
 	card = ProblemCard.new()

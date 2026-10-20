@@ -9,17 +9,26 @@ func before() -> void:
 	_catalog = SkillCatalog.load_all()
 
 
-func test_the_catalog_holds_the_72_skills_of_zones_1_to_5_and_skips_outline_zones() -> void:
-	assert_int(_catalog.count()).is_equal(72)
+func test_the_catalog_holds_the_detailed_zones_and_skips_outline_zones() -> void:
+	var detailed: int = 0
+	for zone: int in range(1, 13):
+		detailed += _catalog.skills_in_zone(zone).size()
+	assert_int(_catalog.count()).is_equal(detailed)
+	assert_int(_catalog.count()).is_equal(135) # 72 in Zones 1-5, 14 in Zone 6, 18 in Zone 7, 16 in Zone 8, 15 in Zone 9 (Phase 4)
 	assert_int(_catalog.skills_in_zone(1).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(2).size()).is_equal(17)
 	assert_int(_catalog.skills_in_zone(3).size()).is_equal(11)
 	assert_int(_catalog.skills_in_zone(4).size()).is_equal(16)
 	assert_int(_catalog.skills_in_zone(5).size()).is_equal(11)
-	assert_int(_catalog.skills_in_zone(6).size()).is_equal(0)
+	assert_int(_catalog.skills_in_zone(6).size()).is_equal(14) # Zone 6, Gear Works, with the two fraction previews (Phase 4)
+	assert_int(_catalog.skills_in_zone(7).size()).is_equal(18) # Zone 7, Crystal Shards
+	assert_int(_catalog.skills_in_zone(8).size()).is_equal(16) # Zone 8, Power Tower
+	assert_int(_catalog.skills_in_zone(9).size()).is_equal(15) # Zone 9, Pattern Grotto
+	assert_int(_catalog.skills_in_zone(12).size()).is_equal(0) # Zone 12 is still an outline
 	assert_bool(_catalog.has_skill(&"fac.list.find_all")).is_true()
 	assert_bool(_catalog.has_skill(&"sieve.mark.multiples_of")).is_true()
-	assert_bool(_catalog.has_skill(&"gcf.find.by_listing")).is_false() # a Zone 6 outline skill
+	assert_bool(_catalog.has_skill(&"gcf.find.by_listing")).is_true()
+	assert_bool(_catalog.has_skill(&"proof.parts.identify")).is_false() # an outline skill (Zone 12) is skipped
 
 
 func test_ids_come_back_in_curriculum_order() -> void:
@@ -69,6 +78,12 @@ func test_an_unknown_skill_is_null() -> void:
 
 func test_misconception_names_load_from_the_curriculum_file() -> void:
 	var names: Array[StringName] = SkillCatalog.misconception_names()
-	assert_int(names.size()).is_equal(70)
+	var on_file: Dictionary = JsonUtil.parse_file(SkillCatalog.MISCONCEPTIONS_PATH)["misconceptions"]
+	assert_int(names.size()).is_equal(on_file.size())
+	assert_int(names.size()).is_greater_equal(70) # the Phase 1-2 names stay (never renamed or removed)
+	# 70 through Zone 5, 32 from Zone 6, 30 more from Zone 7 (inverted_ratio is shared), 27 from Zone 8,
+	# 21 more from Zone 9 (off_by_one_exponent is shared with Zone 8).
+	assert_int(names.size()).is_equal(180)
+	assert_bool(names.has(&"zero_power_is_zero") and names.has(&"mantissa_not_normalized")).is_true()
 	assert_bool(names.has(&"digit_swap")).is_true()
 	assert_bool(names.has(&"thought_equal")).is_true()

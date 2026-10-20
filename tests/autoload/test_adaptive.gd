@@ -79,7 +79,7 @@ func test_a_new_profile_needs_the_placement_quest_and_finishing_it_is_saved() ->
 	assert_bool(SaveSystem.data()["skills"]["count.to_120.read"]["placement_passed"]).is_true()
 	assert_float(SaveSystem.data()["skills"]["count.to_20.objects"]["p_learned"]).is_greater_equal(SkillRecord.PLACEMENT_P)
 	# The save on disk says the quest is done.
-	var reloaded: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	var reloaded: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]
 	assert_bool(reloaded["placement"]["done"]).is_true()
 
 

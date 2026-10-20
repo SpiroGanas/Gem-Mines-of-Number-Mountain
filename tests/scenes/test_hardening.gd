@@ -159,7 +159,7 @@ func test_the_app_pausing_saves_mid_rock_without_losing_the_rock() -> void:
 	var problem: Problem = mine.current_problem()
 	SaveSystem.data()["rewards"]["coins"] = 7 # something only the pause save can have written
 	SaveSystem.notification(Node.NOTIFICATION_APPLICATION_PAUSED)
-	assert_int(SaveStore.new(_dir).read_profile()["data"]["rewards"]["coins"]).is_equal(7)
+	assert_int(SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]["rewards"]["coins"]).is_equal(7)
 	SaveSystem.notification(Node.NOTIFICATION_APPLICATION_RESUMED)
 	await get_tree().process_frame
 	assert_object(mine.current_problem()).is_same(problem)
@@ -189,7 +189,7 @@ func test_an_update_over_a_sprint_3_save_keeps_everything_and_plays() -> void:
 	var mine: MineScreen = await _open_mine()
 	await _open_rock(mine, 0)
 	await _solve_open_rock(mine)
-	var on_disk: Dictionary = SaveStore.new(_dir).read_profile()["data"]
+	var on_disk: Dictionary = SaveStore.new(SaveSystem.profile_dir()).read_profile()["data"]
 	assert_array(SaveSchema.validate(on_disk)).is_empty()
 	assert_int(on_disk["schema_version"]).is_equal(SaveSchema.CURRENT_VERSION)
 	assert_int(on_disk["rewards"]["coins"]).is_equal(120 + DigFlow.COINS_FIRST_TRY)

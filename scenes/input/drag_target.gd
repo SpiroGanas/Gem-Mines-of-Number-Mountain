@@ -45,9 +45,10 @@ func accepts_kind(kind: StringName) -> bool:
 	return accepts.has(String(kind))
 
 
-## True when a canvas-space point is over the tray.
+## True when a canvas-space point is over the tray, for a drop. Without a touch screen the tray
+## counts as 25% bigger (DeviceCaps.drop_rect, the mouse-only path).
 func contains_point(global_point: Vector2) -> bool:
-	return get_global_rect().has_point(global_point)
+	return DeviceCaps.drop_rect(get_global_rect()).has_point(global_point)
 
 
 ## Adds an item if its kind is accepted. Hundreds come first, then tens, then ones.

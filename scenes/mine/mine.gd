@@ -37,6 +37,10 @@ const DEMO_SCENE: PackedScene = preload("res://scenes/input/chalk_slate/stroke_d
 ## Rocks the child may still crack after the soft limit before the wind-down shows (0: the wind-down
 ## comes at the very next rock boundary). Needs Spiro: the plan leaves "one extra rock" open.
 const EXTRA_ROCKS_AFTER_LIMIT: int = 0
+## How much of the screen an open problem takes (see _fit_screen).
+enum RoomLevel { NORMAL, FOCUS, BESIDE }
+## The states in which a problem is open and may take more room (see _fit_screen).
+const FOCUS_STATES: Array[DigFlow.State] = [DigFlow.State.SHOW_PROBLEM, DigFlow.State.AWAIT_ANSWER, DigFlow.State.WOBBLE, DigFlow.State.HINT]
 ## The Deep Dig's ten rocks come as two walls of five.
 const DEEP_DIG_WALL: int = 5
 ## Heading up after this many rocks counts as a finished session for family points.
@@ -73,6 +77,8 @@ var _deep_queue: Array[Problem] = []
 var _door_button: Button
 var _door_skill: StringName = &""
 var _banner: ZoneBanner
+## The room the open problem has now (RoomLevel; see _fit_screen).
+var _room: RoomLevel = RoomLevel.NORMAL
 
 @onready var _wall: RockWall = %RockWall
 @onready var _cart: Cart = %Cart
@@ -134,6 +140,7 @@ func _ready() -> void:
 	_bolt.term_tapped.connect(_on_term_tapped)
 	Rewards.skill_celebrated.connect(_on_skill_celebrated)
 	Rewards.mineral_found.connect(_on_mineral_found)
+	Rewards.zone_completed.connect(_on_zone_completed)
 	Rewards.badge_earned.connect(_on_badge_earned)
 	Rewards.word_gem_collected.connect(_on_word_gem_collected)
 	_door_button = Button.new()
@@ -149,7 +156,90 @@ func _ready() -> void:
 		deep_dig = false
 	_cart.strong = Rewards.pickaxe() == &"pickaxe_t2"
 	_cart.set_totals(Rewards.coins(), 0)
+	_fit_screen()
+	UI.metrics_changed.connect(_on_metrics_changed)
 	_start_wall()
+
+
+## Phones (UI.is_compact): tighter margins and gaps, and the answer side gets more of the width, so
+## the wall, Bolt and the answer input all fit about 360 dp of height with 64 dp targets.
+## While a rock's problem is open, the problem can take more of the screen (_room, RoomLevel):
+##   FOCUS   the wall, the cart and the zone banner step aside and the problem takes the whole width
+##           (a ten-column sieve needs it). Phones always.
+##   BESIDE  as FOCUS, and Bolt talks from the left column, where the wall was, so the input gets the
+##           whole height (five rows of array cells on a phone, AnswerPanel.wants_height).
+## A tablet keeps the designed layout (NORMAL) unless the panel does not fit: when hint lines and a
+## worked example leave the input no room, _check_room() steps up to BESIDE. The wall, the cart and
+## the banner come back for the crack and the gem's flight to the cart; the pause button always stays.
+## Runs on every state change and when the window changes (a Chromebook window resize).
+func _fit_screen() -> void:
+	var level: RoomLevel = _room if FOCUS_STATES.has(flow.state) else RoomLevel.NORMAL
+	var focus: bool = level != RoomLevel.NORMAL
+	var beside: bool = level == RoomLevel.BESIDE
+	_wall.visible = not focus
+	_cart.visible = not focus
+	_banner.visible = not focus
+	var margin: MarginContainer = $Margin
+	for side: String in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, UI.spacing(32))
+	for side: String in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, UI.spacing(24))
+	var columns: HBoxContainer = $Margin/Columns
+	columns.add_theme_constant_override(&"separation", UI.spacing(48))
+	var left: VBoxContainer = $Margin/Columns/LeftColumn
+	var right: VBoxContainer = $Margin/Columns/RightColumn
+	left.add_theme_constant_override(&"separation", UI.spacing(24))
+	right.add_theme_constant_override(&"separation", UI.spacing(24))
+	var bolt_home: VBoxContainer = left if beside else right
+	if _bolt.get_parent() != bolt_home:
+		_bolt.reparent(bolt_home, false)
+		bolt_home.move_child(_bolt, 1 if beside else 0)
+	_bolt.set_chips_beside(not beside) # in the narrow left column the Word Gem chips go under his line
+	# Phones: the wall's column is narrow (three rocks); in FOCUS only the pause button's width; in
+	# BESIDE wide enough that Bolt's line and chips stay short beside the input.
+	var ratios: Vector2 = Vector2(4.0, 5.0)
+	if UI.is_compact():
+		ratios = [Vector2(3.0, 7.0), Vector2(0.0, 1.0), Vector2(2.0, 3.0)][level]
+		if beside and _panel != null and _panel.wants_height():
+			ratios = Vector2(1.0, 2.0) # five rows of array cells, their Done and a hint picture beside them
+	left.size_flags_stretch_ratio = ratios.x
+	right.size_flags_stretch_ratio = ratios.y
+
+
+## The window changed (a posture switch, a Chromebook window resize): the open problem starts over
+## from its first room on the new screen.
+func _on_metrics_changed() -> void:
+	_room = _first_room()
+	_fit_screen()
+	_check_room()
+
+
+## The room a newly shown problem starts with: FOCUS on a phone (BESIDE for a tall input), else NORMAL.
+func _first_room() -> RoomLevel:
+	if not UI.is_compact():
+		return RoomLevel.NORMAL
+	return RoomLevel.BESIDE if _panel != null and _panel.wants_height() else RoomLevel.FOCUS
+
+
+## After the layout has settled: if the answer panel needs more height than it has (hint lines, a
+## worked example), Bolt moves beside it (BESIDE); if it needs more width, the wall steps aside
+## (FOCUS). Only ever steps up while the rock is open, so the layout cannot flip back and forth.
+func _check_room() -> void:
+	for frame: int in 2:
+		await get_tree().process_frame
+	if _panel == null or not is_inside_tree() or not FOCUS_STATES.has(flow.state):
+		return
+	var need: Vector2 = _panel.get_combined_minimum_size()
+	var have: Vector2 = _answer_host.size
+	var next: RoomLevel = _room
+	if need.y > have.y + 1.0:
+		next = RoomLevel.BESIDE
+	elif need.x > have.x + 1.0 and _room == RoomLevel.NORMAL:
+		next = RoomLevel.FOCUS
+	if next != _room:
+		_room = next
+		_fit_screen()
+		_check_room()
 
 
 func sfx() -> SfxBank:
@@ -200,6 +290,14 @@ func music_id() -> StringName:
 			return &"mine_z4"
 		5:
 			return &"mine_z5"
+		6:
+			return &"mine_z6"
+		7:
+			return &"mine_z7"
+		8:
+			return &"mine_z8"
+		9:
+			return &"mine_z9"
 	return &"mine"
 
 
@@ -260,6 +358,7 @@ func _on_rock_selected(index: int) -> void:
 
 
 func _on_state_changed(state: DigFlow.State, previous: DigFlow.State) -> void:
+	_fit_screen()
 	match state:
 		DigFlow.State.PICK_ROCK:
 			_remove_panel()
@@ -404,6 +503,16 @@ func _on_skill_celebrated(_skill_id: StringName) -> void:
 	_pending_celebrations.append({"line_id": &"bolt.celebrate.mastery", "gem": RewardsRules.MASTERY_GEM})
 
 
+## Every skill of a zone is mastered (Zone 6 on; RewardsRules.zone_finished): Bolt cheers with the
+## zone's own line and gem when it has a zN.zone.done line (Zone 7), else with the shared zone line.
+func _on_zone_completed(zone: int) -> void:
+	var own: StringName = RewardsRules.zone_done_line(zone)
+	if Text.has_line(own):
+		_pending_celebrations.append({"line_id": own, "gem": GemArt.gem_for_zone(zone)})
+	else:
+		_pending_celebrations.append({"line_id": RewardsRules.ZONE_DONE_LINE, "params": {"n": zone}, "gem": RewardsRules.MASTERY_GEM})
+
+
 func _on_mineral_found(gem: StringName) -> void:
 	_pending_celebrations.append({"line_id": &"bolt.celebrate.mineral", "gem": gem})
 
@@ -505,7 +614,7 @@ func _overlay_up() -> bool:
 ## hint is keyed to the distractor the child picked or typed).
 static func misconception_of(problem: Problem, given: Variant) -> StringName:
 	for entry: Dictionary in problem.distractors:
-		if Problem.same(entry["value"], given):
+		if problem.same_answer(entry["value"], given): # 2/6 typed for the 1/3 distractor is that mistake
 			return StringName(entry["misconception"])
 	return &""
 
@@ -527,6 +636,7 @@ func _show_hint(rung: HintLadder.Rung) -> void:
 	else:
 		_bolt.add_note(HintLadder.line_for(rung))
 	_panel.show_hint(rung)
+	_check_room() # the hint lines and the help may leave the input no room
 
 
 ## Hint rung 4: an easier problem of the same skill takes the rock's place, and the skill is flagged
@@ -567,6 +677,9 @@ func _show_panel(problem: Problem) -> void:
 	if board != null:
 		board.item_placed.connect(func(_kind: StringName) -> void: _sfx.play(&"place"))
 		board.item_removed.connect(func(_kind: StringName) -> void: _sfx.play(&"tap"))
+	_room = _first_room()
+	_fit_screen()
+	_check_room()
 
 
 func _remove_panel() -> void:

@@ -51,6 +51,17 @@ func _ready() -> void:
 	UI.make_touch_target(_done_button, 3.0, 1.5)
 	_done_button.pressed.connect(submit)
 	add_child(_done_button)
+	if UI.is_compact():
+		# On a phone five rows of cells take the whole height: Done stands beside the grid.
+		var row: HBoxContainer = HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override(&"separation", 24)
+		remove_child(_grid)
+		remove_child(_done_button)
+		row.add_child(_grid)
+		row.add_child(_done_button)
+		_done_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		add_child(row)
 	if router == null:
 		router = InputRouter
 	router.pointer_down.connect(_on_pointer_down)

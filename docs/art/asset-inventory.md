@@ -122,6 +122,7 @@ All loops are synthesized by `tools/music/generate_placeholder_music.py` (no sam
 | `mine.ogg` | The mine in Zones 1-3 ("mine_z1_3") | 29.1 s | Calm, 66 bpm (Sprint 10, regenerated) |
 | `mine_z4.ogg` | The mine in Zone 4, Factor Workshop | 27.4 s | A stepping mallet tune in D dorian, 70 bpm |
 | `mine_z5.ogg` | The mine in Zone 5, Prime Caverns | 32.0 s | High bells that ring only on prime beats (2, 3, 5, 7, 11, 13), 60 bpm |
+| `mine_z6.ogg` | The mine in Zone 6, Gear Works | 31.8 s | Two figures, one every 3 beats and one every 4, that meet on every 12th beat (their LCM), 68 bpm |
 | `build.ogg` | Build site and crafting bench | 15.8 s | Short and bright, F major, 76 bpm |
 
 ## The artist brief's items and what replaces them
