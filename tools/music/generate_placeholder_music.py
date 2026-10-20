@@ -30,7 +30,7 @@ and one for the build site. Which screen plays which file:
                  a 12-beat clock face, going round twice over slow chords
 
     mine_z11.ogg the mine in Zone 11, Cipher Vault (Phase 5): bells that ring only on the prime beats of a
-                 26-beat loop (one beat for each letter), rising to the middle and falling back
+                 28-beat loop (one beat for each letter and two to rest), rising to the middle and falling back
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -128,11 +128,11 @@ TRACKS = {
         "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 56], [38, 45, 54], [43, 50, 59], [45, 52, 61]],
     },
     # Zone 11, Cipher Vault: D major pentatonic bells that ring only on the prime beats (2, 3, 5, 7, 11, 13, 17, 19, 23)
-    # of a 26-beat loop, one beat for each letter of the alphabet, rising to the middle and falling back.
+    # of a 28-beat loop (a beat for each letter of the alphabet and two to rest), rising to the middle and falling back.
     "mine_z11": {
         "bpm": 64,
         "melody": [None, None, 69, 73, None, 76, None, 78, None, None, None, 81, None, 78, None, None, None, 76, None, 73,
-                   None, None, None, 69, None, None],
+                   None, None, None, 69, None, None, None, None],
         "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 56], [45, 52, 61], [38, 45, 54], [43, 50, 59], [45, 52, 61]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).

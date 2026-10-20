@@ -91,8 +91,8 @@ def test_clockwork_depths_bells_tick_every_third_beat_of_a_twelve_beat_clock() -
         assert (note is not None) == (index % 3 == 0)
 
 
-def test_cipher_vault_bells_ring_only_on_prime_beats_of_a_loop_of_twenty_six() -> None:
+def test_cipher_vault_bells_ring_only_on_prime_beats_of_a_loop_of_twenty_eight() -> None:
     melody = music.TRACKS["mine_z11"]["melody"]
-    assert len(melody) == 26
+    assert len(melody) == 28
     primes = {2, 3, 5, 7, 11, 13, 17, 19, 23}
     assert {index for index, note in enumerate(melody) if note is not None} == primes
