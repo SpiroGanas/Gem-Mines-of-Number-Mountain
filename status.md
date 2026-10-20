@@ -62,7 +62,7 @@ Owned by Spiro, the devices or a reviewer. Details in the 2026-10-19 and 2026-10
 
 ## 7. Health check (last known)
 
-- 2026-10-20, headless Linux: GdUnit4 1514 test cases in the full run, whose 3 failures (phone layout of the secret message, lock door and coin puzzle; the badge list) were fixed and those suites re-run green; pytest `tools` all passed; cross-check of all 30 Zone 10-11 skills at 10,000 problems each passed (Zones 1-9 last run in the earlier health check); `lint_content.py`, `curriculum_check.py`, `perf_check.py` (4.8 MB exported) and `check_sdk_audit.py` clean.
+- 2026-10-20, headless Linux (Godot 4.7.2): cross-check of all 176 skills at 10,000 problems each passed (difficulty 0 only; the eased -1/-2 passes ran in the GdUnit4 suites); GdUnit4 generators, workshop, core, curriculum and Zone 12 panel suites 642 cases green, the other suites (adaptive, autoload, input, rewards, save, scenes, ui, zones, handwriting) 1150 cases with 3 failures fixed afterwards (Zone 12 catalog count, phone layout of the proof builder and number rings) and the phone-layout suite re-run green; the full `res://tests` was not run as one single pass. `pytest tools` 1241 passed, 3 skipped; `lint_content.py`, `curriculum_check.py`, `perf_check.py` (5.0 MB exported) and `check_sdk_audit.py` clean. Web export: a headless `--export-release "Web"` succeeded (about 43 MB).
 - Parallel Godot test runs on one machine share `user://`; set `XDG_DATA_HOME` per run to keep them apart.
 - Not verified in a cloud session: anything needing a device, a renderer, the Android SDK or the keystore.
 
