@@ -1,7 +1,7 @@
 ## On-screen letter pad: the child's way to type a short note (CLAUDE.md rule 6).
 ##
 ## Never a LineEdit or TextEdit: a text field would raise the system keyboard in tablet mode. The keys are
-## Buttons sized from UI.min_target_px() (rule 7): A to Z in rows of nine, then Space, Delete and Clear. Works the
+## Buttons sized from UI.min_target_px() (rule 7): A to Z in rows that wrap to the width, then Space, Delete and Clear. Works the
 ## same with finger, stylus and mouse because Buttons are driven by Godot's GUI; in laptop posture the keyboard's
 ## letters, Space and Backspace work too.
 ##
@@ -20,7 +20,6 @@ signal clear_pressed
 const KEY_WIDTH_MULTIPLE: float = 1.0
 const KEY_HEIGHT_MULTIPLE: float = 1.0
 const WIDE_KEY_WIDTH_MULTIPLE: float = 2.4
-const COLUMNS: int = 9
 
 var _enabled: bool = true
 var _letters: Dictionary[String, Button] = {}
@@ -33,9 +32,9 @@ func _ready() -> void:
 	theme = UI.theme()
 	add_theme_constant_override(&"separation", 6)
 	alignment = BoxContainer.ALIGNMENT_CENTER
-	var grid: GridContainer = GridContainer.new()
+	var grid: HFlowContainer = HFlowContainer.new() # wraps to the width it is given (a phone has four keys across)
 	grid.name = "Letters"
-	grid.columns = COLUMNS
+	grid.alignment = FlowContainer.ALIGNMENT_CENTER
 	grid.add_theme_constant_override(&"h_separation", 6)
 	grid.add_theme_constant_override(&"v_separation", 6)
 	add_child(grid)
@@ -49,8 +48,8 @@ func _ready() -> void:
 		key.pressed.connect(press.bind(letter))
 		grid.add_child(key)
 		_letters[letter] = key
-	var row: HBoxContainer = HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var row: HFlowContainer = HFlowContainer.new()
+	row.alignment = FlowContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override(&"separation", 6)
 	add_child(row)
 	_space = _wide_key(&"z11.pad.space", "SpaceKey")

@@ -28,6 +28,11 @@ func _ready() -> void:
 	super()
 	build_frame(&"z11.door.title")
 	back_to = &"museum"
+	var scroll_body: VBoxContainer = body
+	body = VBoxContainer.new() # the steps scroll when a phone is too short for them
+	body.add_theme_constant_override(&"separation", 8)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_body.add_child(UI.vertical_scroll(body))
 	var how: Label = Label.new()
 	how.text = Text.get_line(&"z11.door.how")
 	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -45,8 +50,7 @@ func _ready() -> void:
 		body.add_child(line)
 		_result_labels[name] = line
 	_machine = load("res://scenes/zones/z11_cipher_vault/euclid_machine.tscn").instantiate()
-	_machine.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	side.add_child(_machine)
+	side.add_child(UI.vertical_scroll(_machine))
 	bolt_node.say(&"z11.door.hello")
 	_refresh()
 

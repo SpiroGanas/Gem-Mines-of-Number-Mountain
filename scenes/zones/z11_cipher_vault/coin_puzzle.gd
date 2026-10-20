@@ -16,7 +16,7 @@ signal changed(counts: Array)
 
 const BUTTON_WIDTH_MULTIPLE: float = 1.8
 const BUTTON_HEIGHT_MULTIPLE: float = 1.2
-const COIN_SIZE_MULTIPLE: float = 1.6
+const COIN_SIZE_MULTIPLE: float = 1.2
 
 var a: int = 2
 var b: int = 3
@@ -50,12 +50,13 @@ func setup(spec: Dictionary) -> void:
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
-	var how: Label = Label.new()
-	how.name = "How"
-	how.text = Text.get_line(&"z11.coins.how")
-	how.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(how)
+	if not UI.is_compact(): # a phone has no room for the line of help
+		var how: Label = Label.new()
+		how.name = "How"
+		how.text = Text.get_line(&"z11.coins.how")
+		how.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		add_child(how)
 	var piles: HBoxContainer = HBoxContainer.new()
 	piles.name = "Piles"
 	piles.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -63,20 +64,24 @@ func setup(spec: Dictionary) -> void:
 	add_child(piles)
 	for kind: int in 2:
 		piles.add_child(_make_pile(kind))
+	var summary: HBoxContainer = HBoxContainer.new()
+	summary.name = "Summary"
+	summary.alignment = BoxContainer.ALIGNMENT_CENTER
+	summary.add_theme_constant_override(&"separation", 24)
+	add_child(summary)
 	_total = Label.new()
 	_total.name = "Total"
 	_total.theme_type_variation = &"NumberLabel"
 	_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	add_child(_total)
+	summary.add_child(_total)
 	_done = Button.new()
 	_done.name = "DoneButton"
 	_done.text = Text.get_line(&"z11.coins.done")
 	_done.theme_type_variation = &"GoButton"
 	_done.focus_mode = Control.FOCUS_NONE
-	_done.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	UI.make_touch_target(_done, 2.0, BUTTON_HEIGHT_MULTIPLE)
 	_done.pressed.connect(submit)
-	add_child(_done)
+	summary.add_child(_done)
 	_refresh()
 
 
@@ -92,10 +97,6 @@ func _make_pile(kind: int) -> Control:
 	UI.make_touch_target(coin, COIN_SIZE_MULTIPLE, COIN_SIZE_MULTIPLE)
 	coin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(coin)
-	var kind_label: Label = Label.new()
-	kind_label.text = Text.get_line(&"z11.coins.kind", {"a": coin.value})
-	kind_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	column.add_child(kind_label)
 	var row: HBoxContainer = HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override(&"separation", 8)

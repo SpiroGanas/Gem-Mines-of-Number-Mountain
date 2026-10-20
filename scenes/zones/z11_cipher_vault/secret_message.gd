@@ -39,6 +39,11 @@ func _ready() -> void:
 	super()
 	build_frame(&"z11.secret.title")
 	back_to = &"museum"
+	var scroll_body: VBoxContainer = body
+	body = VBoxContainer.new() # the controls scroll when a phone is too short for them
+	body.add_theme_constant_override(&"separation", 8)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_body.add_child(UI.vertical_scroll(body))
 	_affine_ready = Adaptive.mastered().has(&"cipher.affine.encode")
 	var how: Label = Label.new()
 	how.text = Text.get_line(&"z11.secret.how")
@@ -81,8 +86,8 @@ func _ready() -> void:
 	_affine_row.add_child(b_row)
 	_b_value = _stepper(b_row, &"z11.secret.b_label", "B", change_addend)
 	_pad = load("res://scenes/input/letter_pad.tscn").instantiate()
-	_pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	side.add_child(_pad)
+	_pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	side.add_child(UI.vertical_scroll(_pad))
 	_pad.key_pressed.connect(type_letter)
 	_pad.backspace_pressed.connect(backspace)
 	_pad.clear_pressed.connect(clear)
