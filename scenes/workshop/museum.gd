@@ -72,6 +72,15 @@ func _ready() -> void:
 		UI.make_touch_target(poems, 2.6, 1.2)
 		poems.pressed.connect(request_screen.emit.bind(&"poems", {}))
 		header.add_child(poems)
+	# Zone 11 (Phase 5): the secret message and the toy lock door, once the child can code and make keys.
+	for door: Array in [[&"cipher.caesar.encode", "CodesButton", &"ui.museum.codes", &"secret_message"], [&"rsa.toy.keygen", "LockButton", &"ui.museum.lock", &"rsa_door"]]:
+		if Adaptive.mastered().has(door[0]):
+			var codes: Button = Button.new()
+			codes.name = door[1]
+			codes.text = Text.get_line(door[2])
+			UI.make_touch_target(codes, 2.6, 1.2)
+			codes.pressed.connect(request_screen.emit.bind(door[3], {}))
+			header.add_child(codes)
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)

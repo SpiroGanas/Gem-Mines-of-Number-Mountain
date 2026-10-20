@@ -93,6 +93,41 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 				return false
 			lever.balance_button().pressed.emit()
 			return true
+		AnswerPanel.InputKind.TRACK:
+			var track: CircularTrack = panel.circular_track()
+			if int(target) < 0 or int(target) >= track.n:
+				return false
+			track.station_button(int(target)).pressed.emit()
+			return true
+		AnswerPanel.InputKind.DIAL:
+			var dial: ClockLock = panel.clock_lock()
+			dial.speed_scale = 0.0
+			if int(target) < 0 or int(target) >= dial.n:
+				return false
+			dial.mark_button(int(target)).pressed.emit()
+			dial.set_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.TABLE:
+			var table: MixingTable = panel.mixing_table()
+			if int(target) < 0 or int(target) >= table.n:
+				return false
+			table.number_button(int(target)).pressed.emit()
+			table.done_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.WHEEL:
+			var wheel: CipherWheel = panel.cipher_wheel()
+			if int(target) < 0 or int(target) > wheel.max_shift:
+				return false
+			wheel.set_shift(int(target))
+			wheel.set_button().pressed.emit()
+			return true
+		AnswerPanel.InputKind.COINS:
+			var puzzle: CoinPuzzle = panel.coin_puzzle()
+			if not target is Array or target.size() != 2 or int(target[0]) > puzzle.max_coins or int(target[1]) > puzzle.max_coins:
+				return false
+			puzzle.set_counts(int(target[0]), int(target[1]))
+			puzzle.done_button().pressed.emit()
+			return true
 		AnswerPanel.InputKind.SCI_PAD, AnswerPanel.InputKind.BASE_PAD:
 			return give_power_pad(panel.power_pad(), target)
 		AnswerPanel.InputKind.KEYBOARD:

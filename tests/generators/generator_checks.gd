@@ -202,7 +202,7 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 			for digit: Variant in digits:
 				if not digit is int or digit < 0 or digit > 9:
 					errors.append("%s: %s is not a digit" % [where, digit])
-			if not ["last", "last_two", "sum", "sum_and_last", "recipe"].has(str(visual.get("focus", ""))):
+			if not ["last", "last_two", "last_three", "sum", "sum_and_last", "recipe"].has(str(visual.get("focus", ""))):
 				errors.append("%s: unknown digits focus '%s'" % [where, visual.get("focus")])
 		&"lists":
 			errors.append_array(_lists_errors(visual, where))
@@ -222,6 +222,10 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 			errors.append_array(zone8_visual_errors(visual, where))
 		&"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape":
 			errors.append_array(zone9_visual_errors(visual, where))
+		&"clock_track", &"cayley":
+			errors.append_array(zone10_visual_errors(visual, where))
+		&"cipher", &"euclid", &"coins":
+			errors.append_array(zone11_visual_errors(visual, where))
 	return errors
 
 
@@ -249,6 +253,10 @@ static func zone8_visual_errors(visual: Dictionary, where: String) -> Array[Stri
 				"sci":
 					if not Notation.is_normalized_sci({"mantissa": int(visual.get("mantissa", 0)), "scale": int(visual.get("scale", -1)), "exp": int(visual.get("exp", 0))}):
 						errors.append("%s: a scientific-notation card must be normalized" % where)
+				"congruence":
+					var loop: int = int(visual.get("n", 0))
+					if loop < 2 or int(visual.get("a", -1)) < 0 or int(visual.get("b", -1)) < 0 or posmod(int(visual.get("a", 0)), maxi(loop, 1)) != posmod(int(visual.get("b", 0)), maxi(loop, 1)):
+						errors.append("%s: a congruence card needs two numbers on the same station of a loop of 2 or more" % where)
 				_:
 					errors.append("%s: unknown notation form '%s'" % [where, visual.get("form")])
 		&"cube_blocks":
@@ -285,6 +293,69 @@ static func zone8_visual_errors(visual: Dictionary, where: String) -> Array[Stri
 				var expected: String = "level" if left == right else ("left" if left > right else "right")
 				if tilt != expected:
 					errors.append("%s: moments %d and %d should tilt %s" % [where, left, right, expected])
+	return errors
+
+
+## The Zone 11 pictures (Problem.VISUAL_TYPES) must be drawable: 1 to 12 capital letters with a shift of 0 to 25, a Euclid
+## picture with its bars in order, coins of 2 to 12 with a total of 1 to 250.
+static func zone11_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	match StringName(visual["type"]):
+		&"cipher":
+			var text: String = str(visual.get("text", ""))
+			if text.is_empty() or text.length() > CipherGenerator.MAX_LETTERS or text != text.to_upper() or not visual.get("numbers") is bool:
+				errors.append("%s: a cipher card shows 1 to %d capital letters and numbers true or false" % [where, CipherGenerator.MAX_LETTERS])
+			for index: int in text.length():
+				if text.unicode_at(index) < 65 or text.unicode_at(index) > 90:
+					errors.append("%s: '%s' is not a capital letter" % [where, text[index]])
+			if visual.has("shift") and (int(visual["shift"]) < 0 or int(visual["shift"]) > 25):
+				errors.append("%s: the wheel's shift is 0 to 25" % where)
+		&"euclid":
+			var big: int = int(visual.get("a", 0))
+			var small: int = int(visual.get("b", 0))
+			var upto: int = int(visual.get("upto", -2))
+			if small < 1 or small > big or big > 200 or upto < -1 or upto > EuclidGenerator.MAX_STEPS:
+				errors.append("%s: a Euclid picture needs 1 <= b <= a <= 200 and upto -1 to %d" % [where, EuclidGenerator.MAX_STEPS])
+		&"coins":
+			for key: String in ["a", "b"]:
+				if int(visual.get(key, 0)) < 2 or int(visual.get(key, 0)) > 12:
+					errors.append("%s: a coin is worth 2 to 12" % where)
+			if int(visual.get("c", 0)) < 1 or int(visual.get("c", 0)) > DiophantineGenerator.MAX_TOTAL:
+				errors.append("%s: the total is 1 to %d" % [where, DiophantineGenerator.MAX_TOTAL])
+	return errors
+
+
+## The Zone 10 pictures (Problem.VISUAL_TYPES) must be drawable: loops of 2 to 12 stations with the carts on them, tables of
+## 2 to 12 numbers (unwrapped ones up to 9) with their blank, ring and lit row on the table.
+static func zone10_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	var n: int = int(visual.get("n", 0))
+	if n < 2 or n > ModularGenerator.MAX_STATIONS:
+		return ["%s: a loop or table has 2 to %d numbers" % [where, ModularGenerator.MAX_STATIONS]]
+	match StringName(visual["type"]):
+		&"clock_track":
+			if int(visual.get("start", -1)) < 0 or int(visual.get("start", -1)) >= n:
+				errors.append("%s: the cart starts on a station of the loop" % where)
+			if int(visual.get("steps", -1)) < 0 or int(visual.get("steps", -1)) > ModularGenerator.MAX_STOPS:
+				errors.append("%s: the cart rides 0 to %d stops" % [where, ModularGenerator.MAX_STOPS])
+			if not [1, -1].has(int(visual.get("direction", 0))) or not visual.get("show_stop") is bool:
+				errors.append("%s: direction is 1 or -1 and show_stop true or false" % where)
+			if visual.has("also") and (int(visual["also"]) < 0 or int(visual["also"]) > ModularGenerator.MAX_STOPS):
+				errors.append("%s: the second cart rides 0 to %d stops" % [where, ModularGenerator.MAX_STOPS])
+		&"cayley":
+			if not ["add", "mul"].has(str(visual.get("op", ""))) or not visual.get("wrap") is bool:
+				errors.append("%s: a table is add or mul, wrapped or not" % where)
+			elif not visual["wrap"] and n > GroupGenerator.MAX_RAW_TABLE:
+				errors.append("%s: an unwrapped table has at most %d numbers" % [where, GroupGenerator.MAX_RAW_TABLE])
+			for key: String in ["blank", "ring"]:
+				if visual.has(key):
+					var cell: Variant = visual[key]
+					if not cell is Array or cell.size() != 2 or int(cell[0]) < 0 or int(cell[0]) >= n or int(cell[1]) < 0 or int(cell[1]) >= n:
+						errors.append("%s: %s %s is not a box of the table" % [where, key, cell])
+			if visual.has("focus") and str(visual["focus"]) != "identity":
+				errors.append("%s: unknown table focus '%s'" % [where, visual["focus"]])
+			if visual.has("row") and (int(visual["row"]) < 0 or int(visual["row"]) >= n):
+				errors.append("%s: the lit row is off the table" % where)
 	return errors
 
 
@@ -504,6 +575,8 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 		if not problem.answer is int or problem.answer < int(ride["min"]) or problem.answer > int(ride["max"]) or int(ride["start"]) < int(ride["min"]) or int(ride["start"]) > int(ride["max"]):
 			errors.append("%s: the cab cannot ride to the answer" % where)
 	errors.append_array(_zone8_meta_errors(problem, where))
+	errors.append_array(_zone10_meta_errors(problem, where))
+	errors.append_array(_zone11_meta_errors(problem, where))
 	if bool(meta.get("simplest_form", false)):
 		# Judged by form (Problem.same_answer), so the answer itself must be in lowest terms.
 		var answer: Variant = problem.answer
@@ -545,6 +618,48 @@ static func _meta_errors(problem: Problem, where: String) -> Array[String]:
 				errors.append("%s: no label line for answer %s" % [where, key])
 			elif not Text.has_line(StringName(labels[key])):
 				errors.append("%s: label line '%s' is not in the text table" % [where, labels[key]])
+	return errors
+
+
+## Zone 10's inputs must be able to give the answer: the circular track, the clock lock and the mixing table
+## each have n stations or numbers and the answer is one of them.
+static func _zone10_meta_errors(problem: Problem, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	for key: String in ["circular_track", "clock_lock", "mixing_table"]:
+		if not problem.meta.has(key):
+			continue
+		var spec: Dictionary = problem.meta[key]
+		var n: int = int(spec.get("n", 0))
+		if n < 2 or n > ModularGenerator.MAX_STATIONS:
+			errors.append("%s: %s needs 2 to %d stations" % [where, key, ModularGenerator.MAX_STATIONS])
+		elif not problem.answer is int or problem.answer < 0 or problem.answer >= n:
+			errors.append("%s: %s has no station for the answer %s" % [where, key, problem.answer])
+	if problem.meta.has("circular_track"):
+		var ride: Dictionary = problem.meta["circular_track"]
+		if int(ride.get("start", -1)) < 0 or int(ride.get("start", -1)) >= int(ride["n"]) or int(ride.get("steps", -1)) < 0 or not [1, -1].has(int(ride.get("direction", 0))):
+			errors.append("%s: the cart's ride does not fit its loop" % where)
+	if problem.meta.has("clock_lock") and problem.meta["clock_lock"].get("turns", []).is_empty():
+		errors.append("%s: the clock lock needs at least one turn" % where)
+	return errors
+
+
+## Zone 11's inputs must be able to give the answer: the cipher wheel turns to the answer's shift, the coin puzzle
+## holds both counts of every answer.
+static func _zone11_meta_errors(problem: Problem, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	if problem.meta.has("cipher_wheel"):
+		var wheel: Dictionary = problem.meta["cipher_wheel"]
+		if not problem.answer is int or problem.answer < 1 or problem.answer > int(wheel.get("max", -1)) or int(wheel.get("max", -1)) > 25:
+			errors.append("%s: the cipher wheel cannot be turned to the answer" % where)
+		if str(wheel.get("text", "")).is_empty():
+			errors.append("%s: the cipher wheel needs a code to read" % where)
+	if problem.meta.has("coin_puzzle"):
+		var puzzle: Dictionary = problem.meta["coin_puzzle"]
+		var values: Array = [problem.answer]
+		values.append_array(problem.distractor_values())
+		for value: Variant in values:
+			if not value is Array or value.size() != 2 or int(value[0]) < 0 or int(value[1]) < 0 or int(value[0]) > int(puzzle["max"]) or int(value[1]) > int(puzzle["max"]):
+				errors.append("%s: the coin puzzle cannot show the counts %s" % [where, value])
 	return errors
 
 

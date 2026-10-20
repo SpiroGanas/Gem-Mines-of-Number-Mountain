@@ -57,6 +57,16 @@ static func table() -> Dictionary:
 		&"GaussGenerator": GaussGenerator.generate,
 		&"ProofGenerator": ProofGenerator.generate,
 		&"FibPoemGenerator": FibPoemGenerator.generate,
+		# Zone 10, Clockwork Depths (Phase 5)
+		&"ModularGenerator": ModularGenerator.generate,
+		&"GroupGenerator": GroupGenerator.generate,
+		&"DivisibilityWhyGenerator": DivisibilityWhyGenerator.generate,
+		# Zone 11, Cipher Vault (Phase 5)
+		&"CipherGenerator": CipherGenerator.generate,
+		&"ModInverseGenerator": ModInverseGenerator.generate,
+		&"EuclidGenerator": EuclidGenerator.generate,
+		&"DiophantineGenerator": DiophantineGenerator.generate,
+		&"RsaGenerator": RsaGenerator.generate,
 	}
 
 

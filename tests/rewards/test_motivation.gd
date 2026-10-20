@@ -31,7 +31,7 @@ func test_the_four_badges_are_sound() -> void:
 		assert_array(needs).is_not_empty()
 		for skill: Variant in needs:
 			assert_bool(Adaptive.catalog().has_skill(StringName(str(skill)))).override_failure_message("%s needs unknown %s" % [badge["id"], skill]).is_true()
-	assert_array(ids).contains_exactly(["gauss", "euclid", "eratosthenes", "sophie_germain", "gauss_staircase"]) # Gauss's staircases joined in Zone 9 (Phase 4, Sprint 40)
+	assert_array(ids).contains_exactly(["gauss", "euclid", "eratosthenes", "sophie_germain", "gauss_staircase", "noether", "ramanujan", "fermat"]) # Gauss's staircases joined in Zone 9 (Phase 4, Sprint 40); Noether, Ramanujan and Fermat in Zones 10-11 (Phase 5)
 
 
 func test_euclid_tells_his_gcf_story_once_the_gcf_is_mastered() -> void:

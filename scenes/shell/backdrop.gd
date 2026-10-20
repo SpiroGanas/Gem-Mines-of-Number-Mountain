@@ -31,9 +31,13 @@ const PALETTES: Dictionary = {
 	&"zone8": {"top": Color("#3A2F5C"), "bottom": Color("#17142B"), "rock": Color("#463A6E"), "lamps": true, "crystals": true, "crystal_color": Color("#FFE27A"), "tower": true},
 	# Zone 9, Pattern Grotto (Phase 4): deep plum with pink crystal glow and a golden spiral in the rock.
 	&"zone9": {"top": Color("#4A2E57"), "bottom": Color("#1A1428"), "rock": Color("#573866"), "lamps": true, "crystals": true, "crystal_color": Color("#FFB3E6"), "spiral": true},
+	# Zone 10, Clockwork Depths (Phase 5): deep teal-bronze with a pale clock-gold glow and a still clock face in the rock.
+	&"zone10": {"top": Color("#2E4A4F"), "bottom": Color("#121C24"), "rock": Color("#38565A"), "lamps": true, "crystals": true, "crystal_color": Color("#F2D98B"), "clock": true},
+	# Zone 11, Cipher Vault (Phase 5): night blue with silver-green light and a still keyhole set in the rock.
+	&"zone11": {"top": Color("#243C5A"), "bottom": Color("#0F1824"), "rock": Color("#2E4A66"), "lamps": true, "crystals": true, "crystal_color": Color("#A8F0D8"), "keyhole": true},
 }
 ## The deepest zone with its own palette (every zone from 1 to it has one; test_polish checks).
-const LAST_PALETTE_ZONE: int = 9
+const LAST_PALETTE_ZONE: int = 11
 ## Zone 9's golden spiral in the rock: its center (share of the screen) and its biggest radius (share of
 ## the height). Quarter arcs with Fibonacci radii, a little lighter than the rock.
 const SPIRAL_AT: Vector2 = Vector2(0.86, 0.3)
@@ -117,6 +121,10 @@ func _draw() -> void:
 		_draw_wall_tower(rock)
 	if colors_now.get("spiral", false):
 		_draw_spiral(rock)
+	if colors_now.get("clock", false):
+		_draw_clock_face(rock)
+	if colors_now.get("keyhole", false):
+		_draw_keyhole(rock)
 	if colors_now["crystals"]:
 		for index: int in 7:
 			var base: Vector2 = Vector2(s.x * (0.07 + 0.14 * index), s.y * (0.9 - 0.02 * (index % 3)))
@@ -138,6 +146,36 @@ func _draw_spiral(rock: Color) -> void:
 		center -= Vector2.from_angle(start) * (radius - before)
 		draw_arc(center, radius, start, start + PI * 0.5, 16, color, 3.0, true)
 		before = radius
+
+
+## Zone 10's clock face: its center (share of the screen) and its radius (share of the height).
+const CLOCK_AT: Vector2 = Vector2(0.86, 0.3)
+const CLOCK_RADIUS: float = 0.2
+
+
+## Zone 10's clock face set into the rock (still, like everything on the backdrop): twelve ticks, an hour hand
+## and a minute hand, a little lighter than the rock.
+func _draw_clock_face(rock: Color) -> void:
+	var center: Vector2 = Vector2(size.x * CLOCK_AT.x, size.y * CLOCK_AT.y)
+	var radius: float = size.y * CLOCK_RADIUS
+	var color: Color = rock.lightened(0.22)
+	draw_arc(center, radius, 0.0, TAU, 48, color, 3.0, true)
+	for tick: int in 12:
+		var direction: Vector2 = Vector2.from_angle(-PI * 0.5 + TAU * float(tick) / 12.0)
+		draw_line(center + direction * radius * 0.82, center + direction * radius * 0.96, color, 3.0, true)
+	draw_line(center, center + Vector2.from_angle(-PI * 0.5 + TAU * 4.0 / 12.0) * radius * 0.5, color, 4.0, true)
+	draw_line(center, center + Vector2.from_angle(-PI * 0.5 + TAU * 10.0 / 12.0) * radius * 0.72, color, 3.0, true)
+
+
+## Zone 11's keyhole set into the rock (still, like everything on the backdrop): a round hole over a slot, in a
+## door-shaped frame, a little lighter than the rock.
+func _draw_keyhole(rock: Color) -> void:
+	var center: Vector2 = Vector2(size.x * 0.88, size.y * 0.34)
+	var radius: float = size.y * 0.06
+	var color: Color = rock.lightened(0.22)
+	draw_arc(center, radius, 0.0, TAU, 32, color, 4.0, true)
+	draw_rect(Rect2(center + Vector2(-radius * 0.35, radius * 0.8), Vector2(radius * 0.7, radius * 2.2)), color, false, 4.0)
+	draw_rect(Rect2(center + Vector2(-radius * 2.2, -radius * 2.2), Vector2(radius * 4.4, radius * 6.4)), color, false, 3.0)
 
 
 var _gear_art: GearArt = GearArt.new()

@@ -369,6 +369,30 @@ def check_asset_credits(root: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Rule 12: the secret message keeps nothing and sends nothing (Zone 11, CLAUDE.md rules 1, 2 and 6)
+# ---------------------------------------------------------------------------
+
+SECRET_MESSAGE_GLOB = "scenes/zones/z11_cipher_vault/secret_message*"
+_SECRET_BANNED_RE = re.compile(
+    r"\b(LineEdit|TextEdit|CodeEdit|clipboard_set|clipboard_get|shell_open|FileAccess|DirAccess|JavaScriptBridge|SaveSystem|get_image|save_png)\b")
+
+
+def check_secret_message(root: Path) -> list[Finding]:
+    """The secret message screen shows a note and its code and nothing else: no text field (it would raise the system
+    keyboard), no clipboard, no shell call, no file, no save, no screenshot, no browser bridge."""
+    findings: list[Finding] = []
+    for path in sorted(root.glob(SECRET_MESSAGE_GLOB)):
+        if path.suffix not in (".gd", ".tscn"):
+            continue
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            text = line if path.suffix == ".tscn" else _strip_gd_comment(line)
+            hit = _SECRET_BANNED_RE.search(text)
+            if hit:
+                findings.append(Finding("12", _rel(path, root), number, f"{hit.group(1)}: the secret message keeps nothing and sends nothing"))
+    return findings
+
+
+# ---------------------------------------------------------------------------
 # Rule 11: every math term in a child-facing line is a Word Gem
 # ---------------------------------------------------------------------------
 
@@ -436,6 +460,21 @@ MATH_TERMS = {
     r"golden ratio": "golden_ratio",
     r"syllables?": "syllable",
     r"proofs?": "proof",
+    # Zone 10 ("group" is too common as a plain word to match)
+    r"remainders?": "remainder",
+    r"modulo": "modulo",
+    r"congruent": "congruent",
+    r"identity": "identity",
+    r"closure": "closure",
+    r"cyclic": "cyclic",
+    # Zone 11
+    r"ciphers?": "cipher",
+    r"encode": "encode",
+    r"decode": "decode",
+    r"modular inverse": "modular_inverse",
+    r"public key": "public_key",
+    r"private key": "private_key",
+    r"euclid machine": "euclid_algorithm",
 }
 # Lines for grown-ups and the Word Gem lines themselves are not checked.
 TERM_EXEMPT_PREFIXES = ("parent.", "vocab.", "debug.")
@@ -474,6 +513,7 @@ RULES = (
     check_no_network,
     check_asset_credits,
     check_glossary_terms,
+    check_secret_message,
 )
 
 

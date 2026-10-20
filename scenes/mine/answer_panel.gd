@@ -43,6 +43,13 @@
 ##   PROOF       the proof board: fit the loose piece into place, then tap the fact it shows (meta.proof_board)
 ## and answer buttons that read a line with the number (meta.label_line, "Add 4") or a Fib poem line's
 ## words (meta.array_label "words"). meta.pad_digits widens the number pad (Gauss's sums up to 5050).
+## Zone 10 (Phase 5) adds, under the `drag` mode:
+##   TRACK       the circular track: tap the station where the cart stops (meta.circular_track)
+##   DIAL        the clock lock: point the dial at the mark the turns end on, then Set (meta.clock_lock)
+##   TABLE       the mixing table: tap the number that does nothing, then Done (meta.mixing_table)
+## Zone 11 (Phase 5) adds, under the `drag` mode:
+##   WHEEL       the cipher wheel: turn it until the code spells a word, then Set (meta.cipher_wheel)
+##   COINS       the coin puzzle: More and Less on each pile, then Done (meta.coin_puzzle)
 ## Whatever the child gives comes out of `answered`; the panel never decides if it is right.
 ## From hint rung 2 the panel also shows the problem's picture model, and from rung 3 a solved
 ## "friend" of the problem (show_hint).
@@ -57,7 +64,7 @@ signal rejected
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
-enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, VAULT, TOWER, LEVER, SCI_PAD, BASE_PAD, KEYBOARD, PATTERN, PROOF }
+enum InputKind { NONE, TAP_PILE, BOARD, CHOICES, NUMBER_PAD, TILES, ARRAY, SLATE, SPLIT, SIEVE, TREE, GEAR, FRACTION_PAD, DECIMAL_PAD, FRACTION_SLATE, DECIMAL_SLATE, CRYSTAL, ALLOY, GAUGE, VAULT, TOWER, LEVER, SCI_PAD, BASE_PAD, KEYBOARD, PATTERN, PROOF, TRACK, DIAL, TABLE, WHEEL, COINS }
 
 ## The inputs a typed answer can take, which keyboard entry replaces in Scholar mode.
 const TYPED_KINDS: Array[InputKind] = [InputKind.NUMBER_PAD, InputKind.SLATE, InputKind.FRACTION_PAD, InputKind.DECIMAL_PAD, InputKind.FRACTION_SLATE, InputKind.DECIMAL_SLATE, InputKind.SCI_PAD, InputKind.BASE_PAD]
@@ -84,6 +91,11 @@ const POWER_PAD_SCENE: PackedScene = preload("res://scenes/input/power_pad.tscn"
 const KEYBOARD_SCENE: PackedScene = preload("res://scenes/input/keyboard_entry.tscn")
 const PATTERN_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/pattern_wall.tscn")
 const PROOF_SCENE: PackedScene = preload("res://scenes/zones/z09_pattern_grotto/proof_board.tscn")
+const TRACK_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/circular_track.tscn")
+const DIAL_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/clock_lock.tscn")
+const TABLE_SCENE: PackedScene = preload("res://scenes/zones/z10_clockwork_depths/mixing_table.tscn")
+const WHEEL_SCENE: PackedScene = preload("res://scenes/zones/z11_cipher_vault/cipher_wheel.tscn")
+const COINS_SCENE: PackedScene = preload("res://scenes/zones/z11_cipher_vault/coin_puzzle.tscn")
 ## The number pad's digits unless meta.pad_digits asks for more (Zones 8 and 9).
 const PAD_DIGITS: int = 3
 ## The slate and the pad take fractions with up to this many digits in the top and in the bottom.
@@ -140,6 +152,11 @@ var _power_pad: PowerPad
 var _keyboard: KeyboardEntry
 var _pattern_wall: PatternWall
 var _proof_board: ProofBoard
+var _track: CircularTrack
+var _dial: ClockLock
+var _table: MixingTable
+var _wheel: CipherWheel
+var _coins: CoinPuzzle
 var _example: PanelContainer
 var _enabled: bool = false
 
@@ -234,6 +251,16 @@ static func _input_for_mode(mode: StringName, for_problem: Problem, slate_allowe
 				return InputKind.PATTERN
 			if for_problem.meta.has("proof_board"):
 				return InputKind.PROOF
+			if for_problem.meta.has("circular_track"):
+				return InputKind.TRACK
+			if for_problem.meta.has("clock_lock"):
+				return InputKind.DIAL
+			if for_problem.meta.has("mixing_table"):
+				return InputKind.TABLE
+			if for_problem.meta.has("cipher_wheel"):
+				return InputKind.WHEEL
+			if for_problem.meta.has("coin_puzzle"):
+				return InputKind.COINS
 		&"number_pad", &"keyboard":
 			if for_problem.answer is int:
 				# writing the number replaces typing it where the skill allows `handwriting`
@@ -276,6 +303,16 @@ static func chance_for(for_problem: Problem, eliminated: int = 0) -> float:
 			options = for_problem.meta["pattern_wall"].get("tiles", []).size()
 		InputKind.PROOF:
 			options = for_problem.meta["proof_board"].get("choices", []).size()
+		InputKind.TRACK:
+			options = int(for_problem.meta["circular_track"]["n"]) # one tap on any of the stations
+		InputKind.DIAL:
+			options = int(for_problem.meta["clock_lock"]["n"])
+		InputKind.TABLE:
+			options = int(for_problem.meta["mixing_table"]["n"])
+		InputKind.WHEEL:
+			options = int(for_problem.meta["cipher_wheel"]["max"]) # a shift of 1 to max
+		InputKind.COINS:
+			options = (int(for_problem.meta["coin_puzzle"]["max"]) + 1) * (int(for_problem.meta["coin_puzzle"]["max"]) + 1)
 		InputKind.CRYSTAL:
 			options = int(for_problem.meta["crystal"]["den"]) + 1 # light 0 to den shards
 		InputKind.ALLOY:
@@ -338,6 +375,8 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 	if value is Array:
 		if for_problem.meta.get("array_label") == "words":
 			return poem_line_text(value) # a Fib poem line (Zone 9)
+		if for_problem.meta.get("array_label") == "coins" and value.size() == 2:
+			return Text.get_line(&"z11.coins.pair", {"x": int(value[0]), "y": int(value[1])}) # "2 and 1" (Zone 11)
 		var parts: PackedStringArray = PackedStringArray()
 		for item: Variant in value:
 			parts.append(str(item))
@@ -347,6 +386,7 @@ static func label_for(value: Variant, for_problem: Problem) -> String:
 				joiner = " + "
 			"product":
 				joiner = " × "
+
 		return joiner.join(parts)
 	if for_problem.meta.has("label_line") and value is int:
 		return Text.get_line(StringName(str(for_problem.meta["label_line"])), {"n": value}) # "Add 4" (Zone 9)
@@ -424,6 +464,16 @@ func setup(new_problem: Problem, rng: RandomNumberGenerator) -> void:
 			_add_pattern_wall()
 		InputKind.PROOF:
 			_add_proof_board(rng)
+		InputKind.TRACK:
+			_add_track()
+		InputKind.DIAL:
+			_add_dial()
+		InputKind.TABLE:
+			_add_table()
+		InputKind.WHEEL:
+			_add_wheel()
+		InputKind.COINS:
+			_add_coins()
 	set_enabled(_enabled)
 
 
@@ -460,7 +510,7 @@ func set_enabled(enabled: bool) -> void:
 		_tree.set_enabled(enabled)
 	if _gear_bench != null:
 		_gear_bench.set_enabled(enabled)
-	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _vault, _tower, _lever, _power_pad, _keyboard, _pattern_wall, _proof_board]:
+	for widget: Control in [_fraction_pad, _crystal, _alloy, _gauge, _vault, _tower, _lever, _power_pad, _keyboard, _pattern_wall, _proof_board, _track, _dial, _table, _wheel, _coins]:
 		if widget != null:
 			widget.call(&"set_enabled", enabled)
 	if _visual != null and input_kind == InputKind.TAP_PILE:
@@ -653,6 +703,26 @@ func proof_board() -> ProofBoard:
 	return _proof_board
 
 
+func circular_track() -> CircularTrack:
+	return _track
+
+
+func clock_lock() -> ClockLock:
+	return _dial
+
+
+func mixing_table() -> MixingTable:
+	return _table
+
+
+func cipher_wheel() -> CipherWheel:
+	return _wheel
+
+
+func coin_puzzle() -> CoinPuzzle:
+	return _coins
+
+
 func _clear() -> void:
 	for child: Node in get_children():
 		child.queue_free()
@@ -681,6 +751,11 @@ func _clear() -> void:
 	_keyboard = null
 	_pattern_wall = null
 	_proof_board = null
+	_track = null
+	_dial = null
+	_table = null
+	_wheel = null
+	_coins = null
 	_example = null
 
 
@@ -1073,3 +1148,48 @@ static func strip_sequence(for_problem: Problem) -> Array:
 func _on_value_given(given: Variant) -> void:
 	if _enabled:
 		answered.emit(given)
+
+
+## The circular track (meta.circular_track = {n, start, steps, direction}); a tap on a station gives the station.
+func _add_track() -> void:
+	_track = TRACK_SCENE.instantiate()
+	_track.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_track)
+	_track.setup(problem.meta["circular_track"])
+	_track.submitted.connect(_on_value_given)
+
+
+## The clock lock (meta.clock_lock = {n, turns}); Set gives the mark the pointer is on.
+func _add_dial() -> void:
+	_dial = DIAL_SCENE.instantiate()
+	_dial.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_dial)
+	_dial.setup(problem.meta["clock_lock"])
+	_dial.submitted.connect(_on_value_given)
+
+
+## The mixing table (meta.mixing_table = {n, op}); Done gives the number chosen.
+func _add_table() -> void:
+	_table = TABLE_SCENE.instantiate()
+	_table.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_table)
+	_table.setup(problem.meta["mixing_table"])
+	_table.submitted.connect(_on_value_given)
+
+
+## The cipher wheel (meta.cipher_wheel = {text, max}); Set gives the shift the wheel is on.
+func _add_wheel() -> void:
+	_wheel = WHEEL_SCENE.instantiate()
+	_wheel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_wheel)
+	_wheel.setup(problem.meta["cipher_wheel"])
+	_wheel.submitted.connect(_on_value_given)
+
+
+## The coin puzzle (meta.coin_puzzle = {a, b, c, max}); Done gives [a-coins, b-coins].
+func _add_coins() -> void:
+	_coins = COINS_SCENE.instantiate()
+	_coins.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(_coins)
+	_coins.setup(problem.meta["coin_puzzle"])
+	_coins.submitted.connect(_on_value_given)

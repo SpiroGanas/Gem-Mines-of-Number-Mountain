@@ -399,3 +399,17 @@ def test_rule5_skips_scholar_variants(tmp_path: Path) -> None:
 def test_rule11_knows_the_zone_8_terms() -> None:
     for word, term in (("binary", "binary"), ("squared", "square_number"), ("square root", "square_root"), ("scientific notation", "scientific_notation")):
         assert any(term == value and __import__("re").fullmatch(pattern, word) for pattern, value in lint.MATH_TERMS.items())
+
+
+def test_rule12_the_secret_message_keeps_nothing_and_sends_nothing(tmp_path: Path) -> None:
+    clean = "extends Control\n# a LineEdit would be wrong here\nvar note: String = \"\"\n"
+    root = make_tree(tmp_path, {"text/lines.csv": GOOD_LINES, "scenes/zones/z11_cipher_vault/secret_message.gd": clean})
+    assert [f for f in lint.check_secret_message(root)] == []
+    for banned in ("DisplayServer.clipboard_set(note)", "OS.shell_open(note)", "FileAccess.open(path, FileAccess.WRITE)", "var box: LineEdit", "JavaScriptBridge.eval(note)", "SaveSystem.save_now()"):
+        root = make_tree(tmp_path, {"scenes/zones/z11_cipher_vault/secret_message.gd": "extends Control\n" + banned + "\n"})
+        assert messages(lint.check_secret_message(root)) == ["12:scenes/zones/z11_cipher_vault/secret_message.gd:2"], banned
+    (tmp_path / "scenes/zones/z11_cipher_vault/secret_message.gd").unlink()
+    root = make_tree(tmp_path, {"scenes/zones/z11_cipher_vault/secret_message_extra.tscn": "[node name=\"x\" type=\"TextEdit\"]\n"})
+    assert messages(lint.check_secret_message(root)) == ["12:scenes/zones/z11_cipher_vault/secret_message_extra.tscn:1"]
+    (tmp_path / "scenes/zones/z11_cipher_vault/secret_message_extra.tscn").unlink()
+    assert lint.check_secret_message(tmp_path) == []

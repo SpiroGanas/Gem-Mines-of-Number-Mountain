@@ -7,7 +7,7 @@
 ## grids, depth gauge and ore mix are painted by CrystalArt; Zone 8's power tower, cube of blocks, lamps
 ## and lever by PowerArt, and its notation cards (2⁵, √49, 3.4 × 10⁵) by a MathNotation child, with the
 ## words underneath in Explorer mode; Zone 9's pattern rows, figures, pairing rows, Fibonacci squares,
-## proofs and poem shapes by PatternArt. Gray-box shapes in code; the
+## proofs and poem shapes by PatternArt; Zone 10's loops of stations and mixing tables by ClockArt; Zone 11's cipher cards and wheel, Euclid bars and coins by VaultArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -54,6 +54,12 @@ const HEIGHT_MULTIPLE_LEVER: float = 3.6
 ## Zone 9 pictures (PatternArt): a row of tiles, and gems in shapes (figures, proofs, golden rectangles).
 const HEIGHT_MULTIPLE_PATTERN: float = 3.2
 const HEIGHT_MULTIPLE_FIGURES: float = 4.4
+## Zone 10 pictures (ClockArt): a loop of stations is round, a mixing table square and (13 by 13 at most) tall.
+const HEIGHT_MULTIPLE_LOOP: float = 4.6
+const HEIGHT_MULTIPLE_TABLE: float = 6.0
+## Zone 11 pictures (VaultArt): letter cards, bars and coins are short; the cipher wheel needs room to read.
+const HEIGHT_MULTIPLE_CARDS: float = 3.0
+const HEIGHT_MULTIPLE_CIPHER: float = 4.6
 const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
@@ -129,6 +135,14 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_FIGURES
 		&"pairing":
 			height = HEIGHT_MULTIPLE_PATTERN
+		&"clock_track":
+			height = HEIGHT_MULTIPLE_LOOP
+		&"cayley":
+			height = HEIGHT_MULTIPLE_TABLE
+		&"cipher":
+			height = HEIGHT_MULTIPLE_CIPHER if visual.has("shift") else HEIGHT_MULTIPLE_CARDS
+		&"euclid", &"coins":
+			height = HEIGHT_MULTIPLE_CARDS
 	UI.make_touch_target(self, width_multiple, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_notation()
 	_rebuild_buttons()
@@ -320,8 +334,10 @@ func _draw() -> void:
 			draw_style_box(_panel_style(), Rect2(Vector2.ZERO, size)) # the card behind the MathNotation child
 		_:
 			var area: Rect2 = Rect2(Vector2(12, 12), size - Vector2(24, 24))
-			if not PowerArt.draw_visual(self, area, visual, get_theme_default_font()) and not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()):
-				PatternArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 9
+			if not PowerArt.draw_visual(self, area, visual, get_theme_default_font()) and not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()) \
+					and not PatternArt.draw_visual(self, area, visual, get_theme_default_font()): # Zone 9
+				if not ClockArt.draw_visual(self, area, visual, get_theme_default_font()): # Zone 10
+					VaultArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 11
 
 
 func _draw_piles() -> void:
@@ -527,6 +543,9 @@ static func lit_digits(count: int, focus: String) -> Array[int]:
 			lit.append(count - 1)
 		"last_two":
 			for index: int in range(maxi(count - 2, 0), count):
+				lit.append(index)
+		"last_three":
+			for index: int in range(maxi(count - 3, 0), count):
 				lit.append(index)
 		_:
 			for index: int in count:

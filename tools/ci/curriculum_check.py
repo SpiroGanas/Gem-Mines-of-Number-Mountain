@@ -42,6 +42,10 @@ KNOWN_GENERATORS = frozenset({
     "ExponentGenerator", "RootGenerator", "BaseGenerator", "SciNotationGenerator", "LeverGenerator",
     # Zone 9 (Phase 4, Sprint 39)
     "SequenceGenerator", "FigurateGenerator", "FibGenerator", "GaussGenerator", "ProofGenerator", "FibPoemGenerator",
+    # Zone 10 (Phase 5)
+    "ModularGenerator", "GroupGenerator", "DivisibilityWhyGenerator",
+    # Zone 11 (Phase 5)
+    "CipherGenerator", "ModInverseGenerator", "EuclidGenerator", "DiophantineGenerator", "RsaGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
@@ -49,7 +53,8 @@ WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance"
                               "lists", "gears",
                               "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
                               "power_tower", "notation", "cube_blocks", "lamps", "lever",
-                              "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape"})
+                              "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape",
+                              "clock_track", "cayley", "cipher", "euclid", "coins"})
 # handwriting_fraction (Phase 4): the two-row slate for a fraction answer, numerator over denominator.
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting", "handwriting_fraction"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})

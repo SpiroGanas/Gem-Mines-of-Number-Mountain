@@ -1,5 +1,7 @@
 # Phase 5: Deep Mountain (Sprints 41–52)
 
+> **Status (2026-10-20):** Zones 10 and 11 are built in code (Sprints 41-46's curriculum, generators, mechanics, builds and badges, without the voice, art-commissioning and Play-release rows); what changed from this plan is recorded in the two 2026-10-20 sections of `docs/decisions.md`. Zone 12, Scholar mode part 2, Master Miner ranks, the web export and the guides are not built.
+
 Detailed implementation plan for the final content phase of *Gem Mines of Number Mountain*. This document expands section 8.6 and 8.7 of the master plan (`docs/development-plan.md`). Read `CLAUDE.md` first: its non-negotiable rules, content rules and "ask Spiro before" list apply to every item below. The previous phase is `docs/phases/phase-4-middle-mountain.md`.
 
 Godot idioms used in this document are explained the first time they appear, since the product owner is new to Godot.

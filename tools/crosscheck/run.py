@@ -40,6 +40,10 @@ from checkers import (  # noqa: E402
     decimals,
     div_facts,
     divisibility,
+    cipher,
+    diophantine,
+    divisibility_why,
+    euclid,
     exponents,
     fact_family,
     factor_tree,
@@ -50,8 +54,11 @@ from checkers import (  # noqa: E402
     gauss,
     gcf_lcm,
     gears,
+    group,
     lever,
     missing_part,
+    modinv,
+    modular,
     mult_facts,
     multiples,
     multiplication,
@@ -62,6 +69,7 @@ from checkers import (  # noqa: E402
     proof_poem,
     ratio,
     regroup,
+    rsa,
     sci_notation,
     sequences,
     simplify,
@@ -117,6 +125,16 @@ CHECKERS = {
     "GaussGenerator": gauss.check,
     "ProofGenerator": proof_poem.check_proof,
     "FibPoemGenerator": proof_poem.check_poem,
+    # Zone 10 (Phase 5)
+    "ModularGenerator": modular.check,
+    "GroupGenerator": group.check,
+    "DivisibilityWhyGenerator": divisibility_why.check,
+    # Zone 11 (Phase 5)
+    "CipherGenerator": cipher.check,
+    "ModInverseGenerator": modinv.check,
+    "EuclidGenerator": euclid.check,
+    "DiophantineGenerator": diophantine.check,
+    "RsaGenerator": rsa.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

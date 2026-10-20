@@ -14,7 +14,8 @@ VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "gr
                 "lists", "gears",
                 "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
                 "power_tower", "notation", "cube_blocks", "lamps", "lever",
-                "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape")
+                "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape",
+                "clock_track", "cayley", "cipher", "euclid", "coins")
 ZONE8_VISUALS = ("power_tower", "notation", "cube_blocks", "lamps", "lever")
 MAX_PLACES = 8  # the most lamps or dials a vault lock (or a lamps picture) has (Zone 8)
 # Zone 9 picture limits (Problem in scripts/core/problem.gd draws within these).
@@ -30,7 +31,11 @@ MAX_LIST_ROWS = 2
 MAX_GEARS = 3
 GEAR_TEETH = (2, 200)
 TAP_SHARDS = 12  # the most shards a crystal the child taps may have (Zone 7)
-DIGIT_FOCUS = ("last", "last_two", "sum", "sum_and_last", "recipe")
+DIGIT_FOCUS = ("last", "last_two", "last_three", "sum", "sum_and_last", "recipe")
+MAX_LETTERS = 12  # the most letters on a Zone 11 cipher card
+MAX_STATIONS = 12  # the most stations of a loop (or numbers of a table) a Zone 10 picture draws
+MAX_STOPS = 99
+MAX_RAW_TABLE = 9
 TILTS = ("unknown", "level", "left", "right")
 
 
@@ -230,8 +235,63 @@ def check_visual(visual: dict, where: str) -> list[str]:
         errors += _check_zone8_visual(visual, where)
     elif kind in ("pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape"):
         errors += _check_zone9_visual(visual, where)
+    elif kind in ("clock_track", "cayley"):
+        errors += _check_zone10_visual(visual, where)
+    elif kind in ("cipher", "euclid", "coins"):
+        errors += _check_zone11_visual(visual, where)
     else:
         errors += _check_zone7_visual(visual, where)
+    return errors
+
+
+def _check_zone10_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 10 pictures can be drawn: loops of 2 to 12 stations with their carts, tables with their boxes."""
+    errors: list[str] = []
+    n = visual.get("n")
+    if not is_int(n) or not 2 <= n <= MAX_STATIONS:
+        return [f"{where}: a loop or table has 2 to {MAX_STATIONS} numbers"]
+    if visual["type"] == "clock_track":
+        if not (is_int(visual.get("start")) and 0 <= visual["start"] < n):
+            errors.append(f"{where}: the cart starts on a station of the loop")
+        if not (is_int(visual.get("steps")) and 0 <= visual["steps"] <= MAX_STOPS):
+            errors.append(f"{where}: the cart rides 0 to {MAX_STOPS} stops")
+        if visual.get("direction") not in (1, -1) or not isinstance(visual.get("show_stop"), bool):
+            errors.append(f"{where}: direction is 1 or -1 and show_stop true or false")
+        if "also" in visual and not (is_int(visual["also"]) and 0 <= visual["also"] <= MAX_STOPS):
+            errors.append(f"{where}: the second cart rides 0 to {MAX_STOPS} stops")
+    else:
+        if visual.get("op") not in ("add", "mul") or not isinstance(visual.get("wrap"), bool):
+            errors.append(f"{where}: a table is add or mul, wrapped or not")
+        elif not visual["wrap"] and n > MAX_RAW_TABLE:
+            errors.append(f"{where}: an unwrapped table has at most {MAX_RAW_TABLE} numbers")
+        for key in ("blank", "ring"):
+            cell = visual.get(key)
+            if key in visual and not (isinstance(cell, list) and len(cell) == 2 and all(is_int(v) and 0 <= v < n for v in cell)):
+                errors.append(f"{where}: {key} {cell!r} is not a box of the table")
+        if "focus" in visual and visual["focus"] != "identity":
+            errors.append(f"{where}: unknown table focus {visual['focus']!r}")
+        if "row" in visual and not (is_int(visual["row"]) and 0 <= visual["row"] < n):
+            errors.append(f"{where}: the lit row is off the table")
+    return errors
+
+
+def _check_zone11_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 11 pictures can be drawn: letters on cards, Euclid machine bars, coins with a total."""
+    errors: list[str] = []
+    if visual["type"] == "cipher":
+        text = visual.get("text")
+        if not (isinstance(text, str) and 1 <= len(text) <= MAX_LETTERS and text.isalpha() and text.isupper()) or not isinstance(visual.get("numbers"), bool):
+            errors.append(f"{where}: a cipher card shows 1 to {MAX_LETTERS} capital letters and numbers true or false")
+        if "shift" in visual and not (is_int(visual["shift"]) and 0 <= visual["shift"] <= 25):
+            errors.append(f"{where}: the wheel's shift is 0 to 25")
+    elif visual["type"] == "euclid":
+        a, b, upto = visual.get("a"), visual.get("b"), visual.get("upto")
+        if not (is_int(a) and is_int(b) and 1 <= b <= a <= 200 and is_int(upto) and -1 <= upto <= 8):
+            errors.append(f"{where}: a Euclid picture needs 1 <= b <= a <= 200 and upto -1..8")
+    else:
+        a, b, c = visual.get("a"), visual.get("b"), visual.get("c")
+        if not (is_int(a) and is_int(b) and is_int(c) and 2 <= a <= 12 and 2 <= b <= 12 and 1 <= c <= 250):
+            errors.append(f"{where}: coins need values 2..12 and a total 1..250")
     return errors
 
 
@@ -386,6 +446,10 @@ def _check_zone8_visual(visual: dict, where: str) -> list[str]:
         elif form == "sci":
             if not is_normalized_sci({k: visual.get(k) for k in ("mantissa", "scale", "exp")}):
                 errors.append(f"{where}: a scientific-notation card must be normalized")
+        elif form == "congruence":
+            a, b, n = visual.get("a"), visual.get("b"), visual.get("n")
+            if not (is_int(a) and is_int(b) and is_int(n) and a >= 0 and b >= 0 and n >= 2 and (a - b) % n == 0):
+                errors.append(f"{where}: a congruence card needs two numbers on the same station of a loop of 2 or more")
         else:
             errors.append(f"{where}: unknown notation form {form!r}")
     elif kind == "cube_blocks":
@@ -538,6 +602,30 @@ def check_input_meta(problem: dict) -> list[str]:
     if ride is not None and not (is_int(problem["answer"]) and ride["min"] <= problem["answer"] <= ride["max"] and ride["min"] <= ride["start"] <= ride["max"]):
         errors.append("depth gauge: the cab cannot ride to the answer")
     errors += _check_zone8_meta(problem)
+    for key in ("circular_track", "clock_lock", "mixing_table"):
+        spec = meta.get(key)
+        if spec is not None:
+            n = spec.get("n")
+            if not (is_int(n) and 2 <= n <= MAX_STATIONS):
+                errors.append(f"{key}: needs 2 to {MAX_STATIONS} stations")
+            elif not (is_int(problem["answer"]) and 0 <= problem["answer"] < n):
+                errors.append(f"{key}: no station for the answer {problem['answer']!r}")
+    ride = meta.get("circular_track")
+    if ride is not None and not (is_int(ride.get("n")) and is_int(ride.get("start")) and 0 <= ride["start"] < ride["n"]
+                                 and is_int(ride.get("steps")) and ride["steps"] >= 0 and ride.get("direction") in (1, -1)):
+        errors.append("circular_track: the cart's ride does not fit its loop")
+    wheel = meta.get("cipher_wheel")
+    if wheel is not None and not (is_int(problem["answer"]) and 1 <= problem["answer"] <= wheel.get("max", -1) <= 25
+                                  and isinstance(wheel.get("text"), str) and wheel["text"].isupper()):
+        errors.append("cipher_wheel: the wheel cannot be turned to the answer")
+    coins = meta.get("coin_puzzle")
+    if coins is not None:
+        for value in values:
+            if not (isinstance(value, list) and len(value) == 2 and all(is_int(v) and 0 <= v <= coins.get("max", -1) for v in value)):
+                errors.append(f"coin puzzle: {value!r} must be two counts from 0 to {coins.get('max')}")
+    lock = meta.get("clock_lock")
+    if lock is not None and not lock.get("turns"):
+        errors.append("clock_lock: needs at least one turn")
     wall = meta.get("pattern_wall")
     if wall is not None:
         terms, tiles = wall.get("terms", []), wall.get("tiles", [])

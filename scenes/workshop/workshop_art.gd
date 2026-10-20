@@ -15,6 +15,12 @@
 ##   counterweight_elevator  params {w, d, r, x, balanced}: Zone 8's shaft, beam, cab and counterweight;
 ##                      balanced, the cab rides up (drawn by CounterweightElevatorArt,
 ##                      scenes/workshop/builds/counterweight_elevator/)
+##   clockwork_vault    params {n, x, open}: Zone 10's vault door, a dial of n marks with its pointer at x; open, the
+##                      lamp is lit and the door slides aside as `phase` goes 0 to 1 (drawn by ClockworkVaultArt,
+##                      scenes/workshop/builds/clockwork_vault/)
+##   vault_door         params {code, word, open}: Zone 11's door with a lock plate that shows the code; open, the plate
+##                      shows the word, the lamp lights and the door swings aside as `phase` goes 0 to 1 (drawn by
+##                      VaultDoorArt, scenes/workshop/builds/vault_door/)
 ## `phase` (0..1) moves the machines; the hub tweens it while the machine is on screen.
 class_name WorkshopArt
 extends Control
@@ -73,6 +79,10 @@ func _draw() -> void:
 			AlloyMixerArt.draw(self, size, params, phase)
 		&"counterweight_elevator":
 			CounterweightElevatorArt.draw(self, size, params, phase)
+		&"clockwork_vault":
+			ClockworkVaultArt.draw(self, size, params, phase)
+		&"vault_door":
+			VaultDoorArt.draw(self, size, params, phase)
 
 
 func _box() -> Rect2:
