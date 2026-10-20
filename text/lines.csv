@@ -1681,7 +1681,7 @@ z12.proof.sqrt2.s5,So b × b is even. Then b is even too.,Square root of 2 proof
 z12.proof.sqrt2.s6,Now a and b are both even. But they share no factor. That is a contradiction. So the square root of 2 is not a fraction.,Square root of 2 proof step,0
 z12.proof.sqrt2.d1,"The square root of 2 is 1.414, which is 1414 over 1000.",Square root of 2 proof decoy,0
 z12.proof.sqrt2.d2,a and b may share a factor of 2. That is fine.,Square root of 2 proof decoy,0
-z12.proof.prompt_build,Build the proof. Place each step and say why it is true.,Zone 12: the guided proof rock,0
+z12.proof.prompt_build,Build the proof.,Zone 12: the guided proof rock,0
 z12.mini.even_plus_even.1,Pick any two even numbers.,Zone 12: a short proof step,0
 z12.mini.even_plus_even.2,An even number is made of pairs.,Zone 12: a short proof step,0
 z12.mini.even_plus_even.3,Put both piles of pairs together.,Zone 12: a short proof step,0

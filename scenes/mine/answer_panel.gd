@@ -63,6 +63,8 @@ signal answered(given: Variant)
 ## The child said "Try again" to the slate's "Did you write 47?". Not a wrong answer: the mine logs it
 ## apart and the dig goes on.
 signal rejected
+## The proof builder has something for Bolt to say (Zone 12): the line id and its parameters.
+signal bolt_said(line_id: StringName, params: Dictionary)
 ## A digit written on the slate was accepted; `mirrored` when it was written backwards.
 signal digit_written(digit: int, mirrored: bool)
 
@@ -552,6 +554,8 @@ func hint_visual() -> VisualModel:
 func show_hint(rung: HintLadder.Rung) -> VisualModel:
 	if not HintLadder.shows_model(rung) or problem.hint_steps.size() < 2:
 		return null
+	if input_kind == InputKind.BUILDER:
+		return null # the proof is on the board already, and the builder has its own Hint button
 	var shown: VisualModel = _show_model()
 	if HintLadder.shows_example(rung) and problem.hint_steps.size() >= 3:
 		_show_example()
@@ -1210,6 +1214,7 @@ func _add_builder() -> void:
 	add_child(_builder)
 	_builder.setup(problem.meta["proof_builder"])
 	_builder.submitted.connect(_on_value_given)
+	_builder.said.connect(func(line_id: StringName, params: Dictionary) -> void: bolt_said.emit(line_id, params))
 
 
 ## The coin puzzle (meta.coin_puzzle = {a, b, c, max}); Done gives [a-coins, b-coins].

@@ -18,7 +18,7 @@ extends VBoxContainer
 signal submitted(proof_id: String)
 ## Something on the board changed (a step placed, taken back, a reason chosen).
 signal changed()
-## Bolt has something to say: the line id and its parameters. The host may show it in its own bubble.
+## Bolt has something to say: the line id and its parameters. The host shows it in his bubble (the board has no line of its own).
 signal said(line_id: StringName, params: Dictionary)
 
 const BUTTON_HEIGHT_MULTIPLE: float = 1.0
@@ -41,7 +41,8 @@ var _why_buttons: Array[Button] = []
 var _tile_buttons: Dictionary = {}
 var _chip_buttons: Dictionary = {}
 var _chip_row: HFlowContainer
-var _feedback: Label
+## What Bolt was last told to say (the host shows it in his bubble; the board has no room of its own for it).
+var _said_text: String = ""
 var _check: Button
 var _hint: Button
 var _lit_tile: StringName = &""
@@ -109,6 +110,7 @@ func setup_proof(new_proof: Proof) -> void:
 	column.add_child(_chip_row)
 	for chip: StringName in proof.justifications:
 		var button: Button = _button(StringName("z12.why." + chip), "Chip_%s" % chip, CHIP_WIDTH_MULTIPLE)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.pressed.connect(choose_why.bind(chip))
 		_chip_row.add_child(button)
 		_chip_buttons[chip] = button
@@ -127,11 +129,7 @@ func setup_proof(new_proof: Proof) -> void:
 		tile_button.pressed.connect(place.bind(tile))
 		tray.add_child(tile_button)
 		_tile_buttons[tile] = tile_button
-	_feedback = Label.new()
-	_feedback.name = "Feedback"
-	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(_feedback)
+	_said_text = ""
 	var bottom: HBoxContainer = HBoxContainer.new()
 	bottom.name = "Bottom"
 	bottom.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -174,7 +172,6 @@ func _button(line_id: StringName, node_name: String, width_multiple: float) -> B
 	button.name = node_name
 	button.text = Text.get_line(line_id)
 	button.focus_mode = Control.FOCUS_NONE
-	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UI.make_touch_target(button, width_multiple, BUTTON_HEIGHT_MULTIPLE)
 	return button
 
@@ -355,7 +352,7 @@ func hint_button() -> Button:
 
 
 func feedback_text() -> String:
-	return _feedback.text
+	return _said_text
 
 
 func lit_tile() -> StringName:
@@ -368,7 +365,7 @@ func set_enabled(enabled: bool) -> void:
 
 
 func _say(line_id: StringName, params: Dictionary = {}) -> void:
-	_feedback.text = Text.get_line(line_id, params)
+	_said_text = Text.get_line(line_id, params)
 	said.emit(line_id, params)
 
 

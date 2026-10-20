@@ -671,6 +671,7 @@ func _show_panel(problem: Problem) -> void:
 	_panel.set_enabled(false) # enabled once the problem is on screen
 	_panel.answered.connect(_on_answered)
 	_panel.rejected.connect(_on_slate_rejected)
+	_panel.bolt_said.connect(func(line_id: StringName, params: Dictionary) -> void: _bolt.note(line_id, params))
 	_panel.digit_written.connect(_on_digit_written)
 	var sieve: SieveGrid = _panel.sieve_grid()
 	if sieve != null:

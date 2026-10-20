@@ -109,9 +109,7 @@
       ],
       "terms": [
         "proof",
-        "assume",
-        "contradiction",
-        "prime"
+        "contradiction"
       ],
       "bkt_type": "concept",
       "is_fact_skill": false,
@@ -168,8 +166,7 @@
       ],
       "terms": [
         "proof",
-        "irrational",
-        "contradiction"
+        "irrational"
       ],
       "bkt_type": "concept",
       "is_fact_skill": false,

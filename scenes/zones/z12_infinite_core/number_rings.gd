@@ -22,6 +22,7 @@ func _ready() -> void:
 	back_to = &"journal"
 	_skill = SkillCatalog.load_all().skill(&"sets.real.classify")
 	_picture = load("res://scenes/mine/visual_model.tscn").instantiate()
+	_picture.compact = UI.is_compact()
 	body.add_child(_picture)
 	var row: HFlowContainer = HFlowContainer.new()
 	row.alignment = FlowContainer.ALIGNMENT_CENTER
@@ -43,7 +44,7 @@ func _ready() -> void:
 	_next.theme_type_variation = &"GoButton"
 	UI.make_touch_target(_next, 3.0, 1.2)
 	_next.pressed.connect(next_number)
-	body.add_child(_next)
+	row.add_child(_next)
 	bolt_node.say(&"z12.rings.hello")
 	next_number()
 

@@ -27,11 +27,10 @@ func test_the_catalog_holds_the_detailed_zones_and_skips_outline_zones() -> void
 	assert_int(_catalog.skills_in_zone(10).size()).is_equal(15) # Zone 10, Clockwork Depths (Phase 5)
 	assert_int(_catalog.skills_in_zone(11).size()).is_equal(15) # Zone 11, Cipher Vault (Phase 5)
 	assert_int(_catalog.skills_in_zone(12).size()).is_equal(11) # Zone 12, The Infinite Core (Phase 5)
-	assert_int(_catalog.skills_in_zone(12).size()).is_equal(0) # Zone 12 is still an outline
 	assert_bool(_catalog.has_skill(&"fac.list.find_all")).is_true()
 	assert_bool(_catalog.has_skill(&"sieve.mark.multiples_of")).is_true()
 	assert_bool(_catalog.has_skill(&"gcf.find.by_listing")).is_true()
-	assert_bool(_catalog.has_skill(&"proof.parts.identify")).is_false() # an outline skill (Zone 12) is skipped
+	assert_bool(_catalog.has_skill(&"proof.parts.identify")).is_true()
 
 
 func test_ids_come_back_in_curriculum_order() -> void:
