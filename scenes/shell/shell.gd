@@ -36,6 +36,8 @@ const SCREEN_PATHS: Dictionary = {
 	&"profiles": "res://scenes/shell/parent_area/profiles.tscn",
 	&"how_it_teaches": "res://scenes/shell/parent_area/how_it_teaches.tscn",
 	&"poems": "res://scenes/zones/z09_pattern_grotto/fib_poem.tscn",
+	&"secret_message": "res://scenes/zones/z11_cipher_vault/secret_message.tscn",
+	&"rsa_door": "res://scenes/zones/z11_cipher_vault/rsa_door.tscn",
 }
 const START_SCREEN: StringName = &"title"
 ## Screens where Escape does nothing: nothing to pause there, and the parent area has no pause

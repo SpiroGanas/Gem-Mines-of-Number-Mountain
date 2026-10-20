@@ -82,6 +82,21 @@
 ##   array_label    "words" (as well as "sum" and "product"): an Array answer of Fib poem word ids
 ##                  reads as the words ("glowing crystal").
 ##   pad_digits     int: the number pad takes this many digits (4 for answers up to 5050; default 3).
+## Zone 10 (Clockwork Depths, Phase 5) adds, under the `drag` mode:
+##   circular_track {n, start, steps, direction}: the circular track. The cart waits at `start`; the child watches it
+##                  ride `steps` stops (forward when direction is 1, back when -1) or drags it, then taps the
+##                  station it stops at. The answer is the station (int, 0 to n - 1).
+##   clock_lock     {n, turns: [int]}: the clock lock, a dial of n marks. The child turns it by each number in
+##                  `turns` in turn (or drags the pointer to the mark), then presses Set. The answer is the mark (int).
+##   mixing_table   {n, op}: the mixing table of (Z_n, op); the child taps a number on its edge to light the row and
+##                  column, then Done. The answer is the number (int).
+##   signed         (above) also set on backward-track and inverse problems.
+## Zone 11 (Cipher Vault, Phase 5) adds, under the `drag` mode:
+##   cipher_wheel   {text, max}: the cipher wheel. The child turns it (Back and Forward) until the cards, which show `text`
+##                  moved back by the wheel's shift, spell a word, then presses Set. The answer is the shift (int, 1 to max).
+##   coin_puzzle    {a, b, c, max}: the coin puzzle. More and Less on each pile (0 to max coins), Done. The answer is
+##                  [a-coins, b-coins] (an Array of two ints), and the buttons read it with meta.array_label "coins".
+##   array_label    "coins": an Array answer of two counts reads "2 and 1" ("coins" joins "sum", "product" and "words").
 ## Generators may add other meta keys for their checkers (e.g. `picture`, `table`); the panel
 ## ignores keys it does not know.
 class_name Problem
@@ -145,7 +160,23 @@ const HINT_KINDS: Array[StringName] = [&"repeat_highlight", &"visual_model", &"w
 ## fib_squares {terms: [int]}: squares with these Fibonacci sides fitted into a golden rectangle
 ## proof       {diagram, n, fitted: bool}: a proof-without-words picture (curriculum/proof_diagrams.json)
 ## poem_shape  {lines: [int], highlight: index, counts: bool}: a Fib poem's beat dots, one row a line
-const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape"]
+## The Zone 10 pictures (Clockwork Depths, Phase 5; drawn by ClockArt, scenes/zones/z10_clockwork_depths/clock_art.gd):
+## clock_track {n, start, steps, direction, show_stop, also?, orbit?}: a loop of n stations (2 to 12) numbered
+##             from 0, a cart at `start` riding `steps` stops (0 to 99) forward (direction 1) or back (-1);
+##             `show_stop` lights where it stops; `also` draws a second cart riding that many stops from 0;
+##             `orbit` draws the hops of `steps` stops until the cart is back at its start
+## cayley      {n, op: "add" | "mul", wrap, blank?: [row, col], ring?: [row, col], focus?: "identity", row?: int}:
+##             the mixing table of the numbers 0 to n - 1 (n 2 to 12; unwrapped tables up to 9); `wrap` false
+##             leaves the raw sums or products; `blank` shows "?" in a box, `ring` rings one; `focus` lights
+##             the do-nothing row and column; `row` lights that row
+## The Zone 11 pictures (Cipher Vault, Phase 5; drawn by VaultArt, scenes/zones/z11_cipher_vault/vault_art.gd):
+## cipher      {text, numbers, shift?}: 1 to 12 capital letters on cards (their numbers A = 0 to Z = 25 under them when
+##             `numbers`), and when `shift` (0 to 25) is given the two-ring cipher wheel set to that shift
+## euclid      {a, b, upto}: a bar of a and a bar of b (b <= a, up to 200) and the Euclid machine's steps written
+##             "48 = 2 × 18 + 12", the first `upto` of them (-1: all, 0: only the bars)
+## coins       {a, b, c}: an a-coin, a b-coin (2 to 12 each) and the total c (1 to 250) to pay
+## and notation {form: "congruence", a, b, n}: the card a ≡ b (mod n), with a and b on the same station of the loop of n
+const VISUAL_TYPES: Array[StringName] = [&"gem_piles", &"ten_frame", &"number_line", &"balance", &"array", &"groups", &"pairs", &"digits", &"lists", &"gears", &"crystals", &"fraction_line", &"crystal_grid", &"depth_gauge", &"ore_mix", &"power_tower", &"notation", &"cube_blocks", &"lamps", &"lever", &"pattern", &"figurate", &"pairing", &"fib_squares", &"proof", &"poem_shape", &"clock_track", &"cayley", &"cipher", &"euclid", &"coins"]
 const TILTS: Array[String] = ["unknown", "level", "left", "right"]
 const LIST_KINDS: Array[String] = ["factors", "multiples", "recipe"]
 const MAX_LIST_ITEMS: int = 16

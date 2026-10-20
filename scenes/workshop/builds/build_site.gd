@@ -45,6 +45,10 @@ static func finished_params(build_id: StringName) -> Dictionary:
 			return {"a": 2, "b": 3, "copper": 8, "tin": 12, "mixed": true}
 		&"counterweight_elevator":
 			return {"w": 8, "d": 2, "r": 4, "x": 4, "balanced": true}
+		&"clockwork_vault":
+			return {"n": 7, "x": 3, "open": true}
+		&"vault_door":
+			return {"code": "LQV", "word": "KEY", "open": true}
 	return {}
 
 
@@ -75,6 +79,7 @@ func _make_row(build: BuildProject) -> Control:
 		preview["balanced"] = false
 		preview["synced"] = false
 		preview["mixed"] = false
+		preview["open"] = false
 	art.show_kind(build.id, preview)
 	row.add_child(art)
 	var words: VBoxContainer = VBoxContainer.new()

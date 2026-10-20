@@ -1261,3 +1261,246 @@ vocab.syllable.term,syllable,Word Gem term,0
 vocab.syllable.definition,A syllable is one beat in a word. Clap once for each beat.,Word Gem kid-sized definition,0
 z9.poem.prompt_single,Line {k} of a Fib poem needs {n} syllable. Which line fits?,"Zone 9: pick the poem line with the right syllable count (n = 1, the singular)",0
 z9.hint.example_poem_single,Line {k} needs {n} syllable. Clap once for it.,"Worked example: a Fib poem line of one syllable (n = 1)",0
+z10.zone.name,Clockwork Depths,Zone 10 name on its banner,0
+z10.zone.done,You wound up every clock in Clockwork Depths!,Celebration: every Zone 10 skill is mastered,0
+z10.mod.prompt_remainder,Share {a} gems into groups of {n}. How many gems are left over?,Zone 10: the remainder of a division,0
+z10.mod.prompt_remainder_track,The loop has {n} stations. The cart rides {a} stops. Where does it stop?,Zone 10: the remainder as the stop of a cart that starts at station 0,0
+z10.mod.prompt_stop,The loop has {n} stations. The cart starts at {s} and rides {k} stops. Where does it stop?,Zone 10: where a cart stops on a loop,0
+z10.mod.prompt_back,The loop has {n} stations. The cart starts at {s} and rides back {k} stops. Where does it stop?,Zone 10: where a cart stops riding backward on a loop,0
+z10.mod.prompt_congruent,The loop has {n} stations. One cart rides {a} stops. Another rides {b} stops. Do they stop at the same station?,Zone 10: are two numbers congruent on a loop,0
+z10.mod.prompt_notation_loop,Look at the card. Which number is the size of the loop?,Zone 10: read the modulus of a congruence card,0
+z10.mod.prompt_notation_station,Look at the card. Which station do both numbers land on?,Zone 10: read the shared remainder of a congruence card,0
+z10.mod.prompt_add,"The dial has {n} marks, 0 to {m}. Turn it {a}. Then turn it {b}. Where does it stop?",Zone 10: add on a dial,0
+z10.mod.prompt_mul,"The dial has {n} marks, 0 to {m}. What is {a} times {b} on the dial?",Zone 10: multiply on a dial,0
+z10.group.prompt_identity_add,This table mixes numbers by adding on a loop of {n}. Which number does nothing?,Zone 10: the identity of an addition table,0
+z10.group.prompt_identity_mul,This table mixes numbers by multiplying on a loop of {n}. Which number does nothing?,Zone 10: the identity of a multiplication table,0
+z10.group.prompt_inverse,Which number added to {a} lands on 0? The loop has {n} stations.,Zone 10: the undo partner of a number,0
+z10.group.prompt_closure_add,Look at the adding table. Is every answer a number from 0 to {m}?,Zone 10: is an addition table closed,0
+z10.group.prompt_closure_mul,Look at the multiplying table. Is every answer a number from 0 to {m}?,Zone 10: is a multiplication table closed,0
+z10.group.prompt_table,Look at the table. What number goes in the ringed box?,Zone 10: fill one box of a mixing table,0
+z10.group.prompt_cyclic,Start at 0 on a loop of {n}. Jump {g} stations each time. How many jumps to land on 0 again?,Zone 10: how many jumps until a cyclic walk returns to 0,0
+z10.div.prompt_digit_sum,The digits of {a} add up to {s}. What is the remainder of {a} ÷ {b}?,Zone 10: why the digit-sum rule works,0
+z10.div.prompt_last_digit,Only the last digit of {a} matters for {b}. What is the remainder of {a} ÷ {b}?,Zone 10: why the last-digit rule works,0
+z10.div.prompt_last_digits,Only the last {k} digits of {a} matter for {b}. What is the remainder of {a} ÷ {b}?,Zone 10: why the last-digits rule works,0
+z10.hint.example_remainder,{a} stops make {q} laps of {n} and {r} more. The remainder is {r}.,Worked example: a remainder,0
+z10.hint.example_stop,Start at {s} on a loop of {n}. {k} stops end at {r}.,Worked example: where a cart stops,0
+z10.hint.example_back,Start at {s} on a loop of {n}. {k} stops back end at {r}.,Worked example: where a cart stops riding backward,0
+z10.hint.example_congruent_yes,Both {a} and {b} end at station {r}. They are congruent.,Worked example: two numbers that are congruent,0
+z10.hint.example_congruent_no,{a} ends at station {r}. {b} ends at station {t}. They are not congruent.,Worked example: two numbers that are not congruent,0
+z10.hint.example_notation_loop,The number after mod is the size of the loop. Here it is {n}.,Worked example: read the modulus,0
+z10.hint.example_notation_station,{a} and {b} both land on station {r} of the loop.,Worked example: read the shared station,0
+z10.hint.example_add,"{a} + {b} = {t}. On a loop of {n}, that lands on {r}.",Worked example: add on a dial,0
+z10.hint.example_mul,"{a} × {b} = {t}. On a loop of {n}, that lands on {r}.",Worked example: multiply on a dial,0
+z10.hint.example_identity_add,Adding 0 changes nothing. So 0 is the number that does nothing.,Worked example: the identity of adding,0
+z10.hint.example_identity_mul,Multiplying by 1 changes nothing. So 1 is the number that does nothing.,Worked example: the identity of multiplying,0
+z10.hint.example_inverse,{a} + {b} lands on 0 on the loop. So {b} is the undo partner of {a}.,Worked example: an undo partner,0
+z10.hint.example_closure_yes,Every answer is from 0 to {m}. Nothing falls off the loop.,Worked example: a closed table,0
+z10.hint.example_closure_no,{v} is bigger than {m}. It falls off the loop.,Worked example: a table that is not closed,0
+z10.hint.example_table_add,"{r} + {c} = {t}. On a loop of {n}, that lands on {x}.",Worked example: fill one box of an adding table,0
+z10.hint.example_table_mul,"{r} × {c} = {t}. On a loop of {n}, that lands on {x}.",Worked example: fill one box of a multiplying table,0
+z10.hint.example_cyclic,Jumps of {g} on a loop of {n} reach 0 after {j}.,Worked example: a cyclic walk,0
+z10.hint.example_digit_sum,{a} has digit sum {s}. Both leave remainder {r} when divided by {b}.,Worked example: the digit-sum rule,0
+z10.hint.example_last_digit,Only the last digit counts. {a} leaves remainder {r} for {b}.,Worked example: the last-digit rule,0
+z10.hint.example_last_digits,Only the last {k} digits count. {a} leaves remainder {r} for {b}.,Worked example: the last-digits rule,0
+vocab.remainder.term,remainder,Word Gem term,0
+vocab.remainder.definition,The remainder is what is left over after sharing into equal groups.,Word Gem kid-sized definition,0
+vocab.modulo.term,modulo,Word Gem term,0
+vocab.modulo.definition,Modulo means we count around a loop. We only keep the leftover.,Word Gem kid-sized definition,0
+vocab.congruent.term,congruent,Word Gem term,0
+vocab.congruent.definition,Two numbers are congruent when they stop at one loop station.,Word Gem kid-sized definition,0
+vocab.identity.term,identity,Word Gem term,0
+vocab.identity.definition,The identity is the do-nothing number. Mixing with it changes nothing.,Word Gem kid-sized definition,0
+vocab.group_inverse.term,inverse partner,Word Gem term,0
+vocab.group_inverse.definition,A number's inverse is its undo partner. Together they make the do-nothing number.,Word Gem kid-sized definition,0
+vocab.closure.term,closure,Word Gem term,0
+vocab.closure.definition,A set has closure when every mix stays inside the set.,Word Gem kid-sized definition,0
+vocab.group.term,group,Word Gem term,0
+vocab.group.definition,A group is numbers plus a way to mix them. Every mix stays inside. One number does nothing. Each number has an undo partner.,Word Gem kid-sized definition,0
+vocab.cyclic.term,cyclic,Word Gem term,0
+vocab.cyclic.definition,A group is cyclic when one number can reach all the others.,Word Gem kid-sized definition,0
+bolt.misconception.gave_quotient,That counts the full laps. We want the stops left over.,Targeted hint after the gave_quotient mistake,0
+bolt.misconception.forgot_mod_wrap,The loop ends at the last station. Go around again and keep the leftover.,Targeted hint after the forgot_mod_wrap mistake,0
+bolt.misconception.counted_start_station,The cart starts on a station. Count only the stops it rides.,Targeted hint after the counted_start_station mistake,0
+bolt.misconception.negative_remainder,A station is never below 0. Go around the loop the other way.,Targeted hint after the negative_remainder mistake,0
+bolt.misconception.went_forward_instead,Back means the other way around the loop.,Targeted hint after the went_forward_instead mistake,0
+bolt.misconception.compared_quotients,"Look at the leftover on the loop, not the laps.",Targeted hint after the compared_quotients mistake,0
+bolt.misconception.compared_raw_values,Different numbers can stop at the same station. Check the stops.,Targeted hint after the compared_raw_values mistake,0
+bolt.misconception.swapped_mod_and_value,"The number after mod is the loop, not one of the numbers.",Targeted hint after the swapped_mod_and_value mistake,0
+bolt.misconception.read_as_equals,"The sign means same station, not same number.",Targeted hint after the read_as_equals mistake,0
+bolt.misconception.subtracted_instead,We turn the dial forward both times. Add the turns.,Targeted hint after the subtracted_instead mistake,0
+bolt.misconception.picked_one_for_add,Adding 1 moves us. Which number adds and stays put?,Targeted hint after the picked_one_for_add mistake,0
+bolt.misconception.picked_zero_for_mul,Times 0 gives 0 every time. Which number keeps the others the same?,Targeted hint after the picked_zero_for_mul mistake,0
+bolt.misconception.picked_last_number,The last number moves things too. Look for the row that repeats the top.,Targeted hint after the picked_last_number mistake,0
+bolt.misconception.gave_negative_raw,A station is never below 0. Count forward to get back to 0.,Targeted hint after the gave_negative_raw mistake,0
+bolt.misconception.gave_same_value,Adding the same number does not always land on 0. Try it.,Targeted hint after the gave_same_value mistake,0
+bolt.misconception.gave_n_minus_one,That is the last station. How far to the end from your number?,Targeted hint after the gave_n_minus_one mistake,0
+bolt.misconception.missed_value_ge_n,Look for an answer that is bigger than the last station.,Targeted hint after the missed_value_ge_n mistake,0
+bolt.misconception.distrusted_wrap,Going around the loop keeps every answer on the loop.,Targeted hint after the distrusted_wrap mistake,0
+bolt.misconception.copied_cell_above,Each box has its own answer. Mix its row and column.,Targeted hint after the copied_cell_above mistake,0
+bolt.misconception.stopped_early,Count the jump that lands back on 0 too.,Targeted hint after the stopped_early mistake,0
+bolt.misconception.skipped_identity,Not every station gets a visit. Stop when you land on 0 again.,Targeted hint after the skipped_identity mistake,0
+bolt.misconception.used_jump_size,That is how far each jump goes. We want how many jumps.,Targeted hint after the used_jump_size mistake,0
+bolt.misconception.used_last_digit,The last digit does not decide this one. Look at the sum of all the digits.,Targeted hint after the used_last_digit mistake,0
+bolt.misconception.summed_wrong,Add every digit once. Then find the leftover.,Targeted hint after the summed_wrong mistake,0
+bolt.misconception.used_first_digit,The first digit does not decide this. Look at the last digit.,Targeted hint after the used_first_digit mistake,0
+bolt.misconception.used_digit_sum,The digit sum is for 3 and 9. Here the end of the number decides.,Targeted hint after the used_digit_sum mistake,0
+bolt.misconception.used_last_digit_only,One digit is not enough here. Look at the last two or three digits.,Targeted hint after the used_last_digit_only mistake,0
+z10.notation.mod_n,(mod {n}),Zone 10: the modulus part of a congruence card,0
+z10.notation.congruence_words,"{a} is congruent to {b}, modulo {n}",Words under a congruence card in Explorer mode,0
+z10.track.how,Watch the cart ride. Tap the station where it stops.,Zone 10: how the circular track works,0
+z10.track.ride,Ride,Zone 10: the circular track's Ride button,0
+z10.lock.how,Tap a mark to point the dial. Then press Set.,Zone 10: how the clock lock works,0
+z10.lock.set,Set,Zone 10: the clock lock's Set button,0
+z10.table.how,Tap a number. Its row and column light up.,Zone 10: how the mixing table works,0
+z10.table.done,Done,Zone 10: the mixing table's Done button,0
+build.clockwork_vault.name,Clockwork Vault,Build project name (Zone 10),0
+build.clockwork_vault.intro,Set three dials to open the vault. Each dial wraps around. Then Zone 11 is open!,Build project intro (Zone 10),0
+build.clockwork_vault.done,"Click, click, click! The vault door slides open on Zone 11!",Build project finished (Zone 10),0
+badge.noether.name,Noether Badge,Mathematician badge name,0
+badge.noether.story_1,Emmy Noether grew up in Germany long ago.,Badge story line 1,0
+badge.noether.story_2,"She loved math, but many schools did not let women study it.",Badge story line 2,0
+badge.noether.story_3,"She kept going. She studied how numbers mix, like clock numbers.",Badge story line 3,0
+badge.noether.story_4,She found that every mixing table hides the same rules.,Badge story line 4,0
+badge.noether.story_5,Her ideas still help scientists today.,Badge story line 5,0
+badge.ramanujan.name,Ramanujan Badge,Mathematician badge name,0
+badge.ramanujan.story_1,Srinivasa Ramanujan loved numbers more than anything.,Badge story line 1,0
+badge.ramanujan.story_2,He grew up in India and taught himself from a math book.,Badge story line 2,0
+badge.ramanujan.story_3,He wrote to a math teacher in England. The teacher was amazed.,Badge story line 3,0
+badge.ramanujan.story_4,One day his teacher rode a taxi. He said its number was dull.,Badge story line 4,0
+badge.ramanujan.story_5,Ramanujan said {n} is not dull! It is a sum of two cubes in two ways.,Badge story line 5 (n = 1729),0
+badge.fermat.name,Fermat Badge,Mathematician badge name,0
+badge.fermat.story_1,Pierre de Fermat was a lawyer in France long ago.,Badge story line 1,0
+badge.fermat.story_2,Numbers were his hobby. He wrote puzzles in the margins of books.,Badge story line 2,0
+badge.fermat.story_3,He found a secret about primes.,Badge story line 3,0
+badge.fermat.story_4,"Take a number. Raise it to the power {p}. On a loop of {p}, it comes back.",Badge story line 4 (p = 7),0
+badge.fermat.story_5,Today's secret codes use the same idea.,Badge story line 5,0
+z11.zone.name,Cipher Vault,Zone 11 name on its banner,0
+z11.zone.done,You cracked every code in the Cipher Vault!,Celebration: every Zone 11 skill is mastered,0
+z11.cipher.prompt_encode,Shift every letter forward {k} places. What does the word become?,Zone 11: encode a word with a Caesar shift,0
+z11.cipher.prompt_decode,Every letter was shifted forward {k} places. What was the word?,Zone 11: decode a Caesar shift,0
+z11.cipher.prompt_crack,The code hides a word of {len} letters. Which shift unlocks it?,Zone 11: crack a Caesar code,0
+z11.cipher.prompt_affine_encode,Number the letters from 0. Turn each number x into {a}x + {b}. Wrap on 26. What does the word become?,Zone 11: encode with an affine cipher,0
+z11.cipher.prompt_affine_decode,"Number the letters from 0. The code turned x into {a}x + {b}, wrapped on 26. What was the word?",Zone 11: decode an affine cipher,0
+z11.modinv.prompt_exists,"On a loop of {n}, can {a} × x land on 1?",Zone 11: does a multiplying undo partner exist,0
+z11.modinv.prompt_find,"On a loop of {n}, {a} × x lands on 1. What is x?",Zone 11: find a multiplying undo partner,0
+z11.euclid.prompt_gcd,Use the Euclid machine. What is the GCF of {a} and {b}?,Zone 11: the GCF with the Euclid machine,0
+z11.euclid.prompt_count,Use the Euclid machine on {a} and {b}. How many steps until nothing is left over?,Zone 11: count the steps of the Euclid machine,0
+z11.euclid.prompt_extended,The GCF of {a} and {b} is {g}. Find x below {m}. {a} × x leaves {g} when divided by {b}.,Zone 11: run the Euclid machine backward,0
+z11.dioph.prompt_solve,Pay exactly {c} with {a}-coins and {b}-coins. How many of each?,Zone 11: pay an exact total with two coins,0
+z11.dioph.prompt_decide,Can you pay exactly {c} with {a}-coins and {b}-coins?,Zone 11: can a total be paid exactly,0
+z11.rsa.prompt_phi,Lock primes: {p} and {q}. Find ({p} - 1) × ({q} - 1).,Zone 11: the loop size of a toy lock,0
+z11.rsa.prompt_d,The loop has {t} stations. The public key is {e}. Find d: {e} × d lands on 1.,Zone 11: the private key of a toy lock,0
+z11.rsa.prompt_encrypt,Raise {m} to the power {e}. Then wrap on a loop of {n}.,Zone 11: lock a number with the public key,0
+z11.rsa.prompt_decrypt,Raise {c} to the power {d}. Then wrap on a loop of {n}.,Zone 11: unlock a number with the private key,0
+z11.hint.example_encode,{w} shifted {k} places becomes {c}.,Worked example: a Caesar encode,0
+z11.hint.example_decode,{c} shifted back {k} places is {w}.,Worked example: a Caesar decode,0
+z11.hint.example_crack,Shift {k} turns {c} back into {w}.,Worked example: a Caesar crack,0
+z11.hint.example_affine_encode,"Each letter x of {w} becomes {a}x + {b}, wrapped on 26. That makes {c}.",Worked example: an affine encode,0
+z11.hint.example_affine_decode,"Take away {b}, then multiply by {i}, the undo partner of {a}. {c} becomes {w}.",Worked example: an affine decode,0
+z11.hint.example_modinv_yes,{a} and {n} share only 1. So {a} has an undo partner.,Worked example: an undo partner exists,0
+z11.hint.example_modinv_no,{a} and {n} share {g}. So {a} has no undo partner.,Worked example: no undo partner,0
+z11.hint.example_modinv_find,{a} × {x} = {t}. That lands on 1 on a loop of {n}.,Worked example: a multiplying undo partner,0
+z11.hint.example_gcd,The machine ends with {g}. So the GCF of {a} and {b} is {g}.,Worked example: the GCF with the Euclid machine,0
+z11.hint.example_count,The machine on {a} and {b} takes {k} steps.,Worked example: the steps of the Euclid machine,0
+z11.hint.example_extended,x = {x}: {a} × {x} leaves {g} when divided by {b}.,Worked example: the Euclid machine backward,0
+z11.hint.example_coins,{x} coins of {a} and {y} coins of {b} pay {c}.,Worked example: two kinds of coin,0
+z11.hint.example_pay_yes,{g} divides {c}. So the total can be paid.,Worked example: a total that can be paid,0
+z11.hint.example_pay_no,{g} does not divide {c}. So it cannot be paid.,Worked example: a total that cannot be paid,0
+z11.hint.example_phi,({p} - 1) × ({q} - 1) = {t}.,Worked example: the loop size of a lock,0
+z11.hint.example_d,{e} × {d} lands on 1 on the loop of {t}. So d is {d}.,Worked example: the private key,0
+z11.hint.example_encrypt,"{m} to the power {e}, wrapped on {n}, is {c}.",Worked example: lock a number,0
+z11.hint.example_decrypt,"{c} to the power {d}, wrapped on {n}, is {m}.",Worked example: unlock a number,0
+z11.wheel.how,Turn the wheel until the code spells a word. Then press Set.,Zone 11: how the cipher wheel works,0
+z11.wheel.set,Set,Zone 11: the cipher wheel's Set button,0
+z11.wheel.back,Back,Zone 11: the cipher wheel's turn-back button,0
+z11.wheel.forward,Forward,Zone 11: the cipher wheel's turn-forward button,0
+z11.wheel.shift,Shift {k},Zone 11: the cipher wheel's shift,0
+z11.coins.how,Add coins until the total is right. Then press Done.,Zone 11: how the coin puzzle works,0
+z11.coins.more,More,Zone 11: the coin puzzle's add-a-coin button,0
+z11.coins.less,Less,Zone 11: the coin puzzle's take-a-coin button,0
+z11.coins.total,Total: {t},Zone 11: the coin puzzle's running total,0
+z11.coins.done,Done,Zone 11: the coin puzzle's Done button,0
+z11.coins.kind,{a}-coins,Zone 11: the label of a kind of coin,0
+vocab.cipher.term,cipher,Word Gem term,0
+vocab.cipher.definition,A cipher hides a message by changing its letters.,Word Gem kid-sized definition,0
+vocab.key.term,key,Word Gem term,0
+vocab.key.definition,A key tells how to lock or unlock a cipher.,Word Gem kid-sized definition,0
+vocab.encode.term,encode,Word Gem term,0
+vocab.encode.definition,To encode is to turn a message into a secret code.,Word Gem kid-sized definition,0
+vocab.decode.term,decode,Word Gem term,0
+vocab.decode.definition,To decode is to turn a secret code back into the message.,Word Gem kid-sized definition,0
+vocab.modular_inverse.term,modular inverse,Word Gem term,0
+vocab.modular_inverse.definition,A modular inverse is a number's partner. Together they multiply to land on 1.,Word Gem kid-sized definition,0
+vocab.euclid_algorithm.term,Euclid machine,Word Gem term,0
+vocab.euclid_algorithm.definition,Euclid's machine finds a GCF. It lays the short bar along the long bar again and again.,Word Gem kid-sized definition,0
+vocab.public_key.term,public key,Word Gem term,0
+vocab.public_key.definition,A public key locks a message. Anyone may know it.,Word Gem kid-sized definition,0
+vocab.private_key.term,private key,Word Gem term,0
+vocab.private_key.definition,A private key unlocks a message. Only its owner knows it.,Word Gem kid-sized definition,0
+build.vault_door.name,Vault Door,Build project name (Zone 11),0
+build.vault_door.intro,Turn the cipher wheel to crack three codes. Then the Vault Door opens!,Build project intro (Zone 11),0
+build.vault_door.done,The Vault Door swings open. Every code is cracked!,Build project finished (Zone 11),0
+bolt.misconception.shifted_forward,To decode we go back. Move each letter the other way.,Targeted hint after the shifted_forward mistake,0
+bolt.misconception.off_by_one_shift,So close! Count the places again. One more or one less?,Targeted hint after the off_by_one_shift mistake,0
+bolt.misconception.tried_wrong_shift,Try that shift on the wheel. Does it spell a word?,Targeted hint after the tried_wrong_shift mistake,0
+bolt.misconception.added_before_multiply,Multiply first. Then add. The order matters.,Targeted hint after the added_before_multiply mistake,0
+bolt.misconception.swapped_a_and_b,The number with x is the multiplier. The other one is added.,Targeted hint after the swapped_a_and_b mistake,0
+bolt.misconception.used_a_not_inverse,"To undo times a, use a's undo partner.",Targeted hint after the used_a_not_inverse mistake,0
+bolt.misconception.forgot_subtract_b,Take away the added number first. Then undo the times.,Targeted hint after the forgot_subtract_b mistake,0
+bolt.misconception.added_b_instead,"To undo adding, we take away.",Targeted hint after the added_b_instead mistake,0
+bolt.misconception.thought_always_exists,Some rows of the table have no 1. Look at the row.,Targeted hint after the thought_always_exists mistake,0
+bolt.misconception.gave_additive_inverse,That is the partner for adding. We want times.,Targeted hint after the gave_additive_inverse mistake,0
+bolt.misconception.used_gcd_not_inverse,The GCF being 1 says a partner exists. The partner is another number.,Targeted hint after the used_gcd_not_inverse mistake,0
+bolt.misconception.stopped_one_step_early,Keep going until nothing is left over.,Targeted hint after the stopped_one_step_early mistake,0
+bolt.misconception.gave_last_quotient,That counts how often the bar fit. We want the bar.,Targeted hint after the gave_last_quotient mistake,0
+bolt.misconception.gave_smaller,The GCF can be smaller than the short number. Run the machine.,Targeted hint after the gave_smaller mistake,0
+bolt.misconception.gave_gcd_instead,That is the GCF. We want the number of steps.,Targeted hint after the gave_gcd_instead mistake,0
+bolt.misconception.swapped_coeffs,That fits the other number. Check with this one.,Targeted hint after the swapped_coeffs mistake,0
+bolt.misconception.sign_flip,Close! You counted from the other end.,Targeted hint after the sign_flip mistake,0
+bolt.misconception.swapped_counts,Check which coin is which. The first count is for the first coin.,Targeted hint after the swapped_counts mistake,0
+bolt.misconception.one_coin_too_many,Add up the coins. Is the total exact?,Targeted hint after the one_coin_too_many mistake,0
+bolt.misconception.one_coin_too_few,Add up the coins. Is the total exact?,Targeted hint after the one_coin_too_few mistake,0
+bolt.misconception.ignored_gcd_condition,Coins with a common factor only pay multiples of it.,Targeted hint after the ignored_gcd_condition mistake,0
+bolt.misconception.doubted_big_total,A big enough total can be paid. Check the GCF.,Targeted hint after the doubted_big_total mistake,0
+bolt.misconception.used_n_not_phi,That is p × q. Take one off each prime first.,Targeted hint after the used_n_not_phi mistake,0
+bolt.misconception.forgot_minus_one,Take one off both primes.,Targeted hint after the forgot_minus_one mistake,0
+bolt.misconception.used_e_as_d,The public key and the private key are different numbers.,Targeted hint after the used_e_as_d mistake,0
+bolt.misconception.used_d_not_e,To lock we use the public key.,Targeted hint after the used_d_not_e mistake,0
+bolt.misconception.used_e_not_d,To unlock we use the private key.,Targeted hint after the used_e_not_d mistake,0
+bolt.misconception.gave_cipher,That is the locked number. Unlock it first.,Targeted hint after the gave_cipher mistake,0
+z11.machine.next,Next step,Zone 11: the Euclid machine's Next step button,0
+z11.machine.again,Again,Zone 11: the Euclid machine's Again button,0
+z11.machine.step,{a} = {q} × {b} + {r},Zone 11: one step of the Euclid machine,0
+z11.machine.done,Nothing is left over. The last bar is {g}.,Zone 11: the Euclid machine ends,0
+z11.pad.space,Space,Zone 11: the letter pad's space key,0
+z11.pad.delete,Delete,Zone 11: the letter pad's delete key,0
+z11.pad.clear,Clear,Zone 11: the letter pad's clear key,0
+ui.museum.codes,Secret codes,Museum: opens the secret message screen,0
+ui.museum.lock,Lock door,Museum: opens the toy lock door,0
+z11.secret.title,Secret Message,Zone 11: the secret message screen's title,0
+z11.secret.how,Type a note. Pick a code. Then show the code to a grown-up.,Zone 11: how the secret message works,0
+z11.secret.note,Your note,Zone 11: the secret message's note card,0
+z11.secret.code,Your code,Zone 11: the secret message's coded card,0
+z11.secret.shift_code,Shift code,Zone 11: choose a shift code,0
+z11.secret.times_code,Times code,Zone 11: choose an affine code,0
+z11.secret.shift_label,Shift,Zone 11: the shift stepper,0
+z11.secret.a_label,Times,Zone 11: the multiplier stepper,0
+z11.secret.b_label,Add,Zone 11: the addend stepper,0
+z11.secret.key_shift,Key: shift {k},Zone 11: the key card of a shift code,0
+z11.secret.key_affine,"Key: times {a}, add {b}",Zone 11: the key card of a times code,0
+z11.secret.show,Show this to a grown-up. Can they crack it on paper?,Zone 11: Bolt on the secret message,0
+z11.door.title,Lock Door,Zone 11: the toy lock door's title,0
+z11.door.how,Pick two primes and a key. Watch the door lock and unlock a number.,Zone 11: how the lock door works,0
+z11.door.hello,Locks and keys use big numbers. We use small ones.,Zone 11: Bolt on the lock door,0
+z11.door.prime_p,Prime p,Zone 11: the first prime's stepper,0
+z11.door.prime_q,Prime q,Zone 11: the second prime's stepper,0
+z11.door.key_e,Public key e,Zone 11: the public key's stepper,0
+z11.door.number_m,Number m,Zone 11: the locked number's stepper,0
+z11.door.n,{p} × {q} = {n},Zone 11: n of the toy lock,0
+z11.door.t,Loop size: ({p} - 1) × ({q} - 1) = {t},Zone 11: the loop size of the toy lock,0
+z11.door.d,Private key d = {d}. {e} × {d} lands on 1 on the loop of {t}.,Zone 11: the private key of the toy lock,0
+z11.door.lock,"Lock {m}: raise it to the power {e}. On a loop of {n}, that is {c}.",Zone 11: locking a number,0
+z11.door.unlock,"Unlock {c}: raise it to the power {d}. On a loop of {n}, that is {m}.",Zone 11: unlocking a number,0
+z11.door.same,The private key brings back the number we locked!,Zone 11: the door's punchline,0
+bolt.misconception.shifted_backward,Coding moves forward. Move each letter the other way.,Targeted hint after the shifted_backward mistake,0
+z11.coins.pair,{x} and {y},Zone 11: the two coin counts on an answer button,0

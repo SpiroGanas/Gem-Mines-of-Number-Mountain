@@ -18,7 +18,7 @@ const SCREENS: Dictionary = {
 	&"crafting": {}, &"build_site": {}, &"build": {"build_id": "cart_track"}, &"badges": {}, &"glossary": {},
 	&"challenge_door": {"skill_id": "add.to_10.sums"},
 	&"parent_gate": {}, &"dashboard": {}, &"family_rewards": {}, &"profiles": {}, &"onboarding": {},
-	&"how_it_teaches": {}, &"poems": {},
+	&"how_it_teaches": {}, &"poems": {}, &"secret_message": {}, &"rsa_door": {},
 }
 
 var _dir: String

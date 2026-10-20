@@ -314,6 +314,8 @@ Built in Phase 3 (public release readiness):
 
 Built in Phase 4 (Middle Mountain, Version 1.5): Zones 6 Gear Works, 7 Crystal Shards, 8 Power Tower and 9 Pattern Grotto (135 skills in all, every generator cross-checked), their mechanics and builds, `Rational`, simplest-form answers (`meta.simplest_form`), Scholar mode part 1 (keyboard entry, notation widgets, explorer/scholar/auto), saved Fib poems (save schema **v4**), the Gauss Staircase badge.
 
-**Next:** the human, device and store items in `status.md` section 5 (math reviewer sign-off on Zones 6-9, Spiro's open decisions, device matrices, the closed test, the Play submission). Zones 10-12 and Scholar mode part 2 are Phase 5 (`docs/phases/phase-5-deep-mountain.md`); don't build them until Spiro confirms Phase 5.
+Built in Phase 5 so far (Spiro confirmed Phase 5 on 2026-10-20 and chose Zones 10 and 11): Zone 10 Clockwork Depths (clock arithmetic, mixing tables and groups, why the divisibility rules work; the circular track, clock lock and mixing table; the Clockwork Vault build) and Zone 11 Cipher Vault (Caesar and affine ciphers, undo partners for multiplying, the Euclid machine, coins, a toy lock; the cipher wheel, coin puzzle, Euclid machine, letter pad, secret message and lock door; the Vault Door build), 165 skills in all, every generator cross-checked. The Noether, Ramanujan and Fermat badges came with them.
+
+**Next:** the human, device and store items in `status.md` section 5 (math reviewer sign-off on Zones 6-11, Spiro's open decisions, device matrices, the closed test, the Play submission). Zone 12 (the proof builder), Scholar mode part 2, Master Miner ranks, the web export and the developer guides are the rest of Phase 5 (`docs/phases/phase-5-deep-mountain.md`); the plan's voice rows no longer apply.
 
 Update this section at the start of each phase. Day-to-day state (what just landed, what is next, what is blocked) lives in `status.md`, not here.

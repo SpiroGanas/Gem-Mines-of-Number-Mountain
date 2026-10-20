@@ -298,6 +298,10 @@ func music_id() -> StringName:
 			return &"mine_z8"
 		9:
 			return &"mine_z9"
+		10:
+			return &"mine_z10"
+		11:
+			return &"mine_z11"
 	return &"mine"
 
 

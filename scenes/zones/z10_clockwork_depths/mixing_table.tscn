@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/zones/z10_clockwork_depths/mixing_table.gd" id="1_script"]
+
+[node name="MixingTable" type="VBoxContainer"]
+script = ExtResource("1_script")

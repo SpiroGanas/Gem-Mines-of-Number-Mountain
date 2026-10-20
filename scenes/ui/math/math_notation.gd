@@ -1,10 +1,10 @@
 ## Math notation for Zone 8 and Scholar mode (Phase 4, Sprint 35 and 37): a power (2⁵), a square root
-## (√49) or scientific notation (3.4 × 10⁵) drawn with the composed notation scenes, plus, in Explorer
+## (√49), scientific notation (3.4 × 10⁵) or (Zone 10) a congruence (17 ≡ 5 (mod 12)) drawn with the composed notation scenes, plus, in Explorer
 ## mode, the same thing in words underneath ("2 to the power 5", lines z8.notation.*_words). In Scholar
 ## mode (ModeGate's MATH_NOTATION on for the child) the notation stands alone.
 ##
 ## The spec is a `notation` picture (Problem: {form: "power", base, exp} | {form: "root", n} |
-## {form: "sci", mantissa, scale, exp}). Problem pictures, answer buttons and the pads all build their
+## {form: "sci", mantissa, scale, exp} | {form: "congruence", a, b, n}). Problem pictures, answer buttons and the pads all build their
 ## notation here, so every screen writes math the same way. Presentation only, never interactive.
 class_name MathNotation
 extends VBoxContainer
@@ -50,6 +50,8 @@ static func words_for(new_spec: Dictionary) -> String:
 		"sci":
 			return Text.get_line(&"z8.notation.sci_words", {
 				"m": {"mantissa": int(new_spec["mantissa"]), "scale": int(new_spec["scale"])}, "e": int(new_spec["exp"])})
+		"congruence":
+			return Text.get_line(&"z10.notation.congruence_words", {"a": int(new_spec["a"]), "b": int(new_spec["b"]), "n": int(new_spec["n"])})
 	return ""
 
 
@@ -83,6 +85,11 @@ func show_spec(new_spec: Dictionary) -> void:
 			sci.size_scale = size_scale
 			sci.show_value(spec)
 			_display = sci
+		"congruence":
+			var congruence: CongruenceDisplay = CongruenceDisplay.new()
+			congruence.size_scale = size_scale
+			congruence.show_congruence(int(spec["a"]), int(spec["b"]), int(spec["n"]))
+			_display = congruence
 	if _display == null:
 		return
 	_display.name = "Notation"

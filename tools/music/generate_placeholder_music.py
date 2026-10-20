@@ -26,6 +26,11 @@ and one for the build site. Which screen plays which file:
                  the doubling elevator going up the tower
     mine_z9.ogg  the mine in Zone 9, Pattern Grotto (Phase 4): bells only on the Fibonacci beats
                  (1, 2, 3, 5, 8, 13) of each 16 over slow chords
+    mine_z10.ogg the mine in Zone 10, Clockwork Depths (Phase 5): bells that tick on every third beat of
+                 a 12-beat clock face, going round twice over slow chords
+
+    mine_z11.ogg the mine in Zone 11, Cipher Vault (Phase 5): bells that ring only on the prime beats of a
+                 26-beat loop (one beat for each letter), rising to the middle and falling back
 
 Every loop is loudness-normalized to TARGET_LUFS with ffmpeg's two-pass `loudnorm` filter (one
 linear gain, so the dynamics are untouched), so a cross-fade between screens never jumps in volume.
@@ -113,6 +118,22 @@ TRACKS = {
                    None, 78, 76, 74, None, 76, None, None, 78, None, None, None, None, 74, None, None],
         "chords": [[38, 45, 54], [43, 50, 59], [47, 54, 62], [45, 52, 61],
                    [38, 45, 54], [43, 50, 59], [45, 52, 61], [38, 45, 57]],
+    },
+    # Zone 10, Clockwork Depths: D major pentatonic bells that tick on every third beat of a 12-beat clock
+    # face (beats 0, 3, 6 and 9 of each 12), the loop going round twice like a clock striking twice.
+    "mine_z10": {
+        "bpm": 64,
+        "melody": [69, None, None, 73, None, None, 76, None, None, 73, None, None,
+                   71, None, None, 74, None, None, 78, None, None, 74, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 56], [38, 45, 54], [43, 50, 59], [45, 52, 61]],
+    },
+    # Zone 11, Cipher Vault: D major pentatonic bells that ring only on the prime beats (2, 3, 5, 7, 11, 13, 17, 19, 23)
+    # of a 26-beat loop, one beat for each letter of the alphabet, rising to the middle and falling back.
+    "mine_z11": {
+        "bpm": 64,
+        "melody": [None, None, 69, 73, None, 76, None, 78, None, None, None, 81, None, 78, None, None, None, 76, None, 73,
+                   None, None, None, 69, None, None],
+        "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 56], [45, 52, 61], [38, 45, 54], [43, 50, 59], [45, 52, 61]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {

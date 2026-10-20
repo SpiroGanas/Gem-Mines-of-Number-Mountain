@@ -71,6 +71,34 @@
         {"step_id": "weight_2", "scene": "res://scenes/workshop/builds/counterweight_elevator/counterweight_elevator.tscn", "skill_id": "lever.counterweight.balance", "params": {"representation": "concrete"}},
         {"step_id": "weight_3", "scene": "res://scenes/workshop/builds/counterweight_elevator/counterweight_elevator.tscn", "skill_id": "lever.counterweight.balance", "params": {"representation": "concrete"}}
       ]
+    },
+    {
+      "id": "clockwork_vault",
+      "name_line_id": "build.clockwork_vault.name",
+      "intro_line_id": "build.clockwork_vault.intro",
+      "reward_line_id": "build.clockwork_vault.done",
+      "zone_unlocks": 11,
+      "locks_zone": false,
+      "unlock_after_skill": "mod.add.wrap",
+      "steps": [
+        {"step_id": "dial_1", "scene": "res://scenes/workshop/builds/clockwork_vault/clockwork_vault.tscn", "skill_id": "mod.add.wrap", "params": {"representation": "concrete", "difficulty": -1}},
+        {"step_id": "dial_2", "scene": "res://scenes/workshop/builds/clockwork_vault/clockwork_vault.tscn", "skill_id": "mod.add.wrap", "params": {"representation": "concrete"}},
+        {"step_id": "dial_3", "scene": "res://scenes/workshop/builds/clockwork_vault/clockwork_vault.tscn", "skill_id": "mod.add.wrap", "params": {"representation": "concrete"}}
+      ]
+    },
+    {
+      "id": "vault_door",
+      "name_line_id": "build.vault_door.name",
+      "intro_line_id": "build.vault_door.intro",
+      "reward_line_id": "build.vault_door.done",
+      "zone_unlocks": 12,
+      "locks_zone": false,
+      "unlock_after_skill": "cipher.caesar.decode",
+      "steps": [
+        {"step_id": "code_1", "scene": "res://scenes/workshop/builds/vault_door/vault_door.tscn", "skill_id": "cipher.caesar.crack", "params": {"representation": "concrete", "difficulty": -1}},
+        {"step_id": "code_2", "scene": "res://scenes/workshop/builds/vault_door/vault_door.tscn", "skill_id": "cipher.caesar.crack", "params": {"representation": "concrete"}},
+        {"step_id": "code_3", "scene": "res://scenes/workshop/builds/vault_door/vault_door.tscn", "skill_id": "cipher.caesar.crack", "params": {"representation": "concrete"}}
+      ]
     }
   ]
 }

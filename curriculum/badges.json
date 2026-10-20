@@ -81,6 +81,49 @@
         {"line_id": "badge.gauss_staircase.story_6", "params": {}}
       ],
       "unlock": {"skills_mastered": ["gauss.sum.pairing", "gauss.sum.formula"]}
+    },
+    {
+      "id": "noether",
+      "name_line_id": "badge.noether.name",
+      "emblem": "table",
+      "zone": 10,
+      "story": [
+        {"line_id": "badge.noether.story_1", "params": {}},
+        {"line_id": "badge.noether.story_2", "params": {}},
+        {"line_id": "badge.noether.story_3", "params": {}},
+        {"line_id": "badge.noether.story_4", "params": {}},
+        {"line_id": "badge.noether.story_5", "params": {}}
+      ],
+      "unlock": {"skills_mastered": ["group.closure.verify", "group.inverse.find"]}
+    },
+    {
+      "id": "ramanujan",
+      "name_line_id": "badge.ramanujan.name",
+      "emblem": "cubes",
+      "zone": 10,
+      "story": [
+        {"line_id": "badge.ramanujan.story_1", "params": {}},
+        {"line_id": "badge.ramanujan.story_2", "params": {}},
+        {"line_id": "badge.ramanujan.story_3", "params": {}},
+        {"line_id": "badge.ramanujan.story_4", "params": {}},
+        {"line_id": "badge.ramanujan.story_5", "params": {"n": 1729}}
+      ],
+      "unlock": {"skills_mastered": ["fig.triangular.build", "group.cyclic.generate"]}
+    },
+    {
+      "id": "fermat",
+      "name_line_id": "badge.fermat.name",
+      "emblem": "lock",
+      "zone": 11,
+      "story": [
+        {"line_id": "badge.fermat.story_1", "params": {}},
+        {"line_id": "badge.fermat.story_2", "params": {}},
+        {"line_id": "badge.fermat.story_3", "params": {}},
+        {"line_id": "badge.fermat.story_4", "params": {"p": 7}},
+        {"line_id": "badge.fermat.story_5", "params": {}}
+      ],
+      "unlock": {"skills_mastered": ["rsa.toy.keygen", "modinv.find.small"]}
     }
+
   ]
 }
