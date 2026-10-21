@@ -39,7 +39,7 @@ The full list is in `CLAUDE.md`. The ones that shape everything:
 
 - **No network access in the shipped game.** No analytics, ads, accounts or live AI. AI is used at build time only.
 - **No data leaves the device** unless a parent exports it from the parent-gated area. Handwriting strokes are never stored.
-- **Every child-facing string comes from `text/lines.csv`** through the `Text` autoload, so narration can be added later without reworking screens.
+- **Every child-facing string comes from `text/lines.csv`** through the `Text` autoload, so every word is in one place for review (the game has no narration).
 - **Wrong answers never cost anything.** No timers, no game-over, no lost gems. Rewards are earned, never random.
 - **Math must be correct.** Every problem generator has a seeded automated test and an independent Python cross-check.
 - Touch targets are at least 64 dp; no `LineEdit` on child-facing screens; landscape only.
@@ -53,7 +53,7 @@ The full list is in `CLAUDE.md`. The ones that shape everything:
 | Godot Engine | **4.7.2-stable**, standard build (not .NET) | Pinned in `.godot-version`. Do not upgrade without asking. |
 | Android Studio + SDK | API 36 | Needed from Sprint 1 for Android export, emulators and Logcat. |
 | JDK | 17 (Eclipse Temurin) | For the Android Gradle build. |
-| Python | 3.12 | Offline tools under `tools/` (cross-checker, lint, voice pipeline, BKT fitting). |
+| Python | 3.12 | Offline tools under `tools/` (cross-checker, lint, BKT fitting, handwriting training, web page rendering). |
 | Git | any recent | The dev machine is Windows; scripts use forward slashes and run in Git Bash. |
 
 ### Open the project
@@ -99,7 +99,7 @@ project.godot            Godot project (4.7, GL Compatibility, 1920x1080 landsca
 .godot-version           Pinned engine version (4.7.2-stable)
 default_bus_layout.tres  Audio buses: Master, Music, SFX, Voice
 icon.svg                 Placeholder app icon
-autoload/                Singletons: Text, UI, InputRouter, SaveSystem, Adaptive, Rewards; Narration, Profiles (Phase 3)
+autoload/                Singletons: Text, UI, InputRouter, SaveSystem, Profiles, Adaptive, Rewards (no Narration: no voice, Spiro 2026-10-19)
 scenes/
   shell/                 Shell, title, first run, hub (workshop), pause, settings, debug overlay; parent_area/ (gate, dashboard)
   mine/                  mine, rock wall, rock, cart, Bolt, gem art, visual model, answer panel
@@ -114,12 +114,12 @@ scripts/
   ui/                    ExplorerTheme (the theme is built in code)
 curriculum/              skill graph JSON (one file per zone), vocabulary.json, misconceptions.json, bkt_defaults.json
 text/lines.csv           every child-facing line: id, text, context, voice_version
-narration/audio/         generated narration (Phase 3); never hand-edited
+narration/               empty on purpose: the game has no narration or AI voice (Spiro, 2026-10-19)
 assets/                  art, fonts, sfx, music; every file credited in assets/CREDITS.md
 addons/                  gdUnit4 (installed)
 android/plugins/digit_ink/   empty placeholder (handwriting recognition runs in GDScript: scripts/input/)
 tests/                   GdUnit4 suites mirroring autoload/, scripts/ and scenes/, plus helpers/ (synthetic input, test window)
-tools/                   Python: crosscheck/, ci/, sfx/, music/, bkt/, handwriting/ (built); voice/ (Phase 3)
+tools/                   Python: crosscheck/, ci/, sfx/, music/, bkt/, handwriting/, qa/, web/ (no voice/: no narration)
 docs/                    development-plan.md, phases/, decisions.md, sdk-audit.md, gdd.md
 private/                 gitignored: exported play logs and handwriting samples; never committed
 ```

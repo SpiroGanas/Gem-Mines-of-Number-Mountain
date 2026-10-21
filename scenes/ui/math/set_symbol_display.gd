@@ -69,11 +69,16 @@ func _refresh() -> void:
 
 
 func _draw() -> void:
-	var box: Vector2 = size
-	if box.x <= 0.0 or box.y <= 0.0:
+	if size.x <= 0.0 or size.y <= 0.0:
 		return
-	var thin: float = maxf(box.y * 0.035, 1.5)
-	for stroke: PackedVector2Array in strokes(symbol):
+	draw_strokes(self, Rect2(Vector2.ZERO, size), symbol, STROKE)
+
+
+## Draws `which` as double-struck strokes filling `box` on any canvas (the notation card here, the number rings in
+## CoreArt), so the symbols look the same everywhere.
+static func draw_strokes(canvas: CanvasItem, box: Rect2, which: StringName, color: Color) -> void:
+	var thin: float = maxf(box.size.y * 0.035, 1.5)
+	for stroke: PackedVector2Array in strokes(which):
 		for side: float in [-1.0, 1.0]:
 			var line: PackedVector2Array = PackedVector2Array()
 			for index: int in stroke.size():
@@ -81,5 +86,5 @@ func _draw() -> void:
 				var after: Vector2 = stroke[mini(index + 1, stroke.size() - 1)]
 				var direction: Vector2 = (after - before).normalized()
 				var normal: Vector2 = Vector2(-direction.y, direction.x)
-				line.append((stroke[index] + normal * GAP * side) * box)
-			draw_polyline(line, STROKE, thin, true)
+				line.append(box.position + (stroke[index] + normal * GAP * side) * box.size)
+			canvas.draw_polyline(line, color, thin, true)

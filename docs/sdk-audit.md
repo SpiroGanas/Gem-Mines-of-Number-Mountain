@@ -6,7 +6,7 @@ Every third-party dependency, plugin or SDK in the shipped app or the build must
 |---|---|---|---|---|---|---|---|---|
 | Godot Engine | 4.7.2-stable | Engine | Yes | No | None | MIT | Spiro | 2026-10-17 |
 | Andika font (SIL International) | 6.200 (Regular and Bold) | `assets/fonts/andika/`, loaded by `ExplorerTheme` as the default font | Yes | No | None | SIL Open Font License 1.1 (`assets/fonts/andika/OFL.txt` ships with the fonts) | Spiro | 2026-10-17 |
-| GdUnit4 | 6.2.2 | `addons/gdUnit4/`, tests only; excluded from both export presets (`addons/gdUnit4/*` in `exclude_filter`, enforced by `tools/ci/test_export_presets.py`) | No (dev/CI only) | No | None | MIT | Spiro | 2026-10-17 |
+| GdUnit4 | 6.2.2 | `addons/gdUnit4/`, tests only; excluded from every export preset, Android, Android AAB and Web (`addons/gdUnit4/*` in `exclude_filter`, enforced by `tools/ci/test_export_presets.py`) | No (dev/CI only) | No | None | MIT | Spiro | 2026-10-17 |
 | digit_ink (the project's own handwriting reader: `scripts/input/`, weights in `assets/handwriting/digit_net.json`) | v1 (Sprint 13) | Runs in GDScript inside the game; no plugin, no library | Yes (a 283 KB weights file and ordinary GDScript) | No | Stroke points in memory only, discarded when the answer is submitted or erased; never saved, never made into a picture | Project (weights trained on MNIST, credited in `assets/CREDITS.md`; MNIST is CC BY-SA 3.0, **Needs Spiro:** see `docs/decisions.md`, Sprint 13) | Spiro (GDScript inference chosen 2026-10-17) | 2026-10-17 |
 | PyTorch + numpy (`tools/handwriting/requirements.txt`) | torch 2.14.1, numpy 2.5.3 (as trained; `torch>=2.4`, `numpy>=2.0`) | Offline training and evaluation of the digit network on the developer's machine | **No** (build-time only; nothing from them is in the app) | Only to fetch MNIST at build time (a public mirror, hash pinned) | MNIST pictures (public), and Charlie's captured digits **only as a test set**, kept in the gitignored `private/handwriting/` | BSD-3-Clause (PyTorch), BSD-3-Clause (numpy) | Spiro (PyTorch chosen 2026-10-17; numpy is used alongside it) | 2026-10-17 |
 
@@ -31,6 +31,10 @@ Google Play's Families Policy asks that every SDK in a children's app that handl
 | Godot Engine | Yes | No (no `INTERNET` permission; the engine has no telemetry) | Fine: not an ads or analytics SDK; nothing to self-certify |
 | Andika font | Yes | No (a font file) | Fine: content, licence in `assets/fonts/andika/OFL.txt` |
 | Art and sound packs (Kenney CC0, code-drawn art, synthesized music) | Yes | No (files) | Fine: content, licences in `assets/CREDITS.md` |
-| GdUnit4 | No | No | Not in the app (excluded by both presets) |
+| GdUnit4 | No | No | Not in the app (excluded by all three presets) |
 | digit_ink (own GDScript reader) | Yes | No: strokes in memory only | Fine: own code, no third party. `android/plugins/digit_ink/` is an empty placeholder, not a plugin |
 | PyTorch + numpy | No | No (build time only) | Not in the app |
+
+## Phase 5 reconfirmation (2026-10-21, peer review 05; plan item P5-S52-07)
+
+No SDK, plugin, permission or font was added in Phase 5 (Zones 10-12, Scholar mode part 2, Master Miner ranks, the Web export). Checked against the repository: `addons/` still holds GdUnit4 only (not exported); `android/plugins/digit_ink/` is still the empty placeholder; no preset requests `INTERNET` (`tools/ci/test_export_presets.py`); the new "Web" preset uses Godot's own single-threaded export template with no service worker and no extension; the set symbols ℤ ℚ ℝ and the ≡ sign are drawn in code, so no fallback font was added; the landing page `tools/web/about.html` carries no script and no external request; the Zone 10-12 music loops are synthesized by the project's own `tools/music/generate_placeholder_music.py`; PyTorch and numpy stay build-time only. The data safety answers are unchanged. The next check is due with the first maintenance release that touches `export_presets.cfg`, `addons/` or `project.godot`.

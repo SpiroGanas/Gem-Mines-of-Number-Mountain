@@ -75,6 +75,8 @@ def _identity(problem: dict) -> list[str]:
     eop = ex["answer_line_id"].rsplit("_", 1)[-1]
     if ex["answer_line_id"] not in ("z10.hint.example_identity_add", "z10.hint.example_identity_mul") or ex["answer_params"] != {}:
         errors.append("the worked example should name the do-nothing number")
+    elif not isinstance(ex["prompt_params"].get("n"), int) or do_nothing(ex["prompt_params"]["n"], eop) != [ex["answer"]]:
+        errors.append(f"the worked example's answer {ex['answer']!r} is not the do-nothing number of its {eop} table")
     return errors
 
 
@@ -103,6 +105,8 @@ def _inverse(problem: dict) -> list[str]:
     ea = ex["prompt_params"]["a"]
     if ex["answer_line_id"] != "z10.hint.example_inverse" or ex["answer_params"] != {"a": ea, "b": ex["answer"]}:
         errors.append("the worked example should name the undo partner")
+    elif undo_partners(ex["prompt_params"]["n"], ea) != [ex["answer"]]:
+        errors.append(f"the worked example's {ex['answer']!r} is not the undo partner of {ea} on a loop of {ex['prompt_params']['n']}")
     return errors
 
 
@@ -131,6 +135,17 @@ def _closure(problem: dict) -> list[str]:
         errors.append("the meta should hold the biggest answer and the Yes/No labels")
     if problem["hint_steps"][1]["visual"] != visual:
         errors.append("the rung 2 model is the table")
+    ex = problem["hint_steps"][2]["example"]
+    em = ex["prompt_params"].get("m")
+    if not isinstance(em, int) or ex["answer_line_id"] not in ("z10.hint.example_closure_yes", "z10.hint.example_closure_no"):
+        errors.append("the worked example should say whether its table stays inside")
+    else:
+        # The example's line says yes (a wrapped table always stays inside) or no with the biggest raw value, which
+        # for a table of em + 1 numbers is 2 × em (adding) or em × em (multiplying); the example's op is not recorded.
+        wanted_yes = ex["answer_line_id"].endswith("_yes")
+        biggest_raw = {2 * em, em * em}
+        if ex["answer"] is not wanted_yes or ex["answer_params"].get("m") != em or (not wanted_yes and ex["answer_params"].get("v") not in biggest_raw):
+            errors.append("the worked example's yes or no, m and biggest value should match a table of its own size")
     return errors
 
 
@@ -155,9 +170,11 @@ def _table(problem: dict) -> list[str]:
         errors.append("the rung 2 model should show the box filled in")
     ex = problem["hint_steps"][2]["example"]
     es = ex["answer_params"]
-    ok = es["t"] == raw(es["r"], es["c"], "add" if ex["answer_line_id"].endswith("_add") else "mul") and es["x"] == ex["answer"]
+    eop = "add" if ex["answer_line_id"].endswith("_add") else "mul"
+    ok = (es.get("t") == raw(es["r"], es["c"], eop) and es.get("x") == ex["answer"] and isinstance(es.get("n"), int)
+          and ex["answer"] == wrapped(es["r"], es["c"], eop, es["n"]))
     if not ex["answer_line_id"].startswith("z10.hint.example_table_") or not ok:
-        errors.append("the worked example should mix the row and column and wrap")
+        errors.append("the worked example should mix the row and column and wrap to its answer")
     return errors
 
 
@@ -187,4 +204,11 @@ def _cyclic(problem: dict) -> list[str]:
     ep = ex["prompt_params"]
     if ex["answer_line_id"] != "z10.hint.example_cyclic" or ex["answer_params"] != {"g": ep["g"], "n": ep["n"], "j": ex["answer"]}:
         errors.append("the worked example should say how many jumps")
+    else:
+        ej, eat = 1, ride(ep["n"], 0, ep["g"], 1)
+        while eat != 0:
+            eat = ride(ep["n"], eat, ep["g"], 1)
+            ej += 1
+        if ej != ex["answer"]:
+            errors.append(f"the worked example's jumps of {ep['g']} on a loop of {ep['n']} return after {ej}, not {ex['answer']}")
     return errors

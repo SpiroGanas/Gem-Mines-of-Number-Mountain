@@ -104,10 +104,14 @@ def line(n):
 
 GOOD_GOLDBACH = make("mystery.goldbach.find_pair", "z12.mystery.prompt_goldbach", {"n": 20}, "3 + 17",
                      [("used_composite", "1 + 19"), ("sum_off", "5 + 17")], meta={"pairs": ["3 + 17", "7 + 13"]},
-                     model=line(20), ex=example("z12.mystery.prompt_goldbach", {"n": 10}, "3 + 7", "z12.hint.example_goldbach", {"p": 3, "q": 7, "n": 10}))
+                     visual=line(20), model=line(20), representation="pictorial",
+                     ex=example("z12.mystery.prompt_goldbach", {"n": 10}, "3 + 7", "z12.hint.example_goldbach", {"p": 3, "q": 7, "n": 10}))
+# The larger twin is named before the cousin prime (peer review 05: after 10 they are both 13).
 GOOD_TWIN = make("mystery.twin.next_pair", "z12.mystery.prompt_twin", {"p": 20}, 29,
-                 [("gap_not_two", 37), ("not_both_prime", 21), ("gave_larger_prime", 31)], meta={"pad_digits": 3},
+                 [("gave_larger_prime", 31), ("gap_not_two", 37), ("not_both_prime", 21)], meta={"pad_digits": 3},
+                 visual={"type": "number_line", "min": 20, "max": 40, "labeled_every": 10, "markers": [20], "blanks": []},
                  model={"type": "number_line", "min": 20, "max": 40, "labeled_every": 10, "markers": [20, 29, 31], "blanks": []},
+                 representation="pictorial",
                  ex=example("z12.mystery.prompt_twin", {"p": 5}, 11, "z12.hint.example_twin", {"q": 11, "r": 13}))
 
 ALL_GOOD = [GOOD_PARTS, GOOD_ORDER, GOOD_JUSTIFY, GOOD_CLASH, GOOD_RING, GOOD_INT, GOOD_RAT, GOOD_GOLDBACH, GOOD_TWIN]

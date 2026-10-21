@@ -1,6 +1,6 @@
 ## The clock lock (Zone 10, Clockwork Depths; meta.clock_lock = {n, turns}): a dial with n marks, 0 to n - 1, and a
 ## pointer that starts on 0. The child points the dial at the mark the turns end on (tap a mark; the pointer swings
-## there) and presses Set, which hands the mark in. Used for mod.add.wrap rocks in the mine and for each dial of the
+## there) and presses Set, which hands the mark in. Set waits for that first tap, so the untouched 0 is never handed in. Used for mod.add.wrap rocks in the mine and for each dial of the
 ## Clockwork Vault build.
 ##
 ## The dial is a picture (ClockArt) and the marks are a row of Buttons under it, one touch target each, that wrap onto
@@ -33,6 +33,8 @@ var pointer: float = 0.0:
 			_picture.queue_redraw()
 ## The mark the child chose (0 until a tap).
 var chosen: int = 0
+## True once a mark was pointed at: Set and Enter do nothing before (peer review 05: Set used to hand in 0 untouched).
+var pointed_once: bool = false
 
 var _picture: _DialPicture
 var _marks: HFlowContainer
@@ -54,6 +56,7 @@ func setup(spec: Dictionary) -> void:
 	n = int(spec["n"])
 	turns = GeneratorKit.ints_of(spec.get("turns", []))
 	chosen = 0
+	pointed_once = false
 	pointer = 0.0
 	for child: Node in get_children():
 		remove_child(child)
@@ -105,6 +108,9 @@ func point_at(mark: int) -> void:
 	if not _enabled:
 		return
 	chosen = mark
+	pointed_once = true
+	if _set != null:
+		_set.disabled = false
 	pointed.emit(mark)
 	if _tween != null:
 		_tween.kill()
@@ -122,7 +128,7 @@ func point_at(mark: int) -> void:
 
 
 func submit() -> void:
-	if _enabled:
+	if _enabled and pointed_once:
 		submitted.emit(chosen)
 
 
@@ -131,7 +137,7 @@ func set_enabled(enabled: bool) -> void:
 	for button: Button in _buttons:
 		button.disabled = not enabled
 	if _set != null:
-		_set.disabled = not enabled
+		_set.disabled = not enabled or not pointed_once
 
 
 func mark_button(index: int) -> Button:

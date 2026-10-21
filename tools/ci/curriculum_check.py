@@ -67,8 +67,9 @@ DETAILED_SKILL_FIELDS = frozenset({
     "id", "name", "prereqs", "generator", "params", "representations", "answer_modes",
     "terms", "bkt_type", "is_fact_skill", "misconceptions",
 })
-# notation_level (Phase 5, Scholar mode): 0 plain (+ - x / =), 1 fractions, decimals, powers, roots and the like,
-# 2 the congruence sign and set symbols. Optional; a skill without one counts as 0.
+# notation_level (Phase 5, Scholar mode): 0 plain (+ - x / =), 1 fractions, decimals, powers, roots and the congruence
+# sign (all taught in Explorer mode too), 2 the set symbols, which only Scholar mode draws (scripts/core/notation_rules.gd).
+# Optional; a skill without one counts as 0.
 OPTIONAL_SKILL_FIELDS = frozenset({"notation_level"})
 OUTLINE_SKILL_FIELDS = frozenset({"id", "name"})
 ZONE_FIELDS = frozenset({"zone", "zone_id", "name", "status", "skills"})

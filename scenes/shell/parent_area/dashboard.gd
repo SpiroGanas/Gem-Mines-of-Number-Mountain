@@ -16,6 +16,9 @@
 class_name DashboardScreen
 extends ShellScreen
 
+## Tests pretend to be the web build. The web version has no progress file (peer review 05).
+static var pretend_web: bool = false
+
 const SESSION_STEP_MINUTES: int = 5
 const MIN_SESSION_MINUTES: int = 5
 const MAX_SESSION_MINUTES: int = 60
@@ -157,17 +160,27 @@ func refresh() -> void:
 	var transfer: HBoxContainer = HBoxContainer.new()
 	transfer.add_theme_constant_override(&"separation", 16)
 	_content.add_child(transfer)
-	var export_button: Button = _button(&"parent.dash.export", _open_export_dialog)
-	export_button.name = "ExportButton"
-	transfer.add_child(export_button)
-	var import_button: Button = _button(&"parent.dash.import", _open_import_dialog)
-	import_button.text = Text.get_line(&"parent.dash.import_into", {"name": _active_name()})
-	import_button.name = "ImportButton"
-	transfer.add_child(import_button)
-	var import_new: Button = _button(&"parent.dash.import_new", _open_import_new_dialog)
-	import_new.name = "ImportNewButton"
-	import_new.disabled = not Profiles.can_add()
-	transfer.add_child(import_new)
+	if is_web():
+		# A browser cannot hand the game a file on the computer's disk or take one from it through Godot's dialog, so
+		# the web version offers no progress file; progress stays in the browser's storage (docs/privacy-policy.md).
+		var note: Label = Label.new()
+		note.name = "WebTransferNote"
+		note.text = Text.get_line(&"parent.dash.web_no_transfer")
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		transfer.add_child(note)
+	else:
+		var export_button: Button = _button(&"parent.dash.export", _open_export_dialog)
+		export_button.name = "ExportButton"
+		transfer.add_child(export_button)
+		var import_button: Button = _button(&"parent.dash.import", _open_import_dialog)
+		import_button.text = Text.get_line(&"parent.dash.import_into", {"name": _active_name()})
+		import_button.name = "ImportButton"
+		transfer.add_child(import_button)
+		var import_new: Button = _button(&"parent.dash.import_new", _open_import_new_dialog)
+		import_new.name = "ImportNewButton"
+		import_new.disabled = not Profiles.can_add()
+		transfer.add_child(import_new)
 	_status = Label.new()
 	_status.name = "StatusLabel"
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -411,6 +424,10 @@ func _dialog(mode: FileDialog.FileMode) -> FileDialog:
 	_file_dialog.filters = PackedStringArray(["*.json"])
 	add_child(_file_dialog)
 	return _file_dialog
+
+
+static func is_web() -> bool:
+	return pretend_web or OS.has_feature("web")
 
 
 func _open_export_dialog() -> void:

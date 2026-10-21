@@ -28,7 +28,7 @@ python -m pytest tools
 python tools/ci/lint_content.py
 ```
 
-Add `-c` to keep going after a failure. To run one suite: `-a res://tests/generators/test_place_value.gd`. Parallel Godot runs on one machine share `user://`; give each its own `XDG_DATA_HOME`, and never run two `--import` runs at once in the same folder.
+`-c` keeps going after a failure (without it a suite stops at its first failing test). To run one suite: `-a res://tests/generators/test_place_value.gd`. Parallel Godot runs on one machine share `user://`; give each its own `XDG_DATA_HOME`, and never run two `--import` runs at once in the same folder.
 
 The other checks (see the release checklist section 2): `python tools/crosscheck/run.py --all --n 10000` (needs `GODOT`), `python tools/ci/curriculum_check.py`, `python tools/ci/perf_check.py`, `python tools/ci/check_sdk_audit.py`. Mouse-only play: `"$GODOT" --path . -- --no-touch`.
 
@@ -57,7 +57,7 @@ Follow `docs/release-checklist.md` in order. In short:
 3. `"$GODOT" --headless --path . --export-release "Android AAB" build/gem-mines.aab`, then `python tools/ci/check_manifest.py build/gem-mines.aab` (no `INTERNET`, location, camera, microphone, contacts or ad ID; phones not shut out).
 4. Record the SHA-256 and the commit, outside the repo. Upload to the **internal testing** track in Play Console, run the device passes, then promote (closed test, then production with a staged rollout).
 
-The shipped game never asks for the network (rule 1): `permissions/internet=false` in every preset, enforced by `tools/ci/test_export_presets.py`.
+The shipped game never asks for the network (rule 1): `permissions/internet=false` in both Android presets (the Web preset has no permission keys; nothing in it may turn one on), enforced by `tools/ci/test_export_presets.py`.
 
 ## 5. Web build and GitHub Pages
 
@@ -73,7 +73,7 @@ python -m http.server --directory build/web 8000     # then open http://localhos
 
 `.github/workflows/web-deploy.yml` exports the preset on every push to `main` (export and size check only) and publishes `build/web/` to GitHub Pages when a tag `v*` is pushed (enable Pages with source "GitHub Actions" once in the repository settings). It uses only `actions/checkout`, `actions/upload-pages-artifact` and `actions/deploy-pages`. Size budget: under 150 MB (the 4.7.2 build measured about 43 MB).
 
-Web differences: `user://` is the browser's IndexedDB, so saves survive a reload but not "clear site data"; the `NOTIFICATION_WM_CLOSE_REQUEST` save may not fire, so the per-rock save point carries the load; handwriting recognition is plain GDScript, so the `ChalkSlate` works on web where the browser reports a touch screen, and the `NumberPad` appears otherwise (the existing no-touch fallback); no web-specific code exists yet, so this is a manual check; the parent's progress export goes through the browser's download.
+Web differences: `user://` is the browser's IndexedDB, so saves survive a reload but not "clear site data"; the `NOTIFICATION_WM_CLOSE_REQUEST` save may not fire, so the per-rock save point carries the load; handwriting recognition is plain GDScript, so the `ChalkSlate` works on web where the browser reports a touch screen, and the `NumberPad` appears otherwise (the existing no-touch fallback); these are manual checks; the parent dashboard shows a note instead of Export and Import on web (`DashboardScreen.is_web()`), because Godot's file dialog on web cannot reach the computer's disk (a download through `JavaScriptBridge.download_buffer` would be new code; not built).
 
 ### Web smoke checklist (manual; no browser automation is installed)
 

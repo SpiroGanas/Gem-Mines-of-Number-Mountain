@@ -241,7 +241,7 @@ func term_definition(term_id: StringName) -> Dictionary:
 	return {
 		"term": get_line(StringName(entry["term_line_id"])),
 		"text": get_line(StringName(entry["definition_line_id"])),
-		"scholar_text": get_line(StringName(entry["scholar_definition_line_id"])) if entry.has("scholar_definition_line_id") else "",
+		"scholar_text": get_line(StringName(entry["scholar_definition_line_id"])) if entry.has("scholar_definition_line_id") and has_line(StringName(entry["scholar_definition_line_id"])) else "",
 		"picture": picture,
 		"visual": entry.get("visual", {}),
 		"zone": int(entry.get("zone", 0)),

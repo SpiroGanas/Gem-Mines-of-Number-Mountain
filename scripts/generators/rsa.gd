@@ -5,6 +5,12 @@
 ## Powers are worked out with square-and-multiply (pow_mod), never by writing the whole power. Pure: only the
 ## passed-in rng is used.
 ##
+## A lock whose keys are in play (find d, lock, unlock) is always a real lock (is_real_key): the private key differs
+## from the public key (on the loops of 8, 12 and 24 every key is its own undo partner, so primes 3, 5 and 7 alone
+## never make one) and locking changes some numbers (e is never 1 on the loop of lcm(p - 1, q - 1), which would make
+## every m^e = m). The locked number m is one the lock changes. params.max_d (optional) caps the private key so the
+## unlocking power stays small enough to work out by hand; a negative difficulty keeps the smaller exponents.
+##
 ## Modes (params.mode):
 ##   keygen   a random pick of two questions about a lock: "Lock primes: {p} and {q}. Find (p - 1) × (q - 1)." (the
 ##            loop size t), or "The loop has {t} stations. The public key is {e}. Find d: {e} × d lands on 1." (d).
@@ -61,21 +67,56 @@ static func private_key(e: int, t: int) -> int:
 	return 0
 
 
+## True when e is a public key worth teaching with for primes p and q: below t = (p - 1) × (q - 1) and sharing nothing
+## with it but 1, with a private key that is a different number, and not 1 on the loop of lcm(p - 1, q - 1) (such an e
+## leaves every number where it was: m^e = m).
+static func is_real_key(e: int, p: int, q: int) -> bool:
+	var t: int = (p - 1) * (q - 1)
+	if e < 2 or e >= t or MathUtil.gcd(e, t) != 1:
+		return false
+	var d: int = private_key(e, t)
+	return d != e and posmod(e, MathUtil.lcm(p - 1, q - 1)) != 1
+
+
+## Every real lock (is_real_key) from these primes and public keys, p < q, the private key at most `max_d` (0: no cap),
+## in a fixed order: by n, then by e.
+static func real_locks(primes: Array[int], e_choices: Array[int], max_d: int = 0) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	var sorted_primes: Array[int] = primes.duplicate()
+	sorted_primes.sort()
+	for i: int in sorted_primes.size():
+		for j: int in range(i + 1, sorted_primes.size()):
+			var p: int = sorted_primes[i]
+			var q: int = sorted_primes[j]
+			var t: int = (p - 1) * (q - 1)
+			for e: int in e_choices:
+				if not is_real_key(e, p, q):
+					continue
+				var d: int = private_key(e, t)
+				if max_d > 0 and d > max_d:
+					continue
+				found.append({"p": p, "q": q, "n": p * q, "t": t, "e": e, "d": d})
+	return found
+
+
 static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, with_hints: bool) -> Problem:
 	var mode: String = String(params.get("mode", "keygen"))
 	var problem: Problem = GeneratorKit.new_problem(skill, params, GeneratorKit.pick_representation(skill, params))
 	var primes: Array[int] = GeneratorKit.ints_of(params.get("primes", [3, 5, 7, 11, 13]))
-	var lock: Dictionary = _lock(primes, params, rng)
+	var difficulty: int = GeneratorKit.difficulty_of(params)
 	var model: Dictionary
 	match mode:
 		"keygen":
-			model = _keygen(problem, skill, lock, rng)
+			var ask_t: bool = rng.randi_range(0, 1) == 0
+			# The loop size needs no keys, so any two primes will do; the private key needs a real lock.
+			var lock: Dictionary = _any_pair(primes, rng) if ask_t else _real_lock(primes, params, rng, difficulty, "t")
+			model = _keygen(problem, skill, lock, ask_t)
 		"encrypt":
-			model = _encrypt(problem, skill, lock, rng)
+			model = _encrypt(problem, skill, _real_lock(primes, params, rng, difficulty, "e"), rng, difficulty)
 		"decrypt":
-			model = _decrypt(problem, skill, lock, rng)
+			model = _decrypt(problem, skill, _real_lock(primes, params, rng, difficulty, "d"), rng, difficulty)
 		_:
-			push_error("RsaGenerator: unknown mode '%s'" % mode)
+			push_error("RsaGenerator: unknown generator mode '%s'" % mode)
 			return problem
 	if with_hints:
 		var example: Problem = GeneratorKit.make_example(
@@ -84,35 +125,89 @@ static func _make(skill: Skill, params: Dictionary, rng: RandomNumberGenerator, 
 	return problem
 
 
-## Two different primes, their n and loop size t, a public key e below t, and the private key d.
-static func _lock(primes: Array[int], params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
-	var lock: Dictionary = {}
-	for attempt: int in 80:
-		var p: int = primes[rng.randi_range(0, primes.size() - 1)]
-		var q: int = primes[rng.randi_range(0, primes.size() - 1)]
-		if p == q:
-			continue
-		var t: int = (p - 1) * (q - 1)
-		var keys: Array[int] = []
-		for e: int in GeneratorKit.ints_of(params.get("e_choices", E_CHOICES)):
-			if e < t and MathUtil.gcd(e, t) == 1:
-				keys.append(e)
-		if keys.is_empty():
-			continue
-		var e: int = keys[rng.randi_range(0, keys.size() - 1)]
-		lock = {"p": mini(p, q), "q": maxi(p, q), "n": p * q, "t": t, "e": e, "d": private_key(e, t)}
-		return lock
-	return {"p": 3, "q": 5, "n": 15, "t": 8, "e": 3, "d": 3}
+## Two different primes and their loop size for the "find t" question; the keys are the first that work (or a plain
+## coprime pair when the primes make no real lock), since the question never uses them.
+static func _any_pair(primes: Array[int], rng: RandomNumberGenerator) -> Dictionary:
+	var p: int = primes[rng.randi_range(0, primes.size() - 1)]
+	var q: int = p
+	for attempt: int in 40:
+		q = primes[rng.randi_range(0, primes.size() - 1)]
+		if q != p:
+			break
+	if q == p:
+		q = 11 if p != 11 else 3
+	var low: int = mini(p, q)
+	var high: int = maxi(p, q)
+	var t: int = (low - 1) * (high - 1)
+	var e: int = 0
+	for choice: int in E_CHOICES:
+		if is_real_key(choice, low, high):
+			e = choice
+			break
+	if e == 0: # no real key for these primes: the first key that undoes at all (the question never uses it)
+		for choice: int in E_CHOICES:
+			if choice < t and MathUtil.gcd(choice, t) == 1:
+				e = choice
+				break
+	if e == 0:
+		e = 1
+	return {"p": low, "q": high, "n": low * high, "t": t, "e": e, "d": private_key(e, t)}
 
 
-static func _keygen(problem: Problem, skill: Skill, lock: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+## A real lock (is_real_key) from params.primes, params.e_choices and params.max_d. `measure` is what makes the lock's
+## question hard ("t" the loop size, "e" the locking power, "d" the unlocking power): at a negative difficulty only the
+## smaller part of the locks, by that measure, is drawn from (GeneratorKit.eased_max). Falls back to 3 and 11 with
+## e = 3 (d = 7) when the params allow no real lock.
+static func _real_lock(primes: Array[int], params: Dictionary, rng: RandomNumberGenerator, difficulty: int, measure: String) -> Dictionary:
+	var choices: Array[Dictionary] = real_locks(primes, GeneratorKit.ints_of(params.get("e_choices", E_CHOICES)), int(params.get("max_d", 0)))
+	if choices.is_empty():
+		return {"p": 3, "q": 11, "n": 33, "t": 20, "e": 3, "d": 7}
+	var ordered: Array[Dictionary] = _ordered_by(choices, measure)
+	var count: int = GeneratorKit.eased_max(1, ordered.size(), difficulty, 1)
+	return ordered[rng.randi_range(0, count - 1)].duplicate()
+
+
+## The locks from smallest to largest by `measure`, then by n (a plain selection sort: the list is at most a few dozen).
+static func _ordered_by(choices: Array[Dictionary], measure: String) -> Array[Dictionary]:
+	var left: Array[Dictionary] = choices.duplicate()
+	var ordered: Array[Dictionary] = []
+	while not left.is_empty():
+		var best: int = 0
+		for index: int in range(1, left.size()):
+			var a: Dictionary = left[index]
+			var b: Dictionary = left[best]
+			if int(a[measure]) < int(b[measure]) or (int(a[measure]) == int(b[measure]) and int(a["n"]) < int(b["n"])):
+				best = index
+		ordered.append(left[best])
+		left.remove_at(best)
+	return ordered
+
+
+## A number from 2 to n - 1 that the lock changes (m^e is not m on the loop of n): the first such number at or after a
+## random start. At a negative difficulty the numbers stay small. 2 if the lock changes nothing (never for a real lock).
+static func _number_to_lock(lock: Dictionary, rng: RandomNumberGenerator, difficulty: int) -> int:
+	var n: int = lock["n"]
+	var e: int = lock["e"]
+	var high: int = GeneratorKit.eased_max(2, n - 1, difficulty, 4)
+	var start: int = rng.randi_range(2, high)
+	for step: int in high - 1: # the numbers 2 to high, from the random start round
+		var m: int = 2 + posmod(start - 2 + step, high - 1)
+		if pow_mod(m, e, n) != m:
+			return m
+	for m: int in range(high + 1, n): # every small number is a fixed point: the first bigger one that is not
+		if pow_mod(m, e, n) != m:
+			return m
+	return 2
+
+
+static func _keygen(problem: Problem, skill: Skill, lock: Dictionary, ask_t: bool) -> Dictionary:
 	var p: int = lock["p"]
 	var q: int = lock["q"]
 	var t: int = lock["t"]
 	var e: int = lock["e"]
 	problem.meta = {"lock": lock.duplicate()}
 	var picture: Dictionary
-	if rng.randi_range(0, 1) == 0:
+	if ask_t:
 		problem.prompt_line_id = PROMPT_PHI
 		problem.prompt_params = {"p": p, "q": q}
 		problem.answer = t
@@ -135,10 +230,10 @@ static func _keygen(problem: Problem, skill: Skill, lock: Dictionary, rng: Rando
 	return picture
 
 
-static func _encrypt(problem: Problem, skill: Skill, lock: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+static func _encrypt(problem: Problem, skill: Skill, lock: Dictionary, rng: RandomNumberGenerator, difficulty: int) -> Dictionary:
 	var n: int = lock["n"]
 	var e: int = lock["e"]
-	var m: int = rng.randi_range(2, n - 1)
+	var m: int = _number_to_lock(lock, rng, difficulty)
 	problem.prompt_line_id = PROMPT_ENCRYPT
 	problem.prompt_params = {"m": m, "e": e, "n": n}
 	problem.answer = pow_mod(m, e, n)
@@ -157,10 +252,10 @@ static func _encrypt(problem: Problem, skill: Skill, lock: Dictionary, rng: Rand
 	return {"type": "notation", "form": "power", "base": m, "exp": e}
 
 
-static func _decrypt(problem: Problem, skill: Skill, lock: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+static func _decrypt(problem: Problem, skill: Skill, lock: Dictionary, rng: RandomNumberGenerator, difficulty: int) -> Dictionary:
 	var n: int = lock["n"]
 	var d: int = lock["d"]
-	var m: int = rng.randi_range(2, n - 1)
+	var m: int = _number_to_lock(lock, rng, difficulty)
 	var c: int = pow_mod(m, int(lock["e"]), n)
 	problem.prompt_line_id = PROMPT_DECRYPT
 	problem.prompt_params = {"c": c, "d": d, "n": n}

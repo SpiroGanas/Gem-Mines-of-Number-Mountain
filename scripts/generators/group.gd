@@ -195,7 +195,8 @@ static func _table(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 	if mix(r, c, op) >= n:
 		GeneratorKit.add_distractor(problem, skill, mix(r, c, op), &"forgot_mod_wrap")
 	GeneratorKit.add_distractor(problem, skill, table[r - 1][c], &"copied_cell_above")
-	# A third wrong answer keeps a tap problem to at least three buttons (the neighbour to the left).
+	# The neighbour to the left as a third wrong answer. On an adding table it always equals the one above (both are
+	# r + c - 1) and is dropped, so an add problem shows two or three buttons; forgot_mod_wrap always exists there.
 	GeneratorKit.add_distractor(problem, skill, table[r][c - 1], &"copied_cell_above")
 	problem.meta = {"table": {"n": n, "op": String(op), "r": r, "c": c}}
 	return cayley_picture(n, op, true, [], [r, c])

@@ -188,6 +188,18 @@ def test_a_worked_example_that_does_not_add_up_is_caught() -> None:
         assert verdict(problem), name
 
 
+def test_a_group_worked_example_with_a_wrong_answer_is_caught() -> None:
+    """Peer review 05: the group checker used to compare only the example's line id and parameter names."""
+    for name, change in (("identity", lambda ex: ex.update(answer=3)),  # 3 does nothing on the adding table of 4? No: 0 does
+                         ("inverse", lambda ex: ex.update(answer=4, answer_params={"a": 2, "b": 4})),  # 2 + 4 is 1 on a loop of 5, not 0
+                         ("closure", lambda ex: ex.update(answer=False, answer_line_id="z10.hint.example_closure_no", answer_params={"m": 3, "v": 5})),
+                         ("table", lambda ex: ex.update(answer=2, answer_params={"r": 3, "c": 4, "t": 7, "n": 6, "x": 2})),  # 7 wraps to 1
+                         ("cyclic", lambda ex: ex.update(answer=5, answer_params={"g": 2, "n": 8, "j": 5}))):  # jumps of 2 on 8 return after 4
+        problem = copy.deepcopy(GOOD[name])
+        change(problem["hint_steps"][2]["example"])
+        assert verdict(problem), name
+
+
 def test_prompt_numbers_out_of_the_skills_range_are_caught() -> None:
     problem = copy.deepcopy(GOOD["remainder"])
     problem["prompt_params"]["n"] = 13

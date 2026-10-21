@@ -35,10 +35,16 @@ static func validate(proof: Proof, placement: Array[Dictionary]) -> ProofResult:
 	return result
 
 
-## The tiles that may go in the next empty slot: the steps not yet placed whose every dependency is already placed
-## (strict proofs: only the next step of the chain). Only a placement without mistakes so far has any.
+## The tiles that may go in the first empty slot: the steps not yet on the board (anywhere, a later slot included)
+## whose every dependency is placed before that slot (strict proofs: only the next step of the chain). Only a
+## placement without mistakes before the empty slot has any.
 static func next_valid_tiles(proof: Proof, placement: Array[Dictionary]) -> Array[StringName]:
 	var placed: Array[StringName] = []
+	var on_board: Array[StringName] = []
+	for entry: Dictionary in placement:
+		var tile: StringName = StringName(str(entry.get("tile", "")))
+		if tile != &"":
+			on_board.append(tile)
 	for entry: Dictionary in placement:
 		var tile: StringName = StringName(str(entry.get("tile", "")))
 		if tile == &"":
@@ -53,11 +59,13 @@ static func next_valid_tiles(proof: Proof, placement: Array[Dictionary]) -> Arra
 		return candidates
 	if proof.strict_order:
 		if placed.size() < proof.steps.size():
-			candidates.append(StringName(str(proof.steps[placed.size()]["id"])))
+			var next_step: StringName = StringName(str(proof.steps[placed.size()]["id"]))
+			if not on_board.has(next_step):
+				candidates.append(next_step)
 		return candidates
 	for entry: Dictionary in proof.steps:
 		var id: StringName = StringName(str(entry["id"]))
-		if placed.has(id):
+		if on_board.has(id):
 			continue
 		var ready: bool = true
 		for dep: StringName in proof.depends_on(id):

@@ -46,7 +46,7 @@ Steps:
 
 - Layout: `scenes/zones/zNN_name/` for the zone's inputs and widgets, `scenes/workshop/builds/<build>/` for its project. A mechanic is an input mode under `drag`/`tap` in `scenes/mine/answer_panel.gd` (see how `WHEEL_SCENE` and `COINS_SCENE` are chosen from `problem.meta`); the mine loads zones through the skill catalogue, so no per-zone wiring is needed for the dig itself.
 - Child answer input never uses `LineEdit`/`TextEdit` (rule 6). Interactive targets are at least `UI.min_target_px()`. Drag must work the same with finger, pen and mouse, through `InputRouter`; give every drag a tap alternative.
-- Art is drawn in code (a `*_art.gd` per zone). Zone look: a palette entry in `scenes/shell/backdrop.gd` (raise `LAST_PALETTE_ZONE`), the banner name line `zNN.zone.name`, the celebration line `zNN.zone.done`, and a music loop (`tools/music/generate_placeholder_music.py --track mine_zNN`, a track mapping in `scenes/mine/mine.gd`, a `assets/CREDITS.md` row).
+- Art is drawn in code (a `*_art.gd` per zone). Zone look: a palette entry in `scenes/shell/backdrop.gd` (raise `LAST_PALETTE_ZONE`), the banner name line `zNN.zone.name`, the celebration line `zNN.zone.done`, and a music loop (add a `mine_zNN` entry to the `TRACKS` dictionary in `tools/music/generate_placeholder_music.py`, then run it with `--track mine_zNN`; a track mapping in `scenes/mine/mine.gd`; a `assets/CREDITS.md` row).
 - Check small shapes: `tests/scenes/test_phone_layout.gd` loads screens at phone and tablet sizes; add yours.
 
 ## 6. Rewards

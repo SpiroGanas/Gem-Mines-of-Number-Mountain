@@ -96,6 +96,29 @@ static func ring_line(ring: String) -> StringName:
 	return StringName("z12.sets.ring_" + ring)
 
 
+## The set symbol of each ring, innermost first: ℤ, ℚ, ℝ.
+const RING_SYMBOLS: Array[StringName] = [SetSymbolDisplay.INTEGERS, SetSymbolDisplay.RATIONALS, SetSymbolDisplay.REALS]
+
+
+## True when the rings may wear their symbols ℤ ℚ ℝ: Scholar mode with math notation on (NotationRules level 2).
+## Explorer mode keeps the words ("the integers") on the buttons and the hint lines instead.
+static func set_symbols_shown() -> bool:
+	return NotationRules.symbols_allowed("set", ScholarMode.is_on(ModeGate.Feature.MATH_NOTATION))
+
+
+## Where each ring's symbol sits: a small box on the right-hand side of its band (the lit dot sits at the top, so the
+## two never meet), innermost ring first. Pure; tested for staying inside the rings and apart from each other.
+static func ring_symbol_boxes(center: Vector2, radii: Array[float]) -> Array[Rect2]:
+	var boxes: Array[Rect2] = []
+	for index: int in radii.size():
+		var inner: float = radii[index - 1] if index > 0 else 0.0
+		var band: float = radii[index] - inner
+		var side: float = clampf(band * 0.62, 10.0, 26.0)
+		var at: Vector2 = center + Vector2((inner + radii[index]) / 2.0, 0.0)
+		boxes.append(Rect2(at - Vector2(side * 0.4, side * 0.5), Vector2(side * 0.8, side)))
+	return boxes
+
+
 static func draw_number_card(canvas: CanvasItem, rect: Rect2, visual: Dictionary, font: Font) -> void:
 	var rings: bool = bool(visual.get("rings", false))
 	var card_area: Rect2 = rect
@@ -116,6 +139,10 @@ static func draw_number_card(canvas: CanvasItem, rect: Rect2, visual: Dictionary
 			var dot: Vector2 = center + Vector2(0.0, -(inner + radii[index]) / 2.0) if index > 0 else center
 			canvas.draw_circle(dot, 9.0, LIT)
 			canvas.draw_arc(dot, 9.0, 0.0, TAU, 16, OUTLINE, 2.0)
+		if set_symbols_shown(): # Scholar mode: ℤ ℚ ℝ beside their rings (peer review 05)
+			var boxes: Array[Rect2] = ring_symbol_boxes(center, radii)
+			for index: int in boxes.size():
+				SetSymbolDisplay.draw_strokes(canvas, boxes[index], RING_SYMBOLS[index], OUTLINE)
 		card_area = Rect2(rect.position, Vector2(rect.size.x - side - 12.0, rect.size.y))
 	var card: Vector2 = Vector2(minf(card_area.size.x - 8.0, 220.0), minf(card_area.size.y * 0.7, 120.0))
 	var box: Rect2 = Rect2(card_area.get_center() - card / 2.0, card)

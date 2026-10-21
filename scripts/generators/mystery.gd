@@ -13,9 +13,10 @@
 ## The named mistakes:
 ##   used_composite    a pair that adds up to n with one number that is not prime;
 ##   sum_off           two primes that add up to n + 2 or n - 2;
+##   gave_larger_prime the larger prime of the twin pair (named first: the cousin below can be the same number);
 ##   gap_not_two       the smaller of the next pair of primes that are 4 apart (cousin primes);
-##   not_both_prime    a number with a prime 2 above it that is not prime itself;
-##   gave_larger_prime the larger prime of the twin pair.
+##   not_both_prime    a number with a prime 2 above it that is not prime itself.
+## A pictorial problem shows a number line (Goldbach: to n with n marked; twins: the window from p, with p marked).
 class_name MysteryGenerator
 extends RefCounted
 
@@ -79,6 +80,9 @@ static func _goldbach(problem: Problem, skill: Skill, params: Dictionary, rng: R
 	problem.prompt_params = {"n": n}
 	problem.answer = pair_text(chosen.x, chosen.y)
 	problem.meta = {"pairs": _pair_texts(pairs)}
+	var line: Dictionary = GeneratorKit.number_line(0, ceili(n / 10.0) * 10, 10, GeneratorKit.ints_of([n]), [])
+	if problem.representation == &"pictorial":
+		problem.visual = line
 	# used_composite: a pair adding up to n where one number is not prime.
 	var composites: Array[Vector2i] = []
 	for a: int in range(1, floori(n / 2.0) + 1):
@@ -101,7 +105,7 @@ static func _goldbach(problem: Problem, skill: Skill, params: Dictionary, rng: R
 			GeneratorKit.add_distractor(problem, skill, pair_text(pair.x, pair.y), &"sum_off")
 			if problem.distractors.size() >= 2:
 				break
-	return GeneratorKit.number_line(0, ceili(n / 10.0) * 10, 10, GeneratorKit.ints_of([n]), [])
+	return line
 
 
 static func _twin(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
@@ -112,6 +116,9 @@ static func _twin(problem: Problem, skill: Skill, params: Dictionary, rng: Rando
 	problem.prompt_params = {"p": p}
 	problem.answer = q
 	problem.meta = {"pad_digits": 3}
+	# gave_larger_prime first: when the cousin prime below is the same number (10: twins 11 and 13, cousins 13 and 17)
+	# the child who answers the larger twin must hear about the larger twin, not the gap (peer review 05).
+	GeneratorKit.add_distractor(problem, skill, q + 2, &"gave_larger_prime")
 	# gap_not_two: the smaller prime of the next two primes that are 4 apart.
 	var cousin: int = p + 1
 	while not (MathUtil.is_prime(cousin) and MathUtil.is_prime(cousin + 4)):
@@ -122,9 +129,11 @@ static func _twin(problem: Problem, skill: Skill, params: Dictionary, rng: Rando
 	while not (fake > 1 and not MathUtil.is_prime(fake) and MathUtil.is_prime(fake + 2)):
 		fake += 1
 	GeneratorKit.add_distractor(problem, skill, fake, &"not_both_prime")
-	GeneratorKit.add_distractor(problem, skill, q + 2, &"gave_larger_prime")
 	var window: Vector2i = GeneratorKit.window_around(GeneratorKit.ints_of([p, q + 2]), 0, 220)
-	return GeneratorKit.number_line(window.x, window.y, 10 if window.y - window.x <= 60 else 20, GeneratorKit.ints_of([p, q, q + 2]), [])
+	var every: int = 10 if window.y - window.x <= 60 else 20
+	if problem.representation == &"pictorial": # the picture marks only the start; the rung 2 model adds the pair
+		problem.visual = GeneratorKit.number_line(window.x, window.y, every, GeneratorKit.ints_of([p]), [])
+	return GeneratorKit.number_line(window.x, window.y, every, GeneratorKit.ints_of([p, q, q + 2]), [])
 
 
 static func _pair_texts(pairs: Array[Vector2i]) -> Array[String]:

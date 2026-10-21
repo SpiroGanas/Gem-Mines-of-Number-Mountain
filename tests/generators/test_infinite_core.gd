@@ -186,3 +186,20 @@ func test_the_next_twin_pair_matches_a_reference_list() -> void:
 	for problem: Problem in _problems(&"mystery.twin.next_pair"):
 		assert_int(problem.answer).is_equal(MysteryGenerator.next_twin(problem.prompt_params["p"]))
 		assert_bool(_prime(problem.answer) and _prime(problem.answer + 2)).is_true()
+		# Peer review 05: the larger twin is always a named wrong answer (it used to be dropped when the cousin prime matched it).
+		var names: Array[String] = []
+		for wrong: Dictionary in problem.distractors:
+			names.append(str(wrong["misconception"]))
+		assert_array(names).contains([&"gave_larger_prime"])
+		assert_str(str(problem.distractors[0]["misconception"])).is_equal("gave_larger_prime")
+		assert_int(int(problem.distractors[0]["value"])).is_equal(int(problem.answer) + 2)
+		# and a pictorial problem carries a number line that marks only the start (the rung 2 model adds the pair)
+		assert_str(str(problem.visual.get("type", ""))).is_equal("number_line")
+		assert_array(problem.visual["markers"]).contains_exactly([problem.prompt_params["p"]])
+		assert_array(problem.hint_steps[1]["visual"]["markers"]).contains_exactly([problem.prompt_params["p"], problem.answer, int(problem.answer) + 2])
+	var after_ten: Problem = GeneratorChecks.make_all(_catalog.skill(&"mystery.twin.next_pair"), 1, {"min_p": 10, "max_p": 10})[0]
+	assert_int(after_ten.answer).is_equal(11)
+	assert_int(int(after_ten.distractors[0]["value"])).is_equal(13) # the larger twin, which is also the first cousin prime
+	for problem: Problem in _problems(&"mystery.goldbach.find_pair"):
+		assert_str(str(problem.visual.get("type", ""))).is_equal("number_line")
+		assert_array(problem.visual["markers"]).contains_exactly([problem.prompt_params["n"]])

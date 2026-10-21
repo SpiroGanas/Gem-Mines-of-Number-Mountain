@@ -1,8 +1,11 @@
 """Turns docs/privacy-policy.md into one small HTML page for the web build (standard library only).
 
-  python tools/web/render_policy.py docs/privacy-policy.md build/web/privacy-policy.html
+  python tools/web/render_policy.py docs/privacy-policy.md build/web/privacy-policy.html [--strict]
 
-Handles what the policy uses: # headings, paragraphs, "- " bullets, **bold**, [text](url) links.
+Handles what the policy uses: # headings, paragraphs, "- " bullets, "> " notes, **bold**, [text](url) links.
+With --strict (the release workflow passes it on a version tag) a policy that is still a draft is refused: a
+"draft, not yet published" version line, a bracketed fill-in such as "[CONTACT EMAIL: ...]" or the publishing note,
+so the public page can never show them (peer review 05).
 """
 from __future__ import annotations
 
@@ -10,6 +13,16 @@ import html
 import re
 import sys
 from pathlib import Path
+
+DRAFT_MARKS = ("draft, not yet published", "Publishing note", "Spiro fills in")
+PLACEHOLDER = re.compile(r"\[[A-Z][A-Z ]+:[^\]]*\]")
+
+
+def draft_problems(markdown: str) -> list[str]:
+    """Why the policy is not ready to publish (empty when it is)."""
+    found = [f"the policy still says {mark!r}" for mark in DRAFT_MARKS if mark in markdown]
+    found += [f"the policy still has the fill-in {match.group(0)!r}" for match in PLACEHOLDER.finditer(markdown)]
+    return found
 
 
 def inline(text: str) -> str:
@@ -32,6 +45,8 @@ def render(markdown: str) -> str:
         if heading:
             level = len(heading.group(1))
             out.append(f"<h{level}>{inline(heading.group(2))}</h{level}>")
+        elif line.startswith("> "):
+            out.append(f"<blockquote><p>{inline(line[2:])}</p></blockquote>")
         elif line.startswith("- "):
             if not in_list:
                 out.append("<ul>")
@@ -52,10 +67,20 @@ def render(markdown: str) -> str:
 
 
 def main() -> int:
-    if len(sys.argv) != 3:
+    args = [arg for arg in sys.argv[1:] if arg != "--strict"]
+    strict = "--strict" in sys.argv[1:]
+    if len(args) != 2:
         print(__doc__)
         return 2
-    Path(sys.argv[2]).write_text(render(Path(sys.argv[1]).read_text(encoding="utf-8")), encoding="utf-8")
+    markdown = Path(args[0]).read_text(encoding="utf-8")
+    problems = draft_problems(markdown)
+    if problems:
+        for problem in problems:
+            print(f"privacy policy: {problem}", file=sys.stderr)
+        if strict:
+            print("privacy policy: still a draft; not rendered (publish only a finished policy)", file=sys.stderr)
+            return 1
+    Path(args[1]).write_text(render(markdown), encoding="utf-8")
     return 0
 
 

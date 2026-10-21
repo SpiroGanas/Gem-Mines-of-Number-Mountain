@@ -13,7 +13,7 @@ A **skill** is one small thing a child can learn, such as "add a Caesar shift to
 | `prereqs` | Skills that must be mastered first. |
 | `generator`, `params` | The program that makes problems and its settings (ranges, modes). |
 | `representations` | How it is shown, in the order a child meets them: **concrete** (a picture to act on), **pictorial** (a picture to read), **abstract** (numbers and words). |
-| `answer_modes` | tap, drag, number_pad or keyboard (Scholar mode). |
+| `answer_modes` | tap, drag, number_pad, handwriting (the chalk slate, one digit per box), handwriting_fraction (a two-row slate) or keyboard (Scholar mode). |
 | `terms` | Word Gems (vocabulary) used. |
 | `misconceptions` | The named mistakes this skill's wrong answers may come from. |
 
@@ -23,7 +23,7 @@ A skill is offered only when all its prerequisites are mastered. The graph must 
 
 ## 3. Looking at real problems
 
-`docs/reviews/math-review-packet-zN.md` (Zones 6 to 11 and the Phase 2 packet) lists sample problems per skill as a child sees them: the question, the right answer, the wrong answers and the hint steps. To make fresh ones, ask a developer to run (needs the Godot editor binary):
+`docs/reviews/math-review-packet-zN.md` (Zones 6 to 12, and `-z1-5` for the Phase 2 packet) lists sample problems per skill as a child sees them: the question, the right answer, the wrong answers and the hint steps. To make fresh ones, ask a developer to run (needs the Godot editor binary):
 
 ```bash
 "$GODOT" --headless --path . res://tools/qa/math_review_packet.tscn -- --zones 12 --samples 30
@@ -41,11 +41,11 @@ To check the answers by machine: `python tools/crosscheck/run.py --skill <skill 
 
 ## 5. Vocabulary and Word Gems
 
-`curriculum/vocabulary.json` maps each math term to a kid-sized definition (the words live in `text/lines.csv`, lines `vocab.<term>.term` and `vocab.<term>.definition`). Real math terms are always used, with the kid explanation the first time. Please check each definition is true, simple and complete enough.
+`curriculum/vocabulary.json` maps each math term to a kid-sized definition and, for Scholar mode, a formal one (the words live in `text/lines.csv`, lines `vocab.<term>.term`, `vocab.<term>.definition` and `vocab.<term>.scholar_definition`). Real math terms are always used, with the kid explanation the first time. Please check each definition is true, simple and complete enough, and that the formal one is a correct definition a middle-school text would accept.
 
 ## 6. Proof files (Zone 12)
 
-Guided proofs are data in `curriculum/proofs/*.json`: a list of steps (each a statement line, a justification and the steps it depends on), decoy tiles that look right but carry a named flaw, and a flag for whether the order is strict or any valid order. Check that every step truly follows from the ones it depends on, that each decoy is really flawed, and that the wording stays honest for a young reader.
+Guided proofs are data in `curriculum/proofs/*.json`: a list of steps (each a statement line, a justification and the steps it depends on), decoy tiles that look right but carry a named flaw, and a flag for the order (`"orderings": "strict"` means exactly the file's order; `"partial"` means any order that puts each step after the steps it depends on). Check that every step truly follows from the ones it depends on, that each decoy is really flawed, and that the wording stays honest for a young reader.
 
 ## 7. How mastery is decided
 

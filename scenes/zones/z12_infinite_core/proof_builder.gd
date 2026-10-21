@@ -1,8 +1,8 @@
 ## The proof builder (Zone 12, The Infinite Core; meta.proof_builder = {proof_id}): a column of numbered slots (the proof)
-## above a tray of steps. Tap a step to put it in the next empty slot (or the slot you picked), then tap a reason chip to
-## say why the step is true. Tap a filled slot to pick it, and tap it again to take its step back. Check asks
+## above a tray of steps. Tap a step to put it in the next empty slot (or the slot you picked), then tap Why (or the
+## slot) and a reason chip to say why the step is true. Tap a picked slot again to take its step back. Check asks
 ## ProofValidator whether the proof is complete; Hint climbs the proof's scaffold ladder (light the next step, place it,
-## then pick its reason).
+## then pick its reason), fixing any mistake on the board first.
 ##
 ## Nothing costs anything: a step that does not belong (a decoy) slides back to the tray with Bolt's gentle line, a step
 ## out of order or with the wrong reason is marked "!" and left for the child to fix, and the hint count is only a note
@@ -160,7 +160,7 @@ func _make_slot(slot: int) -> Control:
 	button.pressed.connect(select.bind(slot))
 	row.add_child(button)
 	var why: Button = _button(&"z12.builder.why", "WhyButton", CHIP_WIDTH_MULTIPLE)
-	why.pressed.connect(select.bind(slot))
+	why.pressed.connect(pick_why.bind(slot))
 	row.add_child(why)
 	_slot_buttons.append(button)
 	_why_buttons.append(why)
@@ -188,6 +188,15 @@ func select(slot: int) -> void:
 		selected = -1
 	else:
 		selected = slot
+	_refresh()
+
+
+## The Why button of `slot`: picks the slot so its reason chips show. Never takes the step back (that is a second tap
+## on the slot itself), so "place a step, then tap Why" works as the How line says.
+func pick_why(slot: int) -> void:
+	if not _enabled or slot < 0 or slot >= placement.size() or placement[slot]["tile"] == &"":
+		return
+	selected = slot
 	_refresh()
 
 
@@ -260,36 +269,55 @@ func check() -> ProofResult:
 	return result
 
 
-## One press of Hint, by what the board needs: a mistake on the board is fixed first (a wrong step goes back, a wrong reason
-## is set right); then a step placed with no reason gets its reason; otherwise the next step is lit, and a second press
-## places it. The proof's scaffold levels say how far the ladder goes (1 light, 2 place, 3 reason).
+## One press of Hint, by what the whole board needs (a step may sit past an empty slot): a mistake on the board is fixed
+## first (a decoy, a duplicate or a step out of order goes back to the tray; a wrong reason is set right); then a placed
+## step with no reason gets its reason; then the next step for the first empty slot is lit, and a second press places
+## it; when no step fits that slot because a later step blocks it, that step goes back so the ladder can go on. The
+## proof's scaffold levels say how far the ladder goes (1 light, 2 place, 3 reason). Every press counts, except one
+## that found nothing left to do.
 func hint() -> void:
 	if not _enabled or proof.scaffold_levels < 1:
 		return
-	var prefix: Array[Dictionary] = []
-	for entry: Dictionary in placement:
-		if entry["tile"] == &"":
-			break
-		prefix.append(entry)
-	var result: ProofResult = ProofValidator.validate_prefix(proof, prefix)
 	hints_used += 1
-	if not result.errors.is_empty():
-		var wrong: int = int(result.errors[0]["slot"])
-		if result.errors[0]["kind"] == "justification" and proof.scaffold_levels >= 3:
-			placement[wrong]["why"] = proof.step(placement[wrong]["tile"])["justification"]
-			_say(&"z12.builder.hint3")
-		else:
-			take_back(wrong)
-			_say(&"z12.builder.hint2")
-		_refresh()
+	var result: ProofResult = ProofValidator.validate(proof, placement)
+	for entry: Dictionary in result.errors:
+		var slot: int = int(entry["slot"])
+		match str(entry["kind"]):
+			"missing":
+				continue
+			"justification":
+				if placement[slot]["why"] == &"":
+					continue # no reason yet: given below, after every wrong step is gone
+				if proof.scaffold_levels >= 3:
+					placement[slot]["why"] = proof.step(placement[slot]["tile"])["justification"]
+					marked.erase(slot)
+					_say(&"z12.builder.hint3")
+					_refresh()
+					return
+			_:
+				take_back(slot)
+				_say(&"z12.builder.hint_back")
+				return
+	if proof.scaffold_levels >= 3:
+		for slot: int in placement.size():
+			if placement[slot]["tile"] != &"" and placement[slot]["why"] == &"":
+				placement[slot]["why"] = proof.step(placement[slot]["tile"])["justification"]
+				marked.erase(slot)
+				_say(&"z12.builder.hint3")
+				_refresh()
+				return
+	var first_empty: int = _first_empty()
+	if first_empty < 0:
+		hints_used -= 1 # every step is placed with its reason: nothing left but Check
 		return
-	if not prefix.is_empty() and prefix.back()["why"] == &"" and proof.scaffold_levels >= 3:
-		prefix.back()["why"] = proof.step(prefix.back()["tile"])["justification"]
-		_say(&"z12.builder.hint3")
-		_refresh()
-		return
-	var next: Array[StringName] = ProofValidator.next_valid_tiles(proof, prefix)
+	var next: Array[StringName] = ProofValidator.next_valid_tiles(proof, placement)
 	if next.is_empty():
+		# No step may go in the gap while the steps after it sit where they are: the first of them goes back.
+		for slot: int in range(first_empty + 1, placement.size()):
+			if placement[slot]["tile"] != &"":
+				take_back(slot)
+				_say(&"z12.builder.hint_back")
+				return
 		hints_used -= 1
 		return
 	if _lit_tile != next[0] or proof.scaffold_levels < 2:
