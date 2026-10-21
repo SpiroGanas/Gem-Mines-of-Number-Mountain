@@ -191,6 +191,58 @@ func test_hints_light_then_place_then_give_the_reason() -> void:
 	assert_bool(builder.hints_used >= 9).is_true()
 
 
+## Peer review 05: Why used to be wired like a second tap on the slot, which took the just-placed step back.
+func test_why_keeps_the_step_and_opens_the_reason_chips() -> void:
+	var builder: ProofBuilder = _builder()
+	builder.tile_button(&"s1").pressed.emit()
+	builder.why_button(0).pressed.emit()
+	assert_str(str(builder.placement[0]["tile"])).is_equal("s1")
+	assert_bool(builder.tile_button(&"s1").visible).is_false()
+	assert_int(builder.selected).is_equal(0)
+	builder.chip_button(&"assume").pressed.emit()
+	assert_str(str(builder.placement[0]["why"])).is_equal("assume")
+	builder.why_button(0).pressed.emit() # again: still there
+	assert_str(str(builder.placement[0]["tile"])).is_equal("s1")
+	builder.why_button(3).pressed.emit() # an empty slot's Why does nothing
+	assert_int(builder.selected).is_equal(0)
+
+
+## Peer review 05: a step sitting past an empty slot made every Hint press repeat itself and count. Now a hint clears
+## the way (a wrong step goes back with its own words) and the ladder always reaches a complete proof.
+func test_hints_recover_from_a_gap_and_a_wrong_step_without_looping() -> void:
+	var builder: ProofBuilder = _builder()
+	for id: StringName in [&"s1", &"s3", &"s2"]: # s3 before s2, which it needs
+		builder.tile_button(id).pressed.emit()
+	builder.hint_button().pressed.emit()
+	assert_str(str(builder.placement[1]["tile"])).is_empty() # s3 went back
+	assert_str(builder.feedback_text()).is_equal(Text.get_line(&"z12.builder.hint_back"))
+	assert_str(str(builder.placement[2]["tile"])).is_equal("s2") # past the gap
+	var presses: int = 1
+	var seen: Array[String] = []
+	while not builder.is_done() and presses < 40:
+		builder.hint_button().pressed.emit()
+		presses += 1
+		var state: String = str(builder.placement) + str(builder.lit_tile())
+		assert_bool(seen.has(state)).override_failure_message("press %d repeated board %s" % [presses, state]).is_false()
+		seen.append(state)
+		if builder._first_empty() < 0:
+			builder.check_button().pressed.emit()
+	assert_bool(builder.is_done()).is_true()
+	assert_int(builder.hints_used).is_less_equal(presses)
+	assert_int(builder.hints_used).is_greater_equal(3 * 7 - 3) # most steps needed light, place and reason
+
+
+func test_a_hint_takes_a_decoy_back_with_its_own_words() -> void:
+	var builder: ProofBuilder = _builder()
+	builder.tile_button(&"d1").pressed.emit()
+	builder.hint_button().pressed.emit()
+	assert_str(str(builder.placement[0]["tile"])).is_empty()
+	assert_bool(builder.tile_button(&"d1").visible).is_true()
+	assert_str(builder.feedback_text()).is_equal(Text.get_line(&"z12.builder.hint_back"))
+	assert_bool(builder.feedback_text().contains("next step")).is_false()
+	assert_int(builder.hints_used).is_equal(1)
+
+
 func test_every_builder_button_is_a_touch_target() -> void:
 	var builder: ProofBuilder = _builder()
 	var side: float = float(UI.min_target_px())

@@ -211,26 +211,45 @@ func test_the_toy_lock_door_locks_and_unlocks_the_same_number() -> void:
 	var door: RsaDoorScreen = load("res://scenes/zones/z11_cipher_vault/rsa_door.tscn").instantiate()
 	add_child(door)
 	auto_free(door)
-	for p_step: int in 4:
-		for q_step: int in 4:
+	var pairs: int = 0
+	for p_step: int in RsaDoorScreen.PRIMES.size():
+		for q_step: int in RsaDoorScreen.PRIMES.size():
+			if p_step == q_step or RsaDoorScreen.keys_for(p_step, q_step).is_empty():
+				continue
+			pairs += 1
 			door.p_index = p_step
 			door.q_index = q_step
-			if door.p_index == door.q_index:
-				continue
 			door._settle()
 			assert_int(door.n()).is_equal(door.p() * door.q())
 			assert_int(door.t()).is_equal((door.p() - 1) * (door.q() - 1))
 			assert_int((door.e() * door.d()) % door.t()).is_equal(1)
+			assert_int(door.d()).is_not_equal(door.e()) # peer review 05: the door shows two different keys
+			var changed: bool = false
 			for number: int in range(2, door.n()):
 				door.number = number
+				changed = changed or door.locked() != number
 				assert_int(RsaGenerator.pow_mod(door.locked(), door.d(), door.n())).is_equal(number)
+			assert_bool(changed).is_true()
+	assert_int(pairs).is_greater_equal(6) # every pair with 11 or 13 but (3, 13)
+	# Less and More never land on a pair with no real lock: from 3 and 11, q cannot step down to 5 or 7.
 	door.p_index = 0
-	door.q_index = 1
+	door.q_index = 3
 	door.e_index = 0
+	door._settle()
 	door.change_p(-1)
 	assert_int(door.p_index).is_equal(0)
-	door.change_q(-1) # would land on p's prime: stays
-	assert_int(door.q_index).is_equal(1)
+	door.change_q(-1)
+	assert_int(door.q_index).is_equal(3)
+	door.change_q(1) # 13 makes a real lock with 3? No (t = 24): stays
+	assert_int(door.q_index).is_equal(3)
+	door.change_p(1)
+	assert_int(door.p_index).is_equal(1) # 5 and 11
+	door.change_q(1)
+	assert_int(door.q_index).is_equal(4) # 5 and 13
+	door.p_index = 0
+	door.q_index = 1 # set straight to 3 and 5, which has no real lock: settles on one that does
+	door._settle()
+	assert_bool(door.keys().is_empty()).is_false()
 	assert_str(door.result_label("n").text).contains(str(door.n()))
 	assert_int(door.machine().rows.size()).is_greater(0)
 

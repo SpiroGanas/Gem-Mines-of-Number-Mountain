@@ -165,9 +165,32 @@ func test_a_coin_puzzle_has_exactly_one_way_and_a_decision_matches_trying_every_
 	assert_bool(yes > N / 4 and yes < N * 3 / 4).is_true()
 
 
+## Peer review 05: crack ignored the difficulty and affine's easing floored at its own maximum, so hint rung 4 and the
+## Vault Door's easier first code were no easier.
+func test_cracking_and_affine_problems_get_easier_at_a_lower_difficulty() -> void:
+	var crack: Skill = _catalog.skill(&"cipher.caesar.crack")
+	var longest: int = 0
+	var biggest_shift: int = 0
+	for problem: Problem in _problems(&"cipher.caesar.crack", {"difficulty": -2}, 60):
+		longest = maxi(longest, int(problem.prompt_params["len"]))
+		biggest_shift = maxi(biggest_shift, int(problem.answer))
+	assert_int(longest).is_less_equal(4) # the word list runs 3 to 8 letters
+	assert_int(biggest_shift).is_less_equal(12)
+	var full_longest: int = 0
+	for problem: Problem in _problems(&"cipher.caesar.crack", {}, 60):
+		full_longest = maxi(full_longest, int(problem.prompt_params["len"]))
+	assert_int(full_longest).is_greater(4)
+	assert_int(int(crack.params.get("max_len", 8))).is_greater(4)
+	for id: StringName in [&"cipher.affine.encode", &"cipher.affine.decode"]:
+		var a_values: Array[int] = GeneratorKit.ints_of(_catalog.skill(id).params.get("a_values", [3, 5, 7, 9, 11, 15]))
+		for problem: Problem in _problems(id, {"difficulty": -2}, 40):
+			assert_int(a_values.find(int(problem.prompt_params["a"]))).is_less_equal(2) # the three smallest multipliers
+			assert_int(int(problem.prompt_params["b"])).is_less_equal(12)
+
+
 func test_the_toy_lock_unlocks_what_it_locks() -> void:
-	for p: int in [3, 5, 7, 11]:
-		for q: int in [3, 5, 7, 11]:
+	for p: int in [3, 5, 7, 11, 13]:
+		for q: int in [3, 5, 7, 11, 13]:
 			if p == q:
 				continue
 			var n: int = p * q
@@ -187,13 +210,52 @@ func test_the_toy_lock_unlocks_what_it_locks() -> void:
 		for step: int in p["e"]:
 			raw = (raw * p["m"]) % p["n"]
 		assert_int(problem.answer).is_equal(raw)
+		assert_int(problem.answer).is_not_equal(p["m"]) # locking changes the number
+		_assert_real_lock(problem.meta["lock"])
 	for problem: Problem in _problems(&"rsa.toy.decrypt"):
 		var lock: Dictionary = problem.meta["lock"]
 		assert_int(RsaGenerator.pow_mod(problem.answer, lock["e"], lock["n"])).is_equal(problem.prompt_params["c"])
-		assert_bool(lock["p"] <= 7 and lock["q"] <= 7).is_true()
+		assert_int(problem.answer).is_not_equal(problem.prompt_params["c"])
+		assert_bool(lock["p"] <= 11 and lock["q"] <= 11).is_true()
+		assert_int(lock["d"]).is_less_equal(23) # the unlocking power stays small enough for a pen (max_d)
+		_assert_real_lock(lock)
 	for problem: Problem in _problems(&"rsa.toy.keygen"):
 		var lock: Dictionary = problem.meta["lock"]
 		assert_bool(lock["p"] <= 11 and lock["q"] <= 11).is_true()
 		assert_int(lock["t"]).is_equal((lock["p"] - 1) * (lock["q"] - 1))
 		if problem.meta["ask"] == "d":
 			assert_int((problem.answer * lock["e"]) % lock["t"]).is_equal(1)
+			_assert_real_lock(lock)
+
+
+## Peer review 05: a lock in play has two different keys and changes numbers (on the loops of 8, 12 and 24 every key
+## undoes itself, so primes 3, 5 and 7 alone never make one; e = 13 for 5 and 13 leaves every number where it was).
+func _assert_real_lock(lock: Dictionary) -> void:
+	assert_int(lock["d"]).is_not_equal(lock["e"])
+	var changed: bool = false
+	for m: int in range(2, lock["n"]):
+		changed = changed or RsaGenerator.pow_mod(m, lock["e"], lock["n"]) != m
+	assert_bool(changed).is_true()
+
+
+func test_real_keys_are_told_apart_and_easier_locks_use_smaller_powers() -> void:
+	assert_bool(RsaGenerator.is_real_key(3, 3, 11)).is_true() # d = 7
+	assert_bool(RsaGenerator.is_real_key(3, 3, 5)).is_false() # d = 3 = e
+	assert_bool(RsaGenerator.is_real_key(5, 3, 5)).is_false() # m^5 = m on the loop of 15
+	assert_bool(RsaGenerator.is_real_key(7, 5, 7)).is_false() # d = 7 = e on the loop of 24
+	assert_bool(RsaGenerator.is_real_key(13, 5, 13)).is_false() # d = 37 differs, but 13 is 1 on the loop of 12: nothing changes
+	assert_bool(RsaGenerator.is_real_key(5, 5, 13)).is_true()
+	for primes: Array in [[3, 5, 7], [3, 5], [5, 7]]:
+		assert_array(RsaGenerator.real_locks(GeneratorKit.ints_of(primes), RsaGenerator.E_CHOICES)).is_empty()
+	var decrypt_locks: Array[Dictionary] = RsaGenerator.real_locks(GeneratorKit.ints_of([3, 5, 11]), GeneratorKit.ints_of([3, 7]), 23)
+	assert_int(decrypt_locks.size()).is_equal(3) # (3, 11) with e 3 or 7, (5, 11) with e 7; e = 3 there gives d = 27, over the cap
+	var skill: Skill = _catalog.skill(&"rsa.toy.decrypt")
+	var hardest: int = 0
+	for seed_value: int in range(1, 60):
+		var eased: Problem = GeneratorRegistry.make_problem(skill, seed_value, {"difficulty": -2})
+		hardest = maxi(hardest, int(eased.meta["lock"]["d"]))
+	assert_int(hardest).is_equal(7) # the two easiest locks by unlocking power (d = 3 and 7); d = 23 waits for full difficulty
+	var encrypt: Skill = _catalog.skill(&"rsa.toy.encrypt")
+	for seed_value: int in range(1, 40):
+		var eased: Problem = GeneratorRegistry.make_problem(encrypt, seed_value, {"difficulty": -2})
+		assert_int(int(eased.prompt_params["e"])).is_less_equal(7) # the four easiest of eight locks: the locking power 13 waits

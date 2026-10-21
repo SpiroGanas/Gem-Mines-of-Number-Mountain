@@ -205,7 +205,7 @@
         "fraction_is_integer",
         "mixed_up_set"
       ],
-      "notation_level": 1
+      "notation_level": 2
     },
     {
       "id": "sets.rational.classify",
@@ -234,7 +234,7 @@
         "decimal_not_rational",
         "sqrt_always_rational"
       ],
-      "notation_level": 1
+      "notation_level": 2
     },
     {
       "id": "sets.real.classify",
@@ -269,7 +269,7 @@
         "root_never_integer",
         "negative_not_integer"
       ],
-      "notation_level": 1
+      "notation_level": 2
     },
     {
       "id": "mystery.goldbach.find_pair",

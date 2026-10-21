@@ -150,7 +150,9 @@ def _check_hints(problem: dict) -> list[str]:
     example = steps[2].get("example")
     if not isinstance(example, dict) or not {"prompt_line_id", "prompt_params", "answer", "answer_line_id", "answer_params"} <= set(example):
         errors.append("rung 3 has no complete worked example")
-    elif example["prompt_params"] == problem["prompt_params"] and example["prompt_line_id"] == problem["prompt_line_id"] and steps[2]["visual"] == problem["visual"]:
+    elif (example["prompt_params"] == problem["prompt_params"] and example["prompt_line_id"] == problem["prompt_line_id"]
+          and steps[2]["visual"] == problem["visual"] and example["answer"] == problem["answer"]):
+        # the same words, numbers, picture and answer (a code-cracking prompt names only the word's length)
         errors.append("the worked example is the same problem")
     wanted = problem["params"].get("difficulty", 0) - 1
     if steps[3].get("easier_params", {}).get("difficulty") != wanted:

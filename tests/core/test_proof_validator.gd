@@ -160,6 +160,18 @@ func test_next_valid_tiles() -> void:
 	assert_array(ProofValidator.next_valid_tiles(strict, wrong)).is_empty()
 
 
+## Peer review 05: a step already sitting past an empty slot is never offered for that slot (the builder's hint looped on it).
+func test_next_valid_tiles_skips_steps_already_on_the_board_past_a_gap() -> void:
+	var euclid: Proof = _proof(&"proof.euclid.infinite_primes")
+	var gap: Array[Dictionary] = _slots([["s1", "assume"], ["", ""], ["s2", "build"]])
+	assert_array(ProofValidator.next_valid_tiles(euclid, gap)).is_empty() # only s2 fits slot 1, and s2 is on the board
+	var later: Array[Dictionary] = _slots([["s1", "assume"], ["s2", "build"], ["s3", "build"], ["", ""], ["s4", "arithmetic"]])
+	assert_array(ProofValidator.next_valid_tiles(euclid, later)).contains_exactly([&"s5"])
+	var strict: Proof = _proof(&"proof.sqrt2.irrational")
+	var strict_gap: Array[Dictionary] = _slots([["s1", strict.steps[0]["justification"]], ["", ""], ["s2", strict.steps[1]["justification"]]])
+	assert_array(ProofValidator.next_valid_tiles(strict, strict_gap)).is_empty()
+
+
 func test_every_proof_file_is_well_formed_and_its_lines_exist() -> void:
 	for proof: Proof in ProofLoader.load_all():
 		assert_bool(Text.has_line(proof.title_line_id)).override_failure_message(String(proof.id)).is_true()

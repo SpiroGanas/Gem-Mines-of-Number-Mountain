@@ -51,6 +51,28 @@ func _seed() -> void:
 		SaveSystem.append_attempt(Attempt.from_json(entry))
 
 
+## Peer review 05: the web build has no way to hand a progress file to or from the computer's disk, so it shows a note
+## where the app shows Export and Import (the privacy policy says the same).
+func test_the_web_version_offers_no_progress_file() -> void:
+	_seed()
+	DashboardScreen.pretend_web = true
+	var web: DashboardScreen = load("res://scenes/shell/parent_area/dashboard.tscn").instantiate()
+	add_child(web)
+	auto_free(web)
+	DashboardScreen.pretend_web = false
+	assert_object(web.find_child("ExportButton", true, false)).is_null()
+	assert_object(web.find_child("ImportButton", true, false)).is_null()
+	assert_object(web.find_child("ImportNewButton", true, false)).is_null()
+	var note: Label = web.find_child("WebTransferNote", true, false)
+	assert_object(note).is_not_null()
+	assert_str(note.text).is_equal(Text.get_line(&"parent.dash.web_no_transfer"))
+	var app: DashboardScreen = load("res://scenes/shell/parent_area/dashboard.tscn").instantiate()
+	add_child(app)
+	auto_free(app)
+	assert_object(app.find_child("ExportButton", true, false)).is_not_null()
+	assert_object(app.find_child("WebTransferNote", true, false)).is_null()
+
+
 func test_the_skill_map_matches_adaptives_states() -> void:
 	_seed()
 	var dashboard: DashboardScreen = load("res://scenes/shell/parent_area/dashboard.tscn").instantiate()

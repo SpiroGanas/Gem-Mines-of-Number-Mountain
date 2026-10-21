@@ -258,6 +258,7 @@ parent.dash.export,Export progress,Parent dashboard button: save a progress file
 parent.dash.import,Import progress,Parent dashboard button: load a progress file,0
 parent.dash.exported,Saved to {path},Parent dashboard: export done,0
 parent.dash.export_failed,The progress file could not be saved.,Parent dashboard,0
+parent.dash.web_no_transfer,In the web version progress stays in this browser. Saving a progress file or loading one is only in the app.,Parent dashboard: the web version has no export or import,0
 parent.dash.imported,Progress imported.,Parent dashboard: the imported progress was newer and replaced this device's,0
 parent.dash.import_kept,"This device's progress is newer, so it was kept. The answers were added.",Parent dashboard: newest wins,0
 parent.dash.import_failed,That file could not be imported.,Parent dashboard,0
@@ -1648,6 +1649,7 @@ z12.builder.fb_duplicate,Not quite. Each step is used once.,Proof builder: tile 
 z12.builder.hint1,Try the lit step next.,Proof builder: hint 1,0
 z12.builder.hint2,Here is the next step.,Proof builder: hint 2,0
 z12.builder.hint3,And here is why it is true.,Proof builder: hint 3,0
+z12.builder.hint_back,Let's take that step back. It does not fit yet.,Proof builder: a hint takes a wrong step back,0
 z12.builder.pick_reason,Pick the reason for this step.,Proof builder: reason chooser,0
 z12.proof.fb.n_plus_one_is_prime,Not quite. N might not be prime. It only needs a prime factor that is not on the list.,Proof builder: decoy feedback,0
 z12.proof.fb.assumes_conclusion,Not quite. We cannot use the very thing we want to prove.,Proof builder: decoy feedback,0

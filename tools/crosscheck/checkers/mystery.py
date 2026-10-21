@@ -70,11 +70,13 @@ def _goldbach(problem: dict, skill: dict) -> list[str]:
         kinds[name] = kinds.get(name, 0) + 1
     if len(problem["distractors"]) < 2:
         errors.append("at least two wrong pairs")
-    visual = problem["visual"]
-    if problem["representation"] == "pictorial" and visual:
-        errors.append("the prompt is words only")
-    model = problem["hint_steps"][1]["visual"]
-    if model != {"type": "number_line", "min": 0, "max": -(-n // 10) * 10, "labeled_every": 10, "markers": [n], "blanks": []}:
+    line = {"type": "number_line", "min": 0, "max": -(-n // 10) * 10, "labeled_every": 10, "markers": [n], "blanks": []}
+    if problem["representation"] == "pictorial":
+        if problem["visual"] != line:
+            errors.append("a pictorial problem shows the number line to n with n marked")
+    elif problem["visual"]:
+        errors.append("an abstract problem is words only")
+    if problem["hint_steps"][1]["visual"] != line:
         errors.append("the rung 2 model is a number line to n with n marked")
     ex = problem["hint_steps"][2]["example"]
     pair = parse(ex["answer"])
@@ -96,7 +98,7 @@ def _twin(problem: dict, skill: dict) -> list[str]:
         errors.append(f"the next twin primes after {p} start at {twins[0]}, not {problem['answer']!r}")
     cousins = [q for q in range(p + 1, LIMIT - 4) if PRIME[q] and PRIME[q + 4]]
     fakes = [q for q in range(p + 1, LIMIT - 2) if not PRIME[q] and q > 1 and PRIME[q + 2]]
-    wanted = filtered(problem["answer"], [("gap_not_two", cousins[0]), ("not_both_prime", fakes[0]), ("gave_larger_prime", problem["answer"] + 2)])
+    wanted = filtered(problem["answer"], [("gave_larger_prime", problem["answer"] + 2), ("gap_not_two", cousins[0]), ("not_both_prime", fakes[0])])
     if distractor_pairs(problem) != wanted:
         errors.append(f"the wrong answers should be {wanted}, got {distractor_pairs(problem)}")
     if problem["meta"] != {"pad_digits": 3}:
@@ -107,6 +109,13 @@ def _twin(problem: dict, skill: dict) -> list[str]:
     first = [q for q in range(ep + 1, LIMIT - 2) if PRIME[q] and PRIME[q + 2]][0]
     if eq != first or ex["answer_params"] != {"q": eq, "r": eq + 2}:
         errors.append("the worked example should name its twin primes")
-    if problem["hint_steps"][1]["visual"].get("markers") != [p, problem["answer"], problem["answer"] + 2]:
+    model = problem["hint_steps"][1]["visual"]
+    if model.get("markers") != [p, problem["answer"], problem["answer"] + 2]:
         errors.append("the rung 2 model marks p and the twin pair")
+    if problem["representation"] == "pictorial":
+        wanted_picture = dict(model, markers=[p])
+        if problem["visual"] != wanted_picture:
+            errors.append("a pictorial problem shows the model's number line with only p marked")
+    elif problem["visual"]:
+        errors.append("an abstract problem is words only")
     return errors

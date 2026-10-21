@@ -24,7 +24,8 @@ extends Resource
 ## True enables the hidden fluency check (never shown to the child).
 @export var is_fact_skill: bool = false
 ## How much notation the skill's pictures and prompts use (Phase 5, Scholar mode): 0 plain (+ - × ÷ =),
-## 1 fractions, decimals, powers and roots, 2 the congruence sign and set symbols. See NotationRules.
+## 1 fractions, decimals, powers, roots and the congruence sign (taught in Explorer mode too, with the words
+## underneath), 2 the set symbols ℤ ℚ ℝ, which only Scholar mode draws. See NotationRules, which decides per form.
 @export var notation_level: int = 0
 ## Names from curriculum/misconceptions.json that this skill's distractors may use.
 @export var misconceptions: Array[StringName] = []

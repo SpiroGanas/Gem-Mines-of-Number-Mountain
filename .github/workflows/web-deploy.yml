@@ -49,10 +49,13 @@ jobs:
           test -s build/web/index.html
           test -s build/web/index.wasm
 
+      # On a version tag (the only ref that is published) the renderer refuses a policy that is still a draft, so the
+      # public page can never carry the draft header or a bracketed fill-in; on main it only warns.
       - name: Landing page and privacy policy next to the game
         run: |
           cp tools/web/about.html build/web/about.html
-          python3 tools/web/render_policy.py docs/privacy-policy.md build/web/privacy-policy.html
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then STRICT=--strict; else STRICT=""; fi
+          python3 tools/web/render_policy.py docs/privacy-policy.md build/web/privacy-policy.html $STRICT
 
       - name: Size budget
         run: |

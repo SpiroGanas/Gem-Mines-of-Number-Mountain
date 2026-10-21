@@ -6,15 +6,19 @@
 ##
 ## The child chooses p, q, e and the number with Less and More buttons; every number is worked out by RsaGenerator and
 ## EuclidGenerator, so this screen only shows them. Nothing is judged right or wrong here, nothing is saved, and
-## nothing leaves the screen (CLAUDE.md rules 1 and 2). Primes stay at most 11 so every number fits.
+## nothing leaves the screen (CLAUDE.md rules 1 and 2). Primes stay at most 13 so every number fits.
+##
+## Only real locks are offered (RsaGenerator.is_real_key): a private key that differs from the public key and a lock
+## that changes numbers. Two primes with no such key (3 and 5, 3 and 7, 5 and 7, 3 and 13: on their loops every key is
+## its own undo partner) are skipped by the Less and More buttons, so the door always shows two different keys.
 class_name RsaDoorScreen
 extends WorkshopScreen
 
-const PRIMES: Array[int] = [3, 5, 7, 11]
+const PRIMES: Array[int] = [3, 5, 7, 11, 13]
 const STEP_WIDTH_MULTIPLE: float = 1.6
 
 var p_index: int = 0
-var q_index: int = 1
+var q_index: int = 3 # 3 and 11: the smallest pair with a real lock
 var e_index: int = 0
 var number: int = 2
 
@@ -52,7 +56,7 @@ func _ready() -> void:
 	_machine = load("res://scenes/zones/z11_cipher_vault/euclid_machine.tscn").instantiate()
 	side.add_child(UI.vertical_scroll(_machine))
 	bolt_node.say(&"z11.door.hello")
-	_refresh()
+	_settle()
 
 
 func _stepper_row(title_line: StringName, node_name: String, callback: Callable) -> HBoxContainer:
@@ -94,18 +98,24 @@ func q() -> int:
 	return PRIMES[q_index]
 
 
-## The public keys that work for this pair of primes: below t and sharing nothing with it but 1.
+## The public keys that make a real lock for this pair of primes (RsaGenerator.is_real_key).
 func keys() -> Array[int]:
+	return keys_for(p_index, q_index)
+
+
+static func keys_for(first: int, second: int) -> Array[int]:
 	var found: Array[int] = []
-	var t: int = (p() - 1) * (q() - 1)
 	for e: int in RsaGenerator.E_CHOICES:
-		if e < t and MathUtil.gcd(e, t) == 1:
+		if RsaGenerator.is_real_key(e, PRIMES[first], PRIMES[second]):
 			found.append(e)
 	return found
 
 
 func e() -> int:
-	return keys()[clampi(e_index, 0, keys().size() - 1)]
+	var found: Array[int] = keys()
+	if found.is_empty():
+		return 1
+	return found[clampi(e_index, 0, found.size() - 1)]
 
 
 func n() -> int:
@@ -145,15 +155,26 @@ func change_number(delta: int) -> void:
 	_settle()
 
 
-## The next prime in the list in a direction, skipping the one the other prime has.
+## The next prime in the list in a direction that makes a real lock with the other prime; the same index when none does.
 func _next_prime(index: int, delta: int, other: int) -> int:
-	var next: int = clampi(index + delta, 0, PRIMES.size() - 1)
-	if next == other:
-		next = clampi(next + delta, 0, PRIMES.size() - 1)
-	return index if next == other else next
+	var next: int = index + delta
+	while next >= 0 and next < PRIMES.size():
+		if next != other and not keys_for(next, other).is_empty():
+			return next
+		next += delta
+	return index
 
 
 func _settle() -> void:
+	if keys().is_empty(): # a pair with no real lock (only reachable by setting the indexes directly): the first that has one
+		for first: int in PRIMES.size():
+			for second: int in PRIMES.size():
+				if first != second and not keys_for(first, second).is_empty():
+					p_index = first
+					q_index = second
+					break
+			if not keys().is_empty():
+				break
 	e_index = clampi(e_index, 0, keys().size() - 1)
 	number = clampi(number, 2, n() - 1)
 	_refresh()

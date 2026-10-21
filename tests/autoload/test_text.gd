@@ -138,6 +138,16 @@ func test_term_definition_returns_the_word_gem_text() -> void:
 	assert_str(gem["term"]).is_equal("regrouping")
 	assert_str(gem["text"]).contains("swap ten ones for one ten")
 	assert_bool(gem.has("picture")).is_true()
+	assert_str(gem["scholar_text"]).is_not_empty()
+
+
+## Peer review 05: a formal definition whose line is missing from the table shows nothing, never "[its.id]".
+func test_a_missing_formal_definition_line_gives_no_placeholder() -> void:
+	Text._vocabulary["zz_review_term"] = {"term_line_id": "vocab.regrouping.term", "definition_line_id": "vocab.regrouping.definition", "scholar_definition_line_id": "vocab.zz_review_term.scholar_definition"}
+	var gem: Dictionary = Text.term_definition(&"zz_review_term")
+	Text._vocabulary.erase("zz_review_term")
+	assert_str(gem["text"]).contains("swap ten ones for one ten")
+	assert_str(gem["scholar_text"]).is_empty()
 
 
 func test_every_vocabulary_term_resolves_to_real_lines() -> void:

@@ -70,7 +70,7 @@
       "answer_modes": ["tap"],
       "terms": ["congruent", "modulo"],
       "bkt_type": "concept",
-      "notation_level": 2,
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["swapped_mod_and_value", "read_as_equals"]
     },

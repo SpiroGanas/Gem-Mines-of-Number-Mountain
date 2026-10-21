@@ -9,7 +9,8 @@
 ## grade a grown-up gave the profile (reading_level_for_grade), which is deliberately conservative: an
 ## "auto" profile in grade 2 or below stays in Explorer mode.
 ##
-## Phase 5 extends the Feature enum (more notation, Master Miner ranks); it never adds a second gate.
+## Phase 5 kept the Feature enum as it is (its notation levels live in NotationRules and the Master Miner ranks use no
+## gate); there is never a second gate.
 class_name ModeGate
 extends RefCounted
 

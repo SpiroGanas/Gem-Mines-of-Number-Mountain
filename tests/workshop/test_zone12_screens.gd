@@ -101,6 +101,29 @@ func test_the_mysteries_room_accepts_any_goldbach_pair() -> void:
 		assert_bool(room.prime_button(prime).custom_minimum_size.y >= float(UI.min_target_px())).is_true()
 
 
+## Peer review 05: 4 and 6 have only 2 + 2 and 3 + 3, and a second tap used to let the prime go instead.
+func test_the_mysteries_room_makes_four_and_six_from_one_prime_twice() -> void:
+	var room: MysteriesScreen = _screen("res://scenes/zones/z12_infinite_core/mysteries.tscn")
+	room.n = 4
+	room.change(0)
+	room.tap_prime(2)
+	room.tap_prime(2)
+	assert_array(room.picked).contains_exactly([2, 2])
+	room.n = 6
+	room.change(0)
+	room.tap_prime(3)
+	room.tap_prime(3)
+	assert_array(room.picked).contains_exactly([3, 3])
+	room.n = 8
+	room.change(0)
+	room.tap_prime(3)
+	room.tap_prime(3) # 3 + 3 is not 8: the second tap lets 3 go, as before
+	assert_array(room.picked).is_empty()
+	room.tap_prime(3)
+	room.tap_prime(5)
+	assert_array(room.picked).contains_exactly([3, 5])
+
+
 func test_the_mysteries_room_finds_the_first_twin_primes() -> void:
 	var room: MysteriesScreen = _screen("res://scenes/zones/z12_infinite_core/mysteries.tscn")
 	room.show_case(MysteriesScreen.Case.TWIN)

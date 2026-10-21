@@ -182,11 +182,15 @@ static func real_word_shifts(code: String) -> Array[int]:
 
 
 static func _crack(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	var difficulty: int = GeneratorKit.difficulty_of(params)
+	var min_len: int = int(params.get("min_len", 3))
+	var max_len: int = maxi(GeneratorKit.eased_max(min_len, int(params.get("max_len", 8)), difficulty, 1), min_len)
+	var max_shift: int = GeneratorKit.eased_max(1, ALPHABET_SIZE - 1, difficulty, 4) # an easier code needs fewer turns
 	var k: int = 1
 	var code: String = ""
 	for attempt: int in 60:
-		var word: String = _pick_word(int(params.get("min_len", 3)), int(params.get("max_len", 8)), rng)
-		k = rng.randi_range(1, ALPHABET_SIZE - 1)
+		var word: String = _pick_word(min_len, max_len, rng)
+		k = rng.randi_range(1, max_shift)
 		code = shift_text(word, k)
 		if real_word_shifts(code) == [k]:
 			break
@@ -214,10 +218,13 @@ static func _crack(problem: Problem, skill: Skill, params: Dictionary, rng: Rand
 
 static func _affine(problem: Problem, skill: Skill, params: Dictionary, rng: RandomNumberGenerator, decoding: bool) -> Dictionary:
 	var a_values: Array[int] = GeneratorKit.ints_of(params.get("a_values", [3, 5, 7, 9, 11, 15]))
-	var max_len: int = GeneratorKit.eased_max(1, int(params.get("max_len", 3)), GeneratorKit.difficulty_of(params), 2)
-	var a: int = a_values[rng.randi_range(0, a_values.size() - 1)]
-	var b: int = rng.randi_range(1, ALPHABET_SIZE - 1)
-	var word: String = _pick_word(3, maxi(max_len, 3), rng)
+	var difficulty: int = GeneratorKit.difficulty_of(params)
+	var max_len: int = maxi(int(params.get("max_len", 3)), 3) # the word list starts at three letters
+	# An easier affine problem keeps the smaller multipliers (the list is in order) and a smaller shift.
+	var last_a: int = GeneratorKit.eased_max(0, a_values.size() - 1, difficulty, 1)
+	var a: int = a_values[rng.randi_range(0, last_a)]
+	var b: int = rng.randi_range(1, GeneratorKit.eased_max(1, ALPHABET_SIZE - 1, difficulty, 4))
+	var word: String = _pick_word(3, max_len, rng)
 	var coded: String = affine_text(word, a, b)
 	var inverse: int = inverse_26(a)
 	problem.prompt_params = {"a": a, "b": b}

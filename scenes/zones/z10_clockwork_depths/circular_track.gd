@@ -71,6 +71,7 @@ func setup(spec: Dictionary) -> void:
 	_picture = _LoopPicture.new()
 	_picture.name = "Loop"
 	_picture.track = self
+	_picture.picture = ModularGenerator.clock_track(n, start, steps, direction, false)
 	UI.make_touch_target(_picture, PICTURE_WIDTH_MULTIPLE, COMPACT_PICTURE_HEIGHT_MULTIPLE if UI.is_compact() else PICTURE_HEIGHT_MULTIPLE)
 	_picture.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_picture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -157,13 +158,14 @@ class _LoopPicture:
 	extends Control
 
 	var track: CircularTrack
+	## The loop's picture, built once in setup: the ride tweens `cart` and redraws every frame (no allocation here).
+	var picture: Dictionary = {}
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		if track == null or track.n < 2:
+		if track == null or track.n < 2 or picture.is_empty():
 			return
-		var picture: Dictionary = ModularGenerator.clock_track(track.n, track.start, track.steps, track.direction, false)
 		picture["cart"] = track.cart
 		ClockArt.draw_track(self, Rect2(Vector2(4, 4), size - Vector2(8, 8)), picture, get_theme_default_font())

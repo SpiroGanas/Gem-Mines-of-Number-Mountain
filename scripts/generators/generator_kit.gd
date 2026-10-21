@@ -236,8 +236,11 @@ static func make_example(make: Callable, problem: Problem, rng: RandomNumberGene
 		sub_rng.seed = rng.randi()
 		var candidate: Problem = make.call(sub_rng)
 		last = candidate
+		# The same problem: the same words, numbers and picture, and the same answer (a code-cracking prompt names
+		# only the word's length, so a different code with the same length is a different problem; peer review 05).
 		var identical: bool = candidate.prompt_line_id == problem.prompt_line_id \
-			and candidate.prompt_params == problem.prompt_params and candidate.visual == problem.visual
+			and candidate.prompt_params == problem.prompt_params and candidate.visual == problem.visual \
+			and Problem.same(candidate.answer, problem.answer)
 		if identical:
 			continue
 		if not Problem.same(candidate.answer, problem.answer):

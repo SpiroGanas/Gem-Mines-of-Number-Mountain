@@ -97,7 +97,7 @@ func test_the_circular_track_lays_a_target_on_every_station_and_the_cart_rides()
 	assert_int(track.n).is_equal(problem.meta["circular_track"]["n"])
 	for index: int in track.n:
 		var button: Button = track.station_button(index)
-		assert_bool(button.size.x >= 28.0 and button.size.y >= 28.0).is_true()
+		assert_float(button.custom_minimum_size.y).is_greater_equal(float(UI.min_target_px())) # one full touch target each
 		assert_str(button.text).is_equal(str(index))
 	track.speed_scale = 0.0
 	track.ride_button().pressed.emit()
@@ -122,6 +122,13 @@ func test_the_clock_lock_points_the_dial_and_sets_it() -> void:
 	_panel.setup(problem, _rng())
 	_panel.set_enabled(true)
 	var dial: ClockLock = _panel.clock_lock()
+	# Peer review 05: Set (and Enter) wait for the first tap on a mark; the untouched 0 is never handed in.
+	assert_bool(dial.set_button().disabled).is_true()
+	var early: Array = []
+	dial.submitted.connect(func(mark: int) -> void: early.append(mark))
+	dial.set_button().pressed.emit()
+	dial.submit()
+	assert_array(early).is_empty()
 	dial.speed_scale = 0.0
 	dial.mark_button(1).pressed.emit()
 	assert_float(dial.pointer).is_equal(1.0)

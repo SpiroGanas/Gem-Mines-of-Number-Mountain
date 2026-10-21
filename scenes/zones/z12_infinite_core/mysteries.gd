@@ -103,10 +103,11 @@ func change(direction: int) -> void:
 	_rebuild()
 
 
-## A prime button was tapped. Goldbach: the second tap checks the pair. Twin primes: the tap checks the pair that starts here.
+## A prime button was tapped. Goldbach: the second tap checks the pair (the same prime twice is the pair p + p, so 4 and 6
+## can be made; otherwise a second tap on a picked prime lets it go). Twin primes: the tap checks the pair that starts here.
 func tap_prime(prime: int) -> void:
 	if case_now == Case.GOLDBACH:
-		if picked.has(prime):
+		if picked.has(prime) and (picked.size() == 2 or 2 * prime != n):
 			picked.erase(prime)
 		elif picked.size() < 2:
 			picked.append(prime)

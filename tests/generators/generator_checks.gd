@@ -119,7 +119,7 @@ static func _hint_errors(problem: Problem, where: String) -> Array[String]:
 		for name: String in Text.required_params(example["prompt_line_id"]):
 			if not example["prompt_params"].has(name):
 				errors.append("%s: rung 3 prompt needs {%s}" % [where, name])
-	if example["prompt_line_id"] == problem.prompt_line_id and example["prompt_params"] == problem.prompt_params and problem.hint_steps[2]["visual"] == problem.visual:
+	if example["prompt_line_id"] == problem.prompt_line_id and example["prompt_params"] == problem.prompt_params and problem.hint_steps[2]["visual"] == problem.visual and Problem.same(example["answer"], problem.answer):
 		errors.append("%s: the worked example is the same problem" % where)
 	var easier: Dictionary = problem.hint_steps[3]["easier_params"]
 	if easier.get("difficulty") != GeneratorKit.difficulty_of(problem.params) - 1:

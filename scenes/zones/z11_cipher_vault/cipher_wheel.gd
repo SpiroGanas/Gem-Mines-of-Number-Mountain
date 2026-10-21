@@ -1,7 +1,7 @@
 ## The cipher wheel (Zone 11, Cipher Vault; meta.cipher_wheel = {text, max}): two rings of letters, plain letters
 ## outside and code letters inside, and a row of cards that shows the code with every letter moved BACK by the shift
 ## the wheel is set to. The child turns the wheel with Back and Forward until the cards spell a word, then presses
-## Set, which hands the shift in. The secret-message screen uses the same wheel to choose a shift (no code to read).
+## Set, which hands the shift in. (The secret-message screen chooses its shift with stepper rows, not this wheel.)
 ##
 ## Buttons work the same with finger, stylus and mouse; the Left and Right arrows turn the wheel and Enter sets it.
 ## The widget never says whether the shift is right; the host decides. The rules (moving letters) live in

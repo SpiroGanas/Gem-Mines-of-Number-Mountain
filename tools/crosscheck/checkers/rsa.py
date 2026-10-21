@@ -16,17 +16,27 @@ def is_prime(n: int) -> bool:
     return n > 1 and all(n % d for d in range(2, math.isqrt(n) + 1))
 
 
-def check_lock(lock: dict, skill: dict) -> list[str]:
+def check_lock(lock: dict, skill: dict, keys_in_play: bool) -> list[str]:
+    """The lock's numbers. When its keys are in play (find d, lock, unlock) the lock must be a real one: the private
+    key is a different number from the public key, and e is not 1 on the loop of lcm(p - 1, q - 1), which would leave
+    every number where it was (m^e = m); params.max_d caps the private key."""
     p, q, n, t, e, d = (lock.get(key) for key in ("p", "q", "n", "t", "e", "d"))
     errors: list[str] = []
     if not (isinstance(p, int) and isinstance(q, int) and p < q and is_prime(p) and is_prime(q) and p in skill["primes"] and q in skill["primes"]):
         return [f"the lock's primes {p!r} and {q!r} should be different primes from {skill['primes']}, p < q"]
     if n != p * q or t != (p - 1) * (q - 1):
         errors.append("n = p × q and t = (p - 1) × (q - 1)")
-    if not (1 < e < t and math.gcd(e, t) == 1) or (e * d) % t != 1 or not 1 <= d < t or d != pow(e, -1, t):
+    if not (1 <= e < t and math.gcd(e, t) == 1) or (e * d) % t != 1 or not 1 <= d < t or d != pow(e, -1, t):
         errors.append(f"the keys e {e} and d {d} should be undo partners on the loop of {t}")
     if "e_choices" in skill and e not in skill["e_choices"]:
         errors.append(f"e {e} should come from {skill['e_choices']}")
+    if keys_in_play:
+        if d == e:
+            errors.append(f"the private key {d} should differ from the public key {e}")
+        if e % math.lcm(p - 1, q - 1) == 1 or all(pow(m, e, n) == m for m in range(n)):
+            errors.append(f"locking with {e} on the loop of {n} changes nothing")
+        if "max_d" in skill and d > skill["max_d"]:
+            errors.append(f"the private key {d} should be at most {skill['max_d']}")
     return errors
 
 
@@ -35,7 +45,7 @@ def check(problem: dict) -> list[str]:
     lock = problem["meta"].get("lock")
     if not isinstance(lock, dict):
         return ["an RSA problem names its lock in meta.lock"]
-    errors = check_lock(lock, skill)
+    errors = check_lock(lock, skill, mode != "keygen" or problem["meta"].get("ask") == "d")
     if errors:
         return errors
     p, q, n, t, e, d = (lock[key] for key in ("p", "q", "n", "t", "e", "d"))
@@ -98,6 +108,8 @@ def _lock_number(problem: dict, lock: dict, pr: dict, encrypt: bool) -> list[str
         m = problem["meta"].get("m")
         if problem["prompt_line_id"] != "z11.rsa.prompt_encrypt" or pr != {"m": m, "e": e, "n": n} or not (2 <= m < n) or problem["answer"] != pow(m, e, n):
             errors.append("encrypt: the answer is m^e on the loop of n")
+        elif problem["answer"] == m:
+            errors.append(f"locking should change the number: {m}^{e} is {m} on the loop of {n}")
         raw = m ** e
         candidates = [("used_d_not_e", pow(m, d, n)), ("multiplied_instead", (m * e) % n)]
         if raw <= MAX_RAW:
@@ -109,6 +121,8 @@ def _lock_number(problem: dict, lock: dict, pr: dict, encrypt: bool) -> list[str
         m = problem["answer"]
         if problem["prompt_line_id"] != "z11.rsa.prompt_decrypt" or pr != {"c": c, "d": d, "n": n} or not (2 <= m < n) or m != pow(c, d, n) or c != pow(m, e, n):
             errors.append("decrypt: the answer is c^d on the loop of n, and locking it gives c back")
+        elif c == m:
+            errors.append(f"unlocking should change the number: {c}^{d} is {c} on the loop of {n}")
         candidates = [("used_e_not_d", pow(c, e, n)), ("gave_cipher", c)]
         picture = {"type": "notation", "form": "power", "base": c, "exp": d}
         line, wanted_ex = "z11.hint.example_decrypt", lambda ep, es, ans: es == {"c": ep["c"], "d": ep["d"], "n": ep["n"], "m": ans} and pow(ep["c"], ep["d"], ep["n"]) == ans

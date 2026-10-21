@@ -15,6 +15,11 @@ func setup(args: Dictionary) -> void:
 func _ready() -> void:
 	super()
 	var proof: Proof = ProofLoader.load_by_id(proof_id)
+	if proof == null:
+		push_error("ProofPageScreen: no proof '%s'" % proof_id)
+		build_frame(&"z12.journal.title")
+		back_to = &"journal"
+		return
 	build_frame(proof.title_line_id)
 	back_to = &"journal"
 	builder = load("res://scenes/zones/z12_infinite_core/proof_builder.tscn").instantiate()

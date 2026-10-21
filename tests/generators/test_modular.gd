@@ -1,6 +1,8 @@
 # Mirrors scripts/generators/modular.gd, group.gd and divisibility_why.gd (Zone 10 mod.*, group.* and
 # div.rule.explain_*). Written test-first. Cart rides are worked out here by walking the loop one stop at a
-# time, never with % (posmod is what the generators use), and tables are built box by box.
+# time, never with % (posmod is what the generators use). The group.* answers are read back from
+# GroupGenerator.cayley_table (the Latin-square test is the independent one here); the independent recomputation
+# of every table, identity and undo partner is the Python checker, tools/crosscheck/checkers/group.py.
 class_name ModularGeneratorTest
 extends GdUnitTestSuite
 

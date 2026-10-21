@@ -118,20 +118,22 @@ GOOD = {
                 visual={"type": "array", "rows": 4, "cols": 6}, model={"type": "array", "rows": 4, "cols": 6},
                 meta={"lock": {"p": 5, "q": 7, "n": 35, "t": 24, "e": 5, "d": 5}, "ask": "t"}, representation="pictorial",
                 ex=example("z11.rsa.prompt_phi", {"p": 3, "q": 5}, 8, "z11.hint.example_phi", {"p": 3, "q": 5, "t": 8})),
-    "d": make("rsa.toy.keygen", "z11.rsa.prompt_d", {"t": 8, "e": 3}, 3, [("gave_additive_inverse", 5), ("off_by_one", 4)],
-              visual=euclid(8, 3, -1), model=euclid(8, 3, -1),
-              meta={"lock": {"p": 3, "q": 5, "n": 15, "t": 8, "e": 3, "d": 3}, "ask": "d"}, representation="pictorial",
-              ex=example("z11.rsa.prompt_d", {"t": 12, "e": 5}, 5, "z11.hint.example_d", {"e": 5, "d": 5, "t": 12})),
-    # 7^3 = 343 = 22 × 15 + 13.
-    "encrypt": make("rsa.toy.encrypt", "z11.rsa.prompt_encrypt", {"m": 7, "e": 3, "n": 15}, 13,
-                    [("multiplied_instead", 6), ("forgot_mod_wrap", 343)],
+    # Real locks only where the keys are in play (peer review 05): 3 and 11 give t = 20, where 3 and 7 undo each other.
+    "d": make("rsa.toy.keygen", "z11.rsa.prompt_d", {"t": 20, "e": 3}, 7, [("used_e_as_d", 3), ("gave_additive_inverse", 17), ("off_by_one", 8)],
+              visual=euclid(20, 3, -1), model=euclid(20, 3, -1),
+              meta={"lock": {"p": 3, "q": 11, "n": 33, "t": 20, "e": 3, "d": 7}, "ask": "d"}, representation="pictorial",
+              ex=example("z11.rsa.prompt_d", {"t": 40, "e": 7}, 23, "z11.hint.example_d", {"e": 7, "d": 23, "t": 40})),
+    # 7^3 = 343 = 10 × 33 + 13; 7^7 is 28 on the loop of 33.
+    "encrypt": make("rsa.toy.encrypt", "z11.rsa.prompt_encrypt", {"m": 7, "e": 3, "n": 33}, 13,
+                    [("used_d_not_e", 28), ("multiplied_instead", 21), ("forgot_mod_wrap", 343)],
                     visual={"type": "notation", "form": "power", "base": 7, "exp": 3}, model={"type": "notation", "form": "power", "base": 7, "exp": 3},
-                    meta={"lock": {"p": 3, "q": 5, "n": 15, "t": 8, "e": 3, "d": 3}, "m": 7}, representation="pictorial",
-                    ex=example("z11.rsa.prompt_encrypt", {"m": 2, "e": 3, "n": 15}, 8, "z11.hint.example_encrypt", {"m": 2, "e": 3, "n": 15, "c": 8})),
-    "decrypt": make("rsa.toy.decrypt", "z11.rsa.prompt_decrypt", {"c": 13, "d": 3, "n": 15}, 7, [("gave_cipher", 13)],
-                    visual={"type": "notation", "form": "power", "base": 13, "exp": 3}, model={"type": "notation", "form": "power", "base": 13, "exp": 3},
-                    meta={"lock": {"p": 3, "q": 5, "n": 15, "t": 8, "e": 3, "d": 3}, "c": 13}, representation="pictorial",
-                    ex=example("z11.rsa.prompt_decrypt", {"c": 8, "d": 3, "n": 15}, 2, "z11.hint.example_decrypt", {"c": 8, "d": 3, "n": 15, "m": 2})),
+                    meta={"lock": {"p": 3, "q": 11, "n": 33, "t": 20, "e": 3, "d": 7}, "m": 7}, representation="pictorial",
+                    ex=example("z11.rsa.prompt_encrypt", {"m": 2, "e": 3, "n": 33}, 8, "z11.hint.example_encrypt", {"m": 2, "e": 3, "n": 33, "c": 8})),
+    # 5^7 is 14 on the loop of 33, and 14^3 = 2744 = 83 × 33 + 5 brings 5 back; 14^7 is 20.
+    "decrypt": make("rsa.toy.decrypt", "z11.rsa.prompt_decrypt", {"c": 14, "d": 3, "n": 33}, 5, [("used_e_not_d", 20), ("gave_cipher", 14)],
+                    visual={"type": "notation", "form": "power", "base": 14, "exp": 3}, model={"type": "notation", "form": "power", "base": 14, "exp": 3},
+                    meta={"lock": {"p": 3, "q": 11, "n": 33, "t": 20, "e": 7, "d": 3}, "c": 14}, representation="pictorial",
+                    ex=example("z11.rsa.prompt_decrypt", {"c": 8, "d": 3, "n": 33}, 17, "z11.hint.example_decrypt", {"c": 8, "d": 3, "n": 33, "m": 17})),
 }
 # 3 × 6 + 4 = 22 W, 3 × 4 + 4 = 16 Q, 3 × 12 + 4 = 40 - 26 = 14 O. The mistakes are checked by the tampering tests.
 GOOD["affine_encode"]["distractors"] = []
@@ -218,6 +220,26 @@ def test_the_numbers_must_stay_in_the_skills_ranges() -> None:
     problem = copy.deepcopy(GOOD["encrypt"])
     problem["meta"]["lock"]["d"] = 5
     assert verdict(problem)
+
+
+def test_a_lock_whose_keys_are_in_play_must_be_a_real_lock() -> None:
+    """Peer review 05: on the loops of 8, 12 and 24 every key is its own undo partner, and some keys change nothing."""
+    problem = copy.deepcopy(GOOD["d"])  # e = d: the "find d" question has nothing to find
+    problem["prompt_params"] = {"t": 8, "e": 3}
+    problem["answer"] = 3
+    problem["meta"]["lock"] = {"p": 3, "q": 5, "n": 15, "t": 8, "e": 3, "d": 3}
+    assert "differ" in " ".join(verdict(problem))
+    problem = copy.deepcopy(GOOD["decrypt"])  # d = 23 is the cap for the unlocking power
+    problem["meta"]["lock"] = {"p": 5, "q": 11, "n": 55, "t": 40, "e": 3, "d": 27}
+    assert any("at most" in line for line in verdict(problem))
+    problem = copy.deepcopy(GOOD["encrypt"])  # m^e = m: locking changed nothing
+    problem["prompt_params"] = {"m": 10, "e": 3, "n": 33}
+    problem["meta"]["m"] = 10
+    problem["answer"] = 10
+    problem["distractors"] = [{"value": 30, "misconception": "multiplied_instead"}, {"value": 1000, "misconception": "forgot_mod_wrap"}]
+    assert any("changes nothing" in line or "should change" in line for line in verdict(problem))
+    problem = copy.deepcopy(GOOD["phi"])  # the loop-size question needs no real key: 5 and 7 are fine there
+    assert verdict(problem) == []
 
 
 def test_affine_arithmetic_is_checked() -> None:
