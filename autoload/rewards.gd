@@ -261,6 +261,17 @@ func sync_word_gems() -> void:
 	MotivationRules.collect_word_gems(SaveSystem.data(), terms)
 
 
+## The child's Master Miner rank (derived from the mastered skills, never saved): {id, line_id, ...}.
+func rank_for() -> Dictionary:
+	var zones: Dictionary = {}
+	for id: StringName in Adaptive.catalog().ids():
+		var skill: Skill = Adaptive.catalog().skill(id)
+		if not zones.has(skill.zone):
+			zones[skill.zone] = []
+		zones[skill.zone].append(skill.id)
+	return RankRules.rank_for(Adaptive.mastered(), zones)
+
+
 func family_points() -> int:
 	return MotivationRules.points(SaveSystem.data())
 

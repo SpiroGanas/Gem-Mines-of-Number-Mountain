@@ -96,3 +96,10 @@ def test_cipher_vault_bells_ring_only_on_prime_beats_of_a_loop_of_twenty_eight()
     assert len(melody) == 28
     primes = {2, 3, 5, 7, 11, 13, 17, 19, 23}
     assert {index for index, note in enumerate(melody) if note is not None} == primes
+
+
+def test_infinite_core_bells_ring_only_on_triangular_number_beats_of_a_loop_of_thirty_two() -> None:
+    melody = music.TRACKS["mine_z12"]["melody"]
+    assert len(melody) == 32
+    assert {index for index, note in enumerate(melody) if note is not None} == {0, 1, 3, 6, 10, 15, 21, 28}
+    assert len(music.TRACKS["mine_z12"]["chords"]) * 4 == len(melody)

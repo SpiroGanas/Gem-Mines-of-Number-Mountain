@@ -1,0 +1,81 @@
+name: Web build
+
+# Export the Web preset on every merge to main (export only, to prove it still builds and to report
+# the size). A tag starting with "v" also publishes build/web/ to GitHub Pages.
+# Only first-party GitHub actions are used (no third-party deploy actions). The single-threaded
+# preset needs no cross-origin isolation headers, so Pages can host it as it is.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+  # CLAUDE.md: download under 150 MB.
+  WEB_BUDGET_MB: "150"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    name: Export Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Godot and its export templates
+        run: |
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q godot.zip
+          chmod +x "Godot_v${GODOT_VERSION}_linux.x86_64"
+          echo "GODOT=$PWD/Godot_v${GODOT_VERSION}_linux.x86_64" >> "$GITHUB_ENV"
+          curl -sSL -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          unzip -q templates.tpz -d templates_unzipped
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION/-/.}"
+          mkdir -p "$TEMPLATE_DIR"
+          mv templates_unzipped/templates/* "$TEMPLATE_DIR/"
+          rm -rf godot.zip templates.tpz templates_unzipped
+
+      - name: Import the project
+        run: '"$GODOT" --headless --path . --import'
+
+      - name: Export the Web preset
+        run: |
+          mkdir -p build/web
+          "$GODOT" --headless --path . --export-release "Web" build/web/index.html
+          test -s build/web/index.html
+          test -s build/web/index.wasm
+
+      - name: Landing page and privacy policy next to the game
+        run: |
+          cp tools/web/about.html build/web/about.html
+          python3 tools/web/render_policy.py docs/privacy-policy.md build/web/privacy-policy.html
+
+      - name: Size budget
+        run: |
+          # Browsers download the wasm and pck; Pages serves them gzip-compressed, so the raw size is the safe upper bound.
+          bytes=$(du -sb build/web | cut -f1)
+          echo "Web build: $((bytes / 1048576)) MB of $WEB_BUDGET_MB MB"
+          test "$bytes" -le $((WEB_BUDGET_MB * 1048576))
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    name: Publish to GitHub Pages (tags only)
+    needs: export
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

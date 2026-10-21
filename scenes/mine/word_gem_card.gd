@@ -15,6 +15,7 @@ var term_id: StringName = &""
 
 var _term_label: Label
 var _definition_label: Label
+var _scholar_label: Label
 var _picture: VisualModel
 var _ok_button: Button
 
@@ -58,6 +59,12 @@ func _ready() -> void:
 	_definition_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_definition_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_definition_label)
+	_scholar_label = Label.new()
+	_scholar_label.name = "ScholarDefinition"
+	_scholar_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_scholar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_scholar_label.modulate = Color(1, 1, 1, 0.85)
+	column.add_child(_scholar_label)
 	_ok_button = Button.new()
 	_ok_button.text = Text.get_line(&"ui.common.ok")
 	_ok_button.theme_type_variation = &"GoButton"
@@ -75,6 +82,9 @@ func show_term(id: StringName) -> void:
 	term_id = id
 	_term_label.text = gem["term"]
 	_definition_label.text = gem["text"]
+	# Scholar mode (Phase 5): the formal definition too, below the kid-sized one.
+	_scholar_label.text = gem["scholar_text"]
+	_scholar_label.visible = not gem["scholar_text"].is_empty() and Text.scholar_text_on()
 	_picture.show_visual(gem.get("visual", {}))
 	_picture.visible = not gem.get("visual", {}).is_empty()
 	visible = true
@@ -108,3 +118,8 @@ func _on_dimmer_input(event: InputEvent) -> void:
 	var tapped: bool = (event is InputEventMouseButton and event.pressed) or (event is InputEventScreenTouch and event.pressed)
 	if tapped:
 		close()
+
+
+## The formal definition's label (Scholar mode), for tests.
+func scholar_label() -> Label:
+	return _scholar_label

@@ -4,13 +4,20 @@
 ## mode (ModeGate's MATH_NOTATION on for the child) the notation stands alone.
 ##
 ## The spec is a `notation` picture (Problem: {form: "power", base, exp} | {form: "root", n} |
-## {form: "sci", mantissa, scale, exp} | {form: "congruence", a, b, n}). Problem pictures, answer buttons and the pads all build their
+## {form: "sci", mantissa, scale, exp} | {form: "congruence", a, b, n} | {form: "set", set: "Z"|"Q"|"R"}; the set symbols are Scholar mode only, see NotationRules). Problem pictures, answer buttons and the pads all build their
 ## notation here, so every screen writes math the same way. Presentation only, never interactive.
 class_name MathNotation
 extends VBoxContainer
 
 ## Tests: true or false to show the words or not; null asks ScholarMode (Explorer shows them).
 var words_override: Variant = null
+## The words for each number set symbol, from the text table.
+const SET_WORDS: Dictionary = {
+	"Z": &"notation.set.integers_words",
+	"Q": &"notation.set.rationals_words",
+	"R": &"notation.set.reals_words",
+}
+
 var spec: Dictionary = {}
 var size_scale: float = 1.0
 
@@ -52,6 +59,8 @@ static func words_for(new_spec: Dictionary) -> String:
 				"m": {"mantissa": int(new_spec["mantissa"]), "scale": int(new_spec["scale"])}, "e": int(new_spec["exp"])})
 		"congruence":
 			return Text.get_line(&"z10.notation.congruence_words", {"a": int(new_spec["a"]), "b": int(new_spec["b"]), "n": int(new_spec["n"])})
+		"set":
+			return Text.get_line(SET_WORDS.get(str(new_spec.get("set", "")), &"notation.set.integers_words"))
 	return ""
 
 
@@ -59,7 +68,18 @@ static func words_for(new_spec: Dictionary) -> String:
 func words_shown() -> bool:
 	if words_override != null:
 		return bool(words_override)
-	return not ScholarMode.is_on(ModeGate.Feature.MATH_NOTATION)
+	return not _scholar_on()
+
+
+## True when this form may be drawn as symbols now (NotationRules): the set symbols wait for Scholar mode.
+func symbols_shown() -> bool:
+	return NotationRules.symbols_allowed(str(spec.get("form", "")), _scholar_on())
+
+
+func _scholar_on() -> bool:
+	if words_override != null:
+		return not bool(words_override)
+	return ScholarMode.is_on(ModeGate.Feature.MATH_NOTATION)
 
 
 func show_spec(new_spec: Dictionary) -> void:
@@ -90,6 +110,11 @@ func show_spec(new_spec: Dictionary) -> void:
 			congruence.size_scale = size_scale
 			congruence.show_congruence(int(spec["a"]), int(spec["b"]), int(spec["n"]))
 			_display = congruence
+		"set":
+			var symbol: SetSymbolDisplay = SetSymbolDisplay.new()
+			symbol.size_scale = size_scale
+			symbol.show_symbol(StringName(str(spec.get("set", "Z"))))
+			_display = symbol
 	if _display == null:
 		return
 	_display.name = "Notation"
@@ -109,7 +134,9 @@ func show_spec(new_spec: Dictionary) -> void:
 ## Re-reads Explorer or Scholar mode (the words come and go).
 func refresh_mode() -> void:
 	if _words != null:
-		_words.visible = words_shown()
+		_words.visible = words_shown() or not symbols_shown()
+	if _display != null:
+		_display.visible = symbols_shown()
 
 
 func display() -> Control:

@@ -1,0 +1,174 @@
+{
+  "_comment": "Short proofs for the Zone 12 starter skills (proof.parts.identify, proof.order.chain, proof.justify.step, proof.contradiction.recognize). 'chains' are 3 or 4 statements in proof order, each with its reason: assume (we start with it), meaning (it is what a word means), arithmetic (we worked it out) or previous (it follows from the steps before). The first step is always an assume step and the last is a previous step. 'clashes' are statements in order where step 1 is a pretend (an assumption) and step `clash` cannot be true together with it. Every line is in text/lines.csv.",
+  "reasons": [
+    "assume",
+    "meaning",
+    "arithmetic",
+    "previous"
+  ],
+  "chains": [
+    {
+      "id": "even_plus_even",
+      "steps": [
+        {
+          "line_id": "z12.mini.even_plus_even.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.even_plus_even.2",
+          "reason": "meaning"
+        },
+        {
+          "line_id": "z12.mini.even_plus_even.3",
+          "reason": "previous"
+        },
+        {
+          "line_id": "z12.mini.even_plus_even.4",
+          "reason": "previous"
+        }
+      ]
+    },
+    {
+      "id": "odd_plus_one",
+      "steps": [
+        {
+          "line_id": "z12.mini.odd_plus_one.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.odd_plus_one.2",
+          "reason": "meaning"
+        },
+        {
+          "line_id": "z12.mini.odd_plus_one.3",
+          "reason": "arithmetic"
+        },
+        {
+          "line_id": "z12.mini.odd_plus_one.4",
+          "reason": "previous"
+        }
+      ]
+    },
+    {
+      "id": "sum_to_four",
+      "steps": [
+        {
+          "line_id": "z12.mini.sum_to_four.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.sum_to_four.2",
+          "reason": "arithmetic"
+        },
+        {
+          "line_id": "z12.mini.sum_to_four.3",
+          "reason": "previous"
+        }
+      ]
+    },
+    {
+      "id": "double_is_even",
+      "steps": [
+        {
+          "line_id": "z12.mini.double_is_even.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.double_is_even.2",
+          "reason": "meaning"
+        },
+        {
+          "line_id": "z12.mini.double_is_even.3",
+          "reason": "previous"
+        }
+      ]
+    },
+    {
+      "id": "multiple_of_six",
+      "steps": [
+        {
+          "line_id": "z12.mini.multiple_of_six.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.multiple_of_six.2",
+          "reason": "meaning"
+        },
+        {
+          "line_id": "z12.mini.multiple_of_six.3",
+          "reason": "arithmetic"
+        },
+        {
+          "line_id": "z12.mini.multiple_of_six.4",
+          "reason": "previous"
+        }
+      ]
+    },
+    {
+      "id": "square_of_even",
+      "steps": [
+        {
+          "line_id": "z12.mini.square_of_even.1",
+          "reason": "assume"
+        },
+        {
+          "line_id": "z12.mini.square_of_even.2",
+          "reason": "meaning"
+        },
+        {
+          "line_id": "z12.mini.square_of_even.3",
+          "reason": "previous"
+        }
+      ]
+    }
+  ],
+  "clashes": [
+    {
+      "id": "seven_even",
+      "clash": 3,
+      "steps": [
+        "z12.mini.seven_even.1",
+        "z12.mini.seven_even.2",
+        "z12.mini.seven_even.3",
+        "z12.mini.seven_even.4"
+      ]
+    },
+    {
+      "id": "big_prime_even",
+      "clash": 4,
+      "steps": [
+        "z12.mini.big_prime_even.1",
+        "z12.mini.big_prime_even.2",
+        "z12.mini.big_prime_even.3",
+        "z12.mini.big_prime_even.4"
+      ]
+    },
+    {
+      "id": "biggest_number",
+      "clash": 3,
+      "steps": [
+        "z12.mini.biggest_number.1",
+        "z12.mini.biggest_number.2",
+        "z12.mini.biggest_number.3"
+      ]
+    },
+    {
+      "id": "all_odd",
+      "clash": 3,
+      "steps": [
+        "z12.mini.all_odd.1",
+        "z12.mini.all_odd.2",
+        "z12.mini.all_odd.3"
+      ]
+    },
+    {
+      "id": "smallest_fraction",
+      "clash": 3,
+      "steps": [
+        "z12.mini.smallest_fraction.1",
+        "z12.mini.smallest_fraction.2",
+        "z12.mini.smallest_fraction.3"
+      ]
+    }
+  ]
+}

@@ -60,6 +60,10 @@ Only when a parent decides. The parent area is behind a grown-up question that a
 
 A parent can also **import** a progress file in the same way. The game reads only the file the parent picks.
 
+## The web version
+
+The game can also be played in a web browser. The page loads the game files from our host (GitHub Pages) once; after that the game makes no network requests of its own. The host keeps ordinary web access logs (such as the time and your network address), which the game never reads and we do not use. Progress is saved in the browser's own storage on your device (not on a server); clearing the site data in the browser erases it. Handwriting is read on your device, as in the app, and the drawing is thrown away at once; where there is no touch screen, a number pad is shown instead. Everything else in this policy applies to the web version too. In the web version, a parent exports or imports a progress file through the browser's own download and file-open dialogs.
+
 ## Third parties
 
 The game contains no third-party software that collects data: no advertising, analytics, crash-reporting or social SDKs. It is built with the Godot game engine (open source), which collects nothing. It uses a font and art and sound files with open licences; these are files, not software. The full list is in the project's SDK audit.

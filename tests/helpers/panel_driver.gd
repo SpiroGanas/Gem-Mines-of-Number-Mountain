@@ -128,6 +128,8 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			puzzle.set_counts(int(target[0]), int(target[1]))
 			puzzle.done_button().pressed.emit()
 			return true
+		AnswerPanel.InputKind.BUILDER:
+			return build_proof(panel.proof_builder(), str(target))
 		AnswerPanel.InputKind.SCI_PAD, AnswerPanel.InputKind.BASE_PAD:
 			return give_power_pad(panel.power_pad(), target)
 		AnswerPanel.InputKind.KEYBOARD:
@@ -171,6 +173,18 @@ static func give(panel: AnswerPanel, target: Variant) -> bool:
 			panel.board().submit()
 			return true
 	return false
+
+
+## Builds the whole proof the way a child would: the steps in order, each with its reason, then Check. Returns false when
+## `proof_id` is not the proof on the board.
+static func build_proof(builder: ProofBuilder, proof_id: String) -> bool:
+	if builder == null or String(builder.proof.id) != proof_id:
+		return false
+	for step: Dictionary in builder.proof.steps:
+		builder.tile_button(step["id"]).pressed.emit()
+		builder.chip_button(step["justification"]).pressed.emit()
+	builder.check_button().pressed.emit()
+	return true
 
 
 ## Builds a factor tree whose leaves are `target` (sorted): splits pieces until the leaves match, taps

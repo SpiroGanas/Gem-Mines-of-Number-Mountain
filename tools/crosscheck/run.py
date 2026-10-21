@@ -64,8 +64,11 @@ from checkers import (  # noqa: E402
     multiplication,
     negatives,
     parity,
+    mystery,
+    number_sets,
     place_value,
     prime_composite,
+    proof_steps,
     proof_poem,
     ratio,
     regroup,
@@ -135,6 +138,11 @@ CHECKERS = {
     "EuclidGenerator": euclid.check,
     "DiophantineGenerator": diophantine.check,
     "RsaGenerator": rsa.check,
+    # Zone 12 (Phase 5)
+    "ProofStepsGenerator": proof_steps.check,
+    "ProofBuilderGenerator": proof_steps.check_builder,
+    "NumberSetsGenerator": number_sets.check,
+    "MysteryGenerator": mystery.check,
 }
 EXIT_NOT_BUILT = 3
 MAX_ERRORS_SHOWN = 10

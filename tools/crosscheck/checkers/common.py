@@ -15,7 +15,7 @@ VISUAL_TYPES = ("gem_piles", "ten_frame", "number_line", "balance", "array", "gr
                 "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
                 "power_tower", "notation", "cube_blocks", "lamps", "lever",
                 "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape",
-                "clock_track", "cayley", "cipher", "euclid", "coins")
+                "clock_track", "cayley", "cipher", "euclid", "coins", "statements", "number_card")
 ZONE8_VISUALS = ("power_tower", "notation", "cube_blocks", "lamps", "lever")
 MAX_PLACES = 8  # the most lamps or dials a vault lock (or a lamps picture) has (Zone 8)
 # Zone 9 picture limits (Problem in scripts/core/problem.gd draws within these).
@@ -32,6 +32,8 @@ MAX_GEARS = 3
 GEAR_TEETH = (2, 200)
 TAP_SHARDS = 12  # the most shards a crystal the child taps may have (Zone 7)
 DIGIT_FOCUS = ("last", "last_two", "last_three", "sum", "sum_and_last", "recipe")
+MAX_CARDS = 8  # the most cards a Zone 12 statements picture has
+NUMBER_FORMS = ("int", "frac", "decimal", "root")
 MAX_LETTERS = 12  # the most letters on a Zone 11 cipher card
 MAX_STATIONS = 12  # the most stations of a loop (or numbers of a table) a Zone 10 picture draws
 MAX_STOPS = 99
@@ -239,6 +241,8 @@ def check_visual(visual: dict, where: str) -> list[str]:
         errors += _check_zone10_visual(visual, where)
     elif kind in ("cipher", "euclid", "coins"):
         errors += _check_zone11_visual(visual, where)
+    elif kind in ("statements", "number_card"):
+        errors += _check_zone12_visual(visual, where)
     else:
         errors += _check_zone7_visual(visual, where)
     return errors
@@ -292,6 +296,39 @@ def _check_zone11_visual(visual: dict, where: str) -> list[str]:
         a, b, c = visual.get("a"), visual.get("b"), visual.get("c")
         if not (is_int(a) and is_int(b) and is_int(c) and 2 <= a <= 12 and 2 <= b <= 12 and 1 <= c <= 250):
             errors.append(f"{where}: coins need values 2..12 and a total 1..250")
+    return errors
+
+
+def _check_zone12_visual(visual: dict, where: str) -> list[str]:
+    """The Zone 12 pictures can be drawn: 1 to 8 numbered proof cards, a number card with its rings."""
+    errors: list[str] = []
+    if visual["type"] == "statements":
+        cards = visual.get("cards")
+        if not (isinstance(cards, list) and 1 <= len(cards) <= MAX_CARDS):
+            return [f"{where}: a statements picture has 1 to {MAX_CARDS} cards"]
+        numbers = sorted(card.get("n") for card in cards if is_int(card.get("n")))
+        if numbers != list(range(1, len(cards) + 1)) or not all(isinstance(card.get("line_id"), str) and card["line_id"] for card in cards):
+            errors.append(f"{where}: the cards need a line id each and the numbers 1..{len(cards)}")
+        if "lit" in visual and visual["lit"] not in numbers:
+            errors.append(f"{where}: the lit card is not on the picture")
+        if "arrows" in visual and not isinstance(visual["arrows"], bool):
+            errors.append(f"{where}: arrows is true or false")
+        return errors
+    form, a = visual.get("form"), visual.get("a")
+    if form not in NUMBER_FORMS or not is_int(a):
+        return [f"{where}: a number card has a form (int, frac, decimal, root) and a whole number a"]
+    if form == "frac" and not (is_int(visual.get("b")) and 2 <= visual["b"] <= 12 and abs(a) <= 99):
+        errors.append(f"{where}: a fraction card has b from 2 to 12 and a up to 99")
+    if form == "decimal" and not (is_int(visual.get("scale")) and 1 <= visual["scale"] <= 3 and 0 < a < 10 ** (visual["scale"] + 2)):
+        errors.append(f"{where}: a decimal card has 1 to 3 places")
+    if form == "root" and not 2 <= a <= 99:
+        errors.append(f"{where}: a root card shows the root of 2 to 99")
+    if form == "int" and abs(a) > 999:
+        errors.append(f"{where}: an integer card shows up to 999")
+    if "lit" in visual and visual["lit"] not in ("integer", "rational", "real"):
+        errors.append(f"{where}: the lit ring is integer, rational or real")
+    if "rings" in visual and not isinstance(visual["rings"], bool):
+        errors.append(f"{where}: rings is true or false")
     return errors
 
 
@@ -623,6 +660,9 @@ def check_input_meta(problem: dict) -> list[str]:
         for value in values:
             if not (isinstance(value, list) and len(value) == 2 and all(is_int(v) and 0 <= v <= coins.get("max", -1) for v in value)):
                 errors.append(f"coin puzzle: {value!r} must be two counts from 0 to {coins.get('max')}")
+    builder_spec = meta.get("proof_builder")
+    if builder_spec is not None and not (isinstance(builder_spec.get("proof_id"), str) and problem["answer"] == builder_spec["proof_id"]):
+        errors.append("proof_builder: the answer is the proof's id")
     lock = meta.get("clock_lock")
     if lock is not None and not lock.get("turns"):
         errors.append("clock_lock: needs at least one turn")

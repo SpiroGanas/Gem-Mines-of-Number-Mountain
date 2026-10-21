@@ -7,7 +7,7 @@
 ## grids, depth gauge and ore mix are painted by CrystalArt; Zone 8's power tower, cube of blocks, lamps
 ## and lever by PowerArt, and its notation cards (2⁵, √49, 3.4 × 10⁵) by a MathNotation child, with the
 ## words underneath in Explorer mode; Zone 9's pattern rows, figures, pairing rows, Fibonacci squares,
-## proofs and poem shapes by PatternArt; Zone 10's loops of stations and mixing tables by ClockArt; Zone 11's cipher cards and wheel, Euclid bars and coins by VaultArt. Gray-box shapes in code; the
+## proofs and poem shapes by PatternArt; Zone 10's loops of stations and mixing tables by ClockArt; Zone 11's cipher cards and wheel, Euclid bars and coins by VaultArt; Zone 12's proof cards and number rings by CoreArt. Gray-box shapes in code; the
 ## fields of each type are documented in scripts/core/problem.gd.
 ##
 ## The geometry lives in static functions that return plain rectangles (pile_layout, frame_cells,
@@ -60,6 +60,8 @@ const HEIGHT_MULTIPLE_TABLE: float = 6.0
 ## Zone 11 pictures (VaultArt): letter cards, bars and coins are short; the cipher wheel needs room to read.
 const HEIGHT_MULTIPLE_CARDS: float = 3.0
 const HEIGHT_MULTIPLE_CIPHER: float = 4.6
+## Zone 12 pictures (CoreArt): each proof card is about a touch target high; a number card with its rings needs room.
+const HEIGHT_MULTIPLE_STATEMENT: float = 1.1
 const DIGIT_SIZE: int = 56
 ## The second addend's dots on a ten-frame are squares in another color, so color is never the
 ## only difference (accessibility rule).
@@ -143,6 +145,10 @@ func show_visual(new_visual: Dictionary, make_tappable: bool = false) -> void:
 			height = HEIGHT_MULTIPLE_CIPHER if visual.has("shift") else HEIGHT_MULTIPLE_CARDS
 		&"euclid", &"coins":
 			height = HEIGHT_MULTIPLE_CARDS
+		&"statements":
+			height = maxf(HEIGHT_MULTIPLE_CARDS, HEIGHT_MULTIPLE_STATEMENT * float(visual.get("cards", []).size()))
+		&"number_card":
+			height = HEIGHT_MULTIPLE_CIPHER if visual.get("rings", false) else HEIGHT_MULTIPLE_CARDS
 	UI.make_touch_target(self, width_multiple, height * (COMPACT_SCALE if compact else 1.0))
 	_rebuild_notation()
 	_rebuild_buttons()
@@ -337,7 +343,8 @@ func _draw() -> void:
 			if not PowerArt.draw_visual(self, area, visual, get_theme_default_font()) and not CrystalArt.draw_visual(self, area, visual, get_theme_default_font()) \
 					and not PatternArt.draw_visual(self, area, visual, get_theme_default_font()): # Zone 9
 				if not ClockArt.draw_visual(self, area, visual, get_theme_default_font()): # Zone 10
-					VaultArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 11
+					if not VaultArt.draw_visual(self, area, visual, get_theme_default_font()): # Zone 11
+						CoreArt.draw_visual(self, area, visual, get_theme_default_font()) # Zone 12
 
 
 func _draw_piles() -> void:

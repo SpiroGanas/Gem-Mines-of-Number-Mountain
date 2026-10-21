@@ -46,6 +46,8 @@ KNOWN_GENERATORS = frozenset({
     "ModularGenerator", "GroupGenerator", "DivisibilityWhyGenerator",
     # Zone 11 (Phase 5)
     "CipherGenerator", "ModInverseGenerator", "EuclidGenerator", "DiophantineGenerator", "RsaGenerator",
+    # Zone 12 (Phase 5)
+    "ProofStepsGenerator", "ProofBuilderGenerator", "NumberSetsGenerator", "MysteryGenerator",
 })
 REPRESENTATIONS = frozenset({"concrete", "pictorial", "abstract"})
 # Picture types the game can draw (Problem.VISUAL_TYPES in scripts/core/problem.gd).
@@ -54,7 +56,7 @@ WORD_GEM_VISUALS = frozenset({"gem_piles", "ten_frame", "number_line", "balance"
                               "crystals", "fraction_line", "crystal_grid", "depth_gauge", "ore_mix",
                               "power_tower", "notation", "cube_blocks", "lamps", "lever",
                               "pattern", "figurate", "pairing", "fib_squares", "proof", "poem_shape",
-                              "clock_track", "cayley", "cipher", "euclid", "coins"})
+                              "clock_track", "cayley", "cipher", "euclid", "coins", "statements", "number_card"})
 # handwriting_fraction (Phase 4): the two-row slate for a fraction answer, numerator over denominator.
 ANSWER_MODES = frozenset({"tap", "drag", "number_pad", "keyboard", "handwriting", "handwriting_fraction"})
 BKT_SKILL_TYPES = frozenset({"default", "fact", "procedure", "concept"})
@@ -65,6 +67,9 @@ DETAILED_SKILL_FIELDS = frozenset({
     "id", "name", "prereqs", "generator", "params", "representations", "answer_modes",
     "terms", "bkt_type", "is_fact_skill", "misconceptions",
 })
+# notation_level (Phase 5, Scholar mode): 0 plain (+ - x / =), 1 fractions, decimals, powers, roots and the like,
+# 2 the congruence sign and set symbols. Optional; a skill without one counts as 0.
+OPTIONAL_SKILL_FIELDS = frozenset({"notation_level"})
 OUTLINE_SKILL_FIELDS = frozenset({"id", "name"})
 ZONE_FIELDS = frozenset({"zone", "zone_id", "name", "status", "skills"})
 
@@ -232,9 +237,12 @@ def check_skill_map(
         for skill in zone_data["skills"]:
             sid = skill.get("id", "<missing id>")
             where = f"{label}: {sid}"
-            if set(skill) != allowed:
-                errors.append(f"{where}: keys must be exactly {sorted(allowed)}, got {sorted(skill)}")
+            optional = OPTIONAL_SKILL_FIELDS if status == "detailed" else frozenset()
+            if not (allowed <= set(skill) <= allowed | optional):
+                errors.append(f"{where}: keys must be exactly {sorted(allowed)} (plus optionally {sorted(optional)}), got {sorted(skill)}")
                 continue
+            if "notation_level" in skill and skill["notation_level"] not in (0, 1, 2):
+                errors.append(f"{where}: notation_level must be 0, 1 or 2")
             if not isinstance(sid, str) or not SKILL_ID_RE.match(sid):
                 errors.append(f"{where}: id must look like topic.subtopic.action")
             if sid in skills:

@@ -287,7 +287,7 @@ def check_sentence_length(root: Path) -> list[Finding]:
         return []
     findings: list[Finding] = []
     for number, row in rows:
-        if row["context"] == "deprecated" or line_mode(row) == "scholar":
+        if row["context"] == "deprecated" or line_mode(row) == "scholar" or row["id"].endswith(".scholar_definition"):
             continue  # Scholar variants may be longer (Phase 4 plan, Scholar mode); they are gated
         longest = max(sentence_word_counts(row["text"]), default=0)
         if longest > MAX_WORDS_PER_SENTENCE:
@@ -500,6 +500,52 @@ def check_glossary_terms(root: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
+# Rules 13 and 14: Scholar mode (Phase 5)
+# ---------------------------------------------------------------------------
+
+# Symbols a child on Explorer mode never reads in a line (NotationRules): + - x / = and the sign for "and so on" are fine.
+FORMAL_GLYPHS = "≡ℤℚℝ√≤≥∈≠≈∞∘⁰¹²³⁴⁵⁶⁷⁸⁹"
+# Lines that may use them: for grown-ups, the formal Word Gem definitions (shown in Scholar mode only), debug.
+FORMAL_EXEMPT_PREFIXES = ("parent.", "debug.")
+
+
+def check_word_gem_definitions(root: Path) -> list[Finding]:
+    """Rule 13: every Word Gem has a kid-sized and a formal (Scholar mode) definition, both in the text table."""
+    vocabulary_path = root / "curriculum" / "vocabulary.json"
+    if not vocabulary_path.is_file() or not (root / LINES_CSV).is_file():
+        return []
+    import json
+    terms = json.loads(vocabulary_path.read_text(encoding="utf-8"))["terms"]
+    _, rows = read_lines(root)
+    known = {row["id"] for _, row in rows}
+    findings: list[Finding] = []
+    for entry in terms:
+        for key in ("definition_line_id", "scholar_definition_line_id"):
+            line_id = entry.get(key)
+            if not line_id:
+                findings.append(Finding("13", "curriculum/vocabulary.json", 0, f"Word Gem '{entry['id']}' has no {key}"))
+            elif line_id not in known:
+                findings.append(Finding("13", "curriculum/vocabulary.json", 0, f"Word Gem '{entry['id']}': {key} '{line_id}' is not in text/lines.csv"))
+    return findings
+
+
+def check_explorer_glyphs(root: Path) -> list[Finding]:
+    """Rule 14: lines every child sees keep to + - x / = (no formal symbols); those are Scholar-only."""
+    if not (root / LINES_CSV).is_file():
+        return []
+    _, rows = read_lines(root)
+    findings: list[Finding] = []
+    for number, row in rows:
+        line_id = row.get("id", "")
+        if line_mode(row) == "scholar" or line_id.startswith(FORMAL_EXEMPT_PREFIXES) or line_id.endswith(".scholar_definition"):
+            continue
+        found = sorted({ch for ch in row.get("text", "") if ch in FORMAL_GLYPHS})
+        if found:
+            findings.append(Finding("14", LINES_CSV, number, f"line '{line_id}' uses formal symbols {''.join(found)}; give it a Scholar variant (mode column) instead"))
+    return findings
+
+
+# ---------------------------------------------------------------------------
 
 
 RULES = (
@@ -514,6 +560,8 @@ RULES = (
     check_asset_credits,
     check_glossary_terms,
     check_secret_message,
+    check_word_gem_definitions,
+    check_explorer_glyphs,
 )
 
 

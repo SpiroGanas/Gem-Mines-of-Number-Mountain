@@ -71,6 +71,9 @@ func refresh() -> void:
 	var offset: int = Adaptive.clock.utc_offset_minutes()
 	var week: Dictionary = ProgressReport.week_summary(entries, SaveSystem.data()["skills"], today, offset)
 	var struggling: Array[StringName] = Adaptive.engine.struggling(entries)
+	var rank: Label = _label(&"parent.dash.rank", {"rank": Text.get_line(RankRules.name_line(Rewards.rank_for()))})
+	rank.name = "RankLabel"
+	_content.add_child(rank)
 	_section(&"parent.week.title")
 	var summary: Label = _label(&"parent.week.summary", {"minutes": week["minutes"], "sessions": week["sessions"], "mastered": week["mastered"], "struggling": struggling.size()})
 	summary.name = "WeekSummary"

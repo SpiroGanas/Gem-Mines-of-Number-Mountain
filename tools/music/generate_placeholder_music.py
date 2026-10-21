@@ -29,6 +29,9 @@ and one for the build site. Which screen plays which file:
     mine_z10.ogg the mine in Zone 10, Clockwork Depths (Phase 5): bells that tick on every third beat of
                  a 12-beat clock face, going round twice over slow chords
 
+    mine_z12.ogg the mine in Zone 12, The Infinite Core (Phase 5): bells that ring only on the triangular-number beats
+                 (0, 1, 3, 6, 10, 15, 21, 28) of a 32-beat loop, the gaps growing like counting that never ends
+
     mine_z11.ogg the mine in Zone 11, Cipher Vault (Phase 5): bells that ring only on the prime beats of a
                  28-beat loop (one beat for each letter and two to rest), rising to the middle and falling back
 
@@ -134,6 +137,14 @@ TRACKS = {
         "melody": [None, None, 69, 73, None, 76, None, 78, None, None, None, 81, None, 78, None, None, None, 76, None, 73,
                    None, None, None, 69, None, None, None, None],
         "chords": [[38, 45, 54], [43, 50, 59], [40, 47, 56], [45, 52, 61], [38, 45, 54], [43, 50, 59], [45, 52, 61]],
+    },
+    # Zone 12, The Infinite Core: A major pentatonic bells that ring only on the triangular-number beats (0, 1, 3, 6, 10, 15,
+    # 21, 28) of a 32-beat loop: the gaps keep growing, like counting that never ends, then the tune falls back to start.
+    "mine_z12": {
+        "bpm": 60,
+        "melody": [69, 73, None, 76, None, None, 81, None, None, None, 85, None, None, None, None, 88,
+                   None, None, None, None, None, 85, None, None, None, None, None, None, 81, None, None, None],
+        "chords": [[45, 52, 61], [50, 57, 66], [52, 59, 68], [57, 64, 73], [45, 52, 61], [50, 57, 66], [52, 59, 68], [45, 52, 64]],
     },
     # Build site and crafting bench: F major, bright and short (20 beats).
     "build": {

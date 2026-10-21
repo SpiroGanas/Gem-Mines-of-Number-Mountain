@@ -226,6 +226,8 @@ static func _visual_errors(visual: Dictionary, where: String) -> Array[String]:
 			errors.append_array(zone10_visual_errors(visual, where))
 		&"cipher", &"euclid", &"coins":
 			errors.append_array(zone11_visual_errors(visual, where))
+		&"statements", &"number_card":
+			errors.append_array(zone12_visual_errors(visual, where))
 	return errors
 
 
@@ -293,6 +295,42 @@ static func zone8_visual_errors(visual: Dictionary, where: String) -> Array[Stri
 				var expected: String = "level" if left == right else ("left" if left > right else "right")
 				if tilt != expected:
 					errors.append("%s: moments %d and %d should tilt %s" % [where, left, right, expected])
+	return errors
+
+
+## The Zone 12 pictures (Problem.VISUAL_TYPES) must be drawable: 1 to 8 numbered proof cards with a line each, a number card
+## of a known form with its rings.
+static func zone12_visual_errors(visual: Dictionary, where: String) -> Array[String]:
+	var errors: Array[String] = []
+	if StringName(visual["type"]) == &"statements":
+		var cards: Array = visual.get("cards", [])
+		if cards.is_empty() or cards.size() > ProofStepsGenerator.MAX_CARDS:
+			return ["%s: a statements picture has 1 to %d cards" % [where, ProofStepsGenerator.MAX_CARDS]]
+		var numbers: Array[int] = []
+		for card: Variant in cards:
+			numbers.append(int(card["n"]))
+			if str(card.get("line_id", "")).is_empty() or not Text.has_line(StringName(str(card["line_id"]))):
+				errors.append("%s: card %s has no line in the text table" % [where, card.get("n")])
+		numbers.sort()
+		for index: int in numbers.size():
+			if numbers[index] != index + 1:
+				errors.append("%s: the cards need the numbers 1 to %d" % [where, cards.size()])
+				break
+		if visual.has("lit") and not numbers.has(int(visual["lit"])):
+			errors.append("%s: the lit card is not on the picture" % where)
+		return errors
+	var form: String = str(visual.get("form", ""))
+	var a: int = int(visual.get("a", 0))
+	if not ["int", "frac", "decimal", "root"].has(form):
+		return ["%s: a number card has a form of int, frac, decimal or root" % where]
+	if form == "frac" and (int(visual.get("b", 0)) < 2 or int(visual.get("b", 0)) > 12):
+		errors.append("%s: a fraction card has b from 2 to 12" % where)
+	if form == "decimal" and (int(visual.get("scale", 0)) < 1 or int(visual.get("scale", 0)) > 3 or a < 1):
+		errors.append("%s: a decimal card has 1 to 3 places" % where)
+	if form == "root" and (a < 2 or a > 99):
+		errors.append("%s: a root card shows the root of 2 to 99" % where)
+	if visual.has("lit") and not ["integer", "rational", "real"].has(str(visual["lit"])):
+		errors.append("%s: the lit ring is integer, rational or real" % where)
 	return errors
 
 

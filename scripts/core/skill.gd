@@ -23,6 +23,9 @@ extends Resource
 @export var bkt_type: StringName = &"default"
 ## True enables the hidden fluency check (never shown to the child).
 @export var is_fact_skill: bool = false
+## How much notation the skill's pictures and prompts use (Phase 5, Scholar mode): 0 plain (+ - × ÷ =),
+## 1 fractions, decimals, powers and roots, 2 the congruence sign and set symbols. See NotationRules.
+@export var notation_level: int = 0
 ## Names from curriculum/misconceptions.json that this skill's distractors may use.
 @export var misconceptions: Array[StringName] = []
 
@@ -42,6 +45,7 @@ static func from_json(entry: Dictionary, zone: int) -> Skill:
 	skill.bkt_type = StringName(str(entry.get("bkt_type", "default")))
 	skill.is_fact_skill = bool(entry.get("is_fact_skill", false))
 	skill.misconceptions = _names(entry.get("misconceptions", []))
+	skill.notation_level = int(entry.get("notation_level", 0))
 	return skill
 
 

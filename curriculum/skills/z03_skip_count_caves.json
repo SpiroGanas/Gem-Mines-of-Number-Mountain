@@ -11,9 +11,10 @@
       "generator": "SkipCountGenerator",
       "params": {"step": 10, "max": 120},
       "representations": ["pictorial"],
-      "answer_modes": ["drag", "number_pad"],
+      "answer_modes": ["drag", "number_pad", "keyboard"],
       "terms": ["tens"],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_step", "decade_skip"]
     },
@@ -24,9 +25,10 @@
       "generator": "SkipCountGenerator",
       "params": {"step": 5, "max": 100},
       "representations": ["pictorial"],
-      "answer_modes": ["drag", "number_pad"],
+      "answer_modes": ["drag", "number_pad", "keyboard"],
       "terms": [],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_step"]
     },
@@ -37,9 +39,10 @@
       "generator": "SkipCountGenerator",
       "params": {"step": 2, "max": 40},
       "representations": ["concrete"],
-      "answer_modes": ["drag", "number_pad"],
+      "answer_modes": ["drag", "number_pad", "keyboard"],
       "terms": [],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["wrong_step", "off_by_one"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["tap"],
       "terms": ["even", "odd"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["leftover_miscounted", "parity_swapped"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["tap"],
       "terms": ["even", "odd", "digit"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_tens_digit", "parity_swapped"]
     },
@@ -76,9 +81,10 @@
       "generator": "ArraysGenerator",
       "params": {"mode": "count", "max_rows": 5, "max_cols": 5},
       "representations": ["concrete"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["array", "row", "column"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["rows_plus_cols", "off_by_row"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["drag"],
       "terms": ["array", "row", "column"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["rows_cols_swapped"]
     },
@@ -102,9 +109,10 @@
       "generator": "MultiplicationGenerator",
       "params": {"mode": "repeated_add", "max_groups": 5, "max_size": 5},
       "representations": ["pictorial"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["sum", "equal_groups"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["counted_groups", "off_by_group"]
     },
@@ -115,9 +123,10 @@
       "generator": "MultiplicationGenerator",
       "params": {"mode": "equal_groups", "max": 25},
       "representations": ["concrete"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["equal_groups", "multiply"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["rows_plus_cols", "counted_groups"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["tap"],
       "terms": ["commutative", "array"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["rows_cols_swapped_wrong"]
     },
@@ -141,9 +151,10 @@
       "generator": "MultiplicationGenerator",
       "params": {"mode": "facts", "tables": [2, 5, 10], "max_factor": 10},
       "representations": ["abstract"],
-      "answer_modes": ["number_pad", "tap", "handwriting"],
+      "answer_modes": ["number_pad", "tap", "handwriting", "keyboard"],
       "terms": ["multiply"],
       "bkt_type": "fact",
+      "notation_level": 0,
       "is_fact_skill": true,
       "misconceptions": ["off_by_group", "wrong_table"]
     }

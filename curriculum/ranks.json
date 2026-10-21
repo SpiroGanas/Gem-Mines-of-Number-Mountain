@@ -1,0 +1,11 @@
+{
+  "_comment": "Master Miner ranks (Phase 5). A rank is derived from how many skills the child has mastered and which zones are finished; it is never saved. Listed from lowest to highest. 'min_mastered' is the fewest mastered skills for the rank; 'needs_zone' (optional) is a zone that must be finished too; 'all_zones' (optional) needs every zone finished. The highest rank whose conditions hold wins. 'line_id' is the rank's name in text/lines.csv.",
+  "ranks": [
+    {"id": "apprentice", "min_mastered": 0, "line_id": "rank.apprentice.name"},
+    {"id": "digger", "min_mastered": 21, "line_id": "rank.digger.name"},
+    {"id": "surveyor", "min_mastered": 61, "line_id": "rank.surveyor.name"},
+    {"id": "engineer", "min_mastered": 101, "line_id": "rank.engineer.name"},
+    {"id": "master_miner", "min_mastered": 141, "needs_zone": 10, "line_id": "rank.master_miner.name"},
+    {"id": "core_keeper", "min_mastered": 0, "all_zones": true, "line_id": "rank.core_keeper.name"}
+  ]
+}

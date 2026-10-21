@@ -14,6 +14,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["remainder", "modulo"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["gave_quotient", "forgot_mod_wrap", "off_by_one"]
     },
@@ -27,6 +28,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["remainder", "modulo"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_mod_wrap", "counted_start_station"]
     },
@@ -40,6 +42,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["modulo"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["negative_remainder", "went_forward_instead"]
     },
@@ -53,6 +56,7 @@
       "answer_modes": ["tap"],
       "terms": ["congruent", "modulo"],
       "bkt_type": "concept",
+      "notation_level": 1,
       "is_fact_skill": false,
       "misconceptions": ["compared_quotients", "compared_raw_values"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["tap"],
       "terms": ["congruent", "modulo"],
       "bkt_type": "concept",
+      "notation_level": 2,
       "is_fact_skill": false,
       "misconceptions": ["swapped_mod_and_value", "read_as_equals"]
     },
@@ -79,6 +84,7 @@
       "answer_modes": ["drag", "number_pad", "handwriting", "keyboard"],
       "terms": ["modulo"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_mod_wrap", "subtracted_instead"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["modulo"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_mod_wrap", "added_instead"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["drag", "tap"],
       "terms": ["identity", "group"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["picked_one_for_add", "picked_zero_for_mul", "picked_last_number"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["group_inverse", "group"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["gave_negative_raw", "gave_same_value", "gave_n_minus_one"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["tap"],
       "terms": ["closure", "group"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["missed_value_ge_n", "distrusted_wrap"]
     },
@@ -141,9 +151,10 @@
       "generator": "GroupGenerator",
       "params": {"mode": "table", "min_n": 3, "max_n": 7},
       "representations": ["pictorial"],
-      "answer_modes": ["tap", "number_pad"],
+      "answer_modes": ["tap", "number_pad", "keyboard"],
       "terms": ["group"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_mod_wrap", "copied_cell_above"]
     },
@@ -157,6 +168,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["cyclic", "group"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["stopped_early", "skipped_identity", "used_jump_size"]
     },
@@ -170,6 +182,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["remainder", "divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_last_digit", "summed_wrong"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["remainder", "divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_first_digit", "used_digit_sum"]
     },
@@ -196,6 +210,7 @@
       "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["remainder", "divisible"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["used_last_digit_only", "used_digit_sum"]
     }

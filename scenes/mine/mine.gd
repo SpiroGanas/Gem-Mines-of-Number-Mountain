@@ -302,6 +302,8 @@ func music_id() -> StringName:
 			return &"mine_z10"
 		11:
 			return &"mine_z11"
+		12:
+			return &"mine_z12"
 	return &"mine"
 
 
@@ -546,6 +548,8 @@ func _on_answered(given: Variant) -> void:
 	attempt.correct = correct
 	attempt.confirmed = _panel.slate_confirmed()
 	attempt.hints_used = flow.wrong_count()
+	if _panel.proof_builder() != null: # the builder has its own gentle hints; each counts like a rung of the ladder
+		attempt.hints_used += _panel.proof_builder().hints_used
 	attempt.latency_ms = Time.get_ticks_msec() - _answer_opened_ms
 	Adaptive.record(attempt, AnswerPanel.chance_for(problem, _misses_on_problem))
 	if not correct:
@@ -667,6 +671,7 @@ func _show_panel(problem: Problem) -> void:
 	_panel.set_enabled(false) # enabled once the problem is on screen
 	_panel.answered.connect(_on_answered)
 	_panel.rejected.connect(_on_slate_rejected)
+	_panel.bolt_said.connect(func(line_id: StringName, params: Dictionary) -> void: _bolt.note(line_id, params))
 	_panel.digit_written.connect(_on_digit_written)
 	var sieve: SieveGrid = _panel.sieve_grid()
 	if sieve != null:

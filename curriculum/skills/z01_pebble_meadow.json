@@ -14,6 +14,7 @@
       "answer_modes": ["tap"],
       "terms": ["numeral"],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_one", "double_counted"]
     },
@@ -27,6 +28,7 @@
       "answer_modes": ["tap"],
       "terms": ["numeral"],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_swap", "off_by_one"]
     },
@@ -37,9 +39,10 @@
       "generator": "CountingGenerator",
       "params": {"mode": "next", "min": 1, "max": 119},
       "representations": ["abstract"],
-      "answer_modes": ["tap", "number_pad", "handwriting"],
+      "answer_modes": ["tap", "number_pad", "handwriting", "keyboard"],
       "terms": [],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_one", "decade_skip"]
     },
@@ -50,9 +53,10 @@
       "generator": "CountingGenerator",
       "params": {"mode": "between", "min": 1, "max": 120},
       "representations": ["abstract"],
-      "answer_modes": ["tap", "number_pad", "handwriting"],
+      "answer_modes": ["tap", "number_pad", "handwriting", "keyboard"],
       "terms": [],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_one"]
     },
@@ -66,6 +70,7 @@
       "answer_modes": ["drag", "tap"],
       "terms": [],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["off_by_one", "decade_skip"]
     },
@@ -76,9 +81,10 @@
       "generator": "CountingGenerator",
       "params": {"mode": "write", "min": 11, "max": 120},
       "representations": ["concrete", "abstract"],
-      "answer_modes": ["number_pad", "handwriting"],
+      "answer_modes": ["number_pad", "handwriting", "keyboard"],
       "terms": ["digit", "numeral"],
       "bkt_type": "default",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_swap"]
     },
@@ -92,6 +98,7 @@
       "answer_modes": ["tap"],
       "terms": [],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["picked_smaller"]
     },
@@ -105,6 +112,7 @@
       "answer_modes": ["tap"],
       "terms": ["greater_than", "less_than", "equal"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["reversed_symbol", "compared_ones_first", "thought_equal", "thought_unequal"]
     },
@@ -118,6 +126,7 @@
       "answer_modes": ["drag", "tap"],
       "terms": ["greater_than", "less_than"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["reversed_order", "compared_ones_first"]
     },
@@ -131,6 +140,7 @@
       "answer_modes": ["drag"],
       "terms": ["tens", "ones"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_swap", "counted_tens_as_ones"]
     },
@@ -141,9 +151,10 @@
       "generator": "PlaceValueGenerator",
       "params": {"mode": "read", "min": 11, "max": 99},
       "representations": ["concrete", "abstract"],
-      "answer_modes": ["tap", "number_pad", "handwriting"],
+      "answer_modes": ["tap", "number_pad", "handwriting", "keyboard"],
       "terms": ["tens", "ones"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_swap", "counted_bars_as_ones"]
     },
@@ -157,6 +168,7 @@
       "answer_modes": ["tap"],
       "terms": ["digit", "tens", "ones"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_value_as_digit", "digit_swap"]
     },
@@ -167,9 +179,10 @@
       "generator": "PlaceValueGenerator",
       "params": {"mode": "digit_value", "min": 11, "max": 99},
       "representations": ["abstract"],
-      "answer_modes": ["tap", "number_pad", "handwriting"],
+      "answer_modes": ["tap", "number_pad", "handwriting", "keyboard"],
       "terms": ["digit", "tens", "ones"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["digit_value_as_digit", "wrong_place"]
     },
@@ -183,6 +196,7 @@
       "answer_modes": ["drag"],
       "terms": ["regrouping"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_regroup", "traded_wrong_count"]
     },
@@ -196,6 +210,7 @@
       "answer_modes": ["drag"],
       "terms": ["regrouping"],
       "bkt_type": "procedure",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["forgot_regroup", "traded_wrong_count"]
     },
@@ -206,9 +221,10 @@
       "generator": "PlaceValueGenerator",
       "params": {"mode": "ten_more_less", "min": 10, "max": 110},
       "representations": ["pictorial"],
-      "answer_modes": ["tap", "number_pad", "handwriting"],
+      "answer_modes": ["tap", "number_pad", "handwriting", "keyboard"],
       "terms": ["tens"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["changed_ones", "off_by_one"]
     },
@@ -222,6 +238,7 @@
       "answer_modes": ["drag"],
       "terms": ["hundred", "tens", "ones"],
       "bkt_type": "concept",
+      "notation_level": 0,
       "is_fact_skill": false,
       "misconceptions": ["counted_tens_as_ones", "digit_swap"]
     }

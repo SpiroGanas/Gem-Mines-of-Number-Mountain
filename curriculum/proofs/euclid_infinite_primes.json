@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "proof.euclid.infinite_primes",
+  "title_line_id": "z12.proof.euclid.title",
+  "intro_line_id": "z12.proof.euclid.intro",
+  "orderings": "partial",
+  "scaffold_levels": 3,
+  "justifications": ["assume", "build", "arithmetic", "prime_recipe", "reasoning", "contradiction"],
+  "steps": [
+    {"id": "s1", "line_id": "z12.proof.euclid.s1", "justification": "assume", "depends_on": []},
+    {"id": "s2", "line_id": "z12.proof.euclid.s2", "justification": "build", "depends_on": ["s1"]},
+    {"id": "s3", "line_id": "z12.proof.euclid.s3", "justification": "build", "depends_on": ["s2"]},
+    {"id": "s4", "line_id": "z12.proof.euclid.s4", "justification": "arithmetic", "depends_on": ["s2", "s3"]},
+    {"id": "s5", "line_id": "z12.proof.euclid.s5", "justification": "prime_recipe", "depends_on": ["s3"]},
+    {"id": "s6", "line_id": "z12.proof.euclid.s6", "justification": "reasoning", "depends_on": ["s4", "s5"]},
+    {"id": "s7", "line_id": "z12.proof.euclid.s7", "justification": "contradiction", "depends_on": ["s1", "s6"]}
+  ],
+  "decoys": [
+    {"id": "d1", "line_id": "z12.proof.euclid.d1", "misconception": "n_plus_one_is_prime"},
+    {"id": "d2", "line_id": "z12.proof.euclid.d2", "misconception": "assumes_conclusion"}
+  ]
+}

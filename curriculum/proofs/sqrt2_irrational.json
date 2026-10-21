@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "id": "proof.sqrt2.irrational",
+  "title_line_id": "z12.proof.sqrt2.title",
+  "intro_line_id": "z12.proof.sqrt2.intro",
+  "orderings": "strict",
+  "scaffold_levels": 3,
+  "justifications": ["assume", "arithmetic", "even_square", "meaning", "contradiction"],
+  "steps": [
+    {"id": "s1", "line_id": "z12.proof.sqrt2.s1", "justification": "assume", "depends_on": []},
+    {"id": "s2", "line_id": "z12.proof.sqrt2.s2", "justification": "arithmetic", "depends_on": ["s1"]},
+    {"id": "s3", "line_id": "z12.proof.sqrt2.s3", "justification": "even_square", "depends_on": ["s2"]},
+    {"id": "s4", "line_id": "z12.proof.sqrt2.s4", "justification": "arithmetic", "depends_on": ["s3"]},
+    {"id": "s5", "line_id": "z12.proof.sqrt2.s5", "justification": "even_square", "depends_on": ["s4"]},
+    {"id": "s6", "line_id": "z12.proof.sqrt2.s6", "justification": "contradiction", "depends_on": ["s1", "s3", "s5"]}
+  ],
+  "decoys": [
+    {"id": "d1", "line_id": "z12.proof.sqrt2.d1", "misconception": "decimal_is_fraction"},
+    {"id": "d2", "line_id": "z12.proof.sqrt2.d2", "misconception": "forgot_lowest_terms"}
+  ]
+}

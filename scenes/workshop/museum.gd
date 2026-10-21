@@ -81,6 +81,14 @@ func _ready() -> void:
 			UI.make_touch_target(codes, 2.6, 1.2)
 			codes.pressed.connect(request_screen.emit.bind(door[3], {}))
 			header.add_child(codes)
+	# Zone 12 (Phase 5): the Mathematician's Journal, once the child can tell the parts of a proof apart.
+	if Adaptive.mastered().has(&"proof.parts.identify"):
+		var journal: Button = Button.new()
+		journal.name = "JournalButton"
+		journal.text = Text.get_line(&"ui.museum.journal")
+		UI.make_touch_target(journal, 2.6, 1.2)
+		journal.pressed.connect(request_screen.emit.bind(&"journal", {}))
+		header.add_child(journal)
 	var body: HBoxContainer = HBoxContainer.new()
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override(&"separation", 40)
