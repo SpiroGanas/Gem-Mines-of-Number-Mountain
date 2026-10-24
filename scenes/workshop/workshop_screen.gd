@@ -11,6 +11,10 @@ var back_args: Dictionary = {}
 
 var body: VBoxContainer
 var side: VBoxContainer
+## The row that holds `body` and `side`.
+var columns: HBoxContainer
+## The header's title (a screen may show another line there for a while, as the crafting bench does).
+var title_label: Label
 var bolt_node: Bolt
 var sfx: SfxBank
 var celebration: Celebration
@@ -22,6 +26,7 @@ var back_button: Button
 var one_row_header: bool = false
 
 var _coins_label: Label
+var _margin: MarginContainer
 
 
 ## Builds the frame. Call from _ready() after super().
@@ -29,14 +34,14 @@ func build_frame(title_line: StringName) -> void:
 	sfx = SfxBank.new()
 	add_child(sfx)
 	add_child(Backdrop.new())
-	var margin: MarginContainer = MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_margin = MarginContainer.new()
+	_margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge: StringName in [&"margin_left", &"margin_right", &"margin_top", &"margin_bottom"]:
-		margin.add_theme_constant_override(edge, UI.spacing(32)) # half on a phone (UI.is_compact)
-	add_child(margin)
+		_margin.add_theme_constant_override(edge, UI.spacing(32)) # half on a phone (UI.is_compact)
+	add_child(_margin)
 	var column: VBoxContainer = VBoxContainer.new()
 	column.add_theme_constant_override(&"separation", UI.spacing(20))
-	margin.add_child(column)
+	_margin.add_child(column)
 	# On a phone the header heads the narrow left column: Back above the title and the coins.
 	var stacked: bool = UI.is_compact() and not one_row_header
 	var header: BoxContainer = VBoxContainer.new() if stacked else HBoxContainer.new()
@@ -53,15 +58,15 @@ func build_frame(title_line: StringName) -> void:
 		title_row = HBoxContainer.new()
 		title_row.add_theme_constant_override(&"separation", 16)
 		header.add_child(title_row)
-	var title: Label = Label.new()
-	title.theme_type_variation = &"" if UI.is_compact() else &"HeadingLabel" # body size on a phone
-	title.text = Text.get_line(title_line)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_row.add_child(title)
+	title_label = Label.new()
+	title_label.theme_type_variation = &"" if UI.is_compact() else &"HeadingLabel" # body size on a phone
+	title_label.text = Text.get_line(title_line)
+	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_row.add_child(title_label)
 	_coins_label = Label.new()
 	title_row.add_child(_coins_label)
-	var columns: HBoxContainer = HBoxContainer.new()
+	columns = HBoxContainer.new()
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override(&"separation", UI.spacing(40))
 	column.add_child(columns)
@@ -88,6 +93,12 @@ func build_frame(title_line: StringName) -> void:
 	add_child(word_gem_card)
 	bolt_node.term_tapped.connect(_on_term_tapped)
 	refresh_coins()
+
+
+## How much more room than the screen the content needs, in canvas pixels on each axis (zero or less
+## where it fits): a screen that can lay itself out more than one way measures its layout with it.
+func overflow() -> Vector2:
+	return _margin.get_combined_minimum_size() - size
 
 
 func refresh_coins() -> void:

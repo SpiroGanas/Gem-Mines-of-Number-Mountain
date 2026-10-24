@@ -3,6 +3,7 @@
 # 420 dpi, about 411 dp tall, and a small 1600x720 phone at 320 dpi, 360 dp tall) as well as at the
 # tablet and Chromebook shapes (16:9, 16:10, 3:2, 4:3). On each, every visible tappable control lies
 # fully on screen, is at least UI.min_target_px() on both sides and overlaps no other (LayoutAudit).
+# The crafting bench is also checked full of recipes with each one's problem up, and on two denser tablets.
 class_name PhoneLayoutTest
 extends GdUnitTestSuite
 
@@ -11,6 +12,11 @@ const MINE_SCENE: String = "res://scenes/mine/mine.tscn"
 
 ## Window size -> dpi for each screen shape checked (0: the design density of the headless runner).
 const PHONES: Array[Array] = [[TestWindow.PHONE, TestWindow.PHONE_DPI], [TestWindow.SMALL_PHONE, TestWindow.SMALL_PHONE_DPI]]
+
+## Denser tablets than the design canvas: a 10-inch tablet at 240 dpi and an 11-inch one at 320 dpi
+## (both 1280x800 dp), where each target is half as big again on the canvas. Only the crafting bench is
+## held to them so far; the rest of the game waits on the tablet-density layout pass (status.md).
+const DENSE_TABLETS: Array[Array] = [[Vector2i(1920, 1200), 240], [Vector2i(2560, 1600), 320]]
 
 ## Child and parent screens opened on their own (screen id -> setup args).
 const SCREENS: Dictionary = {
@@ -154,6 +160,68 @@ func test_the_pause_menu_fits() -> void:
 		_check(shell.find_child("PauseMenu", true, false), "pause", shape, issues)
 		shell.resume()
 		shell.free()
+	_report(issues)
+
+
+# --- The crafting bench, full of recipes, with a problem up ------------------------------------------
+
+
+## Every recipe open, with gems for all of them (long counts, so the rows are as wide as they get).
+func _open_every_recipe() -> void:
+	var data: Dictionary = SaveSystem.data()
+	data["rewards"]["coins"] = 1234
+	data["rewards"]["gems"] = {"quartz": 140, "garnet": 120, "pyrite": 60, "amethyst": 30}
+	for recipe: Recipe in Rewards.recipes():
+		var record: Dictionary = SkillRecord.fresh(0.97)
+		record["mastered_at"] = "2027-03-01T00:00:00Z"
+		data["skills"][String(recipe.unlock_after_skill)] = record
+
+
+## The list (and its Word Gem card), then each recipe's problem with the number pad and with the slate,
+## then the same problem after three not-quite answers (Bolt's feedback lines and the worked example
+## beside the input), and the celebration. Before this check the bench overflowed to the right as soon
+## as a problem was up, even on the design canvas.
+func test_the_crafting_bench_fits_with_its_recipes_and_their_problems() -> void:
+	var issues: PackedStringArray = PackedStringArray()
+	var kinds: Dictionary = {}
+	var shapes: Array[Array] = _shapes()
+	shapes.append_array(DENSE_TABLETS)
+	DigitInk.recognizer_override = FakeRecognizer.new()
+	for shape: Array in shapes:
+		_use(shape)
+		for slate: bool in [false, true]:
+			DigitInk.availability_override = slate
+			for recipe: Recipe in Rewards.recipes():
+				_open_every_recipe()
+				var bench: CraftingScreen = load(Shell.SCREEN_PATHS[&"crafting"]).instantiate()
+				bench.seed_value = 4242
+				add_child(bench)
+				await _settle()
+				await _settle() # the bench measures its list after the layout settles (STACKED)
+				var first: bool = not slate and recipe == Rewards.recipes()[0]
+				if first:
+					_check(bench, "crafting list", shape, issues)
+					bench.bolt_node.term_tapped.emit(&"recipe")
+					await _settle()
+					_check(bench.word_gem_card, "crafting word gem card", shape, issues)
+					bench.word_gem_card.close()
+				bench.craft_button(recipe.id).pressed.emit()
+				await _settle()
+				var card: ProblemCard = bench.card()
+				var kind: String = AnswerPanel.InputKind.keys()[card.answer_panel().input_kind]
+				kinds[kind] = true
+				var where: String = "crafting %s/%s" % [recipe.id, kind]
+				_check(bench, where, shape, issues)
+				for miss: int in 3:
+					card.answer_panel().answered.emit(PanelDriver.wrong_value(card.problem))
+				await _settle()
+				_check(bench, where + " with hints", shape, issues)
+				if first:
+					bench.celebration.celebrate([{"line_id": &"ws.craft.done", "gem": recipe.inputs[0]["gem"]}])
+					await _settle()
+					_check(bench.celebration, "crafting celebration", shape, issues)
+				bench.free()
+	assert_dict(kinds).contains_keys(["NUMBER_PAD", "SLATE"]) # both inputs were really checked
 	_report(issues)
 
 

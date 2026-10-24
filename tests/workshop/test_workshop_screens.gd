@@ -1,5 +1,6 @@
 # Mirrors scenes/workshop/crafting/ and scenes/workshop/builds/ (Sprint 16, P2-S16-02 to 05): crafting
-# works end to end and a wrong answer keeps the gems; a build resumes at its step after the app closes;
+# works end to end and a wrong answer keeps the gems; a recipe's problem takes the whole bench and the
+# recipes go under Bolt where they do not fit beside him; a build resumes at its step after the app closes;
 # the elevator opens Zone 4; the hub has the two new doors and runs finished machines.
 class_name WorkshopScreensTest
 extends GdUnitTestSuite
@@ -85,6 +86,45 @@ func test_a_recipe_needs_its_skill_and_its_gems() -> void:
 	var again: CraftingScreen = _crafting()
 	assert_bool(again.craft_button(&"tool.pickaxe.tier2").disabled).is_true()
 	assert_str(again.craft_button(&"tool.pickaxe.tier2").text).is_equal(Text.get_line(&"ws.recipe.need_gems"))
+
+
+func test_a_recipe_problem_takes_the_whole_bench_and_names_the_recipe() -> void:
+	_master(&"mult.equal_groups.total")
+	SaveSystem.data()["rewards"]["gems"]["garnet"] = 12
+	var bench: CraftingScreen = _crafting()
+	assert_that(bench.room()).is_equal(CraftingScreen.Room.LIST)
+	assert_bool(bench.card().visible).is_false()
+	bench.craft_button(&"tool.pickaxe.tier2").pressed.emit()
+	assert_that(bench.room()).is_equal(CraftingScreen.Room.FOCUS)
+	assert_bool(bench.craft_button(&"tool.pickaxe.tier2").is_visible_in_tree()).is_false() # the recipes stepped aside
+	assert_bool(bench.body.visible).is_false() # Bolt and the problem have the whole width
+	assert_bool(bench.card().visible).is_true()
+	assert_str(bench.title_label.text).is_equal(Text.get_line(&"ws.recipe.pickaxe_tier2.name"))
+	assert_bool(PanelDriver.give(bench.card().answer_panel(), bench.card().problem.answer)).is_true()
+	bench.celebration.close()
+	assert_that(bench.room()).is_equal(CraftingScreen.Room.LIST)
+	assert_bool(bench.body.visible).is_true()
+	assert_bool(bench.craft_button(&"tool.pickaxe.tier2").is_visible_in_tree()).is_true()
+	assert_bool(bench.card().visible).is_false() # the answered problem does not stay under Bolt
+	assert_str(bench.title_label.text).is_equal(Text.get_line(&"ws.bench.title"))
+
+
+func test_on_a_dense_tablet_the_recipes_go_under_bolt_and_come_back_beside_him() -> void:
+	_master(&"mult.equal_groups.total")
+	SaveSystem.data()["rewards"]["gems"]["garnet"] = 12
+	TestWindow.use_phone(get_window(), Vector2i(1920, 1200), 240) # a 10-inch tablet at 240 dpi: 1280x800 dp
+	assert_bool(UI.is_compact()).is_false()
+	var bench: CraftingScreen = _crafting()
+	for frame: int in 4:
+		await get_tree().process_frame
+	assert_that(bench.room()).is_equal(CraftingScreen.Room.STACKED)
+	assert_bool(bench.side.is_ancestor_of(bench.craft_button(&"tool.pickaxe.tier2"))).is_true()
+	assert_bool(bench.body.visible).is_false()
+	TestWindow.use_tablet(get_window()) # the design canvas: the recipes fit beside Bolt again
+	for frame: int in 4:
+		await get_tree().process_frame
+	assert_that(bench.room()).is_equal(CraftingScreen.Room.LIST)
+	assert_bool(bench.body.is_ancestor_of(bench.craft_button(&"tool.pickaxe.tier2"))).is_true()
 
 
 func _build(build_id: StringName) -> BuildScreen:

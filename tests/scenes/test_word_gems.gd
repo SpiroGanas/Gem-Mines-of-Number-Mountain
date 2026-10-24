@@ -67,6 +67,20 @@ func test_a_chip_appears_for_each_term_and_tapping_it_reports_the_term() -> void
 	assert_array(_bolt.term_chips()).is_empty()
 
 
+func test_on_a_tablet_the_chips_go_beside_the_line_only_where_the_host_allows_it() -> void:
+	_bolt.say(&"z1.dig.prompt_build_number", {"n": 34})
+	_bolt.set_terms([&"tens", &"ones"])
+	_bolt.set_chips_beside(true) # the mine asks on every screen; on a tablet the chips stay under the line
+	assert_object(_bolt.term_chips()[0].get_parent()).is_instanceof(HFlowContainer)
+	_bolt.allow_chips_beside() # a host whose bubble spans the screen (the crafting bench's problem)
+	_bolt.set_chips_beside(true)
+	assert_int(_bolt.term_chips().size()).is_equal(2)
+	assert_object(_bolt.term_chips()[0].get_parent()).is_not_instanceof(HFlowContainer)
+	assert_float(_bolt.get_combined_minimum_size().x).is_greater_equal(UI.target_size(Bolt.BUBBLE_WIDTH_MULTIPLE, 1.0).x) # the line keeps its width
+	_bolt.set_chips_beside(false)
+	assert_object(_bolt.term_chips()[0].get_parent()).is_instanceof(HFlowContainer)
+
+
 func test_a_term_word_in_bolts_line_becomes_a_tappable_link() -> void:
 	_bolt.set_terms([&"tens", &"ones"])
 	_bolt.say(&"z1.pv.prompt_read_words", {"tens": 6, "ones": 8}) # "{tens} tens and {ones} ones. What number is that?"
