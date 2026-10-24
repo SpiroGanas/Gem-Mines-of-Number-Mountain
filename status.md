@@ -62,6 +62,7 @@ Owned by Spiro, the devices or a reviewer. Details in the 2026-10-19 and 2026-10
 
 ## 7. Health check (last known)
 
+- 2026-10-24, headless Linux (Godot 4.7.2), after the crafting bench fix: the full `res://tests` 1586 cases in 160 suites, 0 failures, 0 orphans; `pytest tools` (without `GODOT`) 1198 passed, 32 skipped; `lint_content.py` 0/0, `curriculum_check.py` 0, `perf_check.py` 0 (4.9 MB exported). No generator changed, so no cross-check run. Screenshots checked under xvfb at 16:9, 4:3, a 10-inch tablet at 240 dpi and both phones.
 - 2026-10-21, headless Linux (Godot 4.7.2), after peer review 05, every check run as one pass: the full `res://tests` 1582 cases in 160 suites, 0 failures, 0 orphans; `pytest tools` (with `GODOT` set) 1246 passed, 3 skipped; cross-check of all 176 skills at 10,000 problems each all passed, and 2,000 each at difficulty -1 all passed and -2 all passed; `lint_content.py` 0/0, `curriculum_check.py` 0, `perf_check.py` 0 (5.0 MB exported), `check_sdk_audit.py` clean; the main scene ran 3 frames headless cleanly. The baseline before the review was green too (1572 GdUnit4 cases, 1241 pytest, 176/176 at all three difficulties). Web export: a headless `--export-release "Web"` succeeded on 2026-10-20 (about 43 MB); not re-run here.
 - Parallel Godot test runs on one machine share `user://`; set `XDG_DATA_HOME` per run to keep them apart.
 - Not verified in a cloud session: anything needing a device, a renderer, the Android SDK or the keystore.
