@@ -101,26 +101,16 @@ func _ready() -> void:
 	if UI.is_compact():
 		# On a phone the chips can sit in one row beside the line instead of under it (set_chips_beside):
 		# the bubble is then about one target tall, which leaves the answer input room below it.
-		_chip_row = HBoxContainer.new()
-		_chip_row.add_theme_constant_override(&"separation", 12)
-		_chip_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		_chip_row.visible = false
-		var row: HBoxContainer = HBoxContainer.new()
-		row.add_theme_constant_override(&"separation", 12)
-		column.remove_child(_label)
-		row.add_child(_label)
-		_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_add_chip_row()
 		# The underlined words are text-sized anyway; the chips are the line's touch targets here.
 		_label.remove_from_group(UI.TARGET_GROUP)
 		_label.custom_minimum_size = Vector2(UI.target_size(BUBBLE_WIDTH_MULTIPLE, 1.0).x * 0.5, 0.0)
-		row.add_child(_chip_row)
-		column.add_child(row)
-		column.move_child(row, 0)
 		set_chips_beside(true)
 
 
-## Phones only (the mine): true puts the Word Gem chips in one row beside the line (a wide, short
-## bubble), false back under it (a narrow bubble beside a tall answer input). No effect on a tablet.
+## Phones (the mine), and a tablet once a host called allow_chips_beside(): true puts the Word Gem
+## chips in one row beside the line (a wide, short bubble), false back under it (a narrow bubble beside
+## a tall answer input). No effect on a tablet otherwise.
 func set_chips_beside(beside: bool) -> void:
 	var target: Container = _chip_row if beside and _chip_row != null else _chip_flow
 	if target == _chips:
@@ -131,6 +121,45 @@ func set_chips_beside(beside: bool) -> void:
 	_chips.visible = false
 	_chips = target
 	_chips.visible = _chips.get_child_count() > 0
+
+
+## Lets set_chips_beside() work on a tablet too, for a host whose bubble can span the screen (the
+## crafting bench's problem). The line keeps its full touch-target width there.
+func allow_chips_beside() -> void:
+	if _chip_row == null:
+		_add_chip_row()
+
+
+## A phone's narrow line on a tablet too, for a host that puts Bolt in a narrow column beside a tall
+## answer input (the crafting bench on a dense tablet): the line may wrap at half the bubble's design
+## width, and the chips under it are its touch targets, as on a phone. False gives the width back. No
+## effect on a phone, whose line is always narrow.
+func set_narrow_line(narrow: bool) -> void:
+	if UI.is_compact():
+		return
+	if narrow:
+		_label.remove_from_group(UI.TARGET_GROUP)
+		# Text is sized in canvas pixels, not in targets, so the narrow width is the design canvas's.
+		_label.custom_minimum_size = Vector2(BUBBLE_WIDTH_MULTIPLE * UI.DESIGN_TARGET_PX * 0.5, 0.0)
+	elif not _label.is_in_group(UI.TARGET_GROUP):
+		UI.make_touch_target(_label, BUBBLE_WIDTH_MULTIPLE, 1.0)
+
+
+## Puts the line in a row with an empty chip row beside it (the chips move there in set_chips_beside).
+func _add_chip_row() -> void:
+	var column: Node = _label.get_parent()
+	_chip_row = HBoxContainer.new()
+	_chip_row.add_theme_constant_override(&"separation", 12)
+	_chip_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_chip_row.visible = false
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override(&"separation", 12)
+	column.remove_child(_label)
+	row.add_child(_label)
+	_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(_chip_row)
+	column.add_child(row)
+	column.move_child(row, 0)
 
 
 ## Bolt takes a pose (POSES). Every pose but think eases back to idle on its own.
